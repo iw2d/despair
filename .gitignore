@@ -23,3 +23,4 @@ resourcesSkill.txt
 *.iml
 Exclude/
 hibernate.cfg.xml
+autogen.*.py

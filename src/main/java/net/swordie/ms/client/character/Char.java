@@ -2894,10 +2894,21 @@ public class Char {
 				TemporaryStatManager tsm = getTemporaryStatManager();
 				ItemBuffs.giveItemBuffsFromItemID(this, tsm, itemID);
 			}
-			if (!ItemConstants.isEquip(itemID)) {
-				ItemInfo ii = ItemData.getItemInfoByID(itemID);
-				isConsume = ii.getSpecStats().getOrDefault(SpecStat.consumeOnPickup, 0) != 0;
-				isRunOnPickUp = ii.getSpecStats().getOrDefault(SpecStat.runOnPickup, 0) != 0;
+			ItemInfo ii = ItemData.getItemInfoByID(itemID);
+			if (ii != null) {
+				if (ii.isQuest() && !ii.getQuestIDs().isEmpty()) {
+					List<Quest> quests = ii.getQuestIDs().stream()
+							.map(questID -> getQuestManager().getQuestById(questID))
+							.toList();
+					if (quests.size() > 0 && quests.stream().allMatch(quest -> quest == null || quest.getStatus() != QuestStatus.Started || quest.itemSatisfied(this, itemID))) {
+						write(WvsContext.dropPickupMessage(0, (byte) -1, (short) 0, (short) 0, (short) 0));
+						return false;
+					}
+				}
+				if (!ItemConstants.isEquip(itemID)) {
+					isConsume = ii.getSpecStats().getOrDefault(SpecStat.consumeOnPickup, 0) != 0;
+					isRunOnPickUp = ii.getSpecStats().getOrDefault(SpecStat.runOnPickup, 0) != 0;
+				}
 			}
 			if (isConsume) {
 				consumeItemOnPickup(item);
@@ -2905,8 +2916,7 @@ public class Char {
 				return true;
 			} else if (isRunOnPickUp) {
 				String script = String.valueOf(itemID);
-				ItemInfo ii = ItemData.getItemInfoByID(itemID);
-				if (ii.getScript() != null && !"".equals(ii.getScript())) {
+				if (ii != null && ii.getScript() != null && !"".equals(ii.getScript())) {
 					script = ii.getScript();
 				}
 				getScriptManager().startScript(itemID, script, ScriptType.Item);

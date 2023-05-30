@@ -12,17 +12,20 @@ else:
     if choice == 0:
         sm.sendNext("You want to be a Warrior? I don't really understand why, but all right. I'll send you to #bDances with Balrog#k.")
         sm.createQuestWithQRValue(1406, "1")
+        sm.startQuest(1401)
         sm.warp(102000003)
     elif choice == 1:
         sm.sendNext("You want to be a Magician? I don't really understand why, but all right. I'll send you to #bGrendel the really Old#k.")
         sm.createQuestWithQRValue(1406, "2")
+        sm.startQuest(1402)
         sm.warp(101000003)
     elif choice == 2:
         sm.sendNext("You want to be a Bowman? I don't really understand why, but all right. I'll send you to #bAthena Pierce#k.")
         sm.createQuestWithQRValue(1406, "3")
+        sm.startQuest(1403)
         sm.warp(100000201)
     elif choice == 3:
         sm.sendNext("You want to be a Thief? I don't really understand why, but all right. I'll send you to #bthe Dark Lord#k.")
         sm.createQuestWithQRValue(1406, "4")
+        sm.startQuest(1404)
         sm.warp(103000003)
-    sm.chatScript("Please CC.")

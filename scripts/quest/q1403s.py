@@ -9,17 +9,20 @@ else:
     if choice == 0:
         sm.sendNext("You seek the powerful strength of a Warrior, do you? Then I'll send you to #bDances with Balrog#k.")
         sm.createQuestWithQRValue(1406, "1")
+        sm.startQuest(1401)
         sm.warp(102000003)
     elif choice == 1:
         sm.sendNext("You seek the powerful strength of a Magician, do you? Then I'll send you to #bGrendel the really Old#k.")
         sm.createQuestWithQRValue(1406, "2")
+        sm.startQuest(1402)
         sm.warp(101000003)
     elif choice == 2:
         sm.sendNext("You seek the powerful strength of a Thief, do you? Then I'll send you to #bthe Dark Lord#k.")
         sm.createQuestWithQRValue(1406, "4")
+        sm.startQuest(1404)
         sm.warp(103000003)
     elif choice == 3:
         sm.sendNext("You seek the powerful strength of a Pirate, do you? Then I'll send you to #bKyrin#k.")
         sm.createQuestWithQRValue(1406, "5")
+        sm.startQuest(1405)
         sm.warp(120000101)
-    sm.chatScript("Please CC.")

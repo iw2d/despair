@@ -24,8 +24,8 @@ elif selection == 3:
 elif selection == 4:
     sm.sendNext("Oh, t-totally! #h #, you'll make a great Pirate!")
 
-sm.warp(104000000, 0)
 sm.sendNext("The ship is ready to set sail!")
+sm.warp(104000000, 0)
 sm.startQuest(parentID)
 sm.completeQuest(parentID)
 sm.createQuestWithQRValue(1406, str(selection+1))

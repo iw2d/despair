@@ -289,7 +289,7 @@ public class MigrationHandler {
         c.write(CCashShop.specialSaleInfo(cs));
         c.write(CCashShop.topSellerInfo(cs));
         c.write(CCashShop.categoryInfo(cs));
-        c.write(CCashShop.bannerMsg(cs, new ArrayList<>(Arrays.asList("Welcome to SwordieMS!", "Enjoy your time here."))));
+        c.write(CCashShop.bannerMsg(cs, new ArrayList<>()));
         c.write(CCashShop.oneTen(cs));
     }
 

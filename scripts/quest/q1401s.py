@@ -9,17 +9,20 @@ else:
     if choice == 0:
         sm.sendNext("Do you want to go the way of the Magician? I'll admit I'm disappointed, but I'll respect your decision and send you to #bGrendel the Really Old#k.")
         sm.createQuestWithQRValue(1406, "2")
+        sm.startQuest(1402)
         sm.warp(101000003)
     elif choice == 1:
         sm.sendNext("Do you want to go the way of the Bowman? I'll admit I'm disappointed, but I'll respect your decision and send you to #b#k.Then I'll send you to #bAthena Pierce#k.")
         sm.createQuestWithQRValue(1406, "3")
+        sm.startQuest(1403)
         sm.warp(100000201)
     elif choice == 2:
         sm.sendNext("Do you want to go the way of the Thief? I'll admit I'm disappointed, but I'll respect your decision and send you to #b#k.Then I'll send you to #bthe Dark Lord#k.")
         sm.createQuestWithQRValue(1406, "4")
+        sm.startQuest(1404)
         sm.warp(103000003)
     elif choice == 3:
         sm.sendNext("Do you want to go the way of the Pirate? I'll admit I'm disappointed, but I'll respect your decision and send you to #b#k.Then I'll send you to #bKyrin#k.")
         sm.createQuestWithQRValue(1406, "5")
+        sm.startQuest(1405)
         sm.warp(120000101)
-    sm.chatScript("Please CC.")

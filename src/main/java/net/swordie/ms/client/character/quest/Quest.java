@@ -123,6 +123,15 @@ public class Quest {
         return getProgressRequirements().stream().allMatch(pr -> pr.isComplete(chr));
     }
 
+    public boolean itemSatisfied(Char chr, int itemID) {
+        for (QuestProgressItemRequirement qpr : getItemReqs()) {
+            if (qpr.getItemID() == itemID && !qpr.isComplete(chr)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void handleMobKill(int mobID) {
         QuestProgressMobRequirement qpmr = (QuestProgressMobRequirement) getProgressRequirements()
                 .stream()

@@ -243,7 +243,7 @@ public class ScriptManagerImpl implements ScriptManager {
 
 			if (ServerConfig.AUTO_CREATE_UNCODED_SCRIPTS) {
 				dir = String.format("%s/%s/%s%s", ServerConstants.SCRIPT_DIR, // dev will remove script prefix when script has been coded
-						scriptType.getDir().toLowerCase(), "autogen_" + name, SCRIPT_ENGINE_EXTENSION);
+						scriptType.getDir().toLowerCase(), "autogen." + name, SCRIPT_ENGINE_EXTENSION);
 				try {
 					ScriptInfo info = getScriptInfoByType(scriptType);
 					List<String> content = new ArrayList<>(Util.makeSet(

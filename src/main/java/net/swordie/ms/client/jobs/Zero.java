@@ -630,8 +630,8 @@ public class Zero extends Job {
         AvatarLook mainLook = chr.getAvatarData().getAvatarLook();
         chr.getAvatarData().setZeroAvatarLook(mainLook.deepCopy());
         AvatarLook zeroLook = chr.getAvatarData().getZeroAvatarLook();
-        mainLook.getHairEquips().remove(new Integer(1562000));
-        zeroLook.getHairEquips().remove(new Integer(1572000));
+        mainLook.getHairEquips().remove(Integer.valueOf(1562000));
+        zeroLook.getHairEquips().remove(Integer.valueOf(1572000));
         zeroLook.setWeaponId(1562000);
         zeroLook.setGender(1);
         zeroLook.setSkin(chr.getAvatarData().getAvatarLook().getSkin());

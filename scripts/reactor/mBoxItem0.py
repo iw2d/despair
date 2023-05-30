@@ -2,6 +2,7 @@
 
 # Reactor Tutorial Maple Island Explorer
 DANGEROUS_FOREST = 4000014
+JUMP_JUMP_JUMP = 32208
 FIRST_EXPLORER_GIFT_BOX = 4033915
 
 # Maple Island Explorer Storyline
@@ -20,7 +21,8 @@ if reactor.getHitCount() < 4:
 x, y = sm.getPosition(objectID).getX(), sm.getPosition(objectID).getY()
 
 if sm.getFieldID() == DANGEROUS_FOREST:
-    sm.dropItem(FIRST_EXPLORER_GIFT_BOX, x, y)
+    if sm.hasQuest(JUMP_JUMP_JUMP):
+        sm.dropItem(FIRST_EXPLORER_GIFT_BOX, x, y)
 elif sm.getFieldID() == SOUTH_PERRY:
     if sm.hasQuest(FLUSTERED_EXPLORER):
         if not sm.hasItem(BOAT_BOARDING_TICKET):
