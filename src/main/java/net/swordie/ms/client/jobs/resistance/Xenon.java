@@ -486,7 +486,6 @@ public class Xenon extends Job {
         if (skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        chr.chatMessage(ChatType.Mob, "SkillID: " + skillID);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         applySupplyCost(skillID, slv, si);
         if (isBuff(skillID)) {

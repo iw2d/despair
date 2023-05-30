@@ -1108,7 +1108,6 @@ public class Pirate extends Beginner {
         if(skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        chr.chatMessage(ChatType.Mob, "SkillID: " + skillID);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (isBuff(skillID)) {
             handleBuff(c, inPacket, skillID, slv);

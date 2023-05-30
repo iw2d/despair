@@ -1400,7 +1400,7 @@ public class ItemData {
                                 }
                                 value = value.replace("\n", "").replace("\r", "")
                                     .replace("\\n", "").replace("\\r", "") // unluko
-                                    .replace("[R8]", "");
+                                    .replace("[R8]", "").replace(" ", "");
                                 switch (name) {
                                     case "count":
                                         iri.setCount(Integer.parseInt(value));

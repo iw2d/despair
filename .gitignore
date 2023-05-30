@@ -22,3 +22,4 @@ resourcesNpc
 resourcesSkill.txt
 *.iml
 Exclude/
+hibernate.cfg.xml

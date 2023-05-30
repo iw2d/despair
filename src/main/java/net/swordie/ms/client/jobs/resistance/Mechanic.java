@@ -516,7 +516,6 @@ public class Mechanic extends Citizen {
         if (skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        chr.chatMessage(ChatType.Mob, "SkillID: " + skillID);
         if (isBuff(skillID)) {
             handleBuff(c, inPacket, skillID, slv);
         } else {
