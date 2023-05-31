@@ -46,6 +46,8 @@ public class Evan extends Job {
 
     public static final int INHERITED_WILL = 20010194;
     public static final int BACK_TO_NATURE = 20011293;
+    public static final int RECOVERY = 20011001; // Buff
+    public static final int NIMBLE_FEET = 20011002; // Buff
 
     public static final int MAGIC_GUARD = 22001012; // Buff
 
@@ -99,6 +101,8 @@ public class Evan extends Job {
     };
 
     private final int[] buffs = new int[]{
+            NIMBLE_FEET,
+            RECOVERY,
             MAGIC_GUARD,
             MAGIC_BOOSTER,
             ELEMENTAL_DECREASE,
@@ -229,8 +233,6 @@ public class Evan extends Job {
                 summon.setMoveAbility(MoveAbility.Stop);
                 field.spawnSummon(summon);
                 break;
-
-
             case DRAGON_MASTER:
                 tsb.setNOption(1939007);
                 tsb.setROption(skillID);
@@ -524,14 +526,6 @@ public class Evan extends Job {
     @Override
     public void handleLevelUp() {
         super.handleLevelUp();
-        if (chr.getLevel() == 10) {
-            chr.setJob(JobConstants.JobEnum.EVAN1.getJobId());
-            chr.setSpToCurrentJob(3);
-            Map<Stat, Object> stats = new HashMap<>();
-            stats.put(Stat.subJob, JobConstants.JobEnum.EVAN1.getJobId());
-            stats.put(Stat.sp, chr.getAvatarData().getCharacterStat().getExtendSP());
-            chr.getClient().write(WvsContext.statChanged(stats));
-        }
         if (chr.getLevel() == 30) {
             chr.setJob(JobConstants.JobEnum.EVAN2.getJobId());
             chr.setSpToCurrentJob(3);

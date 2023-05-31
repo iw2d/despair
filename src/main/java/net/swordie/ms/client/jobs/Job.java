@@ -15,11 +15,13 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.client.jobs.adventurer.Beginner;
 import net.swordie.ms.client.jobs.adventurer.BeastTamer;
 import net.swordie.ms.client.jobs.adventurer.Magician;
 import net.swordie.ms.client.jobs.adventurer.Warrior;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.NightWalker;
+import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.legend.Phantom;
 import net.swordie.ms.client.jobs.legend.Shade;
 import net.swordie.ms.client.party.Party;
@@ -48,8 +50,6 @@ import java.util.concurrent.TimeUnit;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
-import static net.swordie.ms.client.jobs.adventurer.Beginner.NIMBLE_FEET;
-import static net.swordie.ms.client.jobs.adventurer.Beginner.RECOVERY;
 import static net.swordie.ms.client.jobs.adventurer.Warrior.PARASHOCK_GUARD;
 import static net.swordie.ms.client.jobs.cygnus.Mihile.*;
 
@@ -119,13 +119,18 @@ public abstract class Job {
 			MAPLERUNNER_DASH
 	};
 
+	public static final int[] RECOVERY_SKILL = new int[] {
+			Beginner.RECOVERY,
+			Evan.RECOVERY
+	};
+
 	private int[] buffs = new int[] {
 			BOSS_SLAYERS,
 			UNDETERRED,
 			FOR_THE_GUILD,
 			MAPLERUNNER_DASH,
-			NIMBLE_FEET,
-			RECOVERY
+			Beginner.NIMBLE_FEET,
+			Beginner.RECOVERY
 	};
 
 	public Job(Char chr) {
@@ -383,14 +388,16 @@ public abstract class Job {
 				o2.nValue = si.getValue(indieForceSpeed, slv);
 				tsm.putCharacterStatValue(IndieForceSpeed, o2);
 				break;
-			case NIMBLE_FEET:
+			case Beginner.NIMBLE_FEET:
+			case Evan.NIMBLE_FEET:
 				o1.nOption = 5 + 5 * slv;
 				o1.rOption = skillID;
 				o1.tOption = 4 * slv;
 				tsm.putCharacterStatValue(Speed, o1);
 				chr.addSkillCooldown(skillID, 60000);
 				break;
-			case RECOVERY:
+			case Beginner.RECOVERY:
+			case Evan.RECOVERY:
 				o1.rOption = skillID;
 				o1.tOption = 30;
 				tsm.putCharacterStatValue(Restoration, o1);
@@ -405,13 +412,15 @@ public abstract class Job {
 		}
 	}
 	public void recoveryInterval() {
-		if (chr.hasSkill(RECOVERY)) {
-			Skill skill = chr.getSkill(RECOVERY);
-			TemporaryStatManager tsm = chr.getTemporaryStatManager();
-			byte slv = (byte) skill.getCurrentLevel();
-			if (tsm.hasStat(Restoration)) {
-				chr.heal(24 * slv / 3);
-				EventManager.addEvent(this::recoveryInterval, 10, TimeUnit.SECONDS);
+		for (int recoverySkill : RECOVERY_SKILL) {
+			if (chr.hasSkill(recoverySkill)) {
+				Skill skill = chr.getSkill(recoverySkill);
+				TemporaryStatManager tsm = chr.getTemporaryStatManager();
+				byte slv = (byte) skill.getCurrentLevel();
+				if (tsm.hasStat(Restoration)) {
+					chr.heal(24 * slv / 3);
+					EventManager.addEvent(this::recoveryInterval, 10, TimeUnit.SECONDS);
+				}
 			}
 		}
 	}
