@@ -97,13 +97,14 @@ public class DropInfo {
     /**
      * Does an RNG roll to check if this should be dropped.
      *
-     * @param dropRate the drop rate of the Char
+     * @param dropRate  The drop rate of the Char
+     * @param mult      Mutlipler to apply to the drop chance
      * @return Whether or not the drop is successful.
      */
-    public boolean willDrop(int dropRate) {
-        // Added 50x multiplier for the dropping chance if the item is a Quest item.
+    public boolean willDrop(int dropRate, int mult) {
         int chance = getChance();
         chance *= (100 + dropRate) / 100D;
+        chance *= mult;
         return Util.succeedProp(chance, GameConstants.MAX_DROP_CHANCE);
     }
 

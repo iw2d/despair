@@ -1111,7 +1111,16 @@ public class Field {
         int maxX = fh == null ? position.getX() : fh.getX2();
         int diff = 0;
         for (DropInfo dropInfo : dropInfos) {
-            if (dropInfo.willDrop(dropRate)) {
+            // Added 50x multiplier for the dropping chance if the item is a Quest item.
+            int questMult = 1;
+            int itemID = dropInfo.getItemID();
+            if (itemID != 0) {
+                ItemInfo ii = ItemData.getItemInfoByID(itemID);
+                if (ii != null && !ii.getQuestIDs().isEmpty() && getCharByID(ownerID).hasAnyQuestsInProgress(ii.getQuestIDs())) {
+                    questMult = 50;
+                }
+            }
+            if (dropInfo.willDrop(dropRate, questMult)) {
                 x = (x + diff) > maxX ? maxX - 10 : (x + diff) < minX ? minX + 10 : x + diff;
                 Position posTo;
                 if (fh == null) {

@@ -3,30 +3,38 @@ package net.swordie.ms.client.jobs.resistance;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
+import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
+import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.connection.InPacket;
-import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.JobConstants;
-import net.swordie.ms.enums.Stat;
 import net.swordie.ms.loaders.SkillData;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+
+import static net.swordie.ms.client.character.skills.SkillStat.*;
+import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
+import static net.swordie.ms.client.jobs.adventurer.Thief.DARK_SIGHT;
 
 /**
  * Created on 12/14/2017.
  */
 public class Citizen extends Job {
     public static final int CRYSTAL_THROW = 30001000;
-    public static final int INFLITRATE = 30001001;
+    public static final int INFILTRATE = 30001001;
     public static final int POTION_MASTERY = 30000002;
 
     private int[] addedSkills = new int[] {
             CRYSTAL_THROW,
-            INFLITRATE,
+            INFILTRATE,
             POTION_MASTERY
+    };
+
+    private final int[] buffs = new int[]{
+            INFILTRATE
     };
 
     public Citizen(Char chr) {
@@ -45,16 +53,45 @@ public class Citizen extends Job {
         }
     }
 
+    public void handleBuff(Client c, InPacket inPacket, int skillID, byte slv) {
+        Char chr = c.getChr();
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+        TemporaryStatManager tsm = c.getChr().getTemporaryStatManager();
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        boolean sendStat = true;
+        switch (skillID) {
+            case INFILTRATE:
+                o1.nOption = si.getValue(speed, slv);
+                o1.rOption = DARK_SIGHT;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Speed, o1);
+                o2.nOption = si.getValue(x, slv);
+                o2.rOption = DARK_SIGHT;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DarkSight, o2);
+                chr.addSkillCooldown(skillID, 60000);
+                break;
+            default:
+                sendStat = false;
+        }
+        if (sendStat) {
+            tsm.sendSetStatPacket();
+        }
+    }
+
     @Override
     public void handleAttack(Client c, AttackInfo attackInfo) {
-
         super.handleAttack(c, attackInfo);
     }
 
     @Override
     public void handleSkill(Client c, int skillID, byte slv, InPacket inPacket) {
         super.handleSkill(c, skillID, slv, inPacket);
-
+        if (isBuff(skillID)) {
+            handleBuff(c, inPacket, skillID, slv);
+        }
     }
 
     @Override
@@ -80,6 +117,6 @@ public class Citizen extends Job {
 
     @Override
     public boolean isBuff(int skillID) {
-        return super.isBuff(skillID);
+        return Arrays.stream(buffs).anyMatch(b -> b == skillID);
     }
 }

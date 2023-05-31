@@ -152,7 +152,6 @@ public class Reactor extends Life {
             }
         }
         Set<DropInfo> dropInfoSet = ReactorData.getReactorInfoByID(getTemplateId()).getDrops();
-        getField().drop(dropInfoSet, getField().getFootholdById(fhID), getPosition(), ownerID, 100,
-                100);
+        getField().drop(dropInfoSet, getField().getFootholdById(fhID), getPosition(), ownerID, 0, 0);
     }
 }

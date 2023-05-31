@@ -1,12 +1,14 @@
 # Vita | Dangerous Hide-and-Seek : Suspicious Laboratory
+VITA = 2159006
 if "vel00=1" not in sm.getQRValue(23007):
+    sm.setSpeakerID(VITA)
     sm.sendNext("Stay back!")
     sm.sendSay("How did you get here? This place is prohibited!")
 
     sm.setPlayerAsSpeaker()
     sm.sendSay("Who's talking? Where are you?!")
 
-    sm.resetParam()
+    sm.setSpeakerID(VITA)
     sm.sendSay("Look up.")
     sm.addQRValue(23007, "vel00=1")
     sm.reservedEffect("Effect/Direction4.img/Resistance/ClickVel")

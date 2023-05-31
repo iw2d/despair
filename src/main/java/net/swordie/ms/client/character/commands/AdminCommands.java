@@ -759,7 +759,7 @@ public class AdminCommands {
         }
     }
 
-    @Command(names = {"getitem"}, requiredType = GameMaster)
+    @Command(names = {"getitem", "giveitem", "item"}, requiredType = GameMaster)
     public static class GetItem extends AdminCommand {
         public static void execute(Char chr, String[] args) {
             if (Util.isNumber(args[1])) {
