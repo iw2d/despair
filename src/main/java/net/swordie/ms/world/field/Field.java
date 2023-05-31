@@ -528,8 +528,10 @@ public class Field {
             if (life instanceof Mob) {
                 Mob mob = ((Mob)life);
 
-                if (mob.getRemoveAfter() > 0) // removeafter == 1 means its supposed to die immediately
-                    mob.die(false);
+                if (mob.getRemoveAfter() > 0) {
+                    ScheduledFuture sf = EventManager.addEvent(() -> mob.die(false), mob.getRemoveAfter() * 1000);
+                    addLifeSchedule(mob, sf);
+                }
             }
         }
     }
