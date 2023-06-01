@@ -527,6 +527,30 @@ public class WvsContext {
         return outPacket;
     }
 
+    public static OutPacket expConsumeItemResult(int mode, int characterID, int itemID, boolean firstTime, int level, int dstLevel, long curExp) {
+        OutPacket outPacket = new OutPacket(OutHeader.EXP_CONSUME_ITEM_RESULT);
+
+        outPacket.encodeByte(mode);
+        outPacket.encodeByte(1); // bool for get_update_time
+        outPacket.encodeInt(characterID);
+        if (characterID != 0) {
+            outPacket.encodeByte(1); // not even being read how rude of nexon
+            if (mode == 1) {
+                outPacket.encodeInt(0);
+            } else if (mode == 2) {
+                outPacket.encodeByte(firstTime ? 1 : 0);
+                outPacket.encodeInt(itemID);
+                if (itemID != 0) {
+                    outPacket.encodeInt(level); // level, confirmed
+                    outPacket.encodeInt(dstLevel); // max level with potion
+                    outPacket.encodeLong(curExp);
+                }
+            }
+        }
+
+        return outPacket;
+    }
+
     public static OutPacket gatherItemResult(byte type) {
         OutPacket outPacket = new OutPacket(OutHeader.GATHER_ITEM_RESULT);
 

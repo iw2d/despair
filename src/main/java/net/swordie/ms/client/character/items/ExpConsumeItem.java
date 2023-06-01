@@ -1,6 +1,7 @@
 package net.swordie.ms.client.character.items;
 
 import net.swordie.ms.connection.OutPacket;
+import net.swordie.ms.constants.GameConstants;
 
 /**
  * Created on 12/14/2017.
@@ -48,6 +49,14 @@ public class ExpConsumeItem {
 
     public void setRemainingExp(long remainingExp) {
         this.remainingExp = remainingExp;
+    }
+
+    public long getTotalExp() {
+        long totalExp = 0;
+        for (int x = minLev; x < maxLev; x++) {
+            totalExp += GameConstants.charExp[x];
+        }
+        return totalExp;
     }
 
     public void encode(OutPacket outPacket) {

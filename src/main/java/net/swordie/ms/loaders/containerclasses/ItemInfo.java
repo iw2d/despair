@@ -47,6 +47,7 @@ public class ItemInfo {
     private int skillId;
     private int grade;
     private int android;
+    private int expMinLev, expMaxLev;
     private Set<Integer> reqItemIds = new HashSet<>();
 
     public Set<Integer> getReqItemIds() { return reqItemIds; }
@@ -355,5 +356,21 @@ public class ItemInfo {
 
     public int getAndroid() {
         return android;
+    }
+
+    public void setExpMinLev(int minLev) {
+        this.expMinLev = minLev;
+    }
+
+    public int getExpMinLev() {
+        return expMinLev;
+    }
+
+    public void setExpMaxLev(int maxLev) {
+        this.expMaxLev = maxLev;
+    }
+
+    public int getExpMaxLev() {
+        return expMaxLev;
     }
 }

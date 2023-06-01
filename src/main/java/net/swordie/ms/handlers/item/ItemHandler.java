@@ -4,6 +4,7 @@ import net.swordie.ms.Server;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.items.*;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
@@ -162,6 +163,56 @@ public class ItemHandler {
         c.write(FieldPacket.showItemReleaseEffect(chr.getId(), ePos, bonus));
         equip.updateToChar(chr);
         chr.consumeItem(item);
+    }
+
+    @Handler(op = InHeader.USER_EXP_CONSUME_ITEM_USE_REQUEST)
+    public static void handleUserExpConsumeItemUseRequest(Client c, InPacket inPacket) {
+        Char chr = c.getChr();
+        Inventory useInv = chr.getInventoryByType(CONSUME);
+        inPacket.decodeInt(); // tick
+        short pos = inPacket.decodeShort(); // pos
+        int itemID = inPacket.decodeInt();
+
+        Item item = useInv.getItemBySlot(pos);
+        ItemInfo ii = ItemData.getItemInfoByID(itemID);
+        if (ii == null) {
+            return;
+        }
+        int minLev = ii.getExpMinLev();
+        int maxLev = ii.getExpMaxLev();
+        if (item.getItemId() != itemID || (minLev == 0 && maxLev == 0)) {
+            String msg = String.format("Character %d tried to use item on slot %d (id %d) as %d as an exp potion", chr.getId(), pos, item.getItemId(), itemID);
+            chr.getOffenseManager().addOffense(msg);
+            chr.dispose();
+            return;
+        }
+
+        boolean firstTime = false;
+        List<ExpConsumeItem> expConsumeItems = new ArrayList<>(chr.getExpConsumeItems());
+        ExpConsumeItem eci = expConsumeItems.stream().filter(e -> e.getItemId() == itemID).findFirst().orElse(null);
+        if (eci == null) {
+            eci = new ExpConsumeItem(itemID, minLev, maxLev, 0);
+            firstTime = true;
+        } else {
+            expConsumeItems.remove(eci);
+        }
+        CharacterStat cs = chr.getAvatarData().getCharacterStat();
+        int curLevel = cs.getLevel();
+        long curExp = cs.getExp();
+        long expReq = GameConstants.charExp[curLevel] - curExp;
+        long expGain = eci.getTotalExp() + eci.getRemainingExp();
+        if (expReq < expGain) {
+            expGain = expReq;
+            eci.setRemainingExp(eci.getRemainingExp() - expGain);
+            expConsumeItems.add(eci);
+            // Can display wrong data when curExp != 0
+            c.write(WvsContext.expConsumeItemResult(2, chr.getId(), itemID, firstTime, curLevel+1, maxLev, curExp));
+        } else {
+            chr.consumeItem(item);
+        }
+        chr.addExp(expReq);
+        chr.chatMessage(GameDesc, "You have gained experience (+%d)".formatted(expGain));
+        chr.setExpConsumeItems(expConsumeItems);
     }
 
     @Handler(op = InHeader.USER_CONSUME_CASH_ITEM_USE_REQUEST)

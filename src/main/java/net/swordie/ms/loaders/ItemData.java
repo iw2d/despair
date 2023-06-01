@@ -12,6 +12,7 @@ import net.swordie.ms.loaders.containerclasses.PetInfo;
 import net.swordie.ms.util.*;
 import org.apache.log4j.LogManager;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import java.io.*;
@@ -521,6 +522,10 @@ public class ItemData {
 
             itemInfo.setMoveTo(dataInputStream.readInt());
             itemInfo.setSkillId(dataInputStream.readInt());
+
+            itemInfo.setExpMinLev(dataInputStream.readInt());
+            itemInfo.setExpMaxLev(dataInputStream.readInt());
+
             getItems().put(itemInfo.getItemId(), itemInfo);
 
         } catch (IOException e) {
@@ -594,6 +599,9 @@ public class ItemData {
 
                 dataOutputStream.writeInt(ii.getMoveTo());
                 dataOutputStream.writeInt(ii.getSkillId());
+
+                dataOutputStream.writeInt(ii.getExpMinLev());
+                dataOutputStream.writeInt(ii.getExpMaxLev());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -990,7 +998,6 @@ public class ItemData {
                                 case "maxDX":
                                 case "levelDX":
                                 case "maxLevel":
-                                case "exp":
                                 case "dropBlock":
                                 case "dropExpireTime":
                                 case "animation_create":
@@ -1152,6 +1159,18 @@ public class ItemData {
                                 case "craftEXP":
                                 case "willEXP":
                                     break;
+                                case "exp": {
+                                    for (Node levNode : XMLApi.getAllChildren(info)) {
+                                        String levType = ((Element) levNode).getAttribute("name");
+                                        String levValue = ((Element) levNode).getAttribute("value");
+                                        if (levType.equals("minLev")) {
+                                            item.setExpMinLev(Integer.parseInt(levValue));
+                                        } else if (levType.equals("maxLev")) {
+                                            item.setExpMaxLev(Integer.parseInt(levValue));
+                                        }
+                                    }
+                                    break;
+                                }
                                 case "tradeBlock":
                                     item.setTradeBlock(intValue != 0);
                                     break;
