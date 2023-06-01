@@ -53,6 +53,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static net.swordie.ms.client.jobs.legend.Phantom.GHOSTWALK;
+
 public class MobHandler {
 
     private static final Logger log = Logger.getLogger(MobHandler.class);
@@ -224,6 +226,12 @@ public class MobHandler {
         Char chr = c.getChr();
         if (mob.isBanMap()) {
             if (mob.getBanType() == 1) {
+                if (mob.getTemplateId() == 9300498 || mob.getTemplateId() == 9300507) {
+                    // Special handling for Phantom Tutorial Ghostwalk
+                    if (chr.getTemporaryStatManager().hasStatBySkillId(GHOSTWALK)) {
+                        return;
+                    }
+                }
                 if (mob.getBanMsgType() == 1) { // found 2 types (1(most of ban types), 2).
                     String banMsg = mob.getBanMsg();
                     if (banMsg != null && !banMsg.equals("")) {

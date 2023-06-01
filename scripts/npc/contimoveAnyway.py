@@ -7,7 +7,7 @@ MAPS = [
     ["Ludibrium Station", 220000100],
     ["Ariant Station", 260000100],
     ["Leafre Station", 240000100],
-    ["#rEdelstein#k", 310000010]
+    ["Edelstein", 310000010]
 ]
 
 text = "Welcome aboard. Please let me know where you would like to go. #b\r\n\r\n"

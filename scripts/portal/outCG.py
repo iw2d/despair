@@ -1,16 +1,20 @@
 # Lumiere (150000000) Exit
 
-map = sm.getReturnField()
-portal = 0
+MAPS = [
+    ["Victoria Island Station", 104020100],
+    ["Ereve Sky Ferry", 130000210],
+    ["Orbis Station", 200000100],
+    ["Ludibrium Station", 220000100],
+    ["Ariant Station", 260000100],
+    ["Leafre Station", 240000100],
+    ["Edelstein", 310000010]
+]
 
-if map in (0, 910000000):
-    sm.chat("(Portal) Cannot find your previous map ID, warping to Henesys.")
-    map = 100000000
-    portal = 0
+position = 0
 
-if "910001000" in sm.getQRValue(9999):
-    sm.setQRValue(9999, "")
-    map = 910001000
-    portal = 2
+for i in range(len(MAPS)):
+    if str(MAPS[i][1]) in sm.getQRValue(25010):
+        position = i
+        break
 
-sm.warpNoReturn(map, portal)
+sm.warpNoReturn(MAPS[i][1], 0)

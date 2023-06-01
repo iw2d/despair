@@ -1,3 +1,4 @@
+MAPLE_ADMINISTARTOR = 2007
 CYGNUS = 1402100
 NEINHEART = 1402101
 MIHILE = 1402102
@@ -16,6 +17,13 @@ sm.showFieldEffect("phantom/mapname3", 0)
 sm.lockInGameUI(True)
 sm.forcedInput(0)
 sm.sendDelay(2000)
+
+sm.setSpeakerID(MAPLE_ADMINISTARTOR)
+if sm.sendAskYesNo("Would you like to skip the tutorial cutscenes?"):
+    sm.startQuestNoCheck(25001)
+    sm.lockInGameUI(False)
+    sm.warpInstanceOut(150000000, 2)
+    sm.dispose()
 
 sm.removeEscapeButton()
 sm.flipDialoguePlayerAsSpeaker()

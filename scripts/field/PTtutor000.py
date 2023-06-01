@@ -1,6 +1,5 @@
 sm.lockInGameUI(True)
 
-sm.giveAndEquip(1352104)
 sm.giveSkill(20031211)
 sm.giveSkill(20031212)
 sm.playVideoByScript("phantom_memory.avi")
@@ -43,6 +42,8 @@ sm.sendNext("I believe it's time to make an appearance.")
 sm.sendSay("My heart is racing! It's been ages since I've felt so alive. Or anxious. I am terribly anxious.")
 sm.sendSay("If I stand here any longer, I'll lose the nerve. It's now or never!")
 
+if not sm.hasItem(1352104):
+    sm.giveAndEquip(1352104)
+
 sm.lockInGameUI(False)
-sm.warpInstanceIn(915000100, 1)
 sm.dispose()

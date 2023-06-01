@@ -82,6 +82,7 @@ public class Phantom extends Job {
     };
 
     private final int[] buffs = new int[]{
+            GHOSTWALK,
             IMPECCABLE_MEMORY_I,
             IMPECCABLE_MEMORY_II,
             CANE_BOOSTER,

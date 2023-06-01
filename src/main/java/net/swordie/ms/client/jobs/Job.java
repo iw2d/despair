@@ -662,9 +662,6 @@ public abstract class Job {
 		if (level > 10) {
 			chr.addStat(Stat.ap, 5);
 			stats.put(Stat.ap, (short) chr.getStat(Stat.ap));
-		}
-		if (level >= 50) {
-			chr.addHonorExp(700 + ((chr.getLevel() - 50) / 10) * 100);
 		} else {
 			if (level >= 6) {
 				chr.addStat(Stat.str, 4);
@@ -674,6 +671,9 @@ public abstract class Job {
 			}
 			stats.put(Stat.str, (short) chr.getStat(Stat.str));
 			stats.put(Stat.dex, (short) chr.getStat(Stat.dex));
+		}
+		if (level >= 50) {
+			chr.addHonorExp(700 + ((chr.getLevel() - 50) / 10) * 100);
 		}
 		int sp = SkillConstants.getBaseSpByLevel(level);
 		if ((level % 10) % 3 == 0 && level > 100) {
