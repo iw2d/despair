@@ -476,15 +476,16 @@ public class AdminCommands {
         public static void execute(Char chr, String[] args) {
             Rect rect = new Rect(
                     new Position(
-                            chr.getPosition().deepCopy().getX() - 30,
-                            chr.getPosition().deepCopy().getY() - 30),
+                            chr.getPosition().deepCopy().getX() - 50,
+                            chr.getPosition().deepCopy().getY() - 50),
                     new Position(
-                            chr.getPosition().deepCopy().getX() + 30,
-                            chr.getPosition().deepCopy().getY() + 30)
+                            chr.getPosition().deepCopy().getX() + 50,
+                            chr.getPosition().deepCopy().getY() + 50)
             );
             chr.chatMessage(Normal, "~~~~~~~~~~");
             chr.chatMessage(SpeakerChannel, "Current Map: " + NumberFormat.getNumberInstance(Locale.US).format(chr.getFieldID()));
             chr.chatMessage(SpeakerChannel, "Current ReturnMap: " + NumberFormat.getNumberInstance(Locale.US).format(chr.getField().getReturnMap()));
+            chr.chatMessage(SpeakerChannel, "Current Position: (%d, %d)".formatted(chr.getPosition().getX(), chr.getPosition().getY()));
             chr.chatMessage(SpeakerChannel, "");
             for (Portal portal : chr.getField().getClosestPortal(rect)) {
                 chr.chatMessage(SpeakerChannel, "Portal Name: " + portal.getName());
@@ -626,7 +627,7 @@ public class AdminCommands {
     }
 
 
-    @Command(names = {"map"}, requiredType = Player)
+    @Command(names = {"mapinfo"}, requiredType = Player)
     public static class MapInfo extends AdminCommand {
         public static void execute(Char chr, String[] args) {
 
@@ -1063,7 +1064,7 @@ public class AdminCommands {
         }
     }
 
-    @Command(names = {"setmap"}, requiredType = Tester)
+    @Command(names = {"map", "setmap"}, requiredType = Tester)
     public static class SetMap extends AdminCommand {
         public static void execute(Char chr, String[] args) {
             if (args.length > 1 && Util.isNumber(args[1])) {
@@ -1591,7 +1592,7 @@ public class AdminCommands {
             short endIndex = Short.parseShort(args[3]);
             for (int i = startIndex; i < endIndex; i++) {
                 Item removeItem = chr.getInventoryByType(invType).getItemBySlot((short) i);
-                chr.consumeItem(removeItem);
+                chr.getInventoryByType(invType).removeItem(removeItem);
             }
             chr.dispose();
         }
