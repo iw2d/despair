@@ -1,5 +1,4 @@
-# [Theme Dungeon] Ellinel Fairy Academy
-# This version appears for Wind Archer
+# [Theme Dungeon] Ellinel Fairy Academy (Wind Archer)
 
 IRENA = 1101005 # NPC ID
 THEME_DUNGEON_ELLINEL_FAIRY_ACADEMY = 32151 # QUEST ID
@@ -19,6 +18,5 @@ response = sm.sendAskYesNo("Fanzy will take you into the land of the fairies. I 
 
 if response:
     sm.startQuestNoCheck(THEME_DUNGEON_ELLINEL_FAIRY_ACADEMY)
-    sm.completeQuestNoRewards(parentID)
     sm.warp(NORTH_FOREST_GIANT_TREE)
 sm.dispose()

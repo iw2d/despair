@@ -1289,7 +1289,8 @@ public enum OutHeader {
             DROP_ENTER_FIELD,
             MOB_LEAVE_FIELD,
             ANDROID_MOVE,
-            MESSAGE
+            MESSAGE,
+            TEMPORARY_STAT_SET
     );
 
     private short value;

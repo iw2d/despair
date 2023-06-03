@@ -1121,7 +1121,7 @@ public class ScriptManagerImpl implements ScriptManager {
 				if (forcedReturnPortal >= 0) {
 					chr.warp(forcedReturn, forcedReturnPortal, false);
 				} else {
-					chr.warp(forcedReturn, 0, false);
+					chr.warp(forcedReturn, portalId, false);
 				}
 				// if eligible members' size is 0, clear the instance
 				if (instance.getChars().size() == 0) {

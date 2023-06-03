@@ -30,7 +30,7 @@ response = sm.sendAskYesNo(''.join(["You wanna go ahead and update your data? Sa
 if response:
     if sm.getEmptyInventorySlots(InvType.EQUIP) >= 2:
         sm.jobAdvance(14210)
-        sm.startQuest(parentID)
+        sm.startQuestNoCheck(parentID)
         sm.completeQuest(parentID)
         sm.giveItem(knightMedal)
         sm.giveItem(knightChess)

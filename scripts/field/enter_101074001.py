@@ -2,4 +2,8 @@
 
 NORTH_FOREST_GIANT_TREE = 101030000 # MAP ID
 
-sm.invokeAfterDelay(4000, "warp", NORTH_FOREST_GIANT_TREE, 5)
+sm.lockInGameUI(True)
+sm.sendDelay(3000)
+sm.lockInGameUI(False)
+
+sm.warp(NORTH_FOREST_GIANT_TREE, 5)

@@ -1,20 +1,15 @@
-# [Theme Dungeon] Ellinel Fairy Academy
+# [Theme Dungeon] Ellinel Fairy Academy (Resistance)
 
-response = sm.sendAskYesNo("#h #, could you spare me a moment? I received a request for help, and i can't think of anyone better than you.")
+CLAUDINE = 2151003
+GIANT_TREE = 101030000
 
-if response:
-    sm.sendNext("There has been an incident at the #b Ellinel Fairy Academy#k. A human magician has trespassed in the sacred halls of the fairy school.")
-else:
-    sm.dispose();
-
-sm.sendNext("I don't know all the details, but i know our relationship with the fairies is strained enough as it is. Will you go to the North Forest near Elinia and meet with #p1040002#.")
-
-response = sm.sendAskYesNo("Fanzy will take you into the land of the fairies. I can send you to him directly, if you'd like")
-
-if response:
-    sm.startQuestNoCheck(32151)
-    sm.warp(101030000)
-    sm.dispose()
-else:
-    sm.startQuestNoCheck(32151)
-    sm.dispose()
+sm.setSpeakerID(CLAUDINE)
+if sm.sendAskAccept("#h #, I know you're always working hard for the Resistance, but I've received a call for help. Do you think you could spare some time?"):
+    sm.sendNext("The truce between humans and fairies is in danger. Some fledging magician has trespassed on the #bEllinel Fairy Academy#k and not they've taken him hostage.")
+    sm.sendSay("The Resistance must lead by example in this case, and help those less fortunate than ourselves. I'd like to send you as our representative...")
+    sm.sendSay("Great. Then, please visit #bFanzy in Ellinia#k right away and get into the Fairy Forest.")
+    if sm.sendAskYesNo("I can send you right to Fanzy, if you'd like."):
+        sm.startQuest(parentID)
+        sm.warp(GIANT_TREE)
+    else:
+        sm.startQuest(parentID)

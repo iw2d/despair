@@ -21,10 +21,7 @@ import net.swordie.ms.client.jobs.resistance.BattleMage;
 import net.swordie.ms.client.jobs.resistance.WildHunter;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
-import net.swordie.ms.constants.GameConstants;
-import net.swordie.ms.constants.JobConstants;
-import net.swordie.ms.constants.MonsterCollectionGroup;
-import net.swordie.ms.constants.SkillConstants;
+import net.swordie.ms.constants.*;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
@@ -108,7 +105,7 @@ public class UserHandler {
                 chr.dispose();
                 return;
             }
-            chr.warp(toField);
+            QuestConstants.handleUserGrowthHelperRequest(chr, toField);
         }
         if (status == 2) {
             //TODO wtf happens here

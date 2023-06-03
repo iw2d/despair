@@ -32,5 +32,5 @@ response = sm.sendAskAccept("Most likely. I know I thought about using him as a 
 
 if response:
     sm.sendNext("Why don't you go for a swim! Show us how brave you are, meow...\r\n#b (Cross the lake to the right.)#k'")
-    sm.startQuestNoCheck(YOU_CAN_DO_IT)
+    sm.startQuest(YOU_CAN_DO_IT)
 sm.dispose()
