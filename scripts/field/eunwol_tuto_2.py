@@ -23,14 +23,17 @@ if chr.getJob() == 2005:
     sm.moveCamera(False, 200, 1100, 66)
 
     sm.spawnNpc(VOID_PRIEST, 770, 50)
+    sm.flipNpcByTemplateId(VOID_PRIEST, False)
     sm.showNpcSpecialActionByTemplateId(VOID_PRIEST, "summon")
     sm.sendDelay(100)
 
     sm.spawnNpc(VOID_PRIEST_2, 970, 50)
+    sm.flipNpcByTemplateId(VOID_PRIEST_2, False)
     sm.showNpcSpecialActionByTemplateId(VOID_PRIEST_2, "summon")
     sm.sendDelay(100)
 
     sm.spawnNpc(VOID_PRIEST_3, 1170, 50)
+    sm.flipNpcByTemplateId(VOID_PRIEST_3, False)
     sm.showNpcSpecialActionByTemplateId(VOID_PRIEST_3, "summon")
     sm.sendDelay(300)
 

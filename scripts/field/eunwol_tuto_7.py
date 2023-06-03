@@ -104,7 +104,7 @@ elif "1" in sm.getQRValue(38900):
     sm.flipDialoguePlayerAsSpeaker()
     sm.sendSay("(Not know the Temple of Time? How far did I come? Where is this...)")
 
-    sm.showEffect("Effect/Direction2.img/effect/chat/nugu/0", 2000, 20, -80, 0, 0, False, 0)
+    sm.showEffect("Effect/Direction2.img/effect/chat/nugu/0", 2000, 20, -80, 0, 0, True, 0)
     sm.sendDelay(2500)
 
     sm.sendNext("T-two moons?!")

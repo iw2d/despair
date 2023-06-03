@@ -1,4 +1,7 @@
 # 927030040
+
+FREUD = 2159445
+
 seals = [
     [600, -510],
     [-600, -510],
@@ -27,7 +30,7 @@ sm.sendDelay(600)
 sm.hideUser(True)
 sm.sendDelay(1000)
 
-sm.showBalloonMsg("Effect/Direction15.img/effect/story/BalloonMsg0/3", 0)
+sm.showBalloonMsgOnNpc("Effect/Direction15.img/effect/story/BalloonMsg0/3", 0, 0, -200, FREUD)
 sm.startQuest(38900)
 sm.createQuestWithQRValue(38900, "1")
 sm.sendDelay(2000)

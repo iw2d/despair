@@ -1,14 +1,11 @@
 # 927030020
-EUNWOL = 2159449
 LUMINOUS = 2159467
 FREUD = 2159445
 
 sm.lockInGameUI(True, False)
-sm.hideUser(True)
 sm.forcedInput(0)
 
-sm.spawnNpc(EUNWOL, 215, -85)
-sm.showNpcSpecialActionByTemplateId(EUNWOL, "summon")
+sm.teleportInField(215, -85)
 sm.moveCamera(False, 400, 215, -85)
 
 sm.blind(1, 200, 0, 1000)
@@ -18,7 +15,7 @@ sm.sayMonologue("\r\n\r\nThings were looking grim.", False)
 sm.sayMonologue("\r\nThe Black Mage was stronger than anyone expected.", False)
 sm.sayMonologue("\r\nThe heroes could not overcome the incredible power wielded by the Black Mage.", True)
 
-sm.sayMonologue("\r\n\r\n\r\n\r\nThere was only one option left,\r\n\r\n\r\n                        to seal the Black Mage behind the Seal of Time.", True)
+sm.sayMonologue("\r\n\r\n\r\n\r\nThere was only one option left,\r\n\r\n\r\nto seal the Black Mage behind the Seal of Time.", True)
 
 sm.blind(0, 0, 0, 1000)
 sm.sendDelay(1000)
@@ -76,21 +73,22 @@ sm.sendDelay(500)
 sm.moveNpcByTemplateId(LUMINOUS, True, 180, 100)
 sm.sendDelay(2000)
 
-sm.showBalloonMsg("Effect/Direction15.img/effect/story/BalloonMsg0/0", 0)
+sm.showBalloonMsgOnNpc("Effect/Direction15.img/effect/story/BalloonMsg0/0", 0, FREUD)
 sm.sendDelay(2500)
 
-sm.showBalloonMsg("Effect/Direction15.img/effect/story/BalloonMsg0/1", 0)
+sm.showBalloonMsgOnNpc("Effect/Direction15.img/effect/story/BalloonMsg0/1", 0, LUMINOUS)
 sm.sendDelay(2000)
 
-sm.showBalloonMsgOnNpc("Effect/Direction15.img/effect/story/BalloonMsg0/2", 0, LUMINOUS)
+sm.showEffect("Effect/Direction15.img/effect/story/BalloonMsg0/2", 0, 0, -100, 0, 0, True, 0)
 sm.sendDelay(2000)
 
-sm.showBalloonMsgOnNpc("Effect/BasicEff.img/Teleport", 0, 0, 0, LUMINOUS)
-sm.removeNpc(LUMINOUS)
+sm.avatarOriented("Effect/BasicEff.img/Teleport")
+sm.hideUser(True)
 sm.sendDelay(300)
 
 sm.moveCamera(True, 400, 0, 0)
 
+sm.teleportToPortal(0)
 sm.hideUser(False)
 sm.avatarOriented("Effect/BasicEff.img/Teleport")
 sm.sendDelay(1000)
