@@ -19,7 +19,7 @@ import net.swordie.ms.constants.BossConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
-import net.swordie.ms.handlers.PsychicLock;
+import net.swordie.ms.client.character.skills.PsychicLock;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.mob.Mob;

@@ -1,4 +1,4 @@
-package net.swordie.ms.handlers;
+package net.swordie.ms.client.character.skills;
 
 import net.swordie.ms.client.character.skills.PsychicLockBall;
 import net.swordie.ms.connection.OutPacket;

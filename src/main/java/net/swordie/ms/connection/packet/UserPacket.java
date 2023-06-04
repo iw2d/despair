@@ -3,7 +3,7 @@ package net.swordie.ms.connection.packet;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.enums.ChatUserType;
-import net.swordie.ms.handlers.PsychicLock;
+import net.swordie.ms.client.character.skills.PsychicLock;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;

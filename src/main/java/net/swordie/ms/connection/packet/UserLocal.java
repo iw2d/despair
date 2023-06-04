@@ -8,7 +8,7 @@ import net.swordie.ms.client.character.skills.PsychicLockBall;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.enums.*;
-import net.swordie.ms.handlers.PsychicLock;
+import net.swordie.ms.client.character.skills.PsychicLock;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.Familiar;
 import net.swordie.ms.life.mob.Mob;
