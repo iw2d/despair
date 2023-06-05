@@ -8,7 +8,7 @@ else:
     if sm.isPartyLeader():
         sm.sendNext("#e<Boss:Cygnus Expedition>#n \r\n Are you ready to fight Empress Cygnus?#b\r\n \r\n"
                     "#L0#Request to join a Cygnus Expedition.#l\r\n")
-        selection = sm.sendNext("#e<Boss:Von Leon>#n \r\n Select a mode. \r\n \r\n"
+        selection = sm.sendNext("#e<Boss:Cygnus Expedition>#n \r\n Select a mode. \r\n \r\n"
                                 "#L0#Easy(Level 150+) #l \r\n"
                                 "#L1#Normal (Level 175+) #l \r\n")
         if selection == 0:

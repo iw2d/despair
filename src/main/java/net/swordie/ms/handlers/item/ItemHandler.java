@@ -739,12 +739,11 @@ public class ItemHandler {
                     return;
                 }
                 cost = GameConstants.getEnchantmentMesoCost(equip.getrLevel() + equip.getiIncReq(), equip.getChuc(), equip.isSuperiorEqp());
-                destroyProp = GameConstants.getEnchantmentDestroyRate(equip);
                 if (safeGuard && equip.canSafeguardHyperUpgrade()) {
                     cost *= 2;
                 }
                 c.write(FieldPacket.hyperUpgradeDisplay(equip, equip.isSuperiorEqp() ? equip.getChuc() > 0 : equip.getChuc() > 5 && equip.getChuc() % 5 != 0,
-                        cost, 0, 0, GameConstants.getEnchantmentSuccessRate(equip),  equip.getDropStreak() >= 2));
+                        cost, 0, GameConstants.getEnchantmentSuccessRate(equip), GameConstants.getEnchantmentDestroyRate(equip),  equip.getDropStreak() >= 2));
                 break;
             case MiniGameDisplay:
                 c.write(FieldPacket.miniGameDisplay(eeType));

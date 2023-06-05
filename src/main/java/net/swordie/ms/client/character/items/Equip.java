@@ -2110,7 +2110,9 @@ public class Equip extends Item {
     }
 
     public boolean canSafeguardHyperUpgrade() {
-        return !isSuperiorEqp() && chuc >= 12 && chuc < 17;
+        // No safeguard in this version
+        // return !isSuperiorEqp() && chuc >= 12 && chuc < 17;
+        return false;
     }
 
     public void resetStats() {
