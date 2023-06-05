@@ -189,6 +189,9 @@ public class TemporaryStatManager {
         if(cts == CombatOrders) {
             chr.setCombatOrders(0);
         }
+
+        getChr().getJobHandler().handleRemoveCTS(cts);
+
         Option opt = getOption(cts);
         for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(cts, opt).entrySet()) {
             removeBaseStat(stats.getKey(), stats.getValue());
@@ -839,11 +842,10 @@ public class TemporaryStatManager {
     }
 
     public void sendResetStatPacket(boolean demount) {
-        if(getRemovedStats().containsKey(CharacterTemporaryStat.Reincarnation)) {
-            Warrior.finalPactEnd(chr);
+        if (getRemovedStats().size() > 0) {
+            getChr().getField().broadcastPacket(UserRemote.resetTemporaryStat(getChr()), getChr());
+            getChr().getClient().write(WvsContext.temporaryStatReset(this, demount, getChr().isInCashShop() || getChr().isChangingChannel()));
         }
-        getChr().getField().broadcastPacket(UserRemote.resetTemporaryStat(getChr()), getChr());
-        getChr().getClient().write(WvsContext.temporaryStatReset(this, demount, getChr().isInCashShop() || getChr().isChangingChannel()));
     }
 
     public void removeAllDebuffs() {

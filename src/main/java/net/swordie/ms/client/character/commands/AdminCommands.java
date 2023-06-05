@@ -1130,6 +1130,21 @@ public class AdminCommands {
         }
     }
 
+    @Command(names = {"resetskills"}, requiredType = Tester)
+    public static class ResetSkills extends AdminCommand {
+        public static void execute(Char chr, String[] args) {
+            List<Skill> list = chr.getSkills().stream().toList();
+            for (Skill skill : list) {
+                chr.removeSkill(skill.getSkillId());
+                skill.setCurrentLevel(-1);
+                skill.setMasterLevel(-1);
+            }
+            if (list.size() > 0) {
+                chr.getClient().write(WvsContext.changeSkillRecordResult(list, true, false, false, false));
+            }
+        }
+    }
+
     @Command(names = {"maxskills"}, requiredType = Tester)
     public static class MaxSkills extends AdminCommand {
         public static void execute(Char chr, String[] args) {
@@ -1300,7 +1315,7 @@ public class AdminCommands {
         }
     }
 
-    @Command(names = {"mesos", "money"}, requiredType = GameMaster)
+    @Command(names = {"meso", "givemeso"}, requiredType = GameMaster)
     public static class Mesos extends AdminCommand {
         public static void execute(Char chr, String[] args) {
             long mesos = Long.parseLong(args[1]);
@@ -1622,6 +1637,14 @@ public class AdminCommands {
                         controller == null ? "null" : chr.getName()
                         )
                 );
+                Map<MobStat, Option> mobStats = mob.getTemporaryStat().getCurrentStatVals();
+                for (MobStat stat : mobStats.keySet()) {
+                    chr.chatMessage(SpeakerChannel, String.format("MobStat: %s | %s",
+                            stat.name(),
+                            mobStats.get(stat).toString()
+                            )
+                    );
+                }
             } else {
                 chr.chatMessage(SpeakerChannel, "Could not find mob.");
             }

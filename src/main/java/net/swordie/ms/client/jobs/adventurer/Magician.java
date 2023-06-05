@@ -559,7 +559,7 @@ public class Magician extends Beginner {
             o2.nValue = si.getValue(x, slv) * amount;
             o2.nReason = BLESSED_ENSEMBLE;
             o2.tStart = (int) System.currentTimeMillis();
-            tsm.putCharacterStatValue(IndieDamR, o1);
+            tsm.putCharacterStatValue(IndieDamR, o2);
             tsm.sendSetStatPacket();
         } else {
             tsm.removeStatsBySkill(BLESSED_ENSEMBLE);

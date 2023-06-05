@@ -894,6 +894,7 @@ public class Demon extends Job {
         }
     }
 
+    @Override
     public int alterCooldownSkill(int skillId) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillId);
@@ -908,7 +909,7 @@ public class Demon extends Job {
                     }
             }
         }
-        return -1;
+        return super.alterCooldownSkill(skillId);
     }
 
 

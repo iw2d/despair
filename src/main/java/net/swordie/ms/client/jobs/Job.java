@@ -491,8 +491,8 @@ public abstract class Job {
 			// Class Revives ----------------------------------------
 
 			// Dark Knight - Final Pact
-			else if(JobConstants.isDarkKnight(chr.getJob()) && chr.hasSkill(Warrior.FINAL_PACT_INFO) && Warrior.isFinalPactAvailable(chr)) {
-				Warrior.reviveByFinalPact(chr);
+			else if(JobConstants.isDarkKnight(chr.getJob()) && chr.hasSkill(Warrior.FINAL_PACT_INFO)) {
+				((Warrior) chr.getJobHandler()).reviveByFinalPact(chr);
 			}
 
 			// Night Walker - Darkness Ascending
@@ -643,6 +643,15 @@ public abstract class Job {
 	}
 
 	public abstract int getFinalAttackSkill();
+
+	/**
+	 * Handles when specific CTSs are removed.
+	 *
+	 * @param cts The Character Temporary Stat
+	 */
+	public void handleRemoveCTS(CharacterTemporaryStat cts) {
+		// nothing here yet, @Override to make use of it
+	}
 
 	/**
 	 * Called when a player is right-clicking a buff, requesting for it to be disabled.

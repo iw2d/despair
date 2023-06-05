@@ -485,6 +485,7 @@ public class Luminous extends Job {
         }
     }
 
+    @Override
     public int alterCooldownSkill(int skillId) {
         switch (skillId) {
             case ENDER:
@@ -492,7 +493,7 @@ public class Luminous extends Job {
                 if(equilibriumTimer != null && !equilibriumTimer.isDone())
                 return 0;
         }
-        return -1;
+        return super.alterCooldownSkill(skillId);
     }
 
 
