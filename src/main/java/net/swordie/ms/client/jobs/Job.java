@@ -580,11 +580,17 @@ public abstract class Job {
 		if(hitInfo.hpDamage != 0) {
 
 			// Bishop - Holy Magic Shell
-			if (tsm.hasStat(CharacterTemporaryStat.HolyMagicShell)) {
-				if (Magician.hmshits < Magician.getHolyMagicShellMaxGuards(chr)) {
-					Magician.hmshits++;
+			if (tsm.hasStat(HolyMagicShell)) {
+				if (tsm.getOption(HolyMagicShell).xOption > 0) {
+					Option o = new Option();
+					o.nOption = tsm.getOption(HolyMagicShell).nOption;
+					o.rOption = tsm.getOption(HolyMagicShell).rOption;
+					o.tOption = (int) tsm.getRemainingTime(HolyMagicShell, o.rOption);
+					o.xOption = tsm.getOption(HolyMagicShell).xOption - 1;
+					o.setInMillis(true);
+					tsm.putCharacterStatValue(HolyMagicShell, o);
+					tsm.sendSetStatPacket();
 				} else {
-					Magician.hmshits = 0;
 					tsm.removeStatsBySkill(Magician.HOLY_MAGIC_SHELL);
 				}
 			}

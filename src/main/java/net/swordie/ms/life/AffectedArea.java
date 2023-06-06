@@ -337,7 +337,7 @@ public class AffectedArea extends Life {
                 tsm.putCharacterStatValue(IncCriticalDamMax, o2);
                 break;
             case BeastTamer.PURR_ZONE:
-                chr.heal(si.getValue(hp, slv));
+                chr.heal(si.getValue(hp, slv), true);
                 break;
             case Xenon.TEMPORAL_POD:
                 o1.nOption = 2;

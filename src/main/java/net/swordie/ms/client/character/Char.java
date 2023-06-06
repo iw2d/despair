@@ -3032,26 +3032,30 @@ public class Char {
 	 * Heals character's MP and HP completely.
 	 */
 	public void healHPMP() {
-		heal(getMaxHP(), true);
+		heal(getMaxHP(), false);
 		healMP(getMaxMP());
 	}
 
 	/**
 	 * Heals this Char's HP for a certain amount. Caps off at maximum HP.
 	 *
-	 * @param amount The amount to heal.
+	 * @param amount 		The amount to heal.
+	 * @param showEffect    Show the healing effect number
 	 */
-	public void heal(int amount, boolean whilstDeath) {
+	public void heal(int amount, boolean showEffect) {
 		int curHP = getHP();
 		int maxHP = getMaxHP();
-		int newHP = curHP + amount > maxHP ? maxHP : curHP + amount;
-		Map<Stat, Object> stats = new HashMap<>();
+		int newHP = curHP + amount > maxHP ? maxHP : curHP + amount < 0 ? 0 : curHP + amount;
 
-		if(whilstDeath || getHP() > 0) {
-			setStat(Stat.hp, newHP);
-			stats.put(Stat.hp, newHP);
-			write(WvsContext.statChanged(stats));
+		if (showEffect && newHP != curHP) {
+			write(UserPacket.effect(Effect.changeHPEffect(newHP - curHP)));
+			getField().broadcastPacket(UserRemote.effect(getId(), Effect.changeHPEffect(newHP - curHP)));
 		}
+
+		Map<Stat, Object> stats = new HashMap<>();
+		setStat(Stat.hp, newHP);
+		stats.put(Stat.hp, newHP);
+		write(WvsContext.statChanged(stats));
 		if (getParty() != null) {
 			getParty().broadcast(UserRemote.receiveHP(this), this);
 		}

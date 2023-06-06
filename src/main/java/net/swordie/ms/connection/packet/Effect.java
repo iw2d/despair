@@ -160,6 +160,14 @@ public class Effect {
             case IncDecHPEffect:
                 outPacket.encodeByte(getArg1()); // amount being healed     0 = Miss
                 break;
+            case IncDecHPEffect_EX:
+                outPacket.encodeInt(getArg1()); // hp amount
+                outPacket.encodeByte(getArg2()); // unk
+                outPacket.encodeByte(getArg3()); // unk
+                break;
+            case IncDecHPRegenEffect:
+                outPacket.encodeInt(getArg1()); // hp amount
+                break;
             case AvatarOriented:
                 outPacket.encodeString(getString());
                 break;
@@ -229,6 +237,15 @@ public class Effect {
         } else if (skillID == 37001001 || skillID == Blaster.REVOLVING_CANNON_RELOAD) {
             outPacket.encodeInt(getArg5());
         }
+    }
+
+    public static Effect changeHPEffect(int hpDiff) {
+        Effect effect = new Effect();
+        effect.setUserEffectType(IncDecHPEffect_EX);
+
+        effect.setArg1(hpDiff);
+
+        return effect;
     }
 
 

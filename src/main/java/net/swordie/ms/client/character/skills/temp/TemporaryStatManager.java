@@ -264,6 +264,14 @@ public class TemporaryStatManager {
         return new ArrayList<>();
     }
 
+    public long getRemainingTime(CharacterTemporaryStat cts, int skillId) {
+        if (getOptByCTSAndSkill(cts, skillId) != null) {
+            Option opt = getOptByCTSAndSkill(cts, skillId);
+            return (opt.startTime + ((opt.isInMillis ? 1 : 1000) * (cts.isIndie() ? opt.tTerm : opt.tOption))) - System.currentTimeMillis();
+        }
+        return 0;
+    }
+
     public int[] getMaskByCollection(Map<CharacterTemporaryStat, List<Option>> map) {
         int[] res = new int[CharacterTemporaryStat.length];
         for(int i = 0; i < res.length; i++) {

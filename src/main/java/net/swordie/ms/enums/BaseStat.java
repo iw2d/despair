@@ -350,6 +350,10 @@ public enum BaseStat {
             case Concentration:
                 // TODO
                 break;
+            case DropRIncrease:
+            case DropRate:
+                stats.put(dropR, o.nOption);
+                break;
             case ItemUpByItem:
                 stats.put(dropR, o.nOption);
                 break;

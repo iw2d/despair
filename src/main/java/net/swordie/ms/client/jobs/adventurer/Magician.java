@@ -149,7 +149,14 @@ public class Magician extends Beginner {
     public static final int POISON_MIST_AFTERMATH = 2120044;
     public static final int POISON_MIST_CRIPPLE = 2120045;
     public static final int PARALYZE_CRIPPLE = 2120047;
-
+    public static final int HOLY_MAGIC_SHELL_PERSIST = 2320044;
+    public static final int HOLY_MAGIC_SHELL_EXTRA_GUARD = 2320043;
+    public static final int HOLY_SYMBOL_EXPERIENCE = 2320046;
+    public static final int HOLY_SYMBOL_PREPARATION = 2320047;
+    public static final int HOLY_SYMBOL_ITEM_DROP = 2320048;
+    public static final int ADV_BLESSING_FEROCITY = 2320049;
+    public static final int ADV_BLESSING_BOSS_RUSH = 2320050;
+    public static final int ADV_BLESSING_EXTRA_POINT = 2320051;
 
     private int[] addedSkills = new int[]{
             MAPLE_RETURN,
@@ -190,7 +197,6 @@ public class Magician extends Beginner {
             RESURRECTION,
             INFINITY_BISH,
             BAHAMUT,
-            HEAL,
 
             EPIC_ADVENTURE_FP,
             EPIC_ADVENTURE_IL,
@@ -201,7 +207,6 @@ public class Magician extends Beginner {
             HEAVENS_DOOR,
     };
 
-    public static int hmshits = 0;
     private int ferventDrainStack;
     private ScheduledFuture ferventDrainTimer;
     private int infinityStack = 0;
@@ -367,31 +372,50 @@ public class Magician extends Beginner {
                 o2.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(EVA, o2);
                 tsm.putCharacterStatValue(ACC, o2);
-                o3.nOption = si.getValue(x, slv);
+                o3.nOption = si.getValue(x, slv) + chr.getSkillStatValue(x, ADV_BLESSING_FEROCITY);
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(PAD, o3);
                 tsm.putCharacterStatValue(MAD, o3);
-                o4.nValue = si.getValue(indieMhp, slv);
+                o4.nValue = si.getValue(indieMhp, slv) + chr.getSkillStatValue(indieMhp, ADV_BLESSING_EXTRA_POINT);
                 o4.nReason = skillID;
                 o4.tStart = (int) System.currentTimeMillis();
                 o4.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMHP, o4);
                 tsm.putCharacterStatValue(IndieMMP, o4);
+                if (chr.hasSkill(ADV_BLESSING_BOSS_RUSH)) {
+                    o5.nValue = chr.getSkillStatValue(bdR, ADV_BLESSING_BOSS_RUSH);
+                    o5.nReason = skillID;
+                    o5.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieBDR, o5);
+                }
                 break;
-            case HOLY_SYMBOL:
-                o1.nOption = si.getValue(x, slv);
+            case HOLY_SYMBOL: // fix for party buff is inside the wz, gotta add  <int name="massSpell" value="1"/>
+                o1.nOption = si.getValue(x, slv) + chr.getSkillStatValue(y, HOLY_SYMBOL_EXPERIENCE);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(HolySymbol, o1);
+                if (chr.hasSkill(HOLY_SYMBOL_PREPARATION)) {
+                    o2.nOption = chr.getSkillStatValue(asrR, HOLY_SYMBOL_PREPARATION);
+                    o2.rOption = skillID;
+                    o2.tOption = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(AsrR, o2);
+                    tsm.putCharacterStatValue(TerR, o2);
+                }
+                if (chr.hasSkill(HOLY_SYMBOL_ITEM_DROP)) {
+                    o3.nOption = chr.getSkillStatValue(v, HOLY_SYMBOL_ITEM_DROP);; // Item Drop Rate %
+                    o3.nReason = skillID;
+                    o2.tOption = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(DropRate, o3);
+                }
                 break;
             case HOLY_MAGIC_SHELL:
+                chr.heal(changeBishopHealingBuffs(HOLY_MAGIC_SHELL));
                 o1.nOption = 1;
                 o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
+                o1.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, HOLY_MAGIC_SHELL_PERSIST);
+                o1.xOption = si.getValue(x, slv) + chr.getSkillStatValue(x, HOLY_MAGIC_SHELL_EXTRA_GUARD);
                 tsm.putCharacterStatValue(HolyMagicShell, o1);
-                hmshits = 0;
-                chr.heal(changeBishopHealingBuffs(HOLY_MAGIC_SHELL));
                 break;
             case RESURRECTION:
                 Party party = chr.getParty();
@@ -400,7 +424,7 @@ public class Magician extends Beginner {
                 }
                 if(party != null) {
                     field = chr.getField();
-                    Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
+                    Rect rect = chr.getPosition().getRectAround(si.getFirstRect());
                     if(!chr.isLeft()) {
                         rect = rect.moveRight();
                     }
@@ -521,7 +545,7 @@ public class Magician extends Beginner {
                 o6.nOption = si.getValue(ignoreMobpdpR, slv);
                 o6.rOption = skillID;
                 o6.tOption = 0;
-                tsm.putCharacterStatValue(IgnoreMobpdpR, o6);
+                tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o6);
                 o7.nOption = si.getValue(w, slv);
                 o7.rOption = skillID;
                 o7.tOption = 0;
@@ -609,7 +633,7 @@ public class Magician extends Beginner {
         switch (skillID) {
             case HEAL:
                 rate = si.getValue(hp, slv);
-                healrate = maxHP;// (int) (maxHP / ((double)100 / rate));
+                healrate = (int) (maxHP / ((double)100 / rate));
                 break;
             case HOLY_MAGIC_SHELL:
                 rate = si.getValue(z, slv);
@@ -620,7 +644,6 @@ public class Magician extends Beginner {
                 healrate = (int) (maxHP / ((double)100 / rate));
                 break;
             case INFINITY_BISH:
-
                 break;
         }
         if(tsm.hasStat(VengeanceOfAngel)) {
@@ -1014,7 +1037,7 @@ public class Magician extends Beginner {
         o1.nOption = arcaneAimInfo.getValue(ignoreMobpdpR, slv);
         o1.rOption = 2320011;
         o1.tOption = 5; // No Time Variable
-        tsm.putCharacterStatValue(IgnoreMobpdpR, o1);
+        tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o1);
         o2.nOption = (amount * arcaneAimInfo.getValue(x, slv));
         o2.rOption = 2320011;
         o2.tOption = 5; // No Time Variable
@@ -1190,7 +1213,7 @@ public class Magician extends Beginner {
                     Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
                     chr.warp(toField);
                     break;
-                case FREEZING_BREATH:
+                case FREEZING_BREATH: {
                     Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
                     if (!chr.isLeft()) {
                         rect = rect.moveRight();
@@ -1219,6 +1242,7 @@ public class Magician extends Beginner {
                     tsm.putCharacterStatValue(NotDamaged, o1);
                     tsm.sendSetStatPacket();
                     break;
+                }
                 case MEGIDDO_FLAME:
                     createMegiddoFlameForceAtom();
                     break;
@@ -1235,10 +1259,11 @@ public class Magician extends Beginner {
                         createChillStepAA();
                     }
                     break;
-                case HEAL:
-                    chr.heal(changeBishopHealingBuffs(HEAL));
-                    rect = new Rect(inPacket.decodeShort(), inPacket.decodeShort(),
-                            inPacket.decodeShort(), inPacket.decodeShort());
+                case HEAL: {
+                    Rect rect = chr.getRectAround(si.getFirstRect());
+                    if (!chr.isLeft()) {
+                        rect.horizontalFlipAround(chr.getPosition().getX());
+                    }
                     for (Life life : chr.getField().getLifesInRect(rect)) {
                         if (life instanceof Mob && ((Mob) life).getHp() > 0) {
                             Mob mob = (Mob) life;
@@ -1249,10 +1274,41 @@ public class Magician extends Beginner {
                             mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
                         }
                     }
+                    int healRate = changeBishopHealingBuffs(HEAL);
+                    if (chr.getParty() == null) {
+                        chr.heal(!tsm.hasStat(CharacterTemporaryStat.Undead) ? healRate : -healRate, true);
+                    } else {
+                        List<Char> pChrList = chr.getParty().getPartyMembersInSameField(chr).stream().filter(pc -> rect.hasPositionInside(pc.getPosition())).collect(Collectors.toList());
+                        for (Char pChr : pChrList) {
+                            if (pChr.getHP() > 0) {
+                                pChr.heal(!pChr.getTemporaryStatManager().hasStat(CharacterTemporaryStat.Undead)
+                                        ? healRate / pChrList.size() : -healRate / pChrList.size(), true);
+                            }
+                        }
+                        chr.reduceSkillCoolTime(skillID, si.getValue(y, slv) * 1000);
+                    }
                     break;
-                case DISPEL:
-                    tsm.removeAllDebuffs();
+                }
+                case DISPEL: {
+                    Rect rect = chr.getRectAround(si.getFirstRect());
+                    if (!chr.isLeft()) {
+                        rect.horizontalFlipAround(chr.getPosition().getX());
+                    }
+                    if (chr.getParty() == null) {
+                        tsm.removeAllDebuffs();
+                    } else {
+                        List<Char> pChrList = chr.getParty().getPartyMembersInSameField(chr).stream().filter(pc -> rect.hasPositionInside(pc.getPosition())).collect(Collectors.toList());
+                        for (Char pChr : pChrList) {
+                            if (pChr.getHP() > 0) {
+                                pChr.getTemporaryStatManager().removeAllDebuffs();
+                            }
+                        }
+                        int numCured = pChrList.size() - 1; // TODO: count cured
+                        chr.reduceSkillCoolTime(skillID, numCured * si.getValue(y, slv) * 1000);
+                        chr.reduceSkillCoolTime(DIVINE_PROTECTION, numCured * si.getValue(time, slv) * 1000);
+                    }
                     break;
+                }
                 case MYSTIC_DOOR:
                     Field townField = FieldData.getFieldById(chr.getField().getReturnMap());
                     int x = townField.getPortalByName("tp").getX();
