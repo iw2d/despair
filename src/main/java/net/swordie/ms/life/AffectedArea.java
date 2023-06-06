@@ -222,6 +222,21 @@ public class AffectedArea extends Life {
         Option o3 = new Option();
         switch (skillID) {
             case Magician.POISON_MIST:
+                if (!mts.hasBurnFromSkillAndOwner(skillID, getCharID())) {
+                    int dotDmg = si.getValue(dot, slv);
+                    int dotTime = ((Magician) chr.getJobHandler()).getExtendedDoTTime(si.getValue(SkillStat.dotTime, slv));
+                    if (chr.hasSkill(Magician.MIST_ERUPTION)) {
+                        dotDmg = chr.getSkillStatValue(SkillStat.x, Magician.MIST_ERUPTION); // passive DoT dmg boost to Poison Mist
+                    }
+                    if (chr.hasSkill(Magician.POISON_MIST_CRIPPLE)) {
+                        dotDmg += chr.getSkillStatValue(dot, Magician.POISON_MIST_CRIPPLE);
+                    }
+                    if (chr.hasSkill(Magician.POISON_MIST_AFTERMATH)) {
+                        dotTime += chr.getSkillStatValue(SkillStat.dotTime, Magician.POISON_MIST_AFTERMATH);
+                    }
+                    mts.createAndAddBurnedInfo(chr, skillID, slv, dotDmg, si.getValue(dotInterval, slv), dotTime, 1);
+                }
+                break;
             case Archer.FLAME_SURGE:
             case Kanna.NIMBUS_CURSE:
                 if (!mts.hasBurnFromSkillAndOwner(skillID, getCharID())) {

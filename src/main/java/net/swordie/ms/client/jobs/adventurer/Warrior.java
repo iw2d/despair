@@ -273,16 +273,13 @@ public class Warrior extends Beginner {
                 tsm.putCharacterStatValue(MDD, o2);
                 break;
             case HYPER_BODY:
-                int hyperPersist = chr.hasSkill(HYPER_BODY_PERSIST) ? 20 : 0;
-                int hyperSpirit = chr.hasSkill(HYPER_BODY_SPIRIT) ? 20 : 0;
-                int hyperVitality = chr.hasSkill(HYPER_BODY_VITALITY) ? 20 : 0;
-                o1.nOption = si.getValue(x, slv) + hyperVitality;
+                o1.nOption = si.getValue(x, slv) + chr.getSkillStatValue(x, HYPER_BODY_VITALITY);;
                 o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv) + hyperPersist;
+                o1.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, HYPER_BODY_PERSIST);
                 tsm.putCharacterStatValue(MaxHP, o1);
-                o2.nOption = si.getValue(y, slv) + hyperSpirit;
+                o2.nOption = si.getValue(y, slv) + chr.getSkillStatValue(y, HYPER_BODY_SPIRIT);;
                 o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv) + hyperPersist;
+                o2.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, HYPER_BODY_PERSIST);
                 tsm.putCharacterStatValue(MaxMP, o2);
                 break;
             case CROSS_SURGE:
@@ -349,7 +346,7 @@ public class Warrior extends Beginner {
                     removeEvilEye(tsm, c);
 
                     chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(y, slv))));
-                    chr.write(UserLocal.skillCooltimeSetM(1321013, 0));
+                    chr.write(UserLocal.skillCooltimeSetM(EVIL_EYE, 0));
                 }
                 break;
             case MAPLE_WARRIOR_HERO:
@@ -1119,18 +1116,15 @@ public class Warrior extends Beginner {
                         if (life instanceof Mob && ((Mob) life).getHp() > 0) {
                             Mob mob = (Mob) life;
                             MobTemporaryStat mts = mob.getTemporaryStat();
-                            int hyperPersist = chr.hasSkill(THREATEN_PERSIST) ? 20 : 0;
-                            int hyperOpportunity = chr.hasSkill(THREATEN_OPPORTUNITY) ? 20 : 0;
-                            int hyperEnhance = chr.hasSkill(THREATEN_ENHANCE) ? 20 : 0;
-                            if (Util.succeedProp(si.getValue(prop, slv) + hyperOpportunity)) {
-                                o1.nOption = si.getValue(x, slv) - hyperEnhance;
+                            if (Util.succeedProp(si.getValue(prop, slv) + chr.getSkillStatValue(prop, THREATEN_OPPORTUNITY))) {
+                                o1.nOption = si.getValue(x, slv) + chr.getSkillStatValue(x, THREATEN_ENHANCE);
                                 o1.rOption = skillID;
-                                o1.tOption = si.getValue(time, slv) + hyperPersist;
+                                o1.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, THREATEN_PERSIST);
                                 mts.addStatOptions(MobStat.PAD, o1.deepCopy());
                                 mts.addStatOptions(MobStat.MAD, o1.deepCopy());
                                 mts.addStatOptions(MobStat.PDR, o1.deepCopy());
                                 mts.addStatOptions(MobStat.MDR, o1.deepCopy());
-                                o2.nOption = -si.getValue(z, slv);
+                                o2.nOption = -si.getValue(z, slv) - chr.getSkillStatValue(y, THREATEN_ENHANCE);
                                 o2.rOption = skillID;
                                 o2.tOption = si.getValue(subTime, slv);
                                 mts.addStatOptionsAndBroadcast(MobStat.Darkness, o2);

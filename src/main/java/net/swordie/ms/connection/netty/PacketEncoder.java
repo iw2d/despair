@@ -65,7 +65,6 @@ public final class PacketEncoder extends MessageToByteEncoder<Packet> {
             log.debug("[PacketEncoder] | Plain sending " + outPacket);
             bb.writeBytes(data);
         }
-//        outPacket.release();
-//        bb.release();
+        outPacket.release();
     }
 }

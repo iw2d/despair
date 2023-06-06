@@ -1732,10 +1732,8 @@ public class Mob extends Life {
             chr.getField().drop(drop, getPosition().deepCopy());
         }
 
-        // Mage FP skill
-        if (isInfestedByViralSlime()) {
-            Magician.infestViralSlime(chr, this);
-        }
+        // Any special skills
+        chr.getJobHandler().handleMobDeath(this);
 
         // Random portal spawn
         if (getField().isChannelField() && chr.getNextRandomPortalTime() <= System.currentTimeMillis()

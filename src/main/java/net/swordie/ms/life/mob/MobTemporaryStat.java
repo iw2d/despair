@@ -3,6 +3,7 @@ package net.swordie.ms.life.mob;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
+import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.BattleRecordMan;
@@ -14,6 +15,7 @@ import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Tuple;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
@@ -22,9 +24,9 @@ import static net.swordie.ms.life.mob.MobStat.*;
 
 
 public class MobTemporaryStat {
-	private List<BurnedInfo> burnedInfos = new ArrayList<>();
-	private Map<Tuple<Integer, Integer>, ScheduledFuture> burnCancelSchedules = new HashMap<>();
-	private Map<Tuple<Integer, Integer>, ScheduledFuture> burnSchedules = new HashMap<>();
+	private final Map<Integer, Map<Integer, List<BurnedInfo>>> burnedInfos = new HashMap<>(); // chrId -> skillId -> bis
+	private final Map<BurnedInfo, ScheduledFuture> burnCancelSchedules = new HashMap<>();
+	private final Map<BurnedInfo, ScheduledFuture> burnSchedules = new HashMap<>();
 	private String linkTeam;
 	private Comparator<MobStat> mobStatComper = (o1, o2) -> {
 		int res = 0;
@@ -53,9 +55,8 @@ public class MobTemporaryStat {
 
 	public MobTemporaryStat deepCopy() {
 		MobTemporaryStat copy = new MobTemporaryStat(getMob());
-		copy.setBurnedInfos(new ArrayList<>());
-		for (BurnedInfo bi : getBurnedInfos()) {
-			copy.getBurnedInfos().add(bi.deepCopy());
+		for (BurnedInfo bi : getAllBurnedInfos()) {
+			copy.addBurnedInfo(bi);
 		}
 		copy.setLinkTeam(getLinkTeam());
 		copy.mobStatComper = getMobStatComper();
@@ -70,7 +71,11 @@ public class MobTemporaryStat {
 	}
 
 	public Option getCurrentOptionsByMobStat(MobStat mobStat) {
-		return getCurrentStatVals().getOrDefault(mobStat, null);
+		Option option;
+		synchronized (currentStatVals) {
+			option = getCurrentStatVals().getOrDefault(mobStat, null);
+		}
+		return option;
 	}
 
 	public Option getRemovedOptionsByMobStat(MobStat mobStat) {
@@ -238,8 +243,9 @@ public class MobTemporaryStat {
 				outPacket.encodeInt(getNewOptionsByMobStat(Freeze).cOption);
 			}
 			if (hasNewMobStat(BurnedInfo)) {
-				outPacket.encodeByte(getBurnedInfos().size());
-				for (BurnedInfo bi : getBurnedInfos()) {
+				Set<BurnedInfo> bis = getAllBurnedInfos();
+				outPacket.encodeByte(bis.size());
+				for (BurnedInfo bi : bis) {
 					bi.encode(outPacket);
 				}
 			}
@@ -349,7 +355,11 @@ public class MobTemporaryStat {
 	}
 
 	public boolean hasCurrentMobStatBySkillId(int skillId) {
-		return getCurrentStatVals().entrySet().stream().anyMatch(map -> map.getValue().rOption == skillId);
+		boolean hasStat;
+		synchronized (currentStatVals) {
+			hasStat = getCurrentStatVals().entrySet().stream().anyMatch(map -> map.getValue().rOption == skillId);
+		}
+		return hasStat;
 	}
 
 	public boolean hasBurnFromSkillAndOwner(int skillID, int ownerCID) {
@@ -363,17 +373,31 @@ public class MobTemporaryStat {
 	 * @param ownerCID the burn skill's owner's id that should match (or 0 if ignored)
 	 * @return the BurnedInfo of the burn on this MTS, or null if there is none
 	 */
-	public BurnedInfo getBurnBySkillAndOwner(int skillID, int ownerCID) {
-		BurnedInfo res = null;
-		for (BurnedInfo bi : getBurnedInfos()) {
-			if (bi.getSkillId() == skillID && (bi.getCharacterId() == ownerCID || ownerCID == 0)) {
-				res = bi;
-			}
-		}
-		return res; // wow no lambda for once
+	public synchronized BurnedInfo getBurnBySkillAndOwner(int skillID, int ownerCID) {
+		List<BurnedInfo> bis = getBurnsBySkillAndOwner(skillID, ownerCID);
+		return bis.size() == 0 ? null : bis.get(0);
 	}
 
-	public boolean hasRemovedMobStat(MobStat mobStat) {
+	private synchronized List<BurnedInfo> getBurnsBySkillAndOwner(int skillID, int ownerCID) {
+		return getBurnedInfos().getOrDefault(ownerCID, new HashMap<>()).getOrDefault(skillID, new ArrayList<>());
+	}
+
+	public synchronized Set<BurnedInfo> getBurnsFromOwner(int chrId) {
+		Set<BurnedInfo> bis = new HashSet<>();
+		Map<Integer, List<BurnedInfo>> chrBis = getBurnedInfos().get(chrId);
+		if (chrBis != null) {
+			for (List<BurnedInfo> biList : chrBis.values()) {
+				bis.addAll(biList);
+			}
+		}
+		return bis;
+	}
+
+	public synchronized boolean hasBurnFromOwner(int ownerCID) {
+		return getBurnsFromOwner(ownerCID).size() > 0;
+	}
+
+	public synchronized boolean hasRemovedMobStat(MobStat mobStat) {
 		return getRemovedStatVals().keySet().contains(mobStat);
 	}
 
@@ -404,35 +428,78 @@ public class MobTemporaryStat {
 		}
 	}
 
-	public void removeBurnedInfo(Char chr, boolean fromSchedule) {
+	/**
+	 * Removes a BurnedInfo from this MTS, removes its schedules, notifies the Char of its damage, and broadcasts the
+	 * changes to the Field.
+	 *
+	 * @param burnedInfo the BurnedInfo to delete
+	 * @param fromSchedule whether or not this BurnedInfo was deleted according to its schedule
+	 */
+	public void removeBurnedInfo(BurnedInfo burnedInfo, boolean fromSchedule) {
+		Char chr = burnedInfo.getChr();
+		removeBurnedInfo(burnedInfo); // removes it properly from the inner list (thread safe)
+		getRemovedStatVals().put(BurnedInfo, getCurrentOptionsByMobStat(BurnedInfo));
+		if (getBurnedInfos().size() == 0) {
+			getCurrentStatVals().remove(BurnedInfo);
+		}
+		Set<BurnedInfo> bis = getAllBurnedInfos();
+		getMob().getField().broadcastPacket(MobPool.statReset(getMob(), (byte) 1, false, bis));
+		if (chr.isBattleRecordOn()) {
+			int count = Math.min(
+					burnedInfo.getDotCount(),
+					(Util.getCurrentTime() - burnedInfo.getStartTime()) / burnedInfo.getInterval()
+			);
+			chr.write(BattleRecordMan.dotDamageInfo(burnedInfo, count));
+		}
+		if (!fromSchedule) {
+			getBurnCancelSchedules().get(burnedInfo).cancel(true);
+			getBurnSchedules().get(burnedInfo).cancel(true);
+		}
+		getBurnCancelSchedules().remove(burnedInfo);
+		getBurnSchedules().remove(burnedInfo);
+	}
+
+	/**
+	 * Removes a BurnedInfo from a Char's burnedinfo list. Ensures the containing map/lists are removed if their size
+	 * reaches 0.
+	 *
+	 * @param burnedInfo the BurnedInfo to remove
+	 */
+	private void removeBurnedInfo(BurnedInfo burnedInfo) {
+		int chrId = burnedInfo.getCharacterId();
+		int skillId = burnedInfo.getSkillId();
 		synchronized (burnedInfos) {
-			int charID = chr.getId();
-			List<BurnedInfo> biList = getBurnedInfos().stream().filter(bi -> bi.getCharacterId() == charID).collect(Collectors.toList());
-			getBurnedInfos().removeAll(biList);
-			getRemovedStatVals().put(BurnedInfo, getCurrentOptionsByMobStat(BurnedInfo));
-			if (getBurnedInfos().size() == 0) {
-				getCurrentStatVals().remove(BurnedInfo);
-			}
-			getMob().getField().broadcastPacket(MobPool.statReset(getMob(), (byte) 1, false, biList));
-			if (chr.isBattleRecordOn()) {
-				for (net.swordie.ms.life.mob.skill.BurnedInfo bi : biList) {
-					int count = Math.min(bi.getDotCount(), (Util.getCurrentTime() - bi.getStartTime()) / bi.getInterval());
-					chr.write(BattleRecordMan.dotDamageInfo(bi, count));
+			Map<Integer, List<BurnedInfo>> chrBis = getBurnedInfos().get(chrId);
+			int size = -1;
+			if (chrBis != null && chrBis.containsKey(skillId)) {
+				List<BurnedInfo> bis = chrBis.get(skillId);
+				bis.remove(burnedInfo);
+				size = bis.size();
+				if (bis.size() == 0) {
+					chrBis.remove(skillId);
 				}
 			}
-			Set<Tuple<Integer, Integer>> filteredTuples = getBurnSchedules().keySet().stream().filter(s -> s.getLeft() == charID).collect(Collectors.toSet());
-			for(Tuple<Integer, Integer> tuple : filteredTuples)
-			{
-				if(!fromSchedule) {
-					getBurnCancelSchedules().get(tuple).cancel(true);
-					getBurnCancelSchedules().remove(tuple);
-					getBurnSchedules().get(tuple).cancel(true);
-					getBurnSchedules().remove(tuple);
-				}
-				else {
-					getBurnCancelSchedules().remove(tuple);
-					getBurnSchedules().remove(tuple);
-				}
+			if (chrBis != null && chrBis.size() == 0) {
+				getBurnedInfos().remove(chrId);
+			}
+		}
+	}
+
+	private void addBurnedInfo(BurnedInfo bi) {
+		int chrId = bi.getCharacterId();
+		int skillId = bi.getSkillId();
+		synchronized (burnedInfos) {
+			if (!burnedInfos.containsKey(chrId)) {
+				burnedInfos.put(chrId, new HashMap<>());
+			}
+			Map<Integer, List<BurnedInfo>> chrBis = burnedInfos.get(chrId);
+			if (!chrBis.containsKey(skillId)) {
+				chrBis.put(skillId, new ArrayList<>());
+			}
+			List<BurnedInfo> bis = chrBis.get(skillId);
+			bis.add(bi);
+			for (int i = 0; i < bis.size(); i++) {
+				bis.get(i).setSuperPos(i);
 			}
 		}
 	}
@@ -473,8 +540,12 @@ public class MobTemporaryStat {
 		option.tTerm *= 1000;
 		option.tOption *= 1000;
 		int tAct = option.tOption > 0 ? option.tOption : option.tTerm;
-		getNewStatVals().put(mobStat, option);
-		getCurrentStatVals().put(mobStat, option);
+		synchronized (newStatVals) {
+			getNewStatVals().put(mobStat, option);
+		}
+		synchronized (currentStatVals) {
+			getCurrentStatVals().put(mobStat, option);
+		}
 		if (tAct > 0 && mobStat != BurnedInfo) {
 			if (getSchedules().containsKey(mobStat)) {
 				getSchedules().get(mobStat).cancel(true);
@@ -484,13 +555,20 @@ public class MobTemporaryStat {
 		}
 	}
 
-
-	public List<BurnedInfo> getBurnedInfos() {
-		return burnedInfos;
+	public Set<BurnedInfo> getAllBurnedInfos() {
+		Set<BurnedInfo> bis = new HashSet<>();
+		synchronized (burnedInfos) {
+			for (Map<Integer, List<BurnedInfo>> chrBis : getBurnedInfos().values()) {
+				for (List<BurnedInfo> biList : chrBis.values()) {
+					bis.addAll(biList);
+				}
+			}
+		}
+		return bis;
 	}
 
-	public void setBurnedInfos(List<BurnedInfo> burnedInfos) {
-		this.burnedInfos = burnedInfos;
+	public Map<Integer, Map<Integer, List<BurnedInfo>>> getBurnedInfos() {
+		return burnedInfos;
 	}
 
 	public Comparator getMobStatComper() {
@@ -549,54 +627,76 @@ public class MobTemporaryStat {
 	}
 
 	public void createAndAddBurnedInfo(Char chr, Skill skill) {
-		int charId = chr.getId();
-		SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-		int slv = skill.getCurrentLevel();
-		Tuple<Integer, Integer> timerKey = new Tuple<>(charId, skill.getSkillId());
-		BurnedInfo bi = getBurnBySkillAndOwner(skill.getSkillId(), chr.getId());
-		int time = si.getValue(dotTime, slv) * 1000;
-		if (bi == null) {
-			// create a new burnedinfo, as one didn't exist yet (taking skill + charid combination as key)
-			bi = new BurnedInfo();
-			bi.setCharacterId(charId);
-			bi.setChr(chr);
-			bi.setSkillId(skill.getSkillId());
-			bi.setDamage((int) chr.getDamageCalc().calcPDamageForPvM(skill.getSkillId(), (byte) skill.getCurrentLevel()));
-			bi.setInterval(si.getValue(dotInterval, slv) * 1000);
-			bi.setDotCount(time / bi.getInterval());
-			bi.setSuperPos(si.getValue(dotSuperpos, slv));
-			bi.setAttackDelay(0);
-			bi.setDotTickIdx(0);
-			bi.setDotTickDamR(0); //damage added for every tick
-			bi.setDotAnimation(bi.getAttackDelay() + bi.getInterval() + time);
-			synchronized (burnedInfos) {
-				getBurnedInfos().add(bi);
-			}
-		} else {
-			// extend the timer if it does exist
-			getBurnCancelSchedules().get(timerKey).cancel(true);
-			getBurnSchedules().get(timerKey).cancel(true);
+		createAndAddBurnedInfo(chr, skill.getSkillId(), skill.getCurrentLevel());
+	}
+
+	public void createAndAddBurnedInfo(Char chr, int skillId, int slv) {
+		createAndAddBurnedInfo(chr, skillId, slv, 1);
+	}
+
+	public void createAndAddBurnedInfo(Char chr, int skillId, int slv, int maxDotStacks) {
+		SkillInfo si = SkillData.getSkillInfoById(skillId);
+		int dotDmg = si.getValue(SkillStat.dot, slv);
+		int dotInterval = si.getValue(SkillStat.dotInterval, slv);
+		if (dotInterval <= 0) {
+			dotInterval = 1;
 		}
-		long damage = bi.getDamage();
+		int dotTime = si.getValue(SkillStat.dotTime, slv);
+		createAndAddBurnedInfo(chr, skillId, slv, dotDmg, dotInterval, dotTime, maxDotStacks);
+	}
+
+	/**
+	 * Creates a BurnedInfo from the given arguments. Will go until a max amount of stacks, and will override the oldest
+	 * BurnedInfo if the max is reached.
+	 *
+	 * @param chr The Char who is the creator of the BurnedInfo
+	 * @param skillId the skillId of the used skill
+	 * @param slv the slv of the used skill
+	 * @param dotDmg the damage % of the skill
+	 * @param dotInterval the interval (seconds) of the DoT
+	 * @param dotTime the amount of time the DoT takes
+	 * @param maxDotStacks the max amount of DoT stacks of one skillId + chr combination
+	 */
+	public void createAndAddBurnedInfo(Char chr, int skillId, int slv, int dotDmg, int dotInterval, int dotTime, int maxDotStacks) {
+		int charId = chr.getId();
+		List<BurnedInfo> bis = getBurnsBySkillAndOwner(skillId, chr.getId());
+		int time = dotTime * 1000;
+		BurnedInfo bi = new BurnedInfo();
+		bi.setCharacterId(charId);
+		bi.setChr(chr);
+		bi.setSkillId(skillId);
+		bi.setDamage(chr.getDamageCalc().calcPDamageForPvM(skillId, slv, dotDmg));
+		bi.setInterval(dotInterval * 1000);
+		bi.setDotCount(time / bi.getInterval());
+		bi.setAttackDelay(0);
+		bi.setDotTickIdx(0);
+		bi.setDotTickDamR(0); //damage added for every tick
+		bi.setDotAnimation(bi.getAttackDelay() + bi.getInterval() + time);
 		bi.setStartTime(Util.getCurrentTime());
 		bi.setLastUpdate(Util.getCurrentTime());
 		bi.setEnd((int) (System.currentTimeMillis() + time));
+		long damage = bi.getDamage();
+		if (bis != null && bis.size() >= maxDotStacks) {
+			BurnedInfo toRemove = bis.get(0);
+			removeBurnedInfo(toRemove, false);
+		}
+		addBurnedInfo(bi);
 		Option o = new Option();
 		o.nOption = 0;
-		o.rOption = skill.getSkillId();
+		o.rOption = skillId;
 		addStatOptionsAndBroadcast(MobStat.BurnedInfo, o);
-		ScheduledFuture sf = EventManager.addEvent(() -> removeBurnedInfo(chr, true), time);
+		ScheduledFuture sf = EventManager.addEvent(() -> removeBurnedInfo(bi, true), time);
 		ScheduledFuture burn = EventManager.addFixedRateEvent(
 				() -> getMob().damage(chr, damage), bi.getAttackDelay() + bi.getInterval(), bi.getInterval(), bi.getDotCount());
-		getBurnCancelSchedules().put(timerKey, sf);
-		getBurnSchedules().put(timerKey, burn);
+		getBurnCancelSchedules().put(bi, sf);
+		getBurnSchedules().put(bi, burn);
 	}
 
-	public Map<Tuple<Integer, Integer>, ScheduledFuture> getBurnCancelSchedules() {
+	public Map<BurnedInfo, ScheduledFuture> getBurnCancelSchedules() {
 		return burnCancelSchedules;
 	}
 
-	public Map<Tuple<Integer, Integer>, ScheduledFuture> getBurnSchedules() {
+	public Map<BurnedInfo, ScheduledFuture> getBurnSchedules() {
 		return burnSchedules;
 	}
 
@@ -616,12 +716,5 @@ public class MobTemporaryStat {
 			removeMobStat(EVA, false);
 		}
 		getMob().getField().broadcastPacket(MobPool.statReset(getMob(), (byte) 0, false));
-	}
-
-	public void removeEverything() {
-		Set<MobStat> mobStats = new HashSet<>(getCurrentStatVals().keySet());
-		mobStats.stream().filter(ms -> ms != BurnedInfo).forEach(ms -> removeMobStat(ms, false));
-		Set<BurnedInfo> burnedInfos = new HashSet<>(getBurnedInfos());
-		burnedInfos.forEach(bi -> removeBurnedInfo(bi.getChr(), false));
 	}
 }

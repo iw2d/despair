@@ -103,7 +103,7 @@ public class AttackHandler {
             for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                 net.swordie.ms.life.mob.Mob mob = (Mob) field.getLifeByObjectID(mai.mobId);
                 if (mob == null) {
-                    chr.chatMessage(ChatType.Expedition, String.format("Wrong attack info parse (probably)! SkillID = %d, Mob ID = %d", skillID, mai.mobId));
+                    chr.dbgChatMsg(String.format("Wrong attack info parse (probably)! SkillID = %d, Mob ID = %d", skillID, mai.mobId));
                 } else { // this check was making the sponge not die because it skips the last bit of hp from the dead mob
                     long totalDamage = 0;
                     for (int dmg : mai.damages) {

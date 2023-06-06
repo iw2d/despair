@@ -1116,7 +1116,8 @@ public class Field {
             int itemID = dropInfo.getItemID();
             if (itemID != 0) {
                 ItemInfo ii = ItemData.getItemInfoByID(itemID);
-                if (ii != null && !ii.getQuestIDs().isEmpty() && getCharByID(ownerID).hasAnyQuestsInProgress(ii.getQuestIDs())) {
+                if (ii != null && !ii.getQuestIDs().isEmpty() && getCharByID(ownerID) != null &&
+                        getCharByID(ownerID).hasAnyQuestsInProgress(ii.getQuestIDs())) {
                     questMult = 50;
                 }
             }

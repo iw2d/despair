@@ -8,7 +8,6 @@ import net.swordie.ms.client.character.skills.*;
 import net.swordie.ms.client.character.skills.PartyBooster;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.jobs.Job;
-import net.swordie.ms.client.jobs.adventurer.Warrior;
 import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.Summoned;
@@ -28,6 +27,7 @@ import net.swordie.ms.util.container.Tuple;
 import org.apache.log4j.LogManager;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
@@ -38,11 +38,11 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  */
 public class TemporaryStatManager {
     private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
-    private Map<CharacterTemporaryStat, List<Option>> currentStats = new HashMap<>();
-    private Map<CharacterTemporaryStat, List<Option>> newStats = new HashMap<>();
-    private Map<CharacterTemporaryStat, List<Option>> removedStats = new HashMap<>();
-    private Map<CharacterTemporaryStat, ScheduledFuture> schedules = new HashMap<>();
-    private HashMap<Tuple<CharacterTemporaryStat, Option>, ScheduledFuture> indieSchedules = new HashMap<>();
+    private Map<CharacterTemporaryStat, List<Option>> currentStats = new ConcurrentHashMap<>();
+    private Map<CharacterTemporaryStat, List<Option>> newStats = new ConcurrentHashMap<>();
+    private Map<CharacterTemporaryStat, List<Option>> removedStats = new ConcurrentHashMap<>();
+    private Map<CharacterTemporaryStat, ScheduledFuture> schedules = new ConcurrentHashMap<>();
+    private Map<Tuple<CharacterTemporaryStat, Option>, ScheduledFuture> indieSchedules = new ConcurrentHashMap<>();
     private int pvpDamage;
     private byte defenseState;
     private byte defenseAtt;
@@ -53,6 +53,7 @@ public class TemporaryStatManager {
     private StopForceAtom stopForceAtom;
     private LarknessManager larknessManager;
     private Char chr;
+    private int lastStatResetRequestTime = Util.getCurrentTime();
     private List<TemporaryStatBase> twoStates = new ArrayList<>();
     private Set<AffectedArea> affectedAreas = new HashSet<>();
     private Map<BaseStat, Integer> baseStats = new HashMap<>();
@@ -186,6 +187,9 @@ public class TemporaryStatManager {
     }
 
     public synchronized void removeStat(CharacterTemporaryStat cts, boolean fromSchedule) {
+        if (!hasStat(cts)) {
+            return;
+        }
         if(cts == CombatOrders) {
             chr.setCombatOrders(0);
         }
@@ -833,8 +837,12 @@ public class TemporaryStatManager {
     }
 
     public void sendSetStatPacket() {
-        getChr().getField().broadcastPacket(UserRemote.setTemporaryStat(getChr(), (short) 0), getChr());
-        getChr().getClient().write(WvsContext.temporaryStatSet(this));
+        synchronized (newStats) {
+            if (getNewStats().size() > 0 ) {
+                getChr().getField().broadcastPacket(UserRemote.setTemporaryStat(getChr(), (short) 0), getChr());
+                getChr().write(WvsContext.temporaryStatSet(this));
+            }
+        }
     }
 
     public void sendResetStatPacket() {
@@ -892,6 +900,29 @@ public class TemporaryStatManager {
             }
         }
         return false;
+    }
+
+    public static final EnumSet<CharacterTemporaryStat> RESET_BY_TIME_CTS = EnumSet.of(
+            Stun, Shock, Poison, Seal, Darkness, Weakness, WeaknessMdamage, Curse, Slow, /*TimeBomb,*/
+            DisOrder, Thread, Attract, Magnet, MagnetArea, ReverseInput, BanMap, StopPortion, StopMotion,
+            Fear, Frozen, Frozen2, Web, NotDamaged, FinalCut, Lapidification, VampDeath, VampDeathSummon,
+            GiveMeHeal, TouchMe, Contagion, ComboUnlimited, CrossOverChain, Reincarnation, ComboCostInc,
+            DotBasedBuff, ExtremeArchery, QuiverCatridge, AdvancedQuiver, UserControlMob, ArmorPiercing,
+            CriticalGrowing, QuickDraw, BowMasterConcentration, ComboTempest, SiphonVitality, KnockBack, RWMovingEvar);
+
+    public void resetByTime(int curTime) {
+        if (curTime - lastStatResetRequestTime < 500) {
+            return;
+        }
+        getCurrentStats().forEach((key, value) -> {
+            if (RESET_BY_TIME_CTS.contains(key)) {
+                Option o = value.get(0);
+                if (o.tOption != 0 && curTime - o.tStart >= o.tOption) {
+                    removeStat(key, true);
+                }
+            }
+        });
+        this.lastStatResetRequestTime = curTime;
     }
 
     public void removeStatsBySkill(int skillId) {

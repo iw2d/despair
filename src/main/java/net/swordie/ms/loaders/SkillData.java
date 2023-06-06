@@ -271,7 +271,9 @@ public class SkillData {
                                         } else {
                                             SkillStat skillStat = SkillStat.getSkillStatByString(nodeName);
                                             if (skillStat != null) {
-                                                skill.addSkillStatInfo(skillStat, commonAttr.get("value"));
+                                                if (skillStat != SkillStat.dot || mainName.equals("common")) { // There's also a 'dot' nodeName in info/info2 which acts only as a boolean
+                                                    skill.addSkillStatInfo(skillStat, commonAttr.get("value"));
+                                                }
                                             } else if (!unkVals.contains(nodeName)) {
                                                 if (LOG_UNKS) {
                                                     log.warn("Unknown SkillStat " + nodeName);

@@ -48,12 +48,12 @@ public class DamageCalc {
         return seed3;
     }
 
-    public long calcPDamageForPvM(int skillID, byte slv) {
+    public long calcPDamageForPvM(int skillID, int slv, int dotDmg) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         int weaponType = ItemConstants.getWeaponType(chr.getEquippedItemByBodyPart(BodyPart.Weapon).getItemId());
         SkillInfo si = SkillData.getSkillInfoById(skillID);
-        double mult = (si == null ? 100 : si.getValue(SkillStat.damage, slv)) / 100D;
-        mult = mult == 0 ? si.getValue(SkillStat.dot, slv) / 100D : mult;
+        double mult = (si == null ? 100 : dotDmg) / 100D;
+        mult = mult == 0 ? si.getValue(SkillStat.damage, slv) / 100D : mult;
         BaseStat mainStat = GameConstants.getMainStatForJob(chr.getJob());
         BaseStat secStat = GameConstants.getSecStatByMainStat(mainStat);
         BaseStat attStat = mainStat == inte ? mad : pad;

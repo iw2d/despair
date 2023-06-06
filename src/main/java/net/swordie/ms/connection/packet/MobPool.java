@@ -16,6 +16,7 @@ import net.swordie.ms.util.Rect;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created on 2/28/2018.
@@ -149,7 +150,7 @@ public class MobPool {
         return statReset(mob, byteCalcDamageStatIndex, sn, null);
     }
 
-    public synchronized static OutPacket statReset(Mob mob, byte calcDamageStatIndex, boolean sn, List<BurnedInfo> biList) {
+    public synchronized static OutPacket statReset(Mob mob, byte calcDamageStatIndex, boolean sn, Set<BurnedInfo> biList) {
         OutPacket outPacket = new OutPacket(OutHeader.MOB_STAT_RESET);
         MobTemporaryStat resetStats = mob.getTemporaryStat();
         int[] mask = resetStats.getRemovedMask();
@@ -170,13 +171,17 @@ public class MobPool {
                     outPacket.encodeInt(bi.getSuperPos());
                 }
             }
-            resetStats.getBurnedInfos().clear();
+            synchronized (resetStats.getBurnedInfos()) {
+                resetStats.getBurnedInfos().clear();
+            }
         }
         outPacket.encodeByte(calcDamageStatIndex);
         if(resetStats.hasRemovedMovementAffectingStat()) {
             outPacket.encodeByte(sn);
         }
-        resetStats.getRemovedStatVals().clear();
+        synchronized (resetStats.getRemovedStatVals()) {
+            resetStats.getRemovedStatVals().clear();
+        }
         return outPacket;
     }
 

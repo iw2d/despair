@@ -665,6 +665,15 @@ public abstract class Job {
 		// nothing here yet, @Override to make use of it
 	}
 
+	/**
+	 * Handled when a mob dies
+	 *
+	 * @param mob The Mob that has died.
+	 */
+	public void handleMobDeath(Mob mob) {
+		// nothing here yet, @Override to make use of it
+	}
+
 	public void handleLevelUp() {
 		short level = chr.getLevel();
 		Map<Stat, Object> stats = new HashMap<>();

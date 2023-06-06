@@ -34,7 +34,6 @@ import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -83,11 +82,11 @@ public class Magician extends Beginner {
 
 
     //Mage IL
+    public static final int MP_EATER_IL = 2200000;
     public static final int CHILLING_STEP = 2201009;
     public static final int COLD_BEAM = 2201008;
     public static final int FREEZING_CRUSH = 2200011;
     public static final int FROST_CLUTCH = 2220015;
-
     public static final int MAGIC_BOOSTER_IL = 2201010;
     public static final int MEDITATION_IL = 2201001;
     public static final int ICE_STRIKE = 2211002;
@@ -110,6 +109,7 @@ public class Magician extends Beginner {
     public static final int LIGHTNING_ORB = 2221052;
 
     //Bishop
+    public static final int MP_EATER_BISHOP = 2300000;
     public static final int HEAL = 2301002;
     public static final int MAGIC_BOOSTER_BISH = 2301008;
     public static final int BLESSED_ENSEMBLE = 2300009;
@@ -144,6 +144,11 @@ public class Magician extends Beginner {
     public static final int HEAVENS_DOOR = 2321052;
     public static final int MEGIDDO_FLAME = 2121052;
     public static final int MEGIDDO_FLAME_ATOM = 2121055;
+
+    //Hyper Passives
+    public static final int POISON_MIST_AFTERMATH = 2120044;
+    public static final int POISON_MIST_CRIPPLE = 2120045;
+    public static final int PARALYZE_CRIPPLE = 2120047;
 
 
     private int[] addedSkills = new int[]{
@@ -197,10 +202,9 @@ public class Magician extends Beginner {
     };
 
     public static int hmshits = 0;
-    private int ferventDrainStack = 0;
+    private int ferventDrainStack;
+    private ScheduledFuture ferventDrainTimer;
     private int infinityStack = 0;
-    private static Summon viralSlime;
-    private static List<Summon> viralSlimeList;
     private ScheduledFuture infinityTimer;
 
     public Magician(Char chr) {
@@ -213,6 +217,9 @@ public class Magician extends Beginner {
                     chr.addSkill(skill);
                 }
             }
+        }
+        if (chr != null && chr.getId() != 0 && isHandlerOfJob(chr.getJob()) && JobConstants.isFirePoison(chr.getJob())) {
+            ferventDrainTimer = EventManager.addFixedRateEvent(this::giveFerventDrain, 2, 2, TimeUnit.SECONDS);
         }
     }
 
@@ -330,9 +337,7 @@ public class Magician extends Beginner {
                 infinity();
                 break;
             case VIRAL_SLIME:
-                Skill skill = chr.getSkill(skillID);
-                viralSlimeList = new ArrayList<>();
-                summonViralSlime(chr, skill, chr.getPosition());
+                summonViralSlime(chr.getPosition());
                 break;
             case BLESS:
                 o1.nOption = si.getValue(u, slv);
@@ -578,21 +583,19 @@ public class Magician extends Beginner {
         return skill;
     }
 
-    public static void summonViralSlime(Char chr, Skill skill, Position position) {
-        viralSlime = Summon.getSummonBy(chr, skill.getSkillId(), (byte) skill.getCurrentLevel());
+    public void summonViralSlime(Position position) {
+        Summon viralSlime = Summon.getSummonBy(chr, VIRAL_SLIME, (byte) chr.getSkillLevel(VIRAL_SLIME));
         Field field = chr.getField();
         viralSlime.setFlyMob(false);
         viralSlime.setPosition(position);
         viralSlime.setCurFoothold((short) chr.getField().findFootHoldBelow(position).getId());
         viralSlime.setMoveAbility(MoveAbility.WalkRandom);
+        viralSlime.setAssistType(AssistType.Attack);
         field.spawnAddSummon(viralSlime);
     }
 
-    public static void infestViralSlime(Char chr, Mob mob) {
-        if(viralSlimeList.size() < 10) {
-            summonViralSlime(chr, chr.getSkill(VIRAL_SLIME), mob.getPosition());
-            summonViralSlime(chr, chr.getSkill(VIRAL_SLIME), mob.getPosition());
-        }
+    private int getViralSlimeCount() {
+        return (int) chr.getField().getSummons().stream().filter(s -> s.getSkillID() == VIRAL_SLIME && s.getChr() == chr).count();
     }
 
     private int changeBishopHealingBuffs(int skillID) {
@@ -674,6 +677,15 @@ public class Magician extends Beginner {
         return skill;
     }
 
+    @Override
+    public void handleMobDeath(Mob mob) {
+        MobTemporaryStat mts = mob.getTemporaryStat();
+        if (mts.hasBurnFromSkillAndOwner(VIRAL_SLIME, chr.getId()) && getViralSlimeCount() < 10) {
+            summonViralSlime(mob.getPosition());
+            summonViralSlime(mob.getPosition());
+        }
+        super.handleMobDeath(mob);
+    }
 
 
     // Attack related methods ------------------------------------------------------------------------------------------
@@ -695,6 +707,7 @@ public class Magician extends Beginner {
 
         if (hasHitMobs) {
             incrementArcaneAim();
+            mpEaterEffect(attackInfo);
         }
         //Ignite
         applyIgniteOnMob(attackInfo, tsm);
@@ -729,17 +742,14 @@ public class Magician extends Beginner {
                             continue;
                         }
                         MobTemporaryStat mts = mob.getTemporaryStat();
-                        fpBurnedInfo(mob, skill);
+                        mts.createAndAddBurnedInfo(chr, skillID, slv, si.getValue(dot, slv), si.getValue(dotInterval, slv), getExtendedDoTTime(si.getValue(dotTime, slv)), 1);
                     }
                 }
                 break;
             case POISON_MIST:
                 AffectedArea aa = AffectedArea.getAffectedArea(chr, attackInfo);
-                aa.setMobOrigin((byte) 0);
-                int x = attackInfo.forcedX;
-                int y = attackInfo.forcedY;
-                aa.setPosition(new Position(x, y));
-                aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
+                aa.setPosition(chr.getPosition());
+                aa.setRect(aa.getPosition().getRectAround(si.getFirstRect()));
                 aa.setDelay((short) 9);
                 chr.getField().spawnAffectedArea(aa);
                 break;
@@ -750,18 +760,28 @@ public class Magician extends Beginner {
                         if (mob == null) {
                             continue;
                         }
-                        if(!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
+                        MobTemporaryStat mts = mob.getTemporaryStat();
+                        if (!mob.isBoss()) {
                             o1.nOption = 1;
                             o1.rOption = skill.getSkillId();
                             o1.tOption = si.getValue(time, slv);
                             mts.addStatOptions(MobStat.Stun, o1);
-                            fpBurnedInfo(mob, skill);
                         }
+                        mts.createAndAddBurnedInfo(chr, skillID, slv, si.getValue(dot, slv), si.getValue(dotInterval, slv), getExtendedDoTTime(si.getValue(dotTime, slv)), 1);
                     }
                 }
                 break;
             case FLAME_HAZE:
+                SkillInfo pmSi = SkillData.getSkillInfoById(POISON_MIST);
+                byte pmSlv = (byte) chr.getSkillLevel(POISON_MIST);
+                aa = AffectedArea.getPassiveAA(chr, POISON_MIST, pmSlv > 0 ? pmSlv : 1);
+                aa.setPosition(chr.getPosition());
+                o1.nOption = 1;
+                o1.rOption = skill.getSkillId();
+                o1.tOption = si.getValue(time, slv);
+                o2.nOption = si.getValue(x, slv); // already negative in si
+                o2.rOption = skill.getSkillId();
+                o2.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
@@ -769,48 +789,35 @@ public class Magician extends Beginner {
                     }
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         MobTemporaryStat mts = mob.getTemporaryStat();
-                        o1.nOption = 1;
-                        o1.rOption = skill.getSkillId();
-                        o1.tOption = si.getValue(time, slv);
-                        mts.addStatOptions(MobStat.Showdown, o1); //Untouchable (physical dmg) Mob Stat
-                        o1.nOption = 1;
-                        o1.rOption = skill.getSkillId();
-                        o1.tOption = si.getValue(time, slv);
-                        mts.addStatOptions(MobStat.Speed, o1);
-                        fpBurnedInfo(mob, skill); //Global Burned Info Handler to regulate Fervent Drain/Element Drain
+                        if (!mob.isBoss()) {
+                            mts.addStatOptionsAndBroadcast(MobStat.DodgeBodyAttack, o1); //Untouchable (physical dmg) Mob Stat
+                        }
+                        mts.addStatOptionsAndBroadcast(MobStat.Speed, o2);
+                        mts.createAndAddBurnedInfo(chr, skillID, slv, si.getValue(dot, slv), si.getValue(dotInterval, slv), getExtendedDoTTime(si.getValue(dotTime, slv)), 1);
                     }
-                    AffectedArea aa2 = AffectedArea.getAffectedArea(chr, attackInfo);
-                    aa2.setMobOrigin((byte) 0);
-                    int x2 = mob.deepCopy().getPosition().getX();
-                    int y2 = mob.deepCopy().getPosition().getY();
-                    aa2.setPosition(new Position(x2, y2));
-                    aa2.setRect(aa2.getPosition().getRectAround(si.getRects().get(0)));
-                    chr.getField().spawnAffectedArea(aa2);
+                    aa.setPosition(mob.getPosition());
                 }
-                break;
-            case IFRIT:
-                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if (mob == null) {
-                        continue;
-                    }
-                    fpBurnedInfo(mob, skill);
-                }
+                aa.setRect(aa.getPosition().getRectAround(pmSi.getFirstRect()));
+                chr.getField().spawnAffectedArea(aa);
                 break;
             case PARALYZE:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
                     }
-                    if(!mob.isBoss()) {
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        o1.nOption = 1;
-                        o1.rOption = skillID;
-                        o1.tOption = si.getValue(time, slv);
+                    MobTemporaryStat mts = mob.getTemporaryStat();
+                    if (!mob.isBoss()) {
                         mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        fpBurnedInfo(mob, skill);
                     }
+                    int dotDmg = si.getValue(dot, slv);
+                    if (chr.hasSkill(PARALYZE_CRIPPLE)) {
+                        dotDmg += chr.getSkillStatValue(dot, PARALYZE_CRIPPLE);
+                    }
+                    mts.createAndAddBurnedInfo(chr, skillID, slv, dotDmg, si.getValue(dotInterval, slv), getExtendedDoTTime(si.getValue(dotTime, slv)), 1);
                 }
                 break;
             case COLD_BEAM:
@@ -901,24 +908,24 @@ public class Magician extends Beginner {
                 tsm.sendSetStatPacket();
                 break;
             case MEGIDDO_FLAME_ATOM:
-                Skill megSkill = chr.getSkill(MEGIDDO_FLAME);
-                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if (mob == null) {
-                        continue;
-                    }
-                    fpBurnedInfo(mob, megSkill);
-                }
-                break;
+            case IFRIT:
             case VIRAL_SLIME:
+                if (attackInfo.skillId == MEGIDDO_FLAME_ATOM) {
+                    skillID = MEGIDDO_FLAME;
+                    si = SkillData.getSkillInfoById(MEGIDDO_FLAME);
+                    slv = (byte) chr.getSkillLevel(MEGIDDO_FLAME);
+                }
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
                     }
-                    fpBurnedInfo(mob, skill);
-                    EventManager.addEvent(() -> c.write(Summoned.summonedRemoved(viralSlime, LeaveType.NO_ANIMATION)), 800, TimeUnit.MILLISECONDS);
-                    viralSlimeList.add(viralSlime);
+                    MobTemporaryStat mts = mob.getTemporaryStat();
+                    mts.createAndAddBurnedInfo(chr, skillID, slv, si.getValue(dot, slv), si.getValue(dotInterval, slv), getExtendedDoTTime(si.getValue(dotTime, slv)), 1);
+                }
+                if (attackInfo.skillId == VIRAL_SLIME) {
+                    Summon viralSlime = attackInfo.summon;
+                    chr.getField().removeLife(viralSlime.getObjectId(), true);
                 }
                 break;
         }
@@ -926,27 +933,32 @@ public class Magician extends Beginner {
         super.handleAttack(c, attackInfo);
     }
 
+    public int getExtendedDoTTime(int dotTime) {
+        if (chr.hasSkill(BURNING_MAGIC)) {
+            dotTime += (chr.getSkillStatValue(x, BURNING_MAGIC) * dotTime) / 100D;
+        }
+        return dotTime;
+    }
+
     private void createMegiddoFlameForceAtom() {
         Field field = chr.getField();
         SkillInfo si = SkillData.getSkillInfoById(MEGIDDO_FLAME);
-        Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
+        Rect rect = chr.getPosition().getRectAround(si.getFirstRect());
         if (!chr.isLeft()) {
-            rect = rect.moveRight();
+            rect = rect.horizontalFlipAround(chr.getPosition().getX());
         }
-        List<Mob> lifes = field.getMobsInRect(rect);
-        if(lifes.size() <= 0) {
-            return;
+        if (field.getMobsInRect(rect).size() > 0) {
+            Mob life = Util.getRandomFromCollection(field.getMobsInRect(rect));
+            int mobID2 = (life).getObjectId();
+            int inc = ForceAtomEnum.DA_ORB.getInc();
+            int type = ForceAtomEnum.DA_ORB.getForceAtomType();
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 20, 40,
+                    0, 500, (int) System.currentTimeMillis(), 1, 0,
+                    new Position(0, -100));
+            chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
+                    true, mobID2, MEGIDDO_FLAME_ATOM, forceAtomInfo, new Rect(), 0, 300,
+                    life.getPosition(), MEGIDDO_FLAME_ATOM, life.getPosition()));
         }
-        Mob life = Util.getRandomFromCollection(lifes);
-        int mobID2 = (life).getObjectId();
-        int inc = ForceAtomEnum.DA_ORB.getInc();
-        int type = ForceAtomEnum.DA_ORB.getForceAtomType();
-        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 20, 40,
-                0, 500, (int) System.currentTimeMillis(), 1, 0,
-                new Position(0, -100));
-        chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
-                true, mobID2, MEGIDDO_FLAME_ATOM, forceAtomInfo, new Rect(), 0, 300,
-                life.getPosition(), MEGIDDO_FLAME_ATOM, life.getPosition()));
     }
 
     private void recreateMegiddoFlameForceAtom(int skillID, byte slv, AttackInfo attackInfo) {
@@ -1037,12 +1049,10 @@ public class Magician extends Beginner {
                     continue;
                 }
                 if (Util.succeedProp(igniteInfo.getValue(prop, slv))) {
-                    AffectedArea aa = AffectedArea.getPassiveAA(chr, IGNITE, (byte) 10);
-                    aa.setMobOrigin((byte) 1);
-                    aa.setPosition(mob.getPosition());
-                    aa.setRect(aa.getPosition().getRectAround(igniteInfo.getRects().get(0)));
-                    aa.setDelay((short) 2);
-                    aa.setSkillID(IGNITE_AA);
+                    AffectedArea aa = AffectedArea.getPassiveAA(chr, IGNITE_AA, slv);
+                    aa.setPosition(mob.deepCopy().getPosition());
+                    aa.setRect(aa.getPosition().getRectAround(igniteInfo.getFirstRect()));
+                    aa.setDelay((short) 3);
                     chr.getField().spawnAffectedArea(aa);
                 }
             }
@@ -1050,13 +1060,14 @@ public class Magician extends Beginner {
     }
 
     //Elemental/Fervent Drain - FP
-    public int getFerventDrainStack() {
+    private int getFerventDrainStack() {
         return ferventDrainStack;
     }
 
-    public void setFerventDrainStack(int ferventDrainStack) {
+    private void setFerventDrainStack(int ferventDrainStack) {
         this.ferventDrainStack = ferventDrainStack;
     }
+
 
     private int getElementalDrainSkill() {
         int res = 0;
@@ -1068,19 +1079,12 @@ public class Magician extends Beginner {
         return res;
     }
 
-    private void fpBurnedInfo(Mob mob, Skill attackSkill) {
-        int attackSlv = attackSkill.getCurrentLevel();
-        int biDuration = SkillData.getSkillInfoById(attackSkill.getSkillId()).getValue(dotTime, attackSlv);
-        MobTemporaryStat mts = mob.getTemporaryStat();
-        mts.createAndAddBurnedInfo(chr, attackSkill);
-        setFerventDrainStack(getFerventDrainStack() + 1);
-        updateElementDrain();
-        EventManager.addEvent(this::eventSetFerventDrain, biDuration, TimeUnit.SECONDS);
-    }
-
-    private void eventSetFerventDrain() {
-        setFerventDrainStack(getFerventDrainStack() - 1);
-        updateElementDrain();
+    private void giveFerventDrain() {
+        Field field = chr.getField();
+        if (field != null) {
+            setFerventDrainStack((int) field.getMobs().stream().filter(m -> m.getTemporaryStat().hasBurnFromOwner(chr.getId())).count());
+            updateElementDrain();
+        }
     }
 
     private void updateElementDrain() {
@@ -1272,6 +1276,49 @@ public class Magician extends Beginner {
         }
     }
 
+    private void mpEaterEffect(AttackInfo attackInfo) {
+        Skill skill = getMPEaterSkill();
+        if (skill == null || attackInfo.skillId == 0) {
+            return;
+        }
+        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+        int slv = skill.getCurrentLevel();
+        int mpStolen = si.getValue(x, slv);
+        boolean showedEffect = false;
+        for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+            if (Util.succeedProp(si.getValue(prop, slv))) {
+                Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                if (mob == null || mob.getMp() <= 0) {
+                    continue;
+                }
+                long mobMaxMP = mob.getMaxMp();
+                int mpAbsorbed = (int) (mobMaxMP * ((double) mpStolen / 100));
+                mob.healMP(-(Math.min(mpAbsorbed, 500)));
+                chr.healMP(Math.min(mpAbsorbed, 500));
+
+                if (!showedEffect) {
+                    showedEffect = true;
+                    chr.write(UserPacket.effect(Effect.skillUse(getMPEaterSkill().getSkillId(), (byte) slv, 0)));
+                    chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(getMPEaterSkill().getSkillId(), (byte) slv, 0)));
+                }
+            }
+        }
+    }
+
+    private Skill getMPEaterSkill() {
+        Skill skill = null;
+        if (chr.hasSkill(MP_EATER_FP)) {
+            skill = chr.getSkill(MP_EATER_FP);
+
+        } else if (chr.hasSkill(MP_EATER_IL)) {
+            skill = chr.getSkill(MP_EATER_IL);
+
+        } else if (chr.hasSkill(MP_EATER_BISHOP)) {
+            skill = chr.getSkill(MP_EATER_BISHOP);
+        }
+        return skill;
+    }
+
     private void createChillStepAA() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         SkillInfo chillingStepInfo = SkillData.getSkillInfoById(CHILLING_STEP);
@@ -1350,6 +1397,14 @@ public class Magician extends Beginner {
             tsm.sendResetStatPacket();
             tsm.removeAllDebuffs();
         }
+    }
+
+    @Override
+    public void handleCancelTimer(Char chr) {
+        if (ferventDrainTimer != null && !ferventDrainTimer.isDone()) {
+            ferventDrainTimer.cancel(true);
+        }
+        super.handleCancelTimer(chr);
     }
 
     // Elemental Adaptation - FP

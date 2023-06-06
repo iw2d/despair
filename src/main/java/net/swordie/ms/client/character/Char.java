@@ -1879,6 +1879,21 @@ public class Char {
 		return 0;
 	}
 
+	/**
+	 * Gets the given SkillStat's Value.
+	 *
+	 * @param skillStat SkillStat to get the value from.
+	 * @param skillId   Specified skillId to grab the SkillInfo from.
+	 * @return value of the given SkillStat of the given Skill Id
+	 */
+	public int getSkillStatValue(SkillStat skillStat, int skillId) {
+		if (hasSkill(skillId)) {
+			SkillInfo si = SkillData.getSkillInfoById(skillId);
+			return si.getValue(skillStat, getSkillLevel(skillId));
+		}
+		return 0;
+	}
+
 	public int getRemainRecipeUseCount(int recipeID) {
 		if (SkillConstants.isMakingSkillRecipe(recipeID)) {
 			return getSkillLevel(recipeID);
@@ -4552,7 +4567,8 @@ public class Char {
 	}
 
 	public boolean applyBulletCon(int skillID, byte slv) {
-		if (getTemporaryStatManager().hasStat(NoBulletConsume) || JobConstants.isPhantom(getJob())) {
+		if (getTemporaryStatManager().hasStat(NoBulletConsume) || JobConstants.isPhantom(getJob()) || JobConstants.isAdventurerMage(getJob())) {
+			// 2121052 - Megiddo Flame has bulletCount = 1
 			return true;
 		}
 		SkillInfo si = SkillData.getSkillInfoById(skillID);
