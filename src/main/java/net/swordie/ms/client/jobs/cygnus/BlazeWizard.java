@@ -505,7 +505,7 @@ public class BlazeWizard extends Noblesse {
         super.handleHit(c, inPacket, hitInfo);
     }
 
-    public static void reviveByPhoenixRun(Char chr) {
+    public void reviveByPhoenixRun() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o = new Option();
         Skill skill = chr.getSkill(PHOENIX_RUN);

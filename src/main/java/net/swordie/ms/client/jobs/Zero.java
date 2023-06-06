@@ -614,7 +614,7 @@ public class Zero extends Job {
         super.handleHit(c, inPacket, hitInfo);
     }
 
-    public static void reviveByRewind(Char chr) {
+    public void reviveByRewind() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         chr.heal(chr.getMaxHP());
         tsm.removeStatsBySkill(REWIND);

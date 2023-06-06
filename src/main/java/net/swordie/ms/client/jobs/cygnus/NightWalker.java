@@ -750,7 +750,7 @@ public class NightWalker extends Noblesse {
         super.handleHit(c, inPacket, hitInfo);
     }
 
-    public static void reviveByDarknessAscending(Char chr) {
+    public void reviveByDarknessAscending() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         chr.heal(chr.getMaxHP());
         tsm.removeStatsBySkill(DARKNESS_ASCENDING);

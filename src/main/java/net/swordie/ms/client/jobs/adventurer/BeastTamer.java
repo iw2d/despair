@@ -846,7 +846,7 @@ public class BeastTamer extends Job {
         super.handleHit(c, inPacket, hitInfo);
     }
 
-    public static void reviveByBearReborn(Char chr) { // TODO
+    public void reviveByBearReborn() { // TODO
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         chr.heal(chr.getMaxHP());
         tsm.removeStatsBySkill(BEAR_REBORN);

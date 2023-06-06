@@ -503,7 +503,7 @@ public class Shade extends Job {
 
     }
 
-    public static void reviveBySummonOtherSpirit(Char chr) {
+    public void reviveBySummonOtherSpirit() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         chr.heal(chr.getMaxHP());
         tsm.removeStatsBySkill(SUMMON_OTHER_SPIRIT);

@@ -585,7 +585,7 @@ public class Phantom extends Job {
         super.handleHit(c, inPacket, hitInfo);
     }
 
-    public static void reviveByFinalFeint(Char chr) {
+    public void reviveByFinalFeint() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o = new Option();
         Skill skill = chr.getSkill(FINAL_FEINT);

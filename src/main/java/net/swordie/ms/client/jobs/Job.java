@@ -492,37 +492,37 @@ public abstract class Job {
 
 			// Dark Knight - Final Pact
 			else if(JobConstants.isDarkKnight(chr.getJob()) && chr.hasSkill(Warrior.FINAL_PACT_INFO)) {
-				((Warrior) chr.getJobHandler()).reviveByFinalPact(chr);
+				((Warrior) chr.getJobHandler()).reviveByFinalPact();
 			}
 
 			// Night Walker - Darkness Ascending
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, NightWalker.DARKNESS_ASCENDING) != null ) {
-				NightWalker.reviveByDarknessAscending(chr);
+				((NightWalker) chr.getJobHandler()).reviveByDarknessAscending();
 			}
 
 			// Blaze Wizard - Phoenix Run
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, BlazeWizard.PHOENIX_RUN) != null) {
-				BlazeWizard.reviveByPhoenixRun(chr);
+				((BlazeWizard) chr.getJobHandler()).reviveByPhoenixRun();
 			}
 
 			// Shade - Summon Other Spirit
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, Shade.SUMMON_OTHER_SPIRIT) != null) {
-				Shade.reviveBySummonOtherSpirit(chr);
+				((Shade) chr.getJobHandler()).reviveBySummonOtherSpirit();
 			}
 
 			// Beast Tamer - Bear Reborn		TODO
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, BeastTamer.BEAR_REBORN) != null) {
-				BeastTamer.reviveByBearReborn(chr);
+				((BeastTamer) chr.getJobHandler()).reviveByBearReborn();
 			}
 
 			// Zero - Rewind
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, Zero.REWIND) != null) {
-				Zero.reviveByRewind(chr);
+				((Zero) chr.getJobHandler()).reviveByRewind();
 			}
 
 			// Phantom - Final Feint
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, Phantom.FINAL_FEINT) != null) {
-				Phantom.reviveByFinalFeint(chr);
+				((Phantom) chr.getJobHandler()).reviveByFinalFeint();
 			}
 
 
