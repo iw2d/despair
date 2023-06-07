@@ -393,7 +393,7 @@ public class Archer extends Beginner {
                         quiverCartridge.decrementAmount();
                         int inc = ForceAtomEnum.BM_ARROW.getInc();
                         int type = ForceAtomEnum.BM_ARROW.getForceAtomType();
-                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 13, 12,
+                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 13, 12,
                                 num, 0, (int) System.currentTimeMillis(), 1, 0,
                                 new Position());
                         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,

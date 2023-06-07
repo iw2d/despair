@@ -79,9 +79,9 @@ public class BlazeWizard extends Noblesse {
     public static final int CALL_OF_CYGNUS_BW = 12121000; //Buff
     public static final int ORBITAL_FLAME_RANGE = 12121043; // Buff - toggle
 
-    public static final int DRAGON_BLAZE_FIRST = 12121054;
-
+    public static final int CATACLYSM = 12121052;
     public static final int GLORY_OF_THE_GUARDIANS_BW = 12121053;
+    public static final int DRAGON_BLAZE_FIRST = 12121054;
 
     //Flame Elements
     public static final int FLAME_ELEMENT = 12000022;

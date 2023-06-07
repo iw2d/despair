@@ -351,7 +351,7 @@ public class Evan extends Job {
                 inc = ForceAtomEnum.ADV_WRECKAGE.getInc();
                 type = ForceAtomEnum.ADV_WRECKAGE.getForceAtomType();
             }
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 15, 10,
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 15, 10,
                     0, 200, (int) System.currentTimeMillis(), 1, 0,
                     debrisPos.get(i));
             chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,

@@ -3,7 +3,6 @@ package net.swordie.ms.client.jobs.adventurer;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
-import net.swordie.ms.client.character.quest.QuestManager;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.TownPortal;
@@ -975,7 +974,7 @@ public class Magician extends Beginner {
             int mobID2 = (life).getObjectId();
             int inc = ForceAtomEnum.DA_ORB.getInc();
             int type = ForceAtomEnum.DA_ORB.getForceAtomType();
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 20, 40,
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
                     0, 500, (int) System.currentTimeMillis(), 1, 0,
                     new Position(0, -100));
             chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -998,7 +997,7 @@ public class Magician extends Beginner {
 
                 int inc = ForceAtomEnum.DA_ORB_RECREATION.getInc();
                 int type = ForceAtomEnum.DA_ORB_RECREATION.getForceAtomType();
-                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 30, 5,
+                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 30, 5,
                         anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
                         new Position(0, 0));
                 chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,

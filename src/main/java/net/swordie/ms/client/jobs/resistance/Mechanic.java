@@ -394,7 +394,7 @@ public class Mechanic extends Citizen {
             Mob mob = Util.getRandomFromCollection(mobs);
             int inc = getHomingBeaconForceAtomEnum().getInc();
             int type = getHomingBeaconForceAtomEnum().getForceAtomType();
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 30, 25,
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 30, 25,
                     0, 200 + (i * 2), (int) System.currentTimeMillis(), 1, 0,
                     new Position());
             field.broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -424,7 +424,7 @@ public class Mechanic extends Citizen {
         for(int i = 0; i < getHomingBeaconBulletCount(); i++) {
             int inc = getHomingBeaconForceAtomEnum().getInc();
             int type = getHomingBeaconForceAtomEnum().getForceAtomType();
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 30, 25,
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 30, 25,
                     0, 200, (int) System.currentTimeMillis(), 1, 0,
                     new Position());
             field.broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,

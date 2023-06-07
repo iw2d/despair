@@ -69,6 +69,15 @@ public class UserLocal {
         return outPacket;
     }
 
+    public static OutPacket skillUseResult(byte unk, int skillID) {
+        OutPacket outPacket = new OutPacket(OutHeader.SKILL_USE_RESULT);
+
+        outPacket.encodeByte(unk);
+        outPacket.encodeInt(skillID);
+
+        return outPacket;
+    }
+
     public static OutPacket addPopupSay(int npcID, int duration, String message, String effect) {
         OutPacket outPacket = new OutPacket(OutHeader.ADD_POPUP_SAY);
 

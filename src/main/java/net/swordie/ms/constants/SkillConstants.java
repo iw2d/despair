@@ -7,11 +7,9 @@ import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.DawnWarrior;
 import net.swordie.ms.client.jobs.cygnus.NightWalker;
 import net.swordie.ms.client.jobs.cygnus.ThunderBreaker;
-import net.swordie.ms.client.jobs.legend.Aran;
-import net.swordie.ms.client.jobs.legend.Evan;
-import net.swordie.ms.client.jobs.legend.Phantom;
-import net.swordie.ms.client.jobs.legend.Shade;
+import net.swordie.ms.client.jobs.legend.*;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
+import net.swordie.ms.client.jobs.resistance.Blaster;
 import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.client.jobs.resistance.Mechanic;
 import net.swordie.ms.enums.BeastTamerBeasts;
@@ -20,12 +18,7 @@ import org.apache.log4j.Logger;
 
 import java.util.*;
 
-import static net.swordie.ms.client.jobs.legend.Aran.*;
-import static net.swordie.ms.client.jobs.legend.Mercedes.STAGGERING_STRIKES;
-import static net.swordie.ms.client.jobs.legend.Mercedes.STUNNING_STRIKES;
-import static net.swordie.ms.client.jobs.nova.AngelicBuster.*;
 import static net.swordie.ms.client.jobs.nova.Kaiser.*;
-import static net.swordie.ms.client.jobs.resistance.Blaster.*;
 
 /**
  * Created on 12/18/2017.
@@ -766,29 +759,29 @@ public class SkillConstants {
             case 14121002: //NW - Triple Throw Finisher
                 return 14121001; //NW - Triple Throw
 
-            case STAGGERING_STRIKES:
-                return STUNNING_STRIKES;
+            case Mercedes.STAGGERING_STRIKES:
+                return Mercedes.STUNNING_STRIKES;
 
-            case SMASH_WAVE_COMBO:
-                return SMASH_WAVE;
+            case Aran.SMASH_WAVE_COMBO:
+                return Aran.SMASH_WAVE;
 
-            case FINAL_BLOW_COMBO:
-            case FINAL_BLOW_SMASH_SWING_COMBO:
-                return FINAL_BLOW;
+            case Aran.FINAL_BLOW_COMBO:
+            case Aran.FINAL_BLOW_SMASH_SWING_COMBO:
+                return Aran.FINAL_BLOW;
 
-            case SOUL_SEEKER_ATOM:
-                return SOUL_SEEKER;
+            case AngelicBuster.SOUL_SEEKER_ATOM:
+                return AngelicBuster.SOUL_SEEKER;
 
             case 65101006: //AB - Lovely Sting Explosion
-                return LOVELY_STING;
+                return AngelicBuster.LOVELY_STING;
 
             case 65121007:
             case 65121008:
-                return TRINITY;
+                return AngelicBuster.TRINITY;
 
-            case REVOLVING_CANNON_2:
-            case REVOLVING_CANNON_3:
-                return REVOLVING_CANNON;
+            case Blaster.REVOLVING_CANNON_2:
+            case Blaster.REVOLVING_CANNON_3:
+                return Blaster.REVOLVING_CANNON;
             default:
                 return skillID;
         }
@@ -1286,12 +1279,17 @@ public class SkillConstants {
             case 5711021:
             case 22171063:
             case 22141012:
+            case Magician.THUNDER_STORM:
+            case Magician.FROZEN_ORB:
+            case Thief.SHADOW_VEIL:
+            case BlazeWizard.CATACLYSM:
             case ThunderBreaker.GALE:
             case ThunderBreaker.TYPHOON:
             case Demon.DEMON_CRY:
             case Mechanic.DISTORTION_BOMB:
-            case BALLISTIC_HURRICANE:
-            case BALLISTIC_HURRICANE_1:
+            case AngelicBuster.SUPREME_SUPERNOVA:
+            case Blaster.BALLISTIC_HURRICANE:
+            case Blaster.BALLISTIC_HURRICANE_1:
                 return true;
         }
         return false;

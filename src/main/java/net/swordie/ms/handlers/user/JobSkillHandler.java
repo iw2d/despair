@@ -228,7 +228,7 @@ public class JobSkillHandler {
                 range /= 1.5;
                 break;
         }
-        ForceAtomInfo fai = new ForceAtomInfo(1, fae.getInc(), firstImpact, secondImpact,
+        ForceAtomInfo fai = new ForceAtomInfo(chr.getNewForceAtomKey(), fae.getInc(), firstImpact, secondImpact,
                 angle, 0, curTime, si.getValue(SkillStat.mobCount, slv), skillID, new Position(0, 0));
         List<ForceAtomInfo> faiList = new ArrayList<>();
         faiList.add(fai);
@@ -404,7 +404,7 @@ public class JobSkillHandler {
                         break;
                 }
 
-                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 25, 30,
+                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 25, 30,
                         0, 10 * i, (int) System.currentTimeMillis(), 1, 0,
                         new Position());
                 chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -436,7 +436,7 @@ public class JobSkillHandler {
                         break;
                 }
 
-                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 25, 30,
+                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 25, 30,
                         0, 12 * i, (int) System.currentTimeMillis(), 1, 0,
                         new Position());
                 chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,

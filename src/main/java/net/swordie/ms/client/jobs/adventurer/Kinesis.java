@@ -320,7 +320,7 @@ public class Kinesis extends Job {
                 int mobID = mai.mobId;
                 ForceAtomEnum fae = ForceAtomEnum.KINESIS_ORB_REAL;
                 int curTime = Util.getCurrentTime();
-                ForceAtomInfo fai = new ForceAtomInfo(1, fae.getInc(), 15, 15,
+                ForceAtomInfo fai = new ForceAtomInfo(chr.getNewForceAtomKey(), fae.getInc(), 15, 15,
                         0, 0, curTime, 0, skillID, new Position(0, 0));
                 c.getChr().getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), fae.getForceAtomType(), true,
                         mobID, KINETIC_COMBO, fai, null, 0, 0, null, 0, null));

@@ -445,7 +445,7 @@ public class Xenon extends Job {
             int mobID = mob.getObjectId();
             int inc = ForceAtomEnum.XENON_ROCKET_3.getInc();
             int type = ForceAtomEnum.XENON_ROCKET_3.getForceAtomType();
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 20, 40,
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
                     anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
                     new Position());
             chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -603,7 +603,7 @@ public class Xenon extends Job {
                     int firstImpact = 5 + random.nextInt(6);
                     int secondImpact = 5 + random.nextInt(6);
                     int angle = random.nextInt(180);
-                    ForceAtomInfo fai = new ForceAtomInfo(1, fae.getInc(), firstImpact, secondImpact,
+                    ForceAtomInfo fai = new ForceAtomInfo(chr.getNewForceAtomKey(), fae.getInc(), firstImpact, secondImpact,
                             angle, 0, curTime, 0, AEGIS_SYSTEM_ATOM, new Position(0, 0));
                     faiList.add(fai);
                     mobList.add(mobID);

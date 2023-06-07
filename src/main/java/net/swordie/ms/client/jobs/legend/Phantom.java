@@ -325,7 +325,7 @@ public class Phantom extends Job {
                         int mobID = mai.mobId;
                         int inc = ForceAtomEnum.PHANTOM_CARD_2.getInc();
                         int type = ForceAtomEnum.PHANTOM_CARD_2.getForceAtomType();
-                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 20, 35,
+                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 35,
                                 anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
                                 new Position()); //Slightly behind the player
                         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -335,7 +335,7 @@ public class Phantom extends Job {
                         int mobID = mai.mobId;
                         int inc = ForceAtomEnum.PHANTOM_CARD_1.getInc();
                         int type = ForceAtomEnum.PHANTOM_CARD_1.getForceAtomType();
-                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 20, 40,
+                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
                                 anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
                                 new Position()); //Slightly behind the player
                         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -370,7 +370,7 @@ public class Phantom extends Job {
                     int mobID = mob.getObjectId();
                     int inc = ForceAtomEnum.PHANTOM_CARD_2.getInc();
                     int type = ForceAtomEnum.PHANTOM_CARD_2.getForceAtomType();
-                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 20, 35,
+                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 35,
                             350 - (2 * i), i * 5, (int) System.currentTimeMillis(), 1, 0,
                             new Position()); //Slightly behind the player
                     chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -380,7 +380,7 @@ public class Phantom extends Job {
                     int mobID = mob.getObjectId();
                     int inc = ForceAtomEnum.PHANTOM_CARD_1.getInc();
                     int type = ForceAtomEnum.PHANTOM_CARD_1.getForceAtomType();
-                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 20, 40,
+                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
                             350 - (2 * i), i * 5, (int) System.currentTimeMillis(), 1, 0,
                             new Position()); //Slightly behind the player
                     chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,

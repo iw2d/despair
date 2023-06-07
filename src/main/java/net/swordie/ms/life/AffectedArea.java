@@ -250,17 +250,19 @@ public class AffectedArea extends Life {
                 mts.addStatOptionsAndBroadcast(MobStat.Freeze, o);
                 break;
             case Thief.FRAILTY_CURSE:
-                o.nOption = si.getValue(SkillStat.y, slv);
-                o.rOption = skillID;
-                o.tOption = si.getValue(time, slv);
-                mts.addStatOptionsAndBroadcast(MobStat.Speed, o);
-                o1.nOption = si.getValue(SkillStat.x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                mts.addStatOptionsAndBroadcast(MobStat.PAD, o);
-                mts.addStatOptionsAndBroadcast(MobStat.PDR, o);
-                mts.addStatOptionsAndBroadcast(MobStat.MAD, o);
-                mts.addStatOptionsAndBroadcast(MobStat.MDR, o);
+                if (!mob.isBoss() || chr.hasSkill(Thief.FRAILTY_CURSE_BOSS_RUSH)) {
+                    o.nOption = si.getValue(SkillStat.y, slv) - chr.getSkillStatValue(s, Thief.FRAILTY_CURSE_SLOW); // already negative in SI
+                    o.rOption = skillID;
+                    o.tOption = si.getValue(time, slv);
+                    mts.addStatOptionsAndBroadcast(MobStat.Speed, o);
+                    o1.nOption = -si.getValue(SkillStat.w, slv) - chr.getSkillStatValue(v, Thief.FRAILTY_CURSE_ENHANCE);
+                    o1.rOption = skillID;
+                    o1.tOption = si.getValue(time, slv);
+                    mts.addStatOptionsAndBroadcast(MobStat.PAD, o1);
+                    mts.addStatOptionsAndBroadcast(MobStat.PDR, o1);
+                    mts.addStatOptionsAndBroadcast(MobStat.MAD, o1);
+                    mts.addStatOptionsAndBroadcast(MobStat.MDR, o1);
+                }
                 break;
             case Zero.TIME_DISTORTION:
                 mts.removeBuffs();

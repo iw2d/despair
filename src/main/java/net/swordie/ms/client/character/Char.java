@@ -37,6 +37,8 @@ import net.swordie.ms.client.guild.GuildMember;
 import net.swordie.ms.client.guild.result.GuildResult;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.JobManager;
+import net.swordie.ms.client.jobs.adventurer.Magician;
+import net.swordie.ms.client.jobs.adventurer.Thief;
 import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.client.jobs.resistance.WildHunterInfo;
@@ -423,6 +425,8 @@ public class Char {
 	private Map<Integer, PsychicLock> psychicLocks;
 	@Transient
 	private Map<Integer, PsychicLockBall> psychicLockBalls;
+	@Transient
+	private int forceAtomKeyCounter = 1;
 	@Transient
 	private Instance instance;
 	@Transient
@@ -2619,6 +2623,7 @@ public class Char {
 		if (tsm.hasStat(Flying) && !toField.isFly()) {
 			tsm.removeStat(Flying, false);
 		}
+		setForceAtomKeyCounter(1);
 		notifyChanges();
 		toField.execUserEnterScript(this);
 		initPets();
@@ -4571,8 +4576,10 @@ public class Char {
 	}
 
 	public boolean applyBulletCon(int skillID, byte slv) {
-		if (getTemporaryStatManager().hasStat(NoBulletConsume) || JobConstants.isPhantom(getJob()) || JobConstants.isAdventurerMage(getJob())) {
-			// 2121052 - Megiddo Flame has bulletCount = 1
+		if (getTemporaryStatManager().hasStat(NoBulletConsume) || JobConstants.isPhantom(getJob())) {
+			return true;
+		}
+		if (skillID == Magician.MEGIDDO_FLAME || skillID == Thief.MESO_EXPLOSION) {
 			return true;
 		}
 		SkillInfo si = SkillData.getSkillInfoById(skillID);
@@ -4842,6 +4849,14 @@ public class Char {
 				setAndroid(newAndroid);
 			}
 		}
+	}
+
+	public int getNewForceAtomKey() {
+		return forceAtomKeyCounter++;
+	}
+
+	public void setForceAtomKeyCounter(int forceAtomKeyCounter) {
+		this.forceAtomKeyCounter = forceAtomKeyCounter;
 	}
 
 	public void useStatChangeItem(Item item, boolean consume) {

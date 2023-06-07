@@ -473,7 +473,7 @@ public class NightWalker extends Noblesse {
             type = ForceAtomEnum.NIGHT_WALKER_FROM_MOB_4.getForceAtomType();
         }
 
-        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 2, 1,
+        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 2, 1,
                 ((chr.getPosition().getX() > mob.getPosition().getX()) ? 90 : 270), 0, (int) System.currentTimeMillis(), 1, 0,
                 new Position());
 
@@ -511,7 +511,7 @@ public class NightWalker extends Noblesse {
                 type = ForceAtomEnum.NIGHT_WALKER_FROM_MOB_4.getForceAtomType();
             }
 
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 2, 1,
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 2, 1,
                     ((chr.getPosition().getX() > mob.getPosition().getX()) ? 90 : 270), 0, (int) System.currentTimeMillis(), 1, 0,
                     new Position());
 

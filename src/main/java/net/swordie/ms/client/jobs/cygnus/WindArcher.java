@@ -415,7 +415,7 @@ public class WindArcher extends Noblesse {
                         int mobID = mai.mobId;
                         int inc = ForceAtomEnum.WA_ARROW_2.getInc();
                         int type = ForceAtomEnum.WA_ARROW_2.getForceAtomType();
-                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, firstImpact, secondImpact,
+                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, firstImpact, secondImpact,
                                 anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
                                 new Position(0, 0)); //Slightly behind the player
                         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -425,7 +425,7 @@ public class WindArcher extends Noblesse {
                         int mobID = mai.mobId;
                         int inc = ForceAtomEnum.WA_ARROW_1.getInc();
                         int type = ForceAtomEnum.WA_ARROW_1.getForceAtomType();
-                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, firstImpact, secondImpact,
+                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, firstImpact, secondImpact,
                                 anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
                                 new Position(0, 0)); //Slightly behind the player
                         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -452,7 +452,7 @@ public class WindArcher extends Noblesse {
                     int mobID = mai.mobId;
                     int inc = ForceAtomEnum.WA_ARROW_HYPER.getInc();
                     int type = ForceAtomEnum.WA_ARROW_HYPER.getForceAtomType();
-                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 5, 5,
+                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 5, 5,
                             270, 0, (int) System.currentTimeMillis(), 1, 0,
                             new Position(35, ranY)); //Slightly behind the player
                     chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,

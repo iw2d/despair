@@ -389,7 +389,7 @@ public class AngelicBuster extends Job {
                     int mobID = mai.mobId;
                     int inc = ForceAtomEnum.AB_ORB.getInc();
                     int type = ForceAtomEnum.AB_ORB.getForceAtomType();
-                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 20, 40,
+                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
                             anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
                             new Position(5, 0)); //Slightly behind the player
                     chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -420,7 +420,7 @@ public class AngelicBuster extends Job {
         int mobID = life.getObjectId();
         int inc = ForceAtomEnum.AB_ORB.getInc();
         int type = ForceAtomEnum.AB_ORB.getForceAtomType();
-        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 20, 40,
+        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
                 anglenum, 250, (int) System.currentTimeMillis(), 1, 0,
                 new Position(0, -100));
         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -444,7 +444,7 @@ public class AngelicBuster extends Job {
                 int mobID = mai.mobId;
                 int inc = ForceAtomEnum.AB_ORB_RECREATION.getInc();
                 int type = ForceAtomEnum.AB_ORB_RECREATION.getForceAtomType();
-                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, firstimpact, 2,
+                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, firstimpact, 2,
                         anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
                         new Position());
                 chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,

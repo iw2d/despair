@@ -627,7 +627,7 @@ public class Demon extends Job {
         int mobID = mob.getObjectId(); //
         int inc = ForceAtomEnum.NETHER_SHIELD.getInc();
         int type = ForceAtomEnum.NETHER_SHIELD.getForceAtomType();
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 20, 40,
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
                     0, 500, (int) System.currentTimeMillis(), 1, 0,
                     new Position(0, -100));
             chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -650,7 +650,7 @@ public class Demon extends Job {
 
                 int inc = ForceAtomEnum.NETHER_SHIELD_RECREATION.getInc();
                 int type = ForceAtomEnum.NETHER_SHIELD_RECREATION.getForceAtomType();
-                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 35, 4,
+                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 35, 4,
                         anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
                         new Position());
                 chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
@@ -778,7 +778,7 @@ public class Demon extends Job {
                         type = ForceAtomEnum.DEMON_SLAYER_FURY_2_BOSS.getForceAtomType();
                     }
                 }
-                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, speed, 5,
+                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, speed, 5,
                         angle, 50, (int) System.currentTimeMillis(), 1, 0,
                         new Position(0, 0));
                 chr.write(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
@@ -803,7 +803,7 @@ public class Demon extends Job {
                             type = ForceAtomEnum.DEMON_SLAYER_FURY_2_BOSS.getForceAtomType();
                         }
                     }
-                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, speed, 5,
+                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, speed, 5,
                             angle, 50, (int) System.currentTimeMillis(), 1, 0,
                             new Position(0, 0));
                     chr.write(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
@@ -826,7 +826,7 @@ public class Demon extends Job {
                 inc = ForceAtomEnum.DEMON_SLAYER_FURY_2.getInc();
                 type = ForceAtomEnum.DEMON_SLAYER_FURY_2.getForceAtomType();
             }
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, speed, 4,
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, speed, 4,
                     angle, 50, (int) System.currentTimeMillis(), 1, 0,
                     new Position(0, 0));
             chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,

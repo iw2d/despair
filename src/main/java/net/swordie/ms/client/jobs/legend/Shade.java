@@ -310,7 +310,7 @@ public class Shade extends Job {
                 inc = ForceAtomEnum.FLAMING_RABBIT_ORB.getInc();
                 type = ForceAtomEnum.FLAMING_RABBIT_ORB.getForceAtomType();
             }
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 15, 7,
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 15, 7,
                     305, 400, (int) System.currentTimeMillis(), 1, 0,
                     new Position(chr.isLeft() ? 0 : -50, -50));
             field.broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -334,7 +334,7 @@ public class Shade extends Job {
                 if(chr.hasSkill(FIRE_FOX_SPIRIT_MASTERY)) {
                     int inc = ForceAtomEnum.FLAMING_RABBIT_ORB_RECREATION.getInc(); //4th Job
                     int type = ForceAtomEnum.FLAMING_RABBIT_ORB_RECREATION.getForceAtomType(); //4th Job
-                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 25, 4,
+                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 25, 4,
                             anglenum, 100, (int) System.currentTimeMillis(), 1, 0,
                             new Position());
                     chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
@@ -343,7 +343,7 @@ public class Shade extends Job {
                 } else {
                     int inc = ForceAtomEnum.RABBIT_ORB_RECREATION.getInc();
                     int type = ForceAtomEnum.RABBIT_ORB_RECREATION.getForceAtomType();
-                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(1, inc, 25, 4,
+                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 25, 4,
                             anglenum, 100, (int) System.currentTimeMillis(), 1, 0,
                             new Position());
                     chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
