@@ -337,6 +337,7 @@ public enum BaseStat {
                 stats.put(stance, o.nOption);
                 break;
             case SharpEyes:
+                stats.put(ied, o.mOption);
             case CriticalBuff:
             case ItemCritical:
                 stats.put(cr, o.nOption);

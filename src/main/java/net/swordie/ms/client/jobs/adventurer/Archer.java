@@ -63,6 +63,7 @@ public class Archer extends Beginner {
     public static final int EVASION_BOOST = 3110007;
 
     public static final int SHARP_EYES_BOW = 3121002;
+    public static final int SHARP_EYES_BOW_PERSIST = 3120043;
     public static final int SHARP_EYES_BOW_IED_H = 3120044;
     public static final int SHARP_EYES_BOW_CR_H = 3120045;
     public static final int ILLUSION_STEP_BOW = 3121007;
@@ -79,10 +80,13 @@ public class Archer extends Beginner {
     public static final int EVASION_BOOST_XBOW = 3210007;
 
     public static final int MAPLE_WARRIOR_XBOW = 3221000;
+    public static final int SNIPE = 3221007;
     public static final int ARROW_ILLUSION = 3221014;
     public static final int SHARP_EYES_XBOW = 3221002;
+    public static final int SHARP_EYES_XBOW_PERSIST = 3220043;
     public static final int SHARP_EYES_XBOW_IED_H = 3220044;
     public static final int SHARP_EYES_XBOW_CR_H = 3220045;
+    public static final int SNIPE_COOLDOWN_CUTTER = 3220051;
     public static final int ARMOR_BREAK = 3120018;
     public static final int ILLUSION_STEP_XBOW = 3221006;
 
@@ -255,17 +259,12 @@ public class Archer extends Beginner {
             case SHARP_EYES_XBOW:
                 int cr = si.getValue(x, slv);
                 int crDmg = si.getValue(y, slv);
-                cr += SkillData.getSkillInfoById(SHARP_EYES_BOW_CR_H).getValue(x, chr.getSkillLevel(SHARP_EYES_BOW_CR_H)) + SkillData.getSkillInfoById(SHARP_EYES_XBOW_CR_H).getValue(x, chr.getSkillLevel(SHARP_EYES_XBOW_CR_H));
+                cr += chr.getSkillStatValue(x, SHARP_EYES_BOW_CR_H) + chr.getSkillStatValue(x, SHARP_EYES_XBOW_CR_H);
                 o2.nOption = (cr << 8) + crDmg;
                 o2.nValue = si.getValue(y, slv);
                 o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-
-                //mOption is for the hyper passive
-                if (chr.hasSkill(SHARP_EYES_BOW_IED_H) || chr.hasSkill(SHARP_EYES_XBOW_IED_H)) {
-                    o2.mOption = si.getValue(ignoreMobpdpR, slv);
-
-                }
+                o2.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, SHARP_EYES_BOW_PERSIST) + chr.getSkillStatValue(time, SHARP_EYES_XBOW_PERSIST);
+                o2.mOption = chr.getSkillStatValue(ignoreMobpdpR, SHARP_EYES_BOW_IED_H) + chr.getSkillStatValue(ignoreMobpdpR, SHARP_EYES_XBOW_IED_H);
                 tsm.putCharacterStatValue(SharpEyes, o2);
                 break;
             case ILLUSION_STEP_BOW:
@@ -503,7 +502,16 @@ public class Archer extends Beginner {
         return type == 3 ? num * 2 : num; // Magic Arrow has 2x as many arrows
     }
 
-
+    @Override
+    public int alterCooldownSkill(int skillId) {
+        switch (skillId) {
+            case SNIPE:
+                if (chr.hasSkill(SNIPE_COOLDOWN_CUTTER)) {
+                    return 0;
+                }
+        }
+        return super.alterCooldownSkill(skillId);
+    }
 
     // Attack related methods ------------------------------------------------------------------------------------------
 
@@ -581,17 +589,21 @@ public class Archer extends Beginner {
                     chr.getField().spawnAffectedArea(aa);
                 }
                 break;
-            case BINDING_SHOT: // TODO  HP Recovery
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
+            case BINDING_SHOT:
+                o1.nOption = si.getValue(s, slv); // Already negative in SI
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                o2.nOption = -si.getValue(x, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = si.getValue(s, slv);
-                    o1.rOption = skillID;
-                    o1.tOption = si.getValue(time, slv);
                     mts.addStatOptionsAndBroadcast(MobStat.Speed, o1);
+                    mts.addStatOptionsAndBroadcast(MobStat.DebuffHealing, o2);
                 }
                 break;
             case NET_TOSS:
@@ -890,15 +902,5 @@ public class Archer extends Beginner {
     @Override
     public void handleLevelUp() {
         super.handleLevelUp();
-        // hacks to bypass the quest glitch (accept but no packet)
-        short level = chr.getLevel();
-        QuestManager qm = chr.getQuestManager();
-        if (level == 30) {
-            qm.completeQuest(1418);
-        } else if (level == 60) {
-            qm.completeQuest(1438);
-        } else if (level == 100) {
-            qm.completeQuest(1454);
-        }
     }
 }

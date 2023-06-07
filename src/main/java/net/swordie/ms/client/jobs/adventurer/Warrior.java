@@ -1449,16 +1449,6 @@ public class Warrior extends Beginner {
     @Override
     public void handleLevelUp() {
         super.handleLevelUp();
-        // hacks to bypass the quest glitch (accept but no packet)
-        short level = chr.getLevel();
-        QuestManager qm = chr.getQuestManager();
-        if (level == 30) {
-            qm.completeQuest(1410);
-        } else if (level == 60) {
-            qm.completeQuest(1430);
-        } else if (level == 100) {
-            qm.completeQuest(1450);
-        }
     }
 }
 
