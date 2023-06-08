@@ -17,7 +17,8 @@ public enum TSIndex {
     RideVehicle(3),
     PartyBooster(4),
     GuidedBullet(5),
-    Undead(6);
+    Undead(6),
+    RideVehicleExpire(7);
     private final int index;
 
     TSIndex(int index) {
@@ -48,6 +49,8 @@ public enum TSIndex {
                 return CharacterTemporaryStat.GuidedBullet;
             case 6:
                 return CharacterTemporaryStat.Undead;
+            case 7:
+                return CharacterTemporaryStat.RideVehicleExpire;
             default:
                 return null;
         }
@@ -69,6 +72,8 @@ public enum TSIndex {
                 return GuidedBullet;
             case Undead:
                 return Undead;
+            case RideVehicleExpire:
+                return RideVehicleExpire;
         }
         return null;
     }
@@ -84,7 +89,7 @@ public enum TSIndex {
      */
     public static List<CharacterTemporaryStat> getAllCTS() {
         List<CharacterTemporaryStat> characterTemporaryStats = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < TSIndex.values().length; i++) {
             characterTemporaryStats.add(getCTSFromTwoStatIndex(i));
         }
         return characterTemporaryStats;

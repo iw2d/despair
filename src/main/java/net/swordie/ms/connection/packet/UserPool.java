@@ -3,6 +3,8 @@ package net.swordie.ms.connection.packet;
 import net.swordie.ms.client.character.avatar.AvatarLook;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
+import net.swordie.ms.constants.GameConstants;
+import net.swordie.ms.life.Familiar;
 import net.swordie.ms.life.pet.Pet;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
@@ -11,6 +13,8 @@ import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.TSIndex;
 import net.swordie.ms.handlers.header.OutHeader;
+
+import java.util.Collections;
 
 /**
  * Created on 3/18/2018.
@@ -35,7 +39,7 @@ public class UserPool {
         outPacket.encodeInt(cs.getPop());
         outPacket.encodeInt(10); // nFarmLevel
         outPacket.encodeInt(0); // nNameTagMark
-        tsm.encodeForRemote(outPacket, tsm.getCurrentStats());
+        tsm.encodeForRemote(outPacket, Collections.emptyMap()); // tsm.getCurrentStats());
         outPacket.encodeShort(chr.getJob());
         outPacket.encodeShort(cs.getSubJob());
         outPacket.encodeInt(chr.getTotalChuc());
@@ -77,12 +81,15 @@ public class UserPool {
         for (int i = 0; i < towerIDSize; i++) {
             outPacket.encodeInt(0); // towerChairID
         }
-        outPacket.encodeInt(0); // some other position? new
-        outPacket.encodeInt(0); // some other position? new
+        outPacket.encodeInt(0); // this is for chairs with randEffect%d, e.g. 3010289
+
+        outPacket.encodeInt(0); // unk
         outPacket.encodePosition(chr.getPosition());
         outPacket.encodeByte(chr.getMoveAction());
         outPacket.encodeShort(chr.getFoothold());
         outPacket.encodeByte(0); // ? new
+
+        // Pet Handling
         for(Pet pet : chr.getPets()) {
             if(pet.getId() == 0) {
                 continue;
@@ -94,8 +101,23 @@ public class UserPool {
         outPacket.encodeByte(0); // indicating that pets are no longer being encoded
 
         outPacket.encodeByte(0); // if true, encode something. idk what (v4->vfptr[35].Update)(v4, iPacket);
-        outPacket.encodeByte(1); // new, having a 0 will 38
-        outPacket.encodeByte(chr.getMechanicHue());
+
+        // Familiar Handling
+        Familiar familiar = chr.getActiveFamiliar();
+        outPacket.encodeByte(familiar != null);
+        if (familiar != null) {
+            outPacket.encodeByte(1); // on
+            outPacket.encodeInt(familiar.getFamiliarID());
+            outPacket.encodeInt(familiar.getFatigue()); // fatigue
+            outPacket.encodeInt(familiar.getVitality() * GameConstants.FAMILIAR_ORB_VITALITY); // total vitality
+            outPacket.encodeString(familiar.getName());
+            outPacket.encodePosition(familiar.getPosition());
+            outPacket.encodeByte(familiar.getMoveAction());
+            outPacket.encodeShort(familiar.getFh());
+        }
+
+        // outPacket.encodeByte(chr.getMechaicHue());
+
         outPacket.encodeInt(chr.getTamingMobLevel());
         outPacket.encodeInt(chr.getTamingMobExp());
         outPacket.encodeInt(chr.getTamingMobFatigue());
@@ -159,6 +181,7 @@ public class UserPool {
                 y = short
          */
         outPacket.encodeByte(0);
+
         outPacket.encodeByte(0); // StarPlanetRank::Decode
         // CUser::DecodeStarPlanetTrendShopLook not interesting, will break REMOTE_AVATAR_MODIFIED if 1st int is != 0
         outPacket.encodeInt(0);

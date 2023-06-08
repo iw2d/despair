@@ -396,6 +396,11 @@ public class UserLocal {
         return outPacket;
     }
 
+    public static OutPacket familiarInvalidName() {
+        OutPacket outPacket = new OutPacket(OutHeader.FAMILIAR_INVALID_NAME);
+        return outPacket;
+    }
+
     public static OutPacket petMove(int id, int petID, MovementInfo movementInfo) {
         OutPacket outPacket = new OutPacket(OutHeader.PET_MOVE);
 

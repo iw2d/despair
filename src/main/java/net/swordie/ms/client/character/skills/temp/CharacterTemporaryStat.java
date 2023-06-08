@@ -690,6 +690,8 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
 
     public boolean isEncodeInt() {
         switch (this) {
+            case RideVehicle:
+            case RideVehicleExpire:
             case CarnivalDefence:
             case SpiritLink:
             case DojangLuckyBonus:
@@ -697,6 +699,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case PowerTransferGauge:
             case ReturnTeleport:
             case ShadowPartner:
+            case AranSmashSwing:
             case IncMaxDamage:
             case Unk487:
             case SetBaseDamage:
@@ -706,7 +709,27 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case Dance:
             case SetBaseDamageByBuff:
             case DotHealHPPerSecond:
+            case Magnet:
             case MagnetArea:
+            case VampDeath:
+            case VampDeathSummon:
+            case Cyclone:
+            case RWBarrier:
+
+                // EXPERIMENTAL *******
+                // case unk214_1:
+
+            /*
+            case Unk199_527: //?
+            case Unk199_528: //?
+            case IndieKeyDownTime:
+            case EnergyCharged:
+            case DashSpeed:
+            case DashJump:
+            case PartyBooster:
+            case GuidedBullet:
+            case Undead:
+            */
                 return true;
             default:
                 return false;
@@ -737,6 +760,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case IndieSpeed:
             case IndieJump:
             case KeyDownMoving:
+            case EnergyCharged:
             case Mechanic:
             case Magnet:
             case MagnetArea:
@@ -827,6 +851,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     public boolean isNotEncodeReason() {
         switch (this) {
             case Speed:
+            case ComboCounter:
             case ElementalCharge:
             case Shock:
             case Team:
@@ -861,6 +886,16 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
 
     public boolean isNotEncodeAnything() {
         switch (this) {
+            case DarkSight:
+            case SoulArrow:
+            case DojangInvincible:
+            case Flying:
+            case Sneak:
+            case BeastFormDamageUp:
+            case BlessingArmor:
+            case BlessingArmorIncPAD:
+            case HolyMagicShell:
+            case VengeanceOfAngel:
             case FullSoulMP:
             case AntiMagicShellBool:
             case PoseTypeBool:

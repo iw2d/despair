@@ -48,16 +48,16 @@ public class Familiar extends Life {
     }
 
     public void encode(OutPacket outPacket) {
-        outPacket.encodeInt(getIdk1());
+        outPacket.encodeInt(getIdk1()); // characterID
         outPacket.encodeInt(getFamiliarID());
-        outPacket.encodeString(getName(), 13);
-        outPacket.encodeByte(isIdk2());
-        outPacket.encodeShort(getIdk3());
-        outPacket.encodeInt(getFatigue());
-        outPacket.encodeLong(getIdk4());
-        outPacket.encodeLong(getIdk5());
-        outPacket.encodeFT(getExpiration());
-        outPacket.encodeShort(getVitality());
+        outPacket.encodeString(getName(), 13);    // name
+        outPacket.encodeByte(isIdk2());                 // chr
+        outPacket.encodeShort(getIdk3());               // getVitality
+        outPacket.encodeInt(getFatigue());              // getFatigue
+        outPacket.encodeLong(getIdk4());                // time left?
+        outPacket.encodeLong(getIdk5());                // currentTime
+        outPacket.encodeFT(getExpiration());            // expiry
+        outPacket.encodeShort(getVitality());           // getVitality again idk
     }
 
     public long getId() {

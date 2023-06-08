@@ -507,7 +507,7 @@ public class TemporaryStatManager {
         if (hasNewStat(Stigma)) {
             outPacket.encodeInt(getOption(Stigma).bOption);
         }
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < TSIndex.values().length; i++) {
             if(hasNewStat(TSIndex.getCTSFromTwoStatIndex(i))) {
                 getTwoStates().get(i).encode(outPacket);
             }
@@ -552,8 +552,8 @@ public class TemporaryStatManager {
             outPacket.encodeInt(maskElem);
         }
         List<CharacterTemporaryStat> orderedAndFilteredCtsList = new ArrayList<>(collection.keySet()).stream()
-                .filter(cts -> cts.getOrder() != -1)
-                .sorted(Comparator.comparingInt(CharacterTemporaryStat::getOrder))
+                .filter(cts -> cts.getRemoteOrder() != -1)
+                .sorted(Comparator.comparingInt(CharacterTemporaryStat::getRemoteOrder))
                 .collect(Collectors.toList());
         for (CharacterTemporaryStat cts : orderedAndFilteredCtsList) {
             if (cts.getRemoteOrder() != -1) {
@@ -635,8 +635,8 @@ public class TemporaryStatManager {
             new StopForceAtom().encode(outPacket);
         }
         outPacket.encodeInt(getViperEnergyCharge());
-        for (int i = 0; i < 7; i++) {
-            if(hasNewStat(TSIndex.getCTSFromTwoStatIndex(i))) {
+        for (int i = 0; i < TSIndex.values().length; i++) {
+            if (ctsSet.contains(TSIndex.getCTSFromTwoStatIndex(i))) {
                 getTwoStates().get(i).encode(outPacket);
             }
         }
@@ -676,17 +676,20 @@ public class TemporaryStatManager {
     }
 
     public void encodeRemovedIndieTempStat(OutPacket outPacket) {
-        Map<CharacterTemporaryStat, List<Option>> stats = getRemovedStats().entrySet().stream()
-                .filter(stat -> stat.getKey().isIndie())
-                .sorted(Comparator.comparingInt(stat -> stat.getKey().getVal()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        TreeMap<CharacterTemporaryStat, List<Option>> sortedStats = new TreeMap<>();
+        // add removed stats into a sorted map
+        for (Map.Entry<CharacterTemporaryStat, List<Option>> entry : getRemovedStats().entrySet()) {
+            if (entry.getKey().isIndie() && entry.getValue() != null) {
+                sortedStats.put(entry.getKey(), entry.getValue());
+            }
+        }
 
-        for(Map.Entry<CharacterTemporaryStat, List<Option>> stat : stats.entrySet()) {
-            int curTime = (int) System.currentTimeMillis();
+        for (Map.Entry<CharacterTemporaryStat, List<Option>> stat : sortedStats.entrySet()) {
+            int curTime = Util.getCurrentTime();
             // encode remaining stats
             CharacterTemporaryStat key = stat.getKey();
             List<Option> options = getOptions(key);
-            if(options == null) {
+            if (options == null) {
                 outPacket.encodeInt(0);
                 continue;
             }

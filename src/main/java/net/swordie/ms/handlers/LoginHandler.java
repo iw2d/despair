@@ -349,7 +349,10 @@ public class LoginHandler {
 
         OutHeader opcode = OutHeader.getOutHeaderByOp(op);
         log.error(String.format("[Error %s] (%s / %d) Data: %s", errortype, opcode, op, inPacket));
-        if (opcode == OutHeader.TEMPORARY_STAT_SET) {
+        if (opcode == OutHeader.REMOTE_SET_TEMPORARY_STAT) {
+            inPacket.decodeInt();
+        }
+        if (opcode == OutHeader.TEMPORARY_STAT_SET || opcode == OutHeader.REMOTE_SET_TEMPORARY_STAT) {
             for (int i = 0; i < CharacterTemporaryStat.length; i++) {
                 int mask = inPacket.decodeInt();
                 for (CharacterTemporaryStat cts : CharacterTemporaryStat.values()) {

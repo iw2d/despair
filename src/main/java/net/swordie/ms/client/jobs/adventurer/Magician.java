@@ -889,10 +889,10 @@ public class Magician extends Beginner {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = 25;
+                    o1.nOption = si.getValue(x, slv);
                     o1.rOption = skillID;
                     o1.tOption = si.getValue(subTime, slv);
-                    mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
+                    mts.addStatOptionsAndBroadcast(MobStat.BahamutLightElemAddDam, o1);
                 }
                 break;
             case HEAVENS_DOOR:
@@ -1249,8 +1249,9 @@ public class Magician extends Beginner {
                     AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
                     aa.setMobOrigin((byte) 0);
                     aa.setPosition(chr.getPosition());
-                    aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
+                    aa.setRect(aa.getPosition().getRectAround(si.getFirstRect()));
                     aa.setDelay((short) 4);
+                    aa.setForce(si.getValue(y, slv));
                     chr.getField().spawnAffectedArea(aa);
                     break;
                 case TELEPORT:

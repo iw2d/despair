@@ -270,7 +270,7 @@ public class Char {
 	@Transient
 	private int nickItem;
 	@Transient
-	private DamageSkinSaveData damageSkin = new DamageSkinSaveData(18, 2433063, false, "Je moeder");
+	private DamageSkinSaveData damageSkin = new DamageSkinSaveData();
 	@Transient
 	private DamageSkinSaveData premiumDamageSkin = new DamageSkinSaveData();
 	@Transient
@@ -2562,19 +2562,20 @@ public class Char {
 			}
 			currentField.removeChar(this);
 		}
-
 		setField(toField);
-		toField.addChar(this);
 		getAvatarData().getCharacterStat().setPortal(portal.getId());
 		setPosition(new Position(portal.getX(), portal.getY()));
+		setFoothold((short) 0);
 		getClient().write(Stage.setField(this, toField, getClient().getChannel(), false, 0, characterData, hasBuffProtector(),
 				(byte) (portal != null ? portal.getId() : 0), false, 100, null, true, -1));
+		toField.addChar(this);
 		showProperUI(currentField != null ? currentField.getId() : -1, toField.getId());
 		if (characterData) {
 			initSoulMP();
 			Party party = getParty();
 			if (party != null) {
 				write(WvsContext.partyResult(PartyResult.loadParty(party)));
+				party.broadcast(UserRemote.receiveHP(this), this);
 			}
 			if (getGuild() != null) {
 				write(WvsContext.guildResult(GuildResult.loadGuild(getGuild())));

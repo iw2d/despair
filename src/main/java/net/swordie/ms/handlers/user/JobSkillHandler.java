@@ -9,6 +9,7 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.adventurer.Archer;
 import net.swordie.ms.client.jobs.adventurer.BeastTamer;
+import net.swordie.ms.client.jobs.adventurer.Magician;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.legend.Aran;
 import net.swordie.ms.client.jobs.legend.Luminous;
@@ -26,6 +27,7 @@ import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.client.character.skills.PsychicLock;
 import net.swordie.ms.handlers.header.InHeader;
+import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.FieldAttackObj;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.life.mob.Mob;
@@ -287,16 +289,27 @@ public class JobSkillHandler {
         Char chr = c.getChr();
         Field field = chr.getField();
 
-        inPacket.decodeInt(); //tick
-        inPacket.decodeByte(); //unk
+        inPacket.decodeByte(); // 2
+        int objectID = inPacket.decodeInt();
         int skillID = inPacket.decodeInt();
         inPacket.decodeInt(); //unk
 
-        if (field.getAffectedAreas().stream().noneMatch(ss -> ss.getSkillID() == skillID)) {
+        if (skillID != Magician.HOLY_FOUNTAIN) {
+            chr.getOffenseManager().addOffense(String.format("Character %d tried to heal from %d as Holy Fountain.", chr.getId(), skillID));
+            return;
+        }
+
+        AffectedArea aa = field.getAffectedAreas().stream().filter(ss -> ss.getSkillID() == skillID).findFirst().orElse(null);
+        if (aa == null || aa.getObjectId() != objectID) {
             chr.getOffenseManager().addOffense(String.format("Character %d tried to heal from Holy Fountain (%d) whilst there isn't any on the field.", chr.getId(), skillID));
             return;
         }
-        c.getChr().heal((int) (c.getChr().getMaxHP() / ((double) 100 / 40)));
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+        chr.heal((int) (c.getChr().getMaxHP() / ((double) 100 / si.getValue(SkillStat.x, aa.getSlv()))), true);
+        aa.setForce(aa.getForce() - 1);
+        if (aa.getForce() <= 0) {
+            field.removeLife(aa.getObjectId(), false);
+        }
     }
 
     @Handler(op = InHeader.REQUEST_DEC_COMBO)

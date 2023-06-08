@@ -13,6 +13,7 @@ import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.*;
+import net.swordie.ms.constants.CustomConstants;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.*;
@@ -495,36 +496,16 @@ public class Field {
     }
 
     public void spawnLife(Life life, Char onlyChar) {
-
         addLife(life);
         if (getChars().size() > 0) {
-
-            //=======================================
-            //Normal Controller System
-            //=======================================
-
-            /*Char controller = null;
+            Char controller = null;
             if (getLifeToControllers().containsKey(life)) {
                 controller = getLifeToControllers().get(life);
             }
             if (controller == null) {
                 setRandomController(life);
             }
-            life.broadcastSpawnPacket(onlyChar);*/
-
-            
-
-
-            //=======================================
-            //Controller system Adjusted for Auto Aggro
-            //=======================================
-
-            Char controller = getChars().get(0);
-            life.notifyControllerChange(controller);
-            putLifeController(life,controller);
-
             life.broadcastSpawnPacket(onlyChar);
-
             if (life instanceof Mob) {
                 Mob mob = ((Mob)life);
 
@@ -542,6 +523,9 @@ public class Field {
         if (getChars().size() > 0) {
             controller = Util.getRandomFromCollection(getChars());
             life.notifyControllerChange(controller);
+            if (life instanceof Mob && CustomConstants.AUTO_AGGRO) {
+                broadcastPacket(MobPool.forceChase(life.getObjectId(), false));
+            }
         }
         putLifeController(life, controller);
     }
@@ -649,6 +633,13 @@ public class Field {
     }
 
     public void spawnLifesForChar(Char chr) {
+        for (Char c : getChars()) {
+            if (!c.equals(chr) || c.getUser().getAccountType().ordinal() <= chr.getUser().getAccountType().ordinal()) {
+                if (c.getAvatarData() != null && c.getAvatarData().getCharacterStat() != null) {
+                    chr.write(UserPool.userEnterField(c));
+                }
+            }
+        }
         for (Life life : getLifes().values()) {
             spawnLife(life, chr);
         }
@@ -670,11 +661,6 @@ public class Field {
         }
         if (chr.getInstance() != null && chr.getInstance().getWarpOutTimer() != null) {
             chr.write(FieldPacket.clock(ClockPacket.secondsClock(chr.getInstance().getRemainingTime())));
-        }
-        for (Char c : getChars()) {
-            if (!c.equals(chr)) {
-                chr.write(UserPool.userEnterField(c));
-            }
         }
     }
 

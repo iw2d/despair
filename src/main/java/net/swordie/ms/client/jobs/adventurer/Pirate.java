@@ -50,8 +50,9 @@ public class Pirate extends Beginner {
 
 
     //Buccaneer
-    public static final int TORNADO_UPPERCUT = 5101012; //Special Attack
     public static final int KNUCKLE_BOOSTER = 5101006; //Buff
+    public static final int PERSERVERANCE = 5100013;
+    public static final int TORNADO_UPPERCUT = 5101012; //Special Attack
     public static final int ENERGY_CHARGE = 5100015; //Energy Gauge
 
     public static final int ROLL_OF_THE_DICE_BUCC = 5111007; //Buff
@@ -145,6 +146,13 @@ public class Pirate extends Beginner {
     public static final int ROLLING_RAINBOW = 5321052;
     public static final int POWER_UNITY = 5121052;
 
+    //Hyper Passives
+    public static final int ROLL_OF_THE_DICE_BUCC_ADDITION = 5120044;
+    public static final int ROLL_OF_THE_DICE_BUCC_SAVING_GRACE = 5120043;
+    public static final int ROLL_OF_THE_DICE_BUCC_ENHANCE = 5120045;
+    public static final int ROLL_OF_THE_DICE_SAIR_ADDITION = 5220044;
+    public static final int ROLL_OF_THE_DICE_SAIR_SAVING_GRACE = 5220043;
+    public static final int ROLL_OF_THE_DICE_SAIR_ENHANCE = 5220045;
     private int[] addedSkills = new int[] {
             MAPLE_RETURN,
     };
@@ -203,6 +211,8 @@ public class Pirate extends Beginner {
     };
 
     private int corsairSummonID = 0;
+
+    private ScheduledFuture perseveranceTimer;
     private ScheduledFuture stimulatingConversationTimer;
 
 
@@ -302,62 +312,72 @@ public class Pirate extends Beginner {
             case ROLL_OF_THE_DICE_BUCC:
             case ROLL_OF_THE_DICE_SAIR:
             case LUCK_OF_THE_DIE:
-                int upbound = 6;
-                if((chr.hasSkill(ROLL_OF_THE_DICE_BUCC_DD) && chr.hasSkill(5120044)) ||
-                        (chr.hasSkill(ROLL_OF_THE_DICE_SAIR_DD) && chr.hasSkill(5220044))) {
-                    upbound = 7;
-                }
-                int random = new Random().nextInt(upbound)+1;
+                int roll = Util.getRandom(1, 6);
 
-                chr.write(UserPacket.effect(Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + random)));
-                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + random)));
+                chr.write(UserPacket.effect(Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + roll)));
+                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + roll)));
 
-                if(random < 2) {
+                if (roll == 1) {
                     return;
                 }
 
-                o1.nOption = random;
+                o1.nOption = roll;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
 
-                tsm.throwDice(random);
+                tsm.throwDice(roll);
                 tsm.putCharacterStatValue(Dice, o1);
-                chr.reduceSkillCoolTime(NAUTILUS_STRIKE_SAIR, (long) (chr.getRemainingCoolTime(NAUTILUS_STRIKE_SAIR) * 0.5F));
-                chr.reduceSkillCoolTime(NAUTILUS_STRIKE_CANNON, (long) (chr.getRemainingCoolTime(NAUTILUS_STRIKE_CANNON) * 0.5F));
                 break;
             case ROLL_OF_THE_DICE_BUCC_DD:
             case ROLL_OF_THE_DICE_SAIR_DD:
             case LUCK_OF_THE_DIE_DD:
-                boolean isCharged = tsm.getViperEnergyCharge() > 0;
-                upbound = 6;
-                if((chr.hasSkill(ROLL_OF_THE_DICE_BUCC_DD) && chr.hasSkill(5120044)) ||
-                        (chr.hasSkill(ROLL_OF_THE_DICE_SAIR_DD) && chr.hasSkill(5220044))) {
-                    upbound = 7;
+                List<Integer> choices = new ArrayList<>(Arrays.asList(1,2,3,4,5,6));
+                if (chr.hasSkill(ROLL_OF_THE_DICE_BUCC_ADDITION) || chr.hasSkill(ROLL_OF_THE_DICE_SAIR_ADDITION)) {
+                    choices.add(7);
+                }
+                if (chr.hasSkill(ROLL_OF_THE_DICE_BUCC_ENHANCE) || chr.hasSkill(ROLL_OF_THE_DICE_SAIR_ENHANCE)) {
+                    // WZ has prop = 5, but I'll just to this instead
+                    choices.add(4);
+                    choices.add(5);
+                    choices.add(6);
                 }
 
-                random = new Random().nextInt(upbound)+1;
-                int randomDD = new Random().nextInt(upbound)+1;
+                int roll1 = Util.getRandomFromCollection(choices);
+                int roll2 = Util.getRandomFromCollection(choices);
 
-                chr.write(UserPacket.effect(Effect.skillAffectedSelect(skillID, slv, random, false)));
-                chr.write(UserPacket.effect(Effect.skillAffectedSelect(skillID, slv, randomDD, true)));
-                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffectedSelect(skillID, slv, random, false)));
-                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffectedSelect(skillID, slv, randomDD, true)));
+                // Saving Grace Hyper handling, when DD does not activate, 40% chance for cooldown to not apply
+                // Original description: "After this, you can activate at least 4 Double Downs"
+                // I will interpret this as: "The next cast after this will activate Double Down with 4 or above"
+                if (getSavingGrace() != null && tsm.hasStatBySkillId(getSavingGrace().getSkillId())) {
+                    tsm.removeStatsBySkill(getSavingGrace().getSkillId());
+                    roll1 = Util.getRandom(4, (chr.hasSkill(ROLL_OF_THE_DICE_BUCC_ADDITION) || chr.hasSkill(ROLL_OF_THE_DICE_SAIR_ADDITION)) ? 7 : 6);
+                    roll2 = roll1;
+                } else if (Util.succeedProp(si.getValue(prop, slv))) { // prop% chance to roll double down
+                    roll2 = roll1;
+                }
 
-                if(random < 2 && randomDD < 2) {
+                if (roll1 != roll2 && getSavingGrace() != null && Util.succeedProp(chr.getSkillStatValue(prop, getSavingGrace().getSkillId()))) {
+                    chr.resetSkillCoolTime(skillID);
+                    o2.nOption = 1;
+                    o2.rOption = getSavingGrace().getSkillId();
+                    tsm.putCharacterStatValue(EVA, o2);
+                }
+
+                chr.write(UserPacket.effect(Effect.skillAffectedSelect(skillID, slv, roll1, false)));
+                chr.write(UserPacket.effect(Effect.skillAffectedSelect(skillID, slv, roll2, true)));
+                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffectedSelect(skillID, slv, roll1, false)));
+                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffectedSelect(skillID, slv, roll2, true)));
+
+                if (roll1 == 1 && roll2 == 1) {
                     return;
                 }
 
-                o1.nOption = (random * 10) + randomDD; // if rolled: 3 and 5, the DoubleDown nOption = 35
+                o1.nOption = (roll1 * 10) + roll2; // if rolled: 3 and 5, the DoubleDown nOption = 35
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
 
-                tsm.throwDice(random, randomDD);
+                tsm.throwDice(roll1, roll2);
                 tsm.putCharacterStatValue(Dice, o1);
-                if(isCharged) {
-                    updateViperEnergy(tsm.getOption(EnergyCharged).nOption);
-                }
-                chr.reduceSkillCoolTime(NAUTILUS_STRIKE_SAIR, (long) (chr.getRemainingCoolTime(NAUTILUS_STRIKE_SAIR) * 0.5F));
-                chr.reduceSkillCoolTime(NAUTILUS_STRIKE_CANNON, (long) (chr.getRemainingCoolTime(NAUTILUS_STRIKE_CANNON) * 0.5F));
                 break;
             case MONKEY_MAGIC:
             case MEGA_MONKEY_MAGIC:
@@ -724,6 +744,16 @@ public class Pirate extends Beginner {
         }
     }
 
+    private void handlePerserverance() {
+        if (!chr.hasSkill(PERSERVERANCE)) {
+            return;
+        }
+        Skill skill = chr.getSkill(PERSERVERANCE);
+        byte slv = (byte) skill.getCurrentLevel();
+        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+
+    }
+
 
     private void giveBarrelRouletteBuff(int roulette) {   //TODO
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -778,7 +808,11 @@ public class Pirate extends Beginner {
                 applyStunMasteryOnMob(attackInfo);
 
                 // Viper Energy
-                changeViperEnergy(attackInfo.skillId);
+                boolean hasHitBoss = attackInfo.mobAttackInfo.stream().anyMatch(mai ->
+                        chr.getField().getLifeByObjectID(mai.mobId) != null &&
+                        ((Mob) chr.getField().getLifeByObjectID(mai.mobId)).isBoss()
+                );
+                changeViperEnergy(attackInfo.skillId, hasHitBoss);
             }
         }
 
@@ -911,16 +945,16 @@ public class Pirate extends Beginner {
                 }
                 break;
             case DRAGON_STRIKE:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
                 for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = 10;
-                    o1.rOption = skillID;
-                    o1.tOption = si.getValue(time, slv);
-                    mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
+                    mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o1);
                 }
                 break;
             case NAUTILUS_STRIKE_BUCC:
@@ -954,34 +988,35 @@ public class Pirate extends Beginner {
     }
 
     private void applyStunMasteryOnMob(AttackInfo attackInfo) {
-        Option o1 = new Option();
+        if (!chr.hasSkill(STUN_MASTERY)) {
+            return;
+        }
         SkillInfo si = SkillData.getSkillInfoById(STUN_MASTERY);
         int slv = si.getCurrentLevel();
+        Option o1 = new Option();
+        o1.nOption = 1;
+        o1.rOption = STUN_MASTERY;
+        o1.tOption = 3;
         for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
             if (Util.succeedProp(si.getValue(subProp, slv))) {
                 Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                if (mob == null) {
+                if (mob == null || mob.isBoss()) {
                     continue;
                 }
-                if(!mob.isBoss()) {
-                    MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = 1;
-                    o1.rOption = STUN_MASTERY;
-                    o1.tOption = 3;
-                    mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                }
+                MobTemporaryStat mts = mob.getTemporaryStat();
+                mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
             }
         }
     }
 
-    private void changeViperEnergy(int skillId) {
+    private void changeViperEnergy(int skillId, boolean hasHitBoss) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        int energy = getEnergyIncrement();
+        int energy = getEnergyIncrement(hasHitBoss);
         if(tsm.getViperEnergyCharge() == 0) {
             if (tsm.hasStat(EnergyCharged)) {
                 energy = tsm.getOption(EnergyCharged).nOption;
                 if (energy < getMaximumEnergy()) {
-                    energy += getEnergyIncrement();
+                    energy += getEnergyIncrement(hasHitBoss);
                 }
                 if (energy > getMaximumEnergy()) {
                     energy = getMaximumEnergy();
@@ -1008,7 +1043,7 @@ public class Pirate extends Beginner {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.EnergyCharged);
         tsb.setNOption(energy < 0 ? 0 : (energy > getMaximumEnergy() ? getMaximumEnergy() : energy));
-        tsb.setROption(0);
+        tsb.setROption(getViperEnergySkill().getSkillId());
         tsm.putCharacterStatValue(EnergyCharged, tsb.getOption());
         if(energy >= getMaximumEnergy()) {
             tsm.setViperEnergyCharge(getViperEnergySkill().getSkillId());
@@ -1018,12 +1053,14 @@ public class Pirate extends Beginner {
         tsm.sendSetStatPacket();
     }
 
-    private int getEnergyIncrement() {
+    private int getEnergyIncrement(boolean hasHitBoss) {
         Skill skill = getViperEnergySkill();
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        byte slv = (byte) skill.getCurrentLevel();
-
-        return si.getValue(x, slv);
+        int skillId = skill.getSkillId();
+        int increment = chr.getSkillStatValue(x, skillId);
+        if (hasHitBoss && (skillId == SUPERCHARGE || skillId == ULTRA_CHARGE)) {
+            increment *= 2;
+        }
+        return increment;
     }
 
     private int getMaximumEnergy() {
@@ -1176,6 +1213,17 @@ public class Pirate extends Beginner {
         }
         if(chr.hasSkill(PIRATE_REVENGE_BUCC)) {
             skill = chr.getSkill(PIRATE_REVENGE_BUCC);
+        }
+        return skill;
+    }
+
+    private Skill getSavingGrace() {
+        Skill skill = null;
+        if(chr.hasSkill(ROLL_OF_THE_DICE_BUCC_SAVING_GRACE)) {
+            skill = chr.getSkill(ROLL_OF_THE_DICE_BUCC_SAVING_GRACE);
+        }
+        if(chr.hasSkill(ROLL_OF_THE_DICE_SAIR_SAVING_GRACE)) {
+            skill = chr.getSkill(ROLL_OF_THE_DICE_SAIR_SAVING_GRACE);
         }
         return skill;
     }

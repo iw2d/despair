@@ -91,8 +91,8 @@ public class TemporaryStatBase {
         outPacket.encodeInt(getOption().rOption);
         outPacket.encodeByte(isDynamicTermSet());
         outPacket.encodeInt(getExpireTerm());
-        if(isDynamicTermSet()) {
-            outPacket.encodeShort(getExpireTerm());
+        if (isDynamicTermSet()) {
+            outPacket.encodeShort(getExpireTerm() / 1000);
         }
     }
 

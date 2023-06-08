@@ -434,10 +434,12 @@ public class Thief extends Beginner {
     }
 
     private void updatecrit() {
-        if(chr.hasSkill(PRIME_CRITICAL)) {
+        if (chr.hasSkill(PRIME_CRITICAL)) {
             supposedCrit = supposedCrit + chr.getSkillStatValue(x, PRIME_CRITICAL);
-        } else {
+        } else if (chr.hasSkill(CRITICAL_GROWTH)) {
             supposedCrit = supposedCrit + chr.getSkillStatValue(x, CRITICAL_GROWTH);
+        } else {
+            return;
         }
         Option o = new Option();
         int critGrowth = critAmount;
