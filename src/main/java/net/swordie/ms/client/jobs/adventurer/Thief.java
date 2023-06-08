@@ -637,9 +637,13 @@ public class Thief extends Beginner {
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
+        Option o4 = new Option();
         switch (attackInfo.skillId) {
             case STEAL:
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                o1.nOption = 1;
+                o1.rOption = skill.getSkillId();
+                o1.tOption = si.getValue(time, slv);
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                         if (mob == null) {
@@ -648,38 +652,31 @@ public class Thief extends Beginner {
                         MobTemporaryStat mts = mob.getTemporaryStat();
                         Field field = chr.getField();
                         int itemId = 2431835;
-                        if(mob.isBoss()) {
+                        if (mob.isBoss()) {
                             itemId = 2431850;
                         }
                         Item item = ItemData.getItemDeepCopy(itemId);
                         Drop drop = new Drop(item.getItemId(), item);
                         field.drop(drop, mob.getPosition());
 
-                        if(!mob.isBoss()) {
-                            o1.nOption = 1;
-                            o1.rOption = skill.getSkillId();
-                            o1.tOption = si.getValue(time, slv);
+                        if (!mob.isBoss()) {
                             mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                         }
                     }
                 }
                 break;
             case SHADOW_WEB:
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                o1.nOption = 1;
+                o1.rOption = skill.getSkillId();
+                o1.tOption = si.getValue(time, slv);
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (Util.succeedProp(si.getValue(prop, slv))) {
-                        if (mob == null) {
+                        if (mob == null || mob.isBoss()) {
                             continue;
                         }
-                        if(!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            o1.nOption = 1;
-                            o1.rOption = skill.getSkillId();
-                            o1.tOption = si.getValue(time, slv);
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
-                    }else{
                         MobTemporaryStat mts = mob.getTemporaryStat();
+                        mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                         mts.createAndAddBurnedInfo(chr, skill);
                     }
                 }
@@ -722,52 +719,64 @@ public class Thief extends Beginner {
                 }
                 break;
             case FLASHBANG:
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                o1.nOption = -si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                o2.nOption = 10; // no SkillStat assigned, literally just  10
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                // boss effect, halved duration
+                o3.nOption = -si.getValue(x, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv) / 2;
+                o4.nOption = 10;
+                o4.rOption = skillID;
+                o4.tOption = si.getValue(time, slv) / 2;
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                         if (mob == null) {
                             continue;
                         }
                         MobTemporaryStat mts = mob.getTemporaryStat();
-                        o1.nOption = -si.getValue(x, slv);
-                        o1.rOption = skill.getSkillId();
-                        o1.tOption = si.getValue(time, slv);
-                        mts.addStatOptionsAndBroadcast(MobStat.ACC, o1);
+                        if (!mob.isBoss()) {
+                            mts.addStatOptionsAndBroadcast(MobStat.ACC, o1);
+                            mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o2);
+                        } else {
+                            mts.addStatOptionsAndBroadcast(MobStat.ACC, o3);
+                            mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o4);
+                        }
                     }
                 }
                 break;
             case BOOMERANG_STAB:
             case FLYING_ASSAULTER:
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                o1.nOption = 1;
+                o1.rOption = skill.getSkillId();
+                o1.tOption = si.getValue(time, slv);
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
+                        if (mob == null || mob.isBoss()) {
                             continue;
                         }
-                        if(!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            o1.nOption = 1;
-                            o1.rOption = skill.getSkillId();
-                            o1.tOption = si.getValue(time, slv);
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
+                        MobTemporaryStat mts = mob.getTemporaryStat();
+                        mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
                 }
                 break;
             case CHAINS_OF_HELL:
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                o1.nOption = 1;
+                o1.rOption = skill.getSkillId();
+                o1.tOption = si.getValue(time, slv);
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
+                        if (mob == null || mob.isBoss()) {
                             continue;
                         }
-                        if(!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            o1.nOption = 1;
-                            o1.rOption = skill.getSkillId();
-                            o1.tOption = si.getValue(time, slv);
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
+                        MobTemporaryStat mts = mob.getTemporaryStat();
+                        mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
                 }
                 o2.nOption = 1;
@@ -776,6 +785,10 @@ public class Thief extends Beginner {
                 tsm.sendSetStatPacket();
                 break;
             case FINAL_CUT:
+                int hpCost = (int) (chr.getMaxHP() / ( 100D / si.getValue(x, slv)));
+                if (chr.getHP() > hpCost) {
+                    chr.heal(-hpCost);
+                }
                 o1.nOption = 1;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
@@ -789,6 +802,7 @@ public class Thief extends Beginner {
                 o3.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(DamR, o3);
                 tsm.sendSetStatPacket();
+                chr.addSkillCoolTime(skillID, si.getValue(cooltime, slv) * 1000);
                 break;
         }
 

@@ -150,6 +150,7 @@ public class MovementInfo implements Encodable {
                 case 49:
                 case 50:
                 case 51:
+                case 55:
                 case 57:
                 case 58:
                 case 59:

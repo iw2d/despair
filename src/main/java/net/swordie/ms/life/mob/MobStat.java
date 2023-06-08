@@ -47,11 +47,11 @@ public enum MobStat {
     DeadlyCharge(39),
 
     Smite(40),
-    AddDamSkill(41),
+    AddDamSkill(41), // 1 skill only
     Incizing(42),
     DodgeBodyAttack(43),
     DebuffHealing(44),
-    AddDamSkill2(45),
+    AddDamSkill2(45), // all skills
     BodyAttack(46),
     TempMoveAbility(47),
 
