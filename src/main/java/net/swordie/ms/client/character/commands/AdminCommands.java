@@ -621,8 +621,6 @@ public class AdminCommands {
             npcQuery.executeUpdate();
 
             transaction.commit();
-            session.close();
-
         }
     }
 

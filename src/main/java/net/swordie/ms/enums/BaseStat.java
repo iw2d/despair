@@ -404,4 +404,8 @@ public enum BaseStat {
                 return null;
         }
     }
+
+    public boolean isNonAdditiveStat() {
+        return this == fd || this == ied;
+    }
 }

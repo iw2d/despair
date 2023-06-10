@@ -97,7 +97,6 @@ public class DropData {
             query.setParameter("mobid", mobID);
             l = ((org.hibernate.query.Query) query).list();
             transaction.commit();
-            session.close();
         }
         return l == null ? null : new HashSet<>(l);
     }

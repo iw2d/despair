@@ -169,8 +169,6 @@ public class FieldData {
 
 
         transaction.commit();
-        session.close();
-
     }
 
     private static void loadFieldInfoFromWz() {
@@ -792,13 +790,21 @@ public class FieldData {
             copy.addLife(l.deepCopy());
         }
         copy.setObjectIDCounter(field.getNewObjectID());
-        copy.setRuneStone(new RuneStone().getRandomRuneStone(copy));
+        copy.setRuneStone(RuneStone.getRandomRuneStone(copy));
         copy.setVrTop(field.getVrTop());
         copy.setVrLeft(field.getVrLeft());
         copy.setVrBottom(field.getVrBottom());
         copy.setVrRight(field.getVrRight());
         copy.startBurningFieldTimer();
         int mobGens = field.getMobGens().size();
+        int lv = 0;
+        for (MobGen mobGen : field.getMobGens()) {
+            lv += mobGen.getMob().getLevel();
+        }
+        if (mobGens > 0) {
+            lv /= mobGens;
+        }
+        copy.setAverageMobLevel(lv);
         copy.setFixedMobCapacity((int) (mobGens * GameConstants.DEFAULT_FIELD_MOB_RATE_BY_MOBGEN_COUNT));
         copy.generateMobs(true);
         copy.setDirectionInfo(field.getDirectionInfo());

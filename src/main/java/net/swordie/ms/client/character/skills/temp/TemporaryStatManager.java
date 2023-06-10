@@ -32,6 +32,8 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
+import static net.swordie.ms.client.jobs.resistance.Mechanic.HUMANOID_MECH;
+import static net.swordie.ms.client.jobs.resistance.Mechanic.TANK_MECH;
 
 /**
  * Created on 1/3/2018.
@@ -57,6 +59,7 @@ public class TemporaryStatManager {
     private List<TemporaryStatBase> twoStates = new ArrayList<>();
     private Set<AffectedArea> affectedAreas = new HashSet<>();
     private Map<BaseStat, Integer> baseStats = new HashMap<>();
+    private Map<BaseStat, Set<Integer>> nonAddBaseStats = new HashMap<>();
     private List<OutPacket> toBroadcastAfterMigrate = new ArrayList<>();
 
 
@@ -995,12 +998,40 @@ public class TemporaryStatManager {
         currentStats.forEach(stat -> removeStat(stat, false));
     }
 
+    public void removeAllStats(boolean fromSchedule) {
+        Set<CharacterTemporaryStat> currentStats = new HashSet<>();
+        currentStats.addAll(getNewStats().keySet());
+        currentStats.addAll(getCurrentStats().keySet());
+        currentStats.forEach(stat -> removeStat(stat, fromSchedule));
+
+        if (getOptByCTSAndSkill(CharacterTemporaryStat.RideVehicle, HUMANOID_MECH) != null
+                || getOptByCTSAndSkill(CharacterTemporaryStat.RideVehicle, TANK_MECH) != null) {
+            removeStatsBySkill(TANK_MECH + 100);
+            removeStatsBySkill(HUMANOID_MECH + 100);
+            sendResetStatPacket(true);
+        } else {
+            sendResetStatPacket();
+        }
+        currentStats.clear();
+    }
+
     public Map<BaseStat, Integer> getBaseStats() {
         return baseStats;
     }
 
+    public Map<BaseStat, Set<Integer>> getNonAddBaseStats() {
+        return nonAddBaseStats;
+    }
+
     public void addBaseStat(BaseStat bs, int value) {
-        getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0) + value);
+        if (bs.isNonAdditiveStat()) {
+            if (!getNonAddBaseStats().containsKey(bs)) {
+                getNonAddBaseStats().put(bs, new HashSet<>());
+            }
+            getNonAddBaseStats().get(bs).add(value);
+        } else {
+            getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0) + value);
+        }
     }
 
     public void removeBaseStat(BaseStat bs, int value) {

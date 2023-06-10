@@ -1,5 +1,6 @@
 package net.swordie.ms.connection.packet;
 
+import net.swordie.ms.client.character.PortableChair;
 import net.swordie.ms.client.character.avatar.AvatarLook;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
@@ -7,10 +8,12 @@ import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.client.guild.Guild;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.AvatarModifiedMask;
+import net.swordie.ms.enums.ChairType;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.movement.MovementInfo;
 import net.swordie.ms.util.Position;
@@ -251,7 +254,7 @@ public class UserRemote {
         outPacket.encodeByte(hitInfo.isCrit);
         outPacket.encodeByte(hitInfo.hpDamage == 0);
         if (hitInfo.type == -8) {
-            outPacket.encodeInt(hitInfo.skillID);
+            outPacket.encodeInt(hitInfo.blockSkillId);
             outPacket.encodeInt(0); // ignored
             outPacket.encodeInt(hitInfo.otherUserID);
         } else {
@@ -261,7 +264,7 @@ public class UserRemote {
 
             outPacket.encodeInt(0); // ignored
             outPacket.encodeInt(hitInfo.reflectDamage);
-            outPacket.encodeByte(hitInfo.hpDamage == 0); // bGuard
+            outPacket.encodeByte(hitInfo.isGuard); // bGuard
             if (hitInfo.reflectDamage > 0) {
                 outPacket.encodeByte(hitInfo.isGuard);
                 outPacket.encodeInt(hitInfo.mobID);
@@ -271,7 +274,7 @@ public class UserRemote {
             }
             outPacket.encodeByte(hitInfo.specialEffectSkill);
             if ((hitInfo.specialEffectSkill & 1) != 0) {
-                outPacket.encodeInt(hitInfo.curStanceSkill);
+                outPacket.encodeInt(hitInfo.stanceSkillID);
             }
         }
         outPacket.encodeInt(hitInfo.hpDamage);
@@ -331,28 +334,12 @@ public class UserRemote {
         return outPacket;
     }
 
-    public static OutPacket remoteSetActivePortableChair(int chrId, int itemId, boolean textChair, String text) {
+    public static OutPacket remoteSetActivePortableChair(Char chr, PortableChair chair) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_SET_ACTIVE_PORTABLE_CHAIR);
-
-        outPacket.encodeInt(chrId);
-
-        outPacket.encodeInt(itemId);
-        outPacket.encodeInt(textChair ? 1 : 0);
-        if (textChair) {
-            outPacket.encodeString(text);
-        }
-
-        int towerChair = 0;
-        outPacket.encodeInt(towerChair);
-        if (towerChair > 0) {
-            outPacket.encodeInt(0);//TowerChairID
-        }
-
-
-        outPacket.encodeInt(0);//mesochaircount
-        outPacket.encodeInt(0);//unkGMS
-        outPacket.encodeInt(0);//unkGMS
-
+        outPacket.encodeInt(chr.getId());
+        chair.encode(outPacket);
+        outPacket.encodeInt(0); // TODO: meso chairs and unk
+        outPacket.encodeInt(0);
         return outPacket;
     }
 
@@ -377,6 +364,43 @@ public class UserRemote {
 
         outPacket.encodeInt(chrId);
         outPacket.encodeInt(skillId);
+
+        return outPacket;
+    }
+
+    public static OutPacket guildMarkChanged(Char chr) {
+        OutPacket outPacket = new OutPacket(OutHeader.REMOTE_GUILD_MARK_CHANGED);
+
+        outPacket.encodeInt(chr.getId());
+
+        Guild guild = chr.getGuild();
+        if (guild == null) {
+            outPacket.encodeShort(0);
+            outPacket.encodeByte(0);
+            outPacket.encodeShort(0);
+            outPacket.encodeByte(0);
+        } else {
+            outPacket.encodeShort(guild.getMarkBg());
+            outPacket.encodeByte(guild.getMarkBgColor());
+            outPacket.encodeShort(guild.getMark());
+            outPacket.encodeByte(guild.getMarkColor());
+        }
+
+        return outPacket;
+    }
+
+
+    public static OutPacket guildNameChanged(Char chr) {
+        OutPacket outPacket = new OutPacket(OutHeader.REMOTE_GUILD_NAME_CHANGED);
+
+        outPacket.encodeInt(chr.getId());
+
+        Guild guild = chr.getGuild();
+        if (guild == null) {
+            outPacket.encodeString("");
+        } else {
+            outPacket.encodeString(guild.getName());
+        }
 
         return outPacket;
     }

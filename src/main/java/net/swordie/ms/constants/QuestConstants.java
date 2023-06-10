@@ -15,6 +15,7 @@ public class QuestConstants {
     public static final int WILD_HUNTER_JAGUAR_STORAGE_ID = 23008;
     public static final int DIMENSION_LIBRARY = 32600;
     public static final int DAMAGE_SKIN = 7291;
+    public static final int TOWER_CHAIR = 7266;
 
     public static final int SKILL_COMMAND_LOCK_ARAN = 21770;
 

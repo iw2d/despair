@@ -29,6 +29,7 @@ import net.swordie.ms.life.mob.skill.ShootingMoveStat;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.MobData;
 import net.swordie.ms.loaders.SkillData;
+import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
@@ -1735,9 +1736,12 @@ public class Mob extends Life {
         // Any special skills
         chr.getJobHandler().handleMobDeath(this);
 
-        // Random portal spawn
+        // Random portal spawn: is channel field, is not on cd, has min mob level, and field has no portal already
+        // TODO: Fix Inferno Wolf Scripts
         if (getField().isChannelField() && chr.getNextRandomPortalTime() <= System.currentTimeMillis()
-                && Util.succeedProp(GameConstants.RANDOM_PORTAL_SPAWN_CHANCE, 1000)) {
+                && getField().getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURENCES
+                && Util.succeedProp(GameConstants.RANDOM_PORTAL_SPAWN_CHANCE, 1000)
+                && field.getLifes().values().stream().noneMatch(l -> l instanceof RandomPortal)) {
             chr.setNextRandomPortalTime(System.currentTimeMillis() + GameConstants.RANDOM_PORTAL_COOLTIME);
             // 50% chance for inferno/yellow portal
             List<Foothold> listOfFootHolds = new ArrayList<>(field.getNonWallFootholds());
@@ -1925,6 +1929,23 @@ public class Mob extends Life {
                 chr.damage(hpDamage);
                 getField().broadcastPacket(UserPacket.userHitByCounter(chr.getId(), hpDamage));
             }
+        }
+    }
+
+    public void applyHitDiseaseToPlayer(Char chr, byte attackIdx) {
+        MobSkill ms = null;
+        if (attackIdx == -1 && getBodyDiseaseLevel() > 0) {
+            MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(getBodyDisease(), getBodyDiseaseLevel());
+            if (msi != null) {
+                ms = new MobSkill();
+                ms.setDisease(getBodyDisease());
+                ms.setLevel(getBodyDiseaseLevel());
+            }
+        } else {
+            ms = getAttackById(attackIdx);
+        }
+        if (ms != null && ms.getDisease() != 0) {
+            ms.applyEffect(chr);
         }
     }
 

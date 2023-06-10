@@ -1,9 +1,11 @@
 package net.swordie.ms.connection.packet;
 
+import net.swordie.ms.client.character.PortableChair;
 import net.swordie.ms.client.character.avatar.AvatarLook;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.constants.GameConstants;
+import net.swordie.ms.enums.ChairType;
 import net.swordie.ms.life.Familiar;
 import net.swordie.ms.life.pet.Pet;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
@@ -70,18 +72,9 @@ public class UserPool {
         outPacket.encodeInt(al.getKaiserTailID());
         outPacket.encodeInt(chr.getCompletedSetItemID());
         outPacket.encodeShort(chr.getFieldSeatID());
-        outPacket.encodeInt(chr.getPortableChairID());
-        boolean hasPortableChairMsg = chr.getPortableChairMsg() != null;
-        outPacket.encodeInt(hasPortableChairMsg ? 1 : 0); // why is this an int
-        if(hasPortableChairMsg) {
-            outPacket.encodeString(chr.getPortableChairMsg());
-        }
-        int towerIDSize = 0;
-        outPacket.encodeInt(towerIDSize);
-        for (int i = 0; i < towerIDSize; i++) {
-            outPacket.encodeInt(0); // towerChairID
-        }
-        outPacket.encodeInt(0); // this is for chairs with randEffect%d, e.g. 3010289
+
+        PortableChair chair = chr.getChair() != null ? chr.getChair() : new PortableChair(0, ChairType.None);
+        chair.encode(outPacket);
 
         outPacket.encodeInt(0); // unk
         outPacket.encodePosition(chr.getPosition());
@@ -115,8 +108,6 @@ public class UserPool {
             outPacket.encodeByte(familiar.getMoveAction());
             outPacket.encodeShort(familiar.getFh());
         }
-
-        // outPacket.encodeByte(chr.getMechaicHue());
 
         outPacket.encodeInt(chr.getTamingMobLevel());
         outPacket.encodeInt(chr.getTamingMobExp());
@@ -192,7 +183,7 @@ public class UserPool {
         outPacket.encodeInt(chr.getEventBestFriendAID());
         outPacket.encodeByte(tsm.hasStat(CharacterTemporaryStat.KinesisPsychicEnergeShield));
         outPacket.encodeByte(chr.isBeastFormWingOn());
-        outPacket.encodeInt(chr.getMesoChairCount());
+        outPacket.encodeInt(chr.getChair() == null ? 0 : chr.getChair().getMeso());
         // end kmst
         outPacket.encodeInt(0);
         outPacket.encodeInt(0);

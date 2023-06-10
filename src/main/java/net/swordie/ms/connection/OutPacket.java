@@ -1,21 +1,17 @@
 package net.swordie.ms.connection;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.PooledByteBufAllocator;
-import net.swordie.ms.client.guild.Guild;
+import io.netty.util.internal.OutOfDirectMemoryError;
 import net.swordie.ms.handlers.header.OutHeader;
-import net.swordie.ms.util.FileTime;
-import net.swordie.ms.util.Position;
-import net.swordie.ms.util.Rect;
-import net.swordie.ms.util.Util;
+import net.swordie.ms.util.*;
 import org.apache.log4j.LogManager;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
 public class OutPacket extends Packet {
-    private ByteBuf baos;
+    private static boolean dumped = false;
+    private byte[] baos;
+    private int baosPtr = 0;
     private boolean loopback = false;
     private boolean encryptedByShanda = false;
     private short op;
@@ -28,7 +24,15 @@ public class OutPacket extends Packet {
      */
     public OutPacket(short op) {
         super(new byte[]{});
-        baos = PooledByteBufAllocator.DEFAULT.buffer();
+        try {
+            baos = new byte[16];
+        } catch (OutOfDirectMemoryError e) {
+            if (!dumped) {
+                HeapDumper.dumpHeap("hd", false);
+                dumped = true;
+            }
+            e.printStackTrace();
+        }
         encodeShort(op);
         this.op = op;
     }
@@ -46,20 +50,20 @@ public class OutPacket extends Packet {
      * Creates a new OutPacket, and initializes the data as empty.
      */
     public OutPacket() {
-        super(new byte[]{});
-        baos = ByteBufAllocator.DEFAULT.buffer();
+        this(new byte[16]);
     }
 
     /**
      * Creates a new OutPacket with given data.
      *
-     * @param data The data this net.swordie.ms.connection.packet has to be initialized with.
+     * @param data The data this packethas to be initialized with.
      */
     public OutPacket(byte[] data) {
         super(data);
-        baos = ByteBufAllocator.DEFAULT.buffer();
-        encodeArr(data);
+        baos = data;
     }
+
+
 
     /**
      * Creates a new OutPacket with a given header. Immediately encodes the header's short value.
@@ -95,7 +99,12 @@ public class OutPacket extends Packet {
      * @param b The byte to encode.
      */
     public void encodeByte(byte b) {
-        baos.writeByte(b);
+        if (baosPtr >= baos.length) {
+            byte[] newBaos = new byte[baos.length * 2];
+            System.arraycopy(baos, 0, newBaos, 0, baos.length);
+            baos = newBaos;
+        }
+        baos[baosPtr++] = b;
     }
 
     /**
@@ -105,7 +114,9 @@ public class OutPacket extends Packet {
      * @param bArr The byte array to encode.
      */
     public void encodeArr(byte[] bArr) {
-        baos.writeBytes(bArr);
+        for (byte b : bArr) {
+            encodeByte(b);
+        }
     }
 
     /**
@@ -123,7 +134,7 @@ public class OutPacket extends Packet {
      * @param c The character to encode
      */
     public void encodeChar(char c) {
-        baos.writeByte(c);
+        encodeByte(c);
     }
 
     /**
@@ -132,7 +143,7 @@ public class OutPacket extends Packet {
      * @param b The boolean to encode (0/1)
      */
     public void encodeByte(boolean b) {
-        baos.writeBoolean(b);
+        encodeByte(b ? 1 : 0);
     }
 
     /**
@@ -141,15 +152,18 @@ public class OutPacket extends Packet {
      * @param s The short to encode.
      */
     public void encodeShort(short s) {
-        baos.writeShortLE(s);
+        encodeByte(s & 0xFF);
+        encodeByte((s >>> 8) & 0xFF);
     }
 
     public void encodeShortBE(short s) {
-        baos.writeShort(s);
+        encodeByte((s >>> 8) & 0xFF);
+        encodeByte(s & 0xFF);
     }
 
     public void encodeIntBE(int i) {
-        baos.writeInt(i);
+        encodeShort((i >>> 16) & 0xFFFF);
+        encodeShort(i & 0xFFFF);
     }
 
     /**
@@ -158,7 +172,8 @@ public class OutPacket extends Packet {
      * @param i The integer to encode.
      */
     public void encodeInt(int i) {
-        baos.writeIntLE(i);
+        encodeShort(i & 0xFFFF);
+        encodeShort((i >>> 16) & 0xFFFF);
     }
 
     /**
@@ -167,7 +182,8 @@ public class OutPacket extends Packet {
      * @param l The long to encode.
      */
     public void encodeLong(long l) {
-        baos.writeLongLE(l);
+        encodeInt((int) (l & 0xFFFFFFFFL));
+        encodeInt((int) ((l >>> 32L) & 0xFFFFFFFFL));
     }
 
     /**
@@ -212,19 +228,15 @@ public class OutPacket extends Packet {
     @Override
     public void setData(byte[] nD) {
         super.setData(nD);
-        baos.clear();
-        encodeArr(nD);
+        baos = nD;
     }
 
     @Override
     public byte[] getData() {
-        if (baos.hasArray()) {
-            return baos.array();
-        } else {
-            byte[] arr = new byte[baos.writerIndex()];
-            baos.nioBuffer().get(arr, 0, baos.writerIndex());
-            return arr;
-        }
+        // array might be bigger than what was written
+        byte[] retArr = new byte[baosPtr];
+        System.arraycopy(baos, 0, retArr, 0, baosPtr);
+        return retArr;
     }
 
     @Override
@@ -309,7 +321,7 @@ public class OutPacket extends Packet {
     }
 
     public void release() {
-
+//        baos.release();
     }
 
     public void encodeFT(LocalDateTime localDateTime) {
@@ -318,5 +330,9 @@ public class OutPacket extends Packet {
 
     public void encode(Encodable encodable) {
         encodable.encode(this);
+    }
+
+    public void setLoopback(boolean loopback) {
+        this.loopback = loopback;
     }
 }

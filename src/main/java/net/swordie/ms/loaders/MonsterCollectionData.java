@@ -50,7 +50,6 @@ public class MonsterCollectionData {
         q = session.createQuery("from MonsterCollectionMobInfo");
         List<MonsterCollectionMobInfo> mobInfos = new ArrayList<>(q.list());
         t.commit();
-        session.close();
         mobInfos.forEach(mi -> {
             put(mi);
             monsterInfo.put(mi.getMobID(), new Triple(mi.getRegion(), mi.getSession(), mi.getPosition()));

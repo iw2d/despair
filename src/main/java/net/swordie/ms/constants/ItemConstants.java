@@ -1487,10 +1487,10 @@ public class ItemConstants {
 
     public static boolean isCollisionLootItem(int itemID) {
         switch (itemID) {
-            case 2023484: // Blue
-            case 2023494: // Purple
-            case 2023495: // Red
-            case 2023669: // Gold
+            case GameConstants.BLUE_EXP_ORB_ID: // Blue
+            case GameConstants.PURPLE_EXP_ORB_ID: // Purple
+            case GameConstants.RED_EXP_ORB_ID: // Red
+            case GameConstants.GOLD_EXP_ORB_ID: // Gold
                 return true;
 
             default:
@@ -1780,6 +1780,162 @@ public class ItemConstants {
 
     public static boolean isBridleItem(int itemID) {
         return itemID / 10000 == 227;
+    }
+
+    public static boolean isEtc(int itemID) {
+        return itemID / 1000000 == 4;
+    }
+
+    public static boolean isConsume(int itemID) {
+        return itemID / 1000000 == 2;
+    }
+
+    public static boolean isInstall(int itemID) {
+        return itemID / 1000000 == 3;
+    }
+
+    public static boolean isChair(int itemID) {
+        return itemID / 10000 == 301 || itemID / 1000 == 5204;
+    }
+
+    public static boolean isTextChair(int itemID) {
+        return itemID / 1000 == 3014;
+    }
+
+    public static boolean isTowerChair(int itemID) {
+        return itemID / 1000 == 3017;
+    }
+
+    public static boolean isMesoChair(int itemID) {
+        return itemID == 3015650 || itemID == 3015651 || itemID == 3015440 || itemID == 3015897;
+    }
+
+    public static boolean isMachineArm(int itemID) {
+        return itemID / 10000 == 162;
+    }
+
+    public static boolean isMachineLeg(int itemID) {
+        return itemID / 10000 == 163;
+    }
+
+    public static boolean isBodyFrame(int itemID) {
+        return itemID / 10000 == 164;
+    }
+
+    public static boolean isTransistor(int itemID) {
+        return itemID / 10000 == 165;
+    }
+
+    public static boolean isHeart(int itemID) {
+        return itemID / 10000 == 167;
+    }
+
+    public static boolean isDragonMask(int itemID) {
+        return itemID / 10000 == 194;
+    }
+
+    public static boolean isDragonPendant(int itemID) {
+        return itemID / 10000 == 195;
+    }
+
+    public static boolean isDragonWings(int itemID) {
+        return itemID / 10000 == 196;
+    }
+
+    public static boolean isDragonTail(int itemID) {
+        return itemID / 10000 == 197;
+    }
+
+    public static boolean isCard(int itemID) {
+        return itemID / 10000 == 135 && itemID - 1350000 >= 2100 && itemID - 1350000 < 2200;
+    }
+
+    public static boolean isOrb(int itemID) {
+        return itemID / 10000 == 135 && itemID - 1350000 >= 2400 && itemID - 1350000 < 2500;
+    }
+
+    public static boolean isDragonSoul(int itemID) {
+        return itemID / 10000 == 135 && itemID - 1350000 >= 2500 && itemID - 1350000 < 2600;
+    }
+
+    public static boolean isSoulRing(int itemID) {
+        return itemID / 10000 == 135 && itemID - 1350000 >= 2600 && itemID - 1350000 < 2700;
+    }
+
+    public static boolean isMagnum(int itemID) {
+        return itemID / 10000 == 135 && itemID - 1350000 >= 2700 && itemID - 1350000 < 2800;
+    }
+
+    public static boolean isHeroMedal(int itemID) {
+        return itemID / 10 == 135220;
+    }
+
+    public static boolean isPaladinRosario(int itemID) {
+        return itemID / 10 == 135221;
+    }
+
+    public static boolean isDarkKnightChain(int itemID) {
+        return itemID / 10 == 135222;
+    }
+
+    public static boolean isFpBook(int itemID) {
+        return itemID / 10 == 135223;
+    }
+
+    public static boolean isIlBook(int itemID) {
+        return itemID / 10 == 135224;
+    }
+
+    public static boolean isClericBook(int itemID) {
+        return itemID / 10 == 135225;
+    }
+
+    public static boolean isBowmasterFeather(int itemID) {
+        return itemID / 10 == 135226;
+    }
+
+    public static boolean isCrossbowMasterThimble(int itemID) {
+        return itemID / 10 == 135227;
+    }
+
+    public static boolean isShadowerSheath(int itemID) {
+        return itemID / 10 == 135228;
+    }
+
+    public static boolean isNightlordPouch(int itemID) {
+        return itemID / 10 == 135229;
+    }
+
+    public static boolean isViperWristband(int itemID) {
+        return itemID / 10 == 135290;
+    }
+
+    public static boolean isCaptainSight(int itemID) {
+        return itemID / 10 == 135291;
+    }
+
+    public static boolean isCannonGunpowder(int itemID) {
+        return itemID / 10 == 135292 || itemID / 10 == 135298;
+    }
+
+    public static boolean isBattleMageOrb(int itemID) {
+        return itemID / 10 == 135295;
+    }
+
+    public static boolean isWildHunterArrowHead(int itemID) {
+        return itemID / 10 == 135296;
+    }
+
+    public static boolean isAranPendulum(int itemID) {
+        return itemID / 10 == 135293;
+    }
+
+    public static boolean isEvanPaper(int itemID) {
+        return itemID / 10 == 135294;
+    }
+
+    public static boolean isCygnusGem(int itemID) {
+        return itemID / 10 == 135297;
     }
 
     public static Set<DropInfo> getConsumableMobDrops(int level) {

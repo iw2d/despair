@@ -64,11 +64,9 @@ public class DatabaseManager {
     private static final Logger log = Logger.getLogger(DatabaseManager.class);
     private static final int KEEP_ALIVE_MS = 10 * 60 * 1000; // 10 minutes
 
-    private static SessionFactory sessionFactory;
-    private static List<Session> sessions;
+    private static final SessionFactory sessionFactory;
 
-
-    public static void init() {
+    static {
         Configuration configuration = new Configuration().configure();
         configuration.setProperty("autoReconnect", "true");
         Class[] dbClasses = new Class[] {
@@ -136,7 +134,6 @@ public class DatabaseManager {
             configuration.addAnnotatedClass(clazz);
         }
         sessionFactory = configuration.buildSessionFactory();
-        sessions = new ArrayList<>();
         sendHeartBeat();
     }
 
@@ -144,64 +141,41 @@ public class DatabaseManager {
      * Sends a simple query to the DB to ensure that the connection stays alive.
      */
     private static void sendHeartBeat() {
-        Session session = getSession();
-        Transaction t = session.beginTransaction();
-        Query q = session.createQuery("from Char where id = 1");
-        q.list();
-        t.commit();
-        session.close();
-        EventManager.addEvent(DatabaseManager::sendHeartBeat, KEEP_ALIVE_MS);
+        try (Session session = getSession()) {
+            Transaction t = session.beginTransaction();
+            Query q = session.createQuery("from Char where id = 1");
+            q.list();
+            t.commit();
+            EventManager.addEvent(DatabaseManager::sendHeartBeat, KEEP_ALIVE_MS);
+        }
     }
 
     public static Session getSession() {
-        Session session = sessionFactory.openSession();
-        sessions.add(session);
-        return session;
-    }
-
-    public static void cleanUpSessions() {
-        sessions.removeAll(sessions.stream().filter(s -> !s.isOpen()).collect(Collectors.toList()));
+        return sessionFactory.getCurrentSession();
     }
 
     public static void saveToDB(Object obj) {
-        log.info(String.format("%s: Trying to save obj %s.", LocalDateTime.now(), obj));
-        synchronized (obj) {
-            try (Session session = getSession()) {
-                Transaction t = session.beginTransaction();
-                session.saveOrUpdate(obj);
-                t.commit();
-            }
+        try (Session session = getSession()) {
+            Transaction t = session.beginTransaction();
+            session.saveOrUpdate(obj);
+            t.commit();
         }
-        cleanUpSessions();
     }
 
     public static void deleteFromDB(Object obj) {
-        log.info(String.format("%s: Trying to delete obj %s.", LocalDateTime.now(), obj));
-        synchronized (obj) {
-            try (Session session = getSession()) {
-                Transaction t = session.beginTransaction();
-                session.delete(obj);
-                t.commit();
-            }
+        try (Session session = getSession()) {
+            Transaction t = session.beginTransaction();
+            session.delete(obj);
+            t.commit();
         }
-        cleanUpSessions();
     }
 
     public static Object getObjFromDB(Class clazz, int id) {
-        log.info(String.format("%s: Trying to get obj %s with id %d.", LocalDateTime.now(), clazz, id));
-        Object o = null;
-        try(Session session = getSession()) {
-            Transaction transaction = session.beginTransaction();
-            // String.format for query, just to fill in the class
-            // Can't set the FROM clause with a parameter it seems
-            // session.get doesn't work for Chars for whatever reason
-            javax.persistence.Query query = session.createQuery(String.format("FROM %s WHERE id = :val", clazz.getName()));
-            query.setParameter("val", id);
-            List l = ((org.hibernate.query.Query) query).list();
-            if (l != null && l.size() > 0) {
-                o = l.get(0);
-            }
-            transaction.commit();
+        Object o;
+        try (Session session = getSession()) {
+            Transaction t = session.beginTransaction();
+            o = session.get(clazz, id);
+            t.commit();
         }
         return o;
     }
@@ -211,7 +185,6 @@ public class DatabaseManager {
     }
 
     public static Object getObjFromDB(Class clazz, String columnName, Object value) {
-        log.info(String.format("%s: Trying to get obj %s with value %s.", LocalDateTime.now(), clazz, value));
         Object o = null;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
@@ -224,7 +197,6 @@ public class DatabaseManager {
                 o = l.get(0);
             }
             transaction.commit();
-            session.close();
         }
         return o;
     }
@@ -238,7 +210,6 @@ public class DatabaseManager {
             javax.persistence.Query query = session.createQuery(String.format("FROM %s", clazz.getName()));
             list = ((org.hibernate.query.Query) query).list();
             transaction.commit();
-            session.close();
         }
         return list;
     }
@@ -253,8 +224,24 @@ public class DatabaseManager {
             query.setParameter("val", value);
             list = ((org.hibernate.query.Query) query).list();
             transaction.commit();
-            session.close();
         }
         return list;
+    }
+
+    public static void modifyObjectFromDB(Class clazz, int id, String columnName, Object value) {
+        Session session = null;
+        try {
+            session = getSession();
+            Transaction transaction = session.beginTransaction();
+            // String.format for query, just to fill in the class
+            // Can't set the FROM clause with a parameter it seems
+            javax.persistence.Query query = session.createQuery(String.format("UPDATE %s SET %s = :val WHERE id = :objid", clazz.getName(), columnName));
+            query.setParameter("objid", id);
+            query.setParameter("val", value);
+            query.executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

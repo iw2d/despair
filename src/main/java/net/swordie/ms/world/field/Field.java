@@ -96,6 +96,7 @@ public class Field {
     private Map<Integer, List<String>> directionInfo;
     private Clock clock;
     private int channel;
+    private int averageMobLevel;
     private Map<String, Object> properties;
     private boolean changeToChannelOnLeave;
     private boolean dropsDisabled;
@@ -643,7 +644,8 @@ public class Field {
         for (Life life : getLifes().values()) {
             spawnLife(life, chr);
         }
-        if (getRuneStone() != null && getMobs().size() > 0 && getBossMobID() == 0 && isChannelField() && !isTown()) {
+        if (getRuneStone() != null && getMobGens().size() > 0 && getBossMobID() == 0 && !isTown()
+                && getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURENCES) {
             chr.write(FieldPacket.runeStoneAppear(getRuneStone()));
         }
         if (getOpenGates() != null && getOpenGates().size() > 0) {
@@ -1411,6 +1413,7 @@ public class Field {
 
     public boolean canSpawnElite() {
         return isChannelField()
+                && getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURENCES
                 && (getEliteState() == null || getEliteState() == EliteState.None)
                 && getNextEliteSpawnTime() < System.currentTimeMillis();
     }
@@ -1466,7 +1469,10 @@ public class Field {
             boolean buffed = !isChannelField()
                     && getChannel() > GameConstants.CHANNELS_PER_WORLD - GameConstants.BUFFED_CHANNELS;
             int currentMobs = getMobs().size();
-            for (MobGen mg : getMobGens()) {
+            List<MobGen> shuffledMobs = new ArrayList<>(getMobGens());
+            // shuffle so the mobs spawn on random positions, instead of a fixed order
+            Collections.shuffle(shuffledMobs);
+            for (MobGen mg : shuffledMobs) {
                 if (mg.canSpawnOnField(this)) {
                     mg.spawnMob(this, buffed);
                     currentMobs++;
@@ -1578,6 +1584,14 @@ public class Field {
 
     public void setChannel(int channel) {
         this.channel = channel;
+    }
+
+    public int getAverageMobLevel() {
+        return averageMobLevel;
+    }
+
+    public void setAverageMobLevel(int averageMobLevel) {
+        this.averageMobLevel = averageMobLevel;
     }
 
     public Map<String, Object> getProperties() {

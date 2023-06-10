@@ -58,8 +58,6 @@ public class Server extends Properties {
 	private void init(String[] args) {
 		log.info("Starting server.");
 		long startNow = System.currentTimeMillis();
-		DatabaseManager.init();
-		log.info("Loaded Hibernate in " + (System.currentTimeMillis() - startNow) + "ms");
 
 		try {
 			checkAndCreateDat();
@@ -143,11 +141,6 @@ public class Server extends Properties {
 		getInstance().init(args);
 	}
 
-	public Session getNewDatabaseSession() {
-		cleanSessions();
-		return DatabaseManager.getSession();
-	}
-
 	public Tuple<Byte, Client> getChannelFromTransfer(int charId, int worldId) {
 		for (Channel c : getWorldById(worldId).getChannels()) {
 			if (c.getTransfers().containsKey(charId)) {
@@ -155,10 +148,6 @@ public class Server extends Properties {
 			}
 		}
 		return null;
-	}
-
-	public void cleanSessions() {
-		DatabaseManager.cleanUpSessions();
 	}
 
 	public void clearCache() {

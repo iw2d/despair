@@ -36,7 +36,7 @@ public class ChannelAcceptor implements Runnable {
                 @Override
                 protected void initChannel(SocketChannel ch) {
 
-                    ch.pipeline().addLast(new PacketDecoder(), new ChannelHandler(), new PacketEncoder());
+                    ch.pipeline().addLast(new PacketDecoder(), new ChannelHandler(true), new PacketEncoder());
 
                     byte[] siv = new byte[]{70, 114, 30, 82};
                     byte[] riv = new byte[]{82, 48, 25, 115};

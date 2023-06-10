@@ -41,9 +41,10 @@ public class GameConstants {
     public static final int DEFAULT_FIELD_MOB_CAPACITY = 25;
     public static final double DEFAULT_FIELD_MOB_RATE_BY_MOBGEN_COUNT = 1.5;
     public static final int BASE_MOB_RESPAWN_RATE = 5000; // In milliseconds
-    public static final double KISHIN_MOB_MULTIPLIER = 1.7;
-    public static final double KISHIN_MOB_RATE_MULTIPLIER = 1.7;
+    public static final double KISHIN_MOB_MULTIPLIER = 1.5;
+    public static final double KISHIN_MOB_RATE_MULTIPLIER = 1.5;
     public static final Rect MOB_CHECK_RECT = new Rect(-100, -100, 100, 100);
+    public static final int MIN_LEVEL_FOR_RANDOM_FIELD_OCCURENCES = 10;
 
     // Drop
     public static final int DROP_HEIGHT = 100; // was 20
@@ -105,6 +106,9 @@ public class GameConstants {
     public static final double PURPLE_EXP_ORB_MULT = 3.5;
     public static final int RED_EXP_ORB_ID = 2023495;
     public static final double RED_EXP_ORB_MULT = 5;
+
+    public static final int GOLD_EXP_ORB_ID = 2023669;
+    public static final double GOLD_EXP_ORB_MULT = 7;
 
     // Mob
     public static final int MOB_SKILL_CHANCE = 20;
@@ -655,6 +659,8 @@ public class GameConstants {
                 return PURPLE_EXP_ORB_MULT;
             case RED_EXP_ORB_ID:
                 return RED_EXP_ORB_MULT;
+            case GOLD_EXP_ORB_ID:
+                return GOLD_EXP_ORB_MULT;
         }
         return 0;
     }

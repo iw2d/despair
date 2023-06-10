@@ -82,16 +82,20 @@ public class RuneStone {
         chr.write(FieldPacket.runeStoneClearAndAllRegister());
     }
 
-    public RuneStone getRandomRuneStone(Field field) {
-        RuneStone runeStone = new RuneStone();
-        runeStone.setRuneType(RuneType.getByVal((byte) new Random().nextInt(RuneType.values().length)));
+    public static RuneStone getRandomRuneStone(Field field) {
+        RuneStone runeStone = null;
+        if (field.getMobGens().size() > 0 && field.getBossMobID() == 0 && !field.isTown()
+                && field.getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURENCES) {
+            runeStone = new RuneStone();
+            runeStone.setRuneType(RuneType.getByVal((byte) new Random().nextInt(RuneType.values().length)));
 
-        List<Foothold> listOfFootHolds = new ArrayList<>(field.getNonWallFootholds());
-        Foothold foothold = Util.getRandomFromCollection(listOfFootHolds);
-        Position position = foothold.getRandomPosition();
+            List<Foothold> listOfFootHolds = new ArrayList<>(field.getNonWallFootholds());
+            Foothold foothold = Util.getRandomFromCollection(listOfFootHolds);
+            Position position = foothold.getRandomPosition();
 
-        runeStone.setPosition(position);
-        runeStone.setFlip(false);
+            runeStone.setPosition(position);
+            runeStone.setFlip(false);
+        }
         return runeStone;
     }
 

@@ -10,6 +10,7 @@ import net.swordie.ms.connection.packet.UserLocal;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.enums.ChatType;
+import net.swordie.ms.util.Util;
 
 import javax.persistence.*;
 import java.util.*;
@@ -21,6 +22,9 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "guilds")
 public class Guild implements Encodable {
+    @Transient
+    public static final int MASTER = 1, JR_MASTER = 2, VETERAN = 3, MEMBER = 4, NEW = 5;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -156,8 +160,12 @@ public class Guild implements Encodable {
         guildMember.setGrade(Math.max(guildMember.getGrade() - 1, 1));
     }
 
+    public void addMember(Char chr, boolean online) {
+        addMember(new GuildMember(chr, online));
+    }
+
     public void addMember(Char chr) {
-        addMember(new GuildMember(chr));
+        addMember(chr, true);
     }
 
     public void removeMember(GuildMember guildMember) {
@@ -259,6 +267,15 @@ public class Guild implements Encodable {
 
     public void setRequestors(List<GuildRequestor> requestors) {
         this.requestors = requestors;
+    }
+
+    public void addGuildRequestor(Char chr) {
+        GuildRequestor guildRequestor = new GuildRequestor(chr);
+        getRequestors().add(guildRequestor);
+    }
+
+    public void removeGuildRequestor(GuildRequestor gr) {
+        getRequestors().remove(gr);
     }
 
     public List<String> getGradeNames() {
@@ -512,5 +529,18 @@ public class Guild implements Encodable {
             averageLevel += gm.getLevel();
         }
         return averageLevel / size;
+    }
+
+    public boolean canAcceptMember(Char chr) {
+        GuildMember gm = getMemberByChar(chr);
+        return gm != null && gm.getGrade() <= JR_MASTER;
+    }
+
+    public GuildRequestor getRequestorById(int charId) {
+        return Util.findWithPred(getRequestors(), gr -> gr.getCharID() == charId);
+    }
+
+    public boolean isFull() {
+        return getMembers().size() >= getMaxMembers();
     }
 }

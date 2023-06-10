@@ -33,7 +33,7 @@ public class Quest {
     @Column(name = "status")
     private QuestStatus status;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "questID")
     @Cascade(org.hibernate.annotations.CascadeType.DELETE)
     private List<QuestProgressRequirement> progressRequirements;

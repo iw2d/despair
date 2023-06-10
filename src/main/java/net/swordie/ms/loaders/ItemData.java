@@ -1960,7 +1960,6 @@ public class ItemData {
     }
 
     public static void main(String[] args) {
-        DatabaseManager.init();
         generateDatFiles();
     }
 

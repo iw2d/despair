@@ -36,6 +36,7 @@ import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
+import net.swordie.ms.life.Life;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobTemporaryStat;
@@ -432,29 +433,32 @@ public abstract class Job {
 	 * 		The packet to be processed
 	 */
 	public void handleHit(InPacket inPacket) {
-		int idk1 = inPacket.decodeInt();
-		inPacket.decodeInt(); // tick
-		byte idk2 = inPacket.decodeByte(); // -1?
-		byte idk3 = inPacket.decodeByte();
-		int damage = inPacket.decodeInt();
-		short idk4 = inPacket.decodeShort();
-		int templateID = 0;
-		int mobID = 0;
-		if (inPacket.getUnreadAmount() >= 13) {
-			templateID = inPacket.decodeInt();
-			mobID = inPacket.decodeInt();
-			boolean left = inPacket.decodeByte() != 0;
-			int skillID = inPacket.decodeInt();
+		if (chr.isInvincible()) {
+			return;
 		}
 
 		HitInfo hitInfo = new HitInfo();
-		hitInfo.hpDamage = damage;
-		hitInfo.templateID = templateID;
-		hitInfo.mobID = mobID;
+		inPacket.decodeInt();
+		hitInfo.damagedTime = inPacket.decodeInt();
+		hitInfo.type = inPacket.decodeByte();
+		hitInfo.elemAttr = inPacket.decodeByte();
+		hitInfo.hpDamage = inPacket.decodeInt();
+		hitInfo.isCrit = inPacket.decodeByte() != 0;
+		inPacket.decodeByte();
 
-		if(chr.isInvincible()) {
-			return;
-		}
+		hitInfo.templateID = inPacket.decodeInt();
+		hitInfo.mobID = inPacket.decodeInt();
+		hitInfo.isLeft = inPacket.decodeByte() != 0;
+		hitInfo.blockSkillId = inPacket.decodeInt();
+		hitInfo.reducedDamage = inPacket.decodeInt();
+		hitInfo.reflect = inPacket.decodeByte();
+		hitInfo.isGuard = inPacket.decodeByte();
+
+		hitInfo.stance = inPacket.decodeByte();
+		hitInfo.stanceSkillID = inPacket.decodeInt();
+		hitInfo.cancelSkillID = inPacket.decodeInt();
+		hitInfo.reductionSkillID = inPacket.decodeInt();
+		hitInfo.bodyAttack = inPacket.decodeByte() != 0;
 
 		handleHit(c, inPacket, hitInfo);
 		handleHit(c, hitInfo);

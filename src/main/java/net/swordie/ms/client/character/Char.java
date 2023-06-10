@@ -292,9 +292,7 @@ public class Char {
 	@Transient
 	private short fieldSeatID;
 	@Transient
-	private int portableChairID;
-	@Transient
-	private String portableChairMsg;
+	private PortableChair chair;
 	@Transient
 	private short foothold;
 	@Transient
@@ -335,8 +333,6 @@ public class Char {
 	private FreezeHotEventInfo freezeHotEventInfo;
 	@Transient
 	private int eventBestFriendAID;
-	@Transient
-	private int mesoChairCount;
 	@Transient
 	private boolean beastFormWingOn;
 	@Transient
@@ -384,6 +380,12 @@ public class Char {
 	// TODO Move this to CharacterStat?
 	@Transient
 	private Map<BaseStat, Long> baseStats = new HashMap<>();
+	@Transient
+	private Map<BaseStat, Set<Integer>> nonAddBaseStats = new HashMap<>();
+	@Transient
+	private Map<BaseStat, Integer> setBaseStats = new HashMap<>();
+	@Transient
+	private Map<BaseStat, Set<Integer>> setNonAddBaseStats = new HashMap<>();
 	@Transient
 	private boolean changingChannel;
 	@Transient
@@ -535,7 +537,6 @@ public class Char {
 			chr = (Char) l.get(0);
 		}
 		transaction.commit();
-		session.close();
 		return chr;
 	}
 
@@ -552,7 +553,6 @@ public class Char {
 			chr = (Char) l.get(0);
 		}
 		transaction.commit();
-		session.close();
 		return chr;
 	}
 
@@ -2792,6 +2792,16 @@ public class Char {
 		this.nickItem = nickItem;
 	}
 
+	public void encodeChatInfo(OutPacket outPacket, String msg) {
+		// vm'd sub
+		outPacket.encodeString(getName());
+		outPacket.encodeString(msg);
+		outPacket.encodeInt(getAccount().getId());
+		outPacket.encodeInt(getId());
+		outPacket.encodeByte(getAccount().getWorldId()); // ?
+		outPacket.encodeInt(getId());
+	}
+
 	public void setDamageSkin(int itemID) {
 		setDamageSkin(new DamageSkinSaveData(ItemConstants.getDamageSkinIDByItemID(itemID), itemID, false,
 				StringData.getItemStringById(itemID)));
@@ -3232,20 +3242,12 @@ public class Char {
 		this.fieldSeatID = fieldSeatID;
 	}
 
-	public int getPortableChairID() {
-		return portableChairID;
+	public PortableChair getChair() {
+		return chair;
 	}
 
-	public void setPortableChairID(int portableChairID) {
-		this.portableChairID = portableChairID;
-	}
-
-	public String getPortableChairMsg() {
-		return portableChairMsg;
-	}
-
-	public void setPortableChairMsg(String portableChairMsg) {
-		this.portableChairMsg = portableChairMsg;
+	public void setChair(PortableChair chair) {
+		this.chair = chair;
 	}
 
 	public short getFoothold() {
@@ -3424,14 +3426,6 @@ public class Char {
 
 	public void setEventBestFriendAID(int eventBestFriendAID) {
 		this.eventBestFriendAID = eventBestFriendAID;
-	}
-
-	public int getMesoChairCount() {
-		return mesoChairCount;
-	}
-
-	public void setMesoChairCount(int mesoChairCount) {
-		this.mesoChairCount = mesoChairCount;
 	}
 
 	public boolean isBeastFormWingOn() {
@@ -3867,37 +3861,85 @@ public class Char {
 	 * @return the amount of stat
 	 */
 	private double getTotalStatAsDouble(BaseStat baseStat) {
-		// TODO cache this completely
 		double stat = 0;
-		// Stat allocated by sp
-		stat += baseStat.toStat() == null ? 0 : getStat(baseStat.toStat());
-		// Stat gained by passives
-		stat += getBaseStats().getOrDefault(baseStat, 0L);
-		// Stat gained by buffs
-		int ctsStat = getTemporaryStatManager().getBaseStats().getOrDefault(baseStat, 0);
-		stat += ctsStat;
-		// Stat gained by the stat's corresponding "per level" value
-		if (baseStat.getLevelVar() != null) {
-			stat += getTotalStatAsDouble(baseStat.getLevelVar()) * getLevel();
+		if (baseStat == null) {
+			return stat;
 		}
-		// Stat gained by equips
-		for (Item item : getEquippedInventory().getItems()) {
-			Equip equip = (Equip) item;
-			stat += equip.getBaseStat(baseStat);
-		}
-		// Stat gained by the stat's corresponding rate value
-		if (baseStat.getRateVar() != null) {
-			stat += stat * (getTotalStat(baseStat.getRateVar()) / 100D);
-		}
-		// Stat gained by set effects
-		stat += getStatAmountSetEffect(baseStat);
-		// --- Everything below this doesn't get affected by the rate var
-		// Character potential
-		for (CharacterPotential cp : getPotentials()) {
-			Skill skill = cp.getSkill();
-			SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-			Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel());
-			stat += stats.getOrDefault(baseStat, 0);
+		if (baseStat.isNonAdditiveStat()) {
+			// stats like ied, final damage
+			Set<Integer> statSet = new HashSet<>();
+			// Stat gained by passives
+			if (getNonAddBaseStats().get(baseStat) != null) {
+				statSet.addAll(getNonAddBaseStats().get(baseStat));
+			}
+			// Stat gained by buffs
+			if (getTemporaryStatManager().getNonAddBaseStats().get(baseStat) != null) {
+				statSet.addAll(getTemporaryStatManager().getNonAddBaseStats().get(baseStat));
+			}
+			// Stat gained by equips
+			for (Item item : getEquippedInventory().getItems()) {
+				Equip equip = (Equip) item;
+				// maybe add canEquip here
+				statSet.addAll(equip.getNonAddBaseStat(baseStat));
+			}
+			// Stat gained by set effects
+			if (getSetNonAddBaseStats().get(baseStat) != null) {
+				statSet.addAll(getSetNonAddBaseStats().get(baseStat));
+			}
+			// Character potential
+			for (CharacterPotential cp : getPotentials()) {
+				Skill skill = cp.getSkill();
+				SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+				Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel());
+				statSet.add(stats.getOrDefault(baseStat, 0));
+			}
+			switch (baseStat) {
+				case fd:
+					stat = 100;
+					for (int s : statSet) {
+						stat *= 1 + s / 100d;
+					}
+					stat -= 100;
+					break;
+				case ied:
+					stat = 100;
+					for (int s : statSet) {
+						stat *= 1 - s / 100d;
+					}
+					stat = 100 - stat;
+					break;
+			}
+		} else {
+			// Stat allocated by sp
+			stat += baseStat.toStat() == null ? 0 : getStat(baseStat.toStat());
+			// Stat gained by passives
+			stat += getBaseStats().getOrDefault(baseStat, 0L);
+			// Stat gained by buffs
+			int ctsStat = getTemporaryStatManager().getBaseStats().getOrDefault(baseStat, 0);
+			stat += ctsStat;
+			// Stat gained by the stat's corresponding "per level" value
+			if (baseStat.getLevelVar() != null) {
+				stat += getTotalStatAsDouble(baseStat.getLevelVar()) * getLevel();
+			}
+			// Stat gained by equips
+			for (Item item : getEquippedInventory().getItems()) {
+				Equip equip = (Equip) item;
+				stat += equip.getBaseStat(baseStat);
+			}
+			// Stat gained by set effects
+			stat += getSetBaseStats().getOrDefault(baseStat, 0);
+			// Stat gained by the stat's corresponding rate value
+			if (baseStat.getRateVar() != null) {
+				stat += stat * (getTotalStat(baseStat.getRateVar()) / 100D);
+			}
+			// --- Everything below this doesn't get affected by the rate var
+			// Character potential
+			for (CharacterPotential cp : getPotentials()) {
+				Skill skill = cp.getSkill();
+				SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+				Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel());
+				stat += stats.getOrDefault(baseStat, 0);
+			}
 		}
 		return stat;
 	}
@@ -3917,6 +3959,64 @@ public class Char {
 			stats.put(bs, getTotalStat(bs));
 		}
 		return stats;
+	}
+
+	public Map<BaseStat, Long> getBaseStats() {
+		return baseStats;
+	}
+
+	public Map<BaseStat, Set<Integer>> getNonAddBaseStats() {
+		return nonAddBaseStats;
+	}
+
+	/**
+	 * Adds a BaseStat's amount to this Char's BaseStat cache.
+	 *
+	 * @param bs     The BaseStat
+	 * @param amount the amount of BaseStat to add
+	 */
+	public void addBaseStat(BaseStat bs, int amount) {
+		if (bs != null) {
+			if (bs.isNonAdditiveStat()) {
+				if (!getNonAddBaseStats().containsKey(bs)) {
+					getNonAddBaseStats().put(bs, new HashSet<>());
+				}
+				getNonAddBaseStats().get(bs).add(amount);
+//                chatMessage("[addBaseStat] key: %s value: %s", bs.toString(), Integer.toString(amount));
+			} else {
+				getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0L) + amount);
+//                chatMessage("[addBaseStat else] key: %s value: %s", bs.toString(), Integer.toString(amount));
+			}
+		}
+	}
+
+	/**
+	 * Removes a BaseStat's amount from this Char's BaseStat cache.
+	 *
+	 * @param bs     The BaseStat
+	 * @param amount the amount of BaseStat to remove
+	 */
+	public void removeBaseStat(BaseStat bs, int amount) {
+		addBaseStat(bs, -amount);
+	}
+
+	public Map<BaseStat, Integer> getSetBaseStats() { return setBaseStats; }
+
+	public Map<BaseStat, Set<Integer>> getSetNonAddBaseStats() { return setNonAddBaseStats; }
+
+	public void addSetBaseStat(BaseStat bs, int value) {
+		if (bs.isNonAdditiveStat()) {
+			if (!getSetNonAddBaseStats().containsKey(bs)) {
+				getSetNonAddBaseStats().put(bs, new HashSet<>());
+			}
+			getSetNonAddBaseStats().get(bs).add(value);
+		} else {
+			getSetBaseStats().put(bs, getSetBaseStats().getOrDefault(bs, 0) + value);
+		}
+	}
+
+	public void removeSetBaseStat(BaseStat bs, int value) {
+		addSetBaseStat(bs, -value);
 	}
 
 	/**
@@ -4250,30 +4350,6 @@ public class Char {
 
 	public boolean isChosenSkillInStolenSkillList(int skillId) {
 		return getStolenSkills().stream().filter(ss -> ss.getSkillid() == skillId).findAny().orElse(null) != null;
-	}
-
-	public Map<BaseStat, Long> getBaseStats() {
-		return baseStats;
-	}
-
-	/**
-	 * Adds a BaseStat's amount to this Char's BaseStat cache.
-	 *
-	 * @param bs     The BaseStat
-	 * @param amount the amount of BaseStat to add
-	 */
-	public void addBaseStat(BaseStat bs, int amount) {
-		getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0L) + amount);
-	}
-
-	/**
-	 * Removes a BaseStat's amount from this Char's BaseStat cache.
-	 *
-	 * @param bs     The BaseStat
-	 * @param amount the amount of BaseStat to remove
-	 */
-	public void removeBaseStat(BaseStat bs, int amount) {
-		addBaseStat(bs, -amount);
 	}
 
 	public void addItemToInventory(int id, int quantity) {
@@ -5070,8 +5146,6 @@ public class Char {
 		}
 		return options;
 	}
-
-
 
 	public int getStatAmountSetEffect(BaseStat baseStat) {
 		int amount = 0;

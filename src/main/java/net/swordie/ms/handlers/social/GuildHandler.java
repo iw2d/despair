@@ -1,6 +1,4 @@
 package net.swordie.ms.handlers.social;
-
-import net.swordie.ms.Server;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.alliance.Alliance;
 import net.swordie.ms.client.alliance.AllianceResult;
@@ -33,9 +31,6 @@ import net.swordie.ms.util.Util;
 import net.swordie.ms.world.World;
 import net.swordie.ms.world.field.Field;
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,6 +50,8 @@ public class GuildHandler {
             return;
         }
         Guild guild = chr.getGuild();
+        Field field = chr.getField();
+        World world = chr.getWorld();
         switch (grt) {
             case Req_FindGuildByCid: // AcceptJoinRequest:
                 int guildID = inPacket.decodeInt();
@@ -70,24 +67,20 @@ public class GuildHandler {
                 break;
             case Req_CheckGuildName:
                 String name = inPacket.decodeString();
-                List<Guild> guilds;
-                try (Session s = Server.getInstance().getNewDatabaseSession()) {
-                    Transaction t = s.beginTransaction();
-                    Query q = s.createQuery("FROM Guild WHERE name = ?");
-                    q.setParameter(0, name);
-                    guilds = q.list();
-                    t.commit();
-                }
-                if (guilds == null || guilds.size() == 0) {
+                guild = world.getGuildByName(name);
+                if (guild == null) {
                     guild = new Guild();
                     guild.setLevel(1);
                     guild.setName(name);
                     DatabaseManager.saveToDB(guild);
+                    world.addGuild(guild);
                     chr.setGuild(guild);
                     guild = chr.getGuild(); // setGuild may change the instance
                     guild.addMember(chr);
                     guild.setWorldID(chr.getClient().getWorldId());
                     chr.write(WvsContext.guildResult(GuildResult.createNewGuild(guild)));
+                    field.broadcastPacket(UserRemote.guildNameChanged(chr));
+                    field.broadcastPacket(UserRemote.guildMarkChanged(chr));
                     chr.deductMoney(5000000);
                 } else {
                     chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_CheckGuildName_AlreadyUsed)));
@@ -109,6 +102,8 @@ public class GuildHandler {
                 guild.broadcast(WvsContext.guildResult(GuildResult.leaveGuild(guild, chr.getId(), name, false)));
                 guild.removeMember(chr);
                 chr.setGuild(null);
+                field.broadcastPacket(UserRemote.guildNameChanged(chr));
+                field.broadcastPacket(UserRemote.guildMarkChanged(chr));
                 break;
             case Req_KickGuild:
                 if (guild == null) {
@@ -125,18 +120,27 @@ public class GuildHandler {
                     DatabaseManager.saveToDB(expelled);
                 } else {
                     guild.removeMember(gm);
+                    field.broadcastPacket(UserRemote.guildNameChanged(expelled));
+                    field.broadcastPacket(UserRemote.guildMarkChanged(expelled));
                 }
                 break;
             case Req_SetMark:
                 if (guild == null) {
                     return;
                 }
+                if (guild.getGgp() < 150000 || guild.getLevel() < 2) {
+                    chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_SetMark_Unknown)));
+                    return;
+                }
+                guild.setGgp(guild.getGgp() - 150000);
                 guild.setMarkBg(inPacket.decodeShort());
                 guild.setMarkBgColor(inPacket.decodeByte());
                 guild.setMark(inPacket.decodeShort());
                 guild.setMarkColor(inPacket.decodeByte());
                 chr.write(WvsContext.guildResult(GuildResult.setMark(guild))); // This doesn't actually update the emblem client side
                 guild.broadcast(WvsContext.guildResult(GuildResult.loadGuild(guild)));
+                field.broadcastPacket(UserRemote.guildNameChanged(chr));
+                field.broadcastPacket(UserRemote.guildMarkChanged(chr));
                 break;
             case Req_SetGradeName:
                 if (guild == null) {
@@ -266,7 +270,6 @@ public class GuildHandler {
                 break;
             case Req_Search:
                 byte generalSearch = inPacket.decodeByte();
-                World world = c.getWorld();
                 Collection<Guild> guildCol;
                 if (generalSearch == 1) {
                     int levMin = inPacket.decodeUByte();
@@ -288,6 +291,87 @@ public class GuildHandler {
                 log.error(String.format("Unhandled guild request %s", grt.toString()));
                 break;
 
+        }
+    }
+
+    @Handler(op = InHeader.GUILD_JOIN_REQUEST)
+    public static void handleGuildJoinRequest(Char chr, InPacket inPacket) {
+        if (chr.getGuild() != null) {
+            chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_JoinGuild_AlreadyJoined)));
+            return;
+        }
+        int guildId = inPacket.decodeInt();
+        Guild guild = chr.getWorld().getGuildByID(guildId);
+        if (guild == null) {
+            chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_JoinGuild_Unknown)));
+            return;
+        }
+        if (!guild.isAppliable() || guild.isFull()) {
+            chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_JoinGuild_AlreadyFull)));
+            return;
+        }
+        guild.addGuildRequestor(chr);
+        guild.broadcast(WvsContext.guildResult(GuildResult.loadGuild(guild)));
+    }
+
+    @Handler(op = InHeader.GUILD_JOIN_ACCEPT)
+    public static void handleGuildJoinAccept(Char chr, InPacket inPacket) {
+        Guild guild = chr.getGuild();
+        World world = chr.getWorld();
+        if (guild == null || !guild.canAcceptMember(chr)) {
+            chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_JoinGuild_NonRequestFindUser)));
+            return;
+        }
+        byte size = inPacket.decodeByte();
+        Set<Char> onlineChars = new HashSet<>();
+        Set<Char> offlineChars = new HashSet<>();
+        for (int i = 0; i < size; i++) {
+            int charId = inPacket.decodeInt();
+            GuildRequestor gr = guild.getRequestorById(charId);
+            if (gr == null) {
+                chr.chatMessage("%s no longer requests to join your guild.");
+                continue;
+            }
+            Char toJoin = world.getCharByID(charId);
+            if (toJoin != null) {
+                if (toJoin.getGuild() != null) {
+                    chr.chatMessage("%s is already in a guild.", gr.getName());
+                } else {
+                    onlineChars.add(toJoin);
+                }
+            } else {
+                toJoin = Char.getFromDBById(charId);
+                if (toJoin != null) {
+                    if (toJoin.getGuild() != null) {
+                        chr.chatMessage("%s is already in a guild.", gr.getName());
+                    } else {
+                        offlineChars.add(toJoin);
+                    }
+                } else {
+                    chr.chatMessage("Character %s could not be found, their character is probably gone.", gr.getName());
+                }
+            }
+            guild.removeGuildRequestor(gr);
+        }
+        for (Char c : onlineChars) {
+            if (guild.isFull()) {
+                chr.chatMessage("%s was not added, as your guild is full.", c.getName());
+                continue;
+            }
+            Field field = c.getField();
+            guild.addMember(c);
+            chr.write(WvsContext.guildResult(GuildResult.loadGuild(guild)));
+            field.broadcastPacket(UserRemote.guildNameChanged(chr));
+            field.broadcastPacket(UserRemote.guildMarkChanged(chr));
+        }
+        for (Char c : offlineChars) {
+            if (guild.isFull()) {
+                chr.chatMessage("%s was not added, as your guild is full.", c.getName());
+                continue;
+            }
+            guild.addMember(c, false);
+            c.setGuild(guild);
+            DatabaseManager.saveToDB(c);
         }
     }
 

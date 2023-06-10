@@ -18,5 +18,6 @@ public class ServerConstants {
 	public static final String MINOR_VERSION = "1";
 	public static final int LOGIN_PORT = 8484;
 	public static final short CHAT_PORT = 8483;
+	public static final int API_PORT = 8482;
 	public static final int BCRYPT_ITERATIONS = 10;
 }

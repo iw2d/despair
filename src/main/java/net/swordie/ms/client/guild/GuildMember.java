@@ -37,11 +37,14 @@ public class GuildMember implements Encodable {
     public GuildMember() {
     }
 
-    public GuildMember(Char chr) {
+    public GuildMember(Char chr, boolean online) {
         this.chr = chr;
         updateInfoFromChar(chr);
         grade = 5;
         allianceGrade = 5;
+        if (!online) {
+            this.chr = null; // so they're not mistaken as online players
+        }
     }
 
     public void updateInfoFromChar(Char chr) {
@@ -144,7 +147,7 @@ public class GuildMember implements Encodable {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof GuildMember && ((GuildMember) obj).getChr().equals(getChr());
+        return obj instanceof GuildMember && getCharID() == ((GuildMember) obj).getCharID();
     }
 
     public int getCharID() {

@@ -2208,4 +2208,30 @@ public class Equip extends Item {
             chr.dispose();
         }
     }
+
+    public Set<Integer> getNonAddBaseStat(BaseStat baseStat) {
+        // TODO: Sockets
+        Set<Integer> res = new HashSet<>();
+        for (int i = 0; i < getOptions().size() - 1; i++) { // last one is anvil => skipped
+            int id = getOptions().get(i);
+            int level = (getrLevel() + getiIncReq()) / 10;
+            ItemOption io = ItemData.getItemOptionById(id);
+            if (io != null) {
+                Map<BaseStat, Double> valMap = io.getStatValuesByLevel(level);
+                double val = valMap.getOrDefault(baseStat, 0D);
+                if (val != 0) {
+                    res.add((int) val);
+                }
+            }
+        }
+        switch (baseStat) {
+            case fd:
+                // can't get fd on equips?
+                break;
+            case ied:
+                res.add(getTotalStat(EquipBaseStat.imdr));
+                break;
+        }
+        return res;
+    }
 }

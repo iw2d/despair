@@ -11,7 +11,9 @@ import java.util.Arrays;
  * Created on 2/18/2017.
  */
 public class InPacket extends Packet {
-    private ByteBuf byteBuf;
+    private final ByteBuf byteBuf;
+    private boolean loopback;
+    private short packetID;
 
     /**
      * Creates a new InPacket with a given buffer.
@@ -61,7 +63,7 @@ public class InPacket extends Packet {
     }
 
     public short decodeUByte() {
-            return byteBuf.readUnsignedByte();
+        return byteBuf.readUnsignedByte();
     }
 
     /**
@@ -139,6 +141,14 @@ public class InPacket extends Packet {
     }
 
     /**
+     * Reads a position (int x, int y) and returns this.
+     * @return The position that has been read.
+     */
+    public Position decodePositionInt() {
+        return new Position(decodeInt(), decodeInt());
+    }
+
+    /**
      * Reads a rectangle (short l, short t, short r, short b) and returns this.
      * @return The rectangle that has been read.
      */
@@ -150,9 +160,10 @@ public class InPacket extends Packet {
      * Reads a rectangle (int l, int t, int r, int b) and returns this.
      * @return The rectangle that has been read.
      */
-    public Position decodePositionInt() {
-        return new Position(decodeInt(), decodeInt());
+    public Rect decodeIntRect() {
+        return new Rect(decodePositionInt(), decodePositionInt());
     }
+
 
     /**
      * Returns the amount of bytes that are unread.
@@ -166,11 +177,15 @@ public class InPacket extends Packet {
         byteBuf.release();
     }
 
-    /**
-     * Reads a rectangle (int l, int t, int r, int b) and returns this.
-     * @return The rectangle that has been read.
-     */
-    public Rect decodeIntRect() {
-        return new Rect(decodePositionInt(), decodePositionInt());
+    public boolean isLoopback() {
+        return loopback;
+    }
+
+    public void setLoopback(boolean loopback) {
+        this.loopback = loopback;
+    }
+
+    public short getPacketID() {
+        return packetID;
     }
 }

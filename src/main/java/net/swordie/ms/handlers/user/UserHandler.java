@@ -5,6 +5,7 @@ import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.MonsterCollection;
 import net.swordie.ms.client.character.MonsterCollectionExploration;
+import net.swordie.ms.client.character.PortableChair;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.keys.FuncKeyMap;
 import net.swordie.ms.client.character.potential.CharacterPotential;
@@ -175,25 +176,24 @@ public class UserHandler {
     @Handler(op = InHeader.USER_SIT_REQUEST)
     public static void handleUserSitRequest(Char chr, InPacket inPacket) {
         Field field = chr.getField();
-        int fieldSeatId = inPacket.decodeShort();
-
-        chr.setPortableChairID(0);
-        chr.setPortableChairMsg("");
+        short fieldSeatId = inPacket.decodeShort();
+        chr.setFieldSeatID(fieldSeatId);
+        chr.setChair(new PortableChair(0, ChairType.None));
         chr.write(FieldPacket.sitResult(chr.getId(), fieldSeatId));
-        field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr.getId(), 0, false, ""));
+        field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr, new PortableChair(0, ChairType.None)), chr);
         chr.dispose();
     }
 
     @Handler(op = InHeader.USER_PORTABLE_CHAIR_SIT_REQUEST)
-    public static void handleUserPortableChairSitRequest(Char chr, InPacket inpacket) {
+    public static void handleUserPortableChairSitRequest(Char chr, InPacket inPacket) {
         Field field = chr.getField();
-        int itemId = inpacket.decodeInt(); // item id
-        int pos = inpacket.decodeInt(); // setup position
-        byte chairBag = inpacket.decodeByte(); // is Chair in a bag
-        boolean textChair = inpacket.decodeInt() != 0; // boolean to show text
+        int itemId = inPacket.decodeInt(); // item id
+        int pos = inPacket.decodeInt(); // setup position
+        byte chairBag = inPacket.decodeByte(); // is Chair in a bag
+        boolean textChair = inPacket.decodeInt() != 0; // boolean to show text
         String text = "";
         if (textChair) {
-            text = inpacket.decodeString(); // text to display
+            text = inPacket.decodeString(); // text to display
         }
         if (textChair && (text.length() > 12 || !Util.isValidString(text) || !chr.hasItem(itemId))) {
             chr.chatMessage("Invalid text.");
@@ -202,14 +202,15 @@ public class UserHandler {
         }
 
         // Tower Chair  check & id
-        inpacket.decodeInt(); // encodes 0
-        int unknown = inpacket.decodeInt();
+        int unk1 = inPacket.decodeInt(); // encodes 0
+        int unk2 = inPacket.decodeInt();
+        int unk3 = inPacket.decodeInt();
 
-        inpacket.decodeInt(); // Time
 
-        field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr.getId(), itemId, textChair, text));
-        chr.setPortableChairID(itemId);
-        chr.setPortableChairMsg(text);
+        PortableChair chair = new PortableChair(itemId, ChairType.getByItemId(itemId));
+        chair.setMsg(text);
+        chr.setChair(chair);
+        field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr, chr.getChair()));
         chr.dispose();
     }
 

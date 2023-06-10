@@ -288,7 +288,7 @@ public class World {
         return alliances;
     }
 
-    private void addGuild(Guild guild) {
+    public void addGuild(Guild guild) {
         getGuilds().put(guild.getId(), guild);
     }
 

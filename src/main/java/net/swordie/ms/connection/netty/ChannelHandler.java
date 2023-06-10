@@ -69,6 +69,10 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
         log.info("Initialized " + handlers.size() + " handlers in " + (System.currentTimeMillis() - start) + "ms.");
     }
 
+    public ChannelHandler(boolean autoRelease) {
+        super(autoRelease);
+    }
+
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         log.debug("[ChannelHandler] | Channel inactive.");
