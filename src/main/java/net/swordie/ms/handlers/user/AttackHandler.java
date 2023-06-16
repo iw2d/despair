@@ -41,8 +41,7 @@ public class AttackHandler {
 
 
     // No handler, gets called from other handlers
-    private static void handleAttack(Client c, AttackInfo attackInfo) {
-        Char chr = c.getChr();
+    private static void handleAttack(Char chr, AttackInfo attackInfo) {
         chr.dbgChatMsg(attackInfo.skillId + "");
         int skillID = attackInfo.skillId;
         Field field = chr.getField();
@@ -78,14 +77,14 @@ public class AttackHandler {
                                         UserRemote.effect(ptChr.getId(), effect)
                                         , ptChr);
                                 ptChr.write(UserPacket.effect(effect));
-                                sourceJobHandler.handleAttack(c, attackInfo);
+                                sourceJobHandler.handleAttack(chr, attackInfo);
                             }
 
                         }
                     }
                 }
             }
-            sourceJobHandler.handleAttack(c, attackInfo);
+            sourceJobHandler.handleAttack(chr, attackInfo);
             if (attackInfo.attackHeader != null) {
                 switch (attackInfo.attackHeader) {
                     case SUMMONED_ATTACK:
@@ -199,7 +198,7 @@ public class AttackHandler {
     }
 
     @Handler(op = InHeader.USER_BODY_ATTACK)
-    public static void handleBodyAttack(Client c, InPacket inPacket) {
+    public static void handleBodyAttack(Char chr, InPacket inPacket) {
         AttackInfo ai = new AttackInfo();
         ai.attackHeader = OutHeader.REMOTE_BODY;
         ai.fieldKey = inPacket.decodeByte();
@@ -261,13 +260,12 @@ public class AttackHandler {
             }
         }
         ai.pos = inPacket.decodePosition();
-        handleAttack(c, ai);
+        handleAttack(chr, ai);
     }
 
 
     @Handler(op = InHeader.SUMMONED_ATTACK)
-    public static void handleSummonedAttack(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleSummonedAttack(Char chr, InPacket inPacket) {
         Field field = chr.getField();
         AttackInfo ai = new AttackInfo();
         int summonedID = inPacket.decodeInt();
@@ -340,7 +338,7 @@ public class AttackHandler {
             mai.hitPartRunTimes = hitPartRunTimes;
             ai.mobAttackInfo.add(mai);
         }
-        handleAttack(c, ai);
+        handleAttack(chr, ai);
     }
 
     @Handler(ops = {InHeader.USER_MELEE_ATTACK, InHeader.USER_SHOOT_ATTACK, InHeader.USER_MAGIC_ATTACK,
@@ -622,7 +620,7 @@ public class AttackHandler {
                 ai.fh = inPacket.decodeByte();
             }
         }
-        handleAttack(chr.getClient(), ai);
+        handleAttack(chr, ai);
     }
 
     @Handler(op = InHeader.FAMILIAR_ATTACK)
@@ -656,7 +654,7 @@ public class AttackHandler {
             }
             ai.mobAttackInfo.add(mai);
         }
-        handleAttack(chr.getClient(), ai);
+        handleAttack(chr, ai);
         // 4 more bytes after this, not sure what it is
     }
 

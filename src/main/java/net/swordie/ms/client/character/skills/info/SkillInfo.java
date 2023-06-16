@@ -2,6 +2,7 @@ package net.swordie.ms.client.character.skills.info;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.SkillStat;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.Stat;
 import net.swordie.ms.util.Rect;
@@ -182,6 +183,7 @@ public class SkillInfo {
             Tuple<BaseStat, Integer> bs = getBaseStatValue(ss, slv, chr);
             stats.put(bs.getLeft(), bs.getRight());
         }
+        SkillConstants.putMissingBaseStatsBySkill(stats, this, slv);
         return stats;
     }
 

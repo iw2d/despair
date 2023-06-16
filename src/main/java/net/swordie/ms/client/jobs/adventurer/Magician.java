@@ -236,10 +236,10 @@ public class Magician extends Beginner {
 
     // Buff related methods --------------------------------------------------------------------------------------------
 
-    public void handleBuff(Client c, InPacket inPacket, int skillID, byte slv) {
-        Char chr = c.getChr();
+    @Override
+    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
         SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = c.getChr().getTemporaryStatManager();
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -713,8 +713,7 @@ public class Magician extends Beginner {
     // Attack related methods ------------------------------------------------------------------------------------------
 
     @Override
-    public void handleAttack(Client c, AttackInfo attackInfo) {
-        Char chr = c.getChr();
+    public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(attackInfo.skillId);
         int skillID = 0;
@@ -952,7 +951,7 @@ public class Magician extends Beginner {
                 break;
         }
 
-        super.handleAttack(c, attackInfo);
+        super.handleAttack(chr, attackInfo);
     }
 
     public int getExtendedDoTTime(int dotTime) {
@@ -1190,10 +1189,9 @@ public class Magician extends Beginner {
     // Skill related methods -------------------------------------------------------------------------------------------
 
     @Override
-    public void handleSkill(Client c, int skillID, byte slv, InPacket inPacket) {
-        super.handleSkill(c, skillID, slv, inPacket);
+    public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
+        super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Char chr = c.getChr();
         Skill skill = chr.getSkill(skillID);
         SkillInfo si = null;
         if (skill != null) {
@@ -1201,7 +1199,7 @@ public class Magician extends Beginner {
         }
         changeBlessedCount();
         if (isBuff(skillID)) {
-            handleBuff(c, inPacket, skillID, slv);
+            handleBuff(chr, inPacket, skillID, slv);
         } else {
             Option o1 = new Option();
             Option o2 = new Option();
@@ -1399,22 +1397,6 @@ public class Magician extends Beginner {
 
 
     // Hit related methods ---------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleHit(Client c, InPacket inPacket, HitInfo hitInfo) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if(tsm.hasStat(MagicGuard)) {
-            Skill skill = chr.getSkill(MAGIC_GUARD);
-            SkillInfo si = SkillData.getSkillInfoById(MAGIC_GUARD);
-            int dmgPerc = si.getValue(x, skill.getCurrentLevel());
-            int dmg = hitInfo.hpDamage;
-            int mpDmg = (int) (dmg * (dmgPerc / 100D));
-            mpDmg = chr.getStat(Stat.mp) - mpDmg < 0 ? chr.getStat(Stat.mp) : mpDmg;
-            hitInfo.hpDamage = dmg - mpDmg;
-            hitInfo.mpDamage = mpDmg;
-        }
-        super.handleHit(c, inPacket, hitInfo);
-    }
 
     public void handleMobDebuffSkill(Char chr) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();

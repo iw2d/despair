@@ -201,12 +201,12 @@ public class Summon extends Life {
         this.moveAbility = moveAbility;
     }
 
-    public static Summon getSummonBy(Char chr, int skillID, byte slv) {
+    public static Summon getSummonBy(Char chr, int skillID, int slv) {
         SkillInfo si = SkillData.getSkillInfoById(skillID);
         Summon summon = new Summon(-1);
         summon.setChr(chr);
         summon.setSkillID(skillID);
-        summon.setSlv(slv);
+        summon.setSlv((byte) slv);
         summon.setSummonTerm(si.getValue(SkillStat.time, slv));
         summon.setCharLevel((byte) chr.getStat(Stat.level));
         summon.setPosition(chr.getPosition().deepCopy());
@@ -231,7 +231,7 @@ public class Summon extends Life {
         return summon;
     }
 
-    public static void summonKishin(Char chr, byte slv) {
+    public static void summonKishin(Char chr, int slv) {
         Field field = chr.getField();
 
         // Remove both Old Kishins

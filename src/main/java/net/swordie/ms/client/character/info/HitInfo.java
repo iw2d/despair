@@ -6,51 +6,63 @@ import net.swordie.ms.util.Position;
  * Created on 1/11/2018.
  */
 public class HitInfo {
+    public int damagedTime;
+    public byte type = - 1;
+    public byte elemAttr;
     public int hpDamage;
+    public boolean isCrit;
     public int templateID;
     public int mobID;
-    public int mpDamage;
-    public int type = -1;
-    public int blockSkillId;
-    public int otherUserID;
-    public boolean isCrit;
-    public int action;
-    public int hitAction;
-    public int specialEffectSkill; // mask: 0x1 if true, 0x2 if custom skillID. Default is 33110000 (jaguar boost)
-    public int reflectDamage;
-    public int userSkillID;
-    public byte attackIdx;
-    public short obstacle;
-    public byte elemAttr;
-    public int damagedTime;
     public boolean isLeft;
-    public int reducedDamage;
+    public int blockSkillId;
+    public int blockSkillDamage;
     public byte reflect;
-    public byte isGuard;
-    public boolean bodyAttack;
+    public byte guard;
+    public byte powerGuard;
+    public int reflectMobID;
+    public byte hitAction;
+    public Position hitPos;
+    public Position userHitPos;
     public byte stance;
     public int stanceSkillID;
     public int cancelSkillID;
     public int reductionSkillID;
 
+
+    public int mpDamage;
+    public int otherUserID;
+    public int action;
+    public int specialEffectSkill; // mask: 0x1 if true, 0x2 if custom skillID. Default is 33110000 (jaguar boost)
+    public int reflectDamage;
+    public int userSkillID;
+    public short obstacle;
+    public byte isGuard;
+    public boolean bodyAttack;
+
     @Override
     public String toString() {
-        return "HitInfo {" +
-                "damagedTime = " + damagedTime +
-                ", type = " + type +
-                ", elemAttr = " + elemAttr +
-                ", hpDamage = " + hpDamage +
-                ", isCrit = " + isCrit +
-                ", templateID = " + templateID +
-                ", blockSkillId = " + blockSkillId +
-                ", reducedDamage = " + reducedDamage +
-                ", isGuard = " + isGuard +
-                ", stance = " + stance +
-                ", stanceSkillID = " + stanceSkillID +
-                ", cancelSkillID = " + cancelSkillID +
-                ", specialEffectSkill = " + specialEffectSkill +
-                ", reductionSkillID = " + reductionSkillID +
-                ", bodyAttack = " + bodyAttack +
-                '}';
+        return "HitInfo {, " +
+                "damagedTime = " + this.damagedTime + ", " +
+                "type = " + this.type + ", " +
+                "elemAttr = " + this.elemAttr + ", " +
+                "hpDamage = " + this.hpDamage + ", " +
+                "isCrit = " + this.isCrit + ", " +
+                "templateID = " + this.templateID + ", " +
+                "mobID = " + this.mobID + ", " +
+                "isLeft = " + this.isLeft + ", " +
+                "blockSkillId = " + this.blockSkillId + ", " +
+                "blockSkillDamage = " + this.blockSkillDamage + ", " +
+                "reflect = " + this.reflect + ", " +
+                "guard = " + this.guard + ", " +
+                "powerGuard = " + this.powerGuard + ", " +
+                "reflectMobID = " + this.reflectMobID + ", " +
+                "hitAction = " + this.hitAction + ", " +
+                "hitPos = " + this.hitPos + ", " +
+                "userHitPos = " + this.userHitPos + ", " +
+                "stance = " + this.stance + ", " +
+                "stanceSkillID = " + this.stanceSkillID + ", " +
+                "cancelSkillID = " + this.cancelSkillID + ", " +
+                "reductionSkillID = " + this.reductionSkillID + ", " +
+        "}";
     }
 }

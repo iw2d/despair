@@ -1,5 +1,6 @@
 package net.swordie.ms.constants;
 
+import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.jobs.Zero;
 import net.swordie.ms.client.jobs.adventurer.*;
@@ -12,6 +13,7 @@ import net.swordie.ms.client.jobs.nova.AngelicBuster;
 import net.swordie.ms.client.jobs.resistance.Blaster;
 import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.client.jobs.resistance.Mechanic;
+import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.BeastTamerBeasts;
 import net.swordie.ms.loaders.SkillData;
 import org.apache.log4j.Logger;
@@ -1498,6 +1500,11 @@ public class SkillConstants {
         return beginJob * 10000 + 73;
     }
 
+    public static boolean isBlessingSkill(int skillId) {
+        return JobConstants.isBeginnerJob((short) (skillId / 10000)) && skillId % 100 == 12 || skillId % 100 == 73;
+    }
+
+
     public static int getSoaringByJob(short job) {
         short beginJob = JobConstants.JobEnum.getJobById(job).getBeginnerJobId();
         // xxxx1026, where xxxx is the "0th" job
@@ -1554,5 +1561,19 @@ public class SkillConstants {
     public static boolean isKeydownCDSkill(int nSkillID)
     {
         return KEYDOWN_SKILLS.contains(nSkillID);
+    }
+
+    public static void putMissingBaseStatsBySkill(Map<BaseStat, Integer> stats, SkillInfo si, int slv) {
+        int skillId = si.getSkillId();
+        // pad/mad not in wz
+        if (SkillConstants.isBlessingSkill(skillId)) {
+            stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
+            stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
+        }
+        switch (skillId) {
+            case Warrior.IRON_BODY:
+                stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.damAbsorbShieldR, slv));
+                break;
+        }
     }
 }

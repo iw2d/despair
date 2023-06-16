@@ -13,6 +13,7 @@ import net.swordie.ms.world.field.MobGen;
 
 import java.util.Observable;
 
+@SuppressWarnings("deprecation")
 public class Life extends Observable {
     private Position position;
     private int objectId = -1;

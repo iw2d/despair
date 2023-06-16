@@ -19,6 +19,7 @@ import java.util.concurrent.ScheduledFuture;
  *
  * @author NullByte
  */
+@SuppressWarnings("deprecation")
 public interface ScriptManager extends Observer {
 
 	/**

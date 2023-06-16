@@ -140,10 +140,10 @@ public class Xenon extends Job {
 
     // Buff related methods --------------------------------------------------------------------------------------------
 
-    public void handleBuff(Client c, InPacket inPacket, int skillID, byte slv) {
-        Char chr = c.getChr();
+    @Override
+    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
         SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = c.getChr().getTemporaryStatManager();
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -261,7 +261,7 @@ public class Xenon extends Job {
         return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
     }
 
-    private void applySupplyCost(int skillID, byte slv, SkillInfo si) {
+    private void applySupplyCost(int skillID, int slv, SkillInfo si) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if(skillID == PINPOINT_SALVO || skillID == PINPOINT_SALVO_REDESIGN_A || skillID == PINPOINT_SALVO_REDESIGN_B || skillID == PINPOINT_SALVO_PERFECT_DESIGN) {
             return;
@@ -284,7 +284,7 @@ public class Xenon extends Job {
         incrementSupply(1);
     }
 
-    private void incrementSupply(int amount) {
+    public void incrementSupply(int amount) {
         if (supply < 20) {
             supply = chr.getTemporaryStatManager().getOption(SurplusSupply).nOption;
             supply += amount;
@@ -312,8 +312,7 @@ public class Xenon extends Job {
     // Attack related methods ------------------------------------------------------------------------------------------
 
     @Override
-    public void handleAttack(Client c, AttackInfo attackInfo) {
-        Char chr = c.getChr();
+    public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(attackInfo.skillId);
         int skillID = 0;
@@ -387,7 +386,7 @@ public class Xenon extends Job {
                 break;
         }
 
-        super.handleAttack(c, attackInfo);
+        super.handleAttack(chr, attackInfo);
     }
 
     public void applyTriangulationOnMob(AttackInfo attackInfo) {
@@ -478,9 +477,8 @@ public class Xenon extends Job {
     // Skill related methods -------------------------------------------------------------------------------------------
 
     @Override
-    public void handleSkill(Client c, int skillID, byte slv, InPacket inPacket) {
-        super.handleSkill(c, skillID, slv, inPacket);
-        Char chr = c.getChr();
+    public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
+        super.handleSkill(chr, skillID, slv, inPacket);
         Skill skill = chr.getSkill(skillID);
         SkillInfo si = null;
         if (skill != null) {
@@ -489,7 +487,7 @@ public class Xenon extends Job {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         applySupplyCost(skillID, slv, si);
         if (isBuff(skillID)) {
-            handleBuff(c, inPacket, skillID, slv);
+            handleBuff(chr, inPacket, skillID, slv);
         } else {
             Option o1 = new Option();
             Option o2 = new Option();
@@ -548,7 +546,7 @@ public class Xenon extends Job {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Client c, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o1 = new Option();
         Option o2 = new Option();
@@ -613,7 +611,7 @@ public class Xenon extends Job {
                         null, 0, null));
             }
         }
-        super.handleHit(c, inPacket, hitInfo);
+        super.handleHit(chr, inPacket, hitInfo);
     }
 
     // Character creation related methods ------------------------------------------------------------------------------

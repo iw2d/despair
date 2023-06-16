@@ -457,7 +457,7 @@ public class Effect {
         return effect;
     }
 
-    public static Effect skillAffectedSelect(int skillID, byte slv, int select, boolean special) {
+    public static Effect skillAffectedSelect(int skillID, int slv, int select, boolean special) {
         Effect effect = new Effect();
 
         effect.setUserEffectType(SkillAffected_Select);
@@ -578,7 +578,7 @@ public class Effect {
         return effect;
     }
 
-    public static Effect showCaptureEffect(int skillID, byte slv, int bySummonedID, int type) {
+    public static Effect showCaptureEffect(int skillID, int slv, int bySummonedID, int type) {
         Effect effect = new Effect();
 
         effect.setUserEffectType(bySummonedID == 0 ? SkillUse : SkillUseBySummoned);

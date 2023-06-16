@@ -62,7 +62,19 @@ public enum BaseStat {
     intLv,
     lukLv,
     buffTimeR, // Buff Duration multiplier
-    recoveryUp, mpconReduce, reduceCooltime, padLv, madLv, mhpLv, mmpLv; // % increase in heal potion use
+    recoveryUp, // % increase in heal potion use
+    mpconReduce,
+    reduceCooltime,
+    padLv,
+    madLv,
+    mhpLv,
+    mmpLv,
+    dmgReduce,
+    magicGuard, // in %  of HP goes to MP instead.
+    invincibleAfterRevive, // in seconds
+    shopDiscountR, // % discount on shop items
+    pqShopDiscountR, // % discount in pq Shop
+    ;
 
 
     public static BaseStat getFromStat(Stat s) {
@@ -335,6 +347,12 @@ public enum BaseStat {
                 break;
             case Stance:
                 stats.put(stance, o.nOption);
+                break;
+            case PowerGuard:
+                stats.put(dmgReduce, o.nOption);
+                break;
+            case MagicGuard:
+                stats.put(magicGuard, o.nOption);
                 break;
             case SharpEyes:
                 stats.put(ied, o.mOption);

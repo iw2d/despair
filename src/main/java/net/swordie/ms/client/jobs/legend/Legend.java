@@ -17,21 +17,21 @@ public class Legend extends Job {
     }
 
     @Override
-    public void handleAttack(Client c, AttackInfo attackInfo) {
+    public void handleAttack(Char chr, AttackInfo attackInfo) {
 
-        super.handleAttack(c, attackInfo);
+        super.handleAttack(chr, attackInfo);
     }
 
     @Override
-    public void handleSkill(Client c, int skillID, byte slv, InPacket inPacket) {
-        super.handleSkill(c, skillID, slv, inPacket);
+    public void handleSkill(Char c, int skillID, int slv, InPacket inPacket) {
+        super.handleSkill(chr, skillID, slv, inPacket);
 
     }
 
     @Override
-    public void handleHit(Client c, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
 
-        super.handleHit(c, inPacket, hitInfo);
+        super.handleHit(chr, inPacket, hitInfo);
     }
 
     @Override

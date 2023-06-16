@@ -154,7 +154,7 @@ public class SkillHandler {
             c.getChr().dbgChatMsg("SkillID: " + skillID);
             Job sourceJobHandler = c.getChr().getJobHandler();
             SkillInfo si = SkillData.getSkillInfoById(skillID);
-            if (si.isMassSpell() && sourceJobHandler.isBuff(skillID) && chr.getParty() != null) {
+            if (si != null && si.isMassSpell() && sourceJobHandler.isBuff(skillID) && chr.getParty() != null) {
                 Rect r = si.getFirstRect();
                 if (r != null) {
                     Rect rectAround = chr.getRectAround(r);
@@ -170,12 +170,12 @@ public class SkillHandler {
                                         , ptChr);
                                 ptChr.write(UserPacket.effect(effect));
                             }
-                            sourceJobHandler.handleSkill(pm.getChr().getClient(), skillID, slv, inPacket);
+                            sourceJobHandler.handleSkill(pm.getChr(), skillID, slv, inPacket);
                         }
                     }
                 }
             } else {
-                sourceJobHandler.handleSkill(c, skillID, slv, inPacket);
+                sourceJobHandler.handleSkill(chr, skillID, slv, inPacket);
             }
         }
        chr.dispose();
@@ -222,14 +222,14 @@ public class SkillHandler {
             if (chr.hasSkillOnCooldown(skillID)) {
                 success = false;
             } else {
-                chr.setSkillCooldown(skillID, (byte) slv);
+                chr.setSkillCooldown(skillID, slv);
             }
         }
         if (success) {
             chr.getField().broadcastPacket(UserRemote.throwGrenade(chr.getId(), grenadeID, pos, keyDown, skillID,
                     bySummonedID, slv, left, attackSpeed), chr);
             Job jobHandler = chr.getJobHandler();
-            jobHandler.handleSkill(chr.getClient(), skillID, (byte) slv, inPacket);
+            jobHandler.handleSkill(chr, skillID, (byte) slv, inPacket);
         }
     }
 
@@ -345,7 +345,7 @@ public class SkillHandler {
         for (int i = 0; i < loopSize; i++) {
             Rect rect = inPacket.decodeIntRect();
         }
-        chr.getJobHandler().handleSkill(chr.getClient(), skillId, (byte) chr.getSkillLevel(skillId), inPacket);
+        chr.getJobHandler().handleSkill(chr, skillId, (byte) chr.getSkillLevel(skillId), inPacket);
     }
 
     @Handler(op = InHeader.USER_SKILL_PREPARE_REQUEST)
@@ -376,7 +376,7 @@ public class SkillHandler {
         if (SkillConstants.isKeyDownSkill(skillId)) {
             if(SkillConstants.isKeydownCDSkill(skillId)){
                 Skill skill = chr.getSkill(skillId);
-                chr.setSkillCooldown(skillId, (byte) skill.getCurrentLevel());
+                chr.setSkillCooldown(skillId, skill.getCurrentLevel());
             }
             chr.getField().broadcastPacket(UserRemote.skillCancel(chr.getId(), skillId), chr);
         }
@@ -388,7 +388,7 @@ public class SkillHandler {
             tsm.sendResetStatPacket();
         }
 
-        chr.getJobHandler().handleSkillRemove(c, skillId);
+        chr.getJobHandler().handleSkillRemove(chr, skillId);
     }
 
     @Handler(op = InHeader.USER_TEMPORARY_STAT_UPDATE_REQUEST)

@@ -82,33 +82,33 @@ public class JobManager {
         characterStat.setMp(5);
     }
 
-    public static void handleAtt(Client c, AttackInfo attackInfo) {
+    public static void handleAttack(Char chr, AttackInfo attackInfo) {
         for(Class clazz : jobClasses) {
             Job job = null;
             try {
-                job = (Job) clazz.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
+                job = (Job) clazz.getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
-            if(job != null && job.isHandlerOfJob(c.getChr().getJob())) {
-                job.handleAttack(c, attackInfo);
+            if(job != null && job.isHandlerOfJob(chr.getJob())) {
+                job.handleAttack(chr, attackInfo);
             }
         }
     }
 
-    public static void handleSkill(Client c, InPacket inPacket) {
+    public static void handleSkill(Char chr, InPacket inPacket) {
         for(Class clazz : jobClasses) {
             Job job = null;
             try {
-                job = (Job) clazz.newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
+                job = (Job) clazz.getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
-            if(job != null && job.isHandlerOfJob(c.getChr().getJob())) {
+            if(job != null && job.isHandlerOfJob(chr.getJob())) {
                 inPacket.decodeInt(); // crc
                 int skillID = inPacket.decodeInt();
                 byte slv = inPacket.decodeByte();
-                job.handleSkill(c, skillID, slv, inPacket);
+                job.handleSkill(chr, skillID, slv, inPacket);
             }
         }
     }

@@ -2336,7 +2336,7 @@ public class Char {
         }
 		int equippedSummonSkill = ItemConstants.getEquippedSummonSkillItem(equip.getItemId(), getJob());
         if (equippedSummonSkill != 0) {
-			getJobHandler().handleSkill(getClient(), equippedSummonSkill, (byte) 1, null);
+			getJobHandler().handleSkill(this, equippedSummonSkill, 1, null);
 		}
 		byte maskValue = AvatarModifiedMask.AvatarLook.getVal();
 		getField().broadcastPacket(UserRemote.avatarModified(this, maskValue, (byte) 0), this);
@@ -4125,7 +4125,7 @@ public class Char {
 		} else {
 			Skill skill = getSkill(skillID);
 			if (skill != null && SkillData.getSkillInfoById(skillID).hasCooltime() && !SkillConstants.isKeydownCDSkill(skillID)) {
-				setSkillCooldown(skillID, (byte) skill.getCurrentLevel());
+				setSkillCooldown(skillID, skill.getCurrentLevel());
 			}
 			return true;
 		}
@@ -4142,7 +4142,7 @@ public class Char {
 	 * @param skillID the skill's id to set
 	 * @param slv     the current skill level
 	 */
-	public void setSkillCooldown(int skillID, byte slv) {
+	public void setSkillCooldown(int skillID, int slv) {
 		SkillInfo si = SkillData.getSkillInfoById(skillID);
 		if (si != null) {
 			int cdInSec = si.getValue(SkillStat.cooltime, slv);
@@ -4439,7 +4439,7 @@ public class Char {
 	public void damage(int damage) {
 		HitInfo hi = new HitInfo();
 		hi.hpDamage = damage;
-		getJobHandler().handleHit(getClient(), hi);
+		getJobHandler().handleHit(this, hi);
 	}
 
 	public void changeChannel(byte channelId) {

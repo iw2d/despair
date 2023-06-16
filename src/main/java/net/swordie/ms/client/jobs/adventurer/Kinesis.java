@@ -133,8 +133,8 @@ public class Kinesis extends Job {
 
     // Buff related methods --------------------------------------------------------------------------------------------
 
-    public void handleBuff(Client c, InPacket inPacket, int skillID, byte slv) {
-        Char chr = c.getChr();
+    @Override
+    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
         SkillInfo si = SkillData.getSkillInfoById(skillID);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o1 = new Option();
@@ -224,8 +224,7 @@ public class Kinesis extends Job {
     // Attack related methods ------------------------------------------------------------------------------------------
 
     @Override
-    public void handleAttack(Client c, AttackInfo attackInfo) {
-        Char chr = c.getChr();
+    public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(attackInfo.skillId);
         if(skill == null) {
@@ -307,7 +306,7 @@ public class Kinesis extends Job {
                 break;
         }
 
-        super.handleAttack(c, attackInfo);
+        super.handleAttack(chr, attackInfo);
     }
 
     private void createKineticOrbForceAtom(int skillID, byte slv, AttackInfo attackInfo) {
@@ -348,16 +347,15 @@ public class Kinesis extends Job {
     // Skill related methods -------------------------------------------------------------------------------------------
 
     @Override
-    public void handleSkill(Client c, int skillID, byte slv, InPacket inPacket) {
-        super.handleSkill(c, skillID, slv, inPacket);
-        Char chr = c.getChr();
+    public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
+        super.handleSkill(chr, skillID, slv, inPacket);
         Skill skill = chr.getSkill(skillID);
         SkillInfo si = null;
         if(skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
         if (isBuff(skillID)) {
-            handleBuff(c, inPacket, skillID, slv);
+            handleBuff(chr, inPacket, skillID, slv);
         } else {
             Option o1 = new Option();
             switch(skillID) {
@@ -379,7 +377,7 @@ public class Kinesis extends Job {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Client c, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if(tsm.hasStat(KinesisPsychicShield)) {
             hitInfo.hpDamage = (int) (hitInfo.hpDamage * (tsm.getOption(KinesisPsychicEnergeShield).nOption / 100D));
@@ -388,7 +386,7 @@ public class Kinesis extends Job {
         if(getPp() <= 0) {
             tsm.removeStat(KinesisPsychicShield, false);
         }
-        super.handleHit(c, inPacket, hitInfo);
+        super.handleHit(chr, inPacket, hitInfo);
     }
 
     // Character creation related methods ------------------------------------------------------------------------------

@@ -261,6 +261,8 @@ public class SkillData {
                                         String nodeName = commonAttr.get("name");
                                         if (nodeName.equals("maxLevel")) {
                                             skill.setMaxLevel(Integer.parseInt(XMLApi.getNamedAttribute(commonNode, "value")));
+                                        } else if (nodeName.equalsIgnoreCase("massSpell")) {
+                                            skill.setMassSpell(Integer.parseInt(XMLApi.getNamedAttribute(commonNode, "value")) != 0);
                                         } else if (nodeName.contains("lt") && nodeName.length() <= 3) {
                                             Node rbNode = XMLApi.getFirstChildByNameBF(mainLevelNode, nodeName.replace("lt", "rb"));
                                             int left = Integer.parseInt(XMLApi.getNamedAttribute(commonNode, "x"));

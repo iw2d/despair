@@ -337,6 +337,7 @@ public class ScriptManagerImpl implements ScriptManager {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void update(Observable o, Object arg) {
 		if (o instanceof Mob) {

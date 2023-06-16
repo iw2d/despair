@@ -20,10 +20,12 @@ import net.swordie.ms.client.jobs.adventurer.BeastTamer;
 import net.swordie.ms.client.jobs.adventurer.Magician;
 import net.swordie.ms.client.jobs.adventurer.Warrior;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
+import net.swordie.ms.client.jobs.cygnus.Mihile;
 import net.swordie.ms.client.jobs.cygnus.NightWalker;
 import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.legend.Phantom;
 import net.swordie.ms.client.jobs.legend.Shade;
+import net.swordie.ms.client.jobs.resistance.Xenon;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
@@ -43,22 +45,24 @@ import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.world.field.Field;
+import org.apache.log4j.LogManager;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
-import static net.swordie.ms.client.jobs.adventurer.Warrior.PARASHOCK_GUARD;
-import static net.swordie.ms.client.jobs.cygnus.Mihile.*;
 
 
 /**
  * Created on 1/2/2018.
  */
 public abstract class Job {
+	private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+
     protected Char chr;
 	protected Client c;
 
@@ -147,8 +151,7 @@ public abstract class Job {
 		}
 	}
 
-	public void handleAttack(Client c, AttackInfo attackInfo) {
-		Char chr = c.getChr();
+	public void handleAttack(Char chr, AttackInfo attackInfo) {
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
 		Skill skill = SkillData.getSkillDeepCopyById(attackInfo.skillId);
 		int skillID = 0;
@@ -205,9 +208,8 @@ public abstract class Job {
 		}
 	}
 
-	public void handleSkill(Client c, int skillID, byte slv, InPacket inPacket) {
+	public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
-		Char chr = c.getChr();
 		Skill skill = SkillData.getSkillDeepCopyById(skillID);
 		SkillInfo si = null;
 		if(skill != null) {
@@ -216,7 +218,7 @@ public abstract class Job {
 		Summon summon;
 		Field field;
 		if (inPacket != null && isBuff(skillID)) {
-			handleJoblessBuff(c, inPacket, skillID, slv);
+			handleJoblessBuff(chr, inPacket, skillID, slv);
 		} else {
 			if(chr.hasSkill(skillID) && si.getVehicleId() > 0) {
 				TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
@@ -231,7 +233,7 @@ public abstract class Job {
 				field = c.getChr().getField();
 				int noviceSkill = SkillConstants.getNoviceSkillFromRace(skillID);
 				if (noviceSkill == 1085 || noviceSkill == 1087 || noviceSkill == 1090 || noviceSkill == 1179) {
-					summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+					summon = Summon.getSummonBy(c.getChr(), skillID, (byte) slv);
 					summon.setMoveAction((byte) 4);
 					summon.setAssistType(AssistType.Heal);
 					summon.setFlyMob(true);
@@ -267,7 +269,7 @@ public abstract class Job {
 					case SNOW_RING:
 					case LIGHTNING_RING:
 					case WIND_RING:
-						summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+						summon = Summon.getSummonBy(c.getChr(), skillID, (byte) slv);
 						summon.setMoveAction((byte) 4);
 						summon.setAssistType(AssistType.Heal);
 						summon.setFlyMob(true);
@@ -299,7 +301,7 @@ public abstract class Job {
 					case GNOME_SYLPH_2:
 					case DEVIL_SYLPH_2:
 					case ANGEL_SYLPH_2:
-						summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+						summon = Summon.getSummonBy(c.getChr(), skillID, (byte) slv);
 						field.spawnSummon(summon);
 						break;
 				}
@@ -345,10 +347,13 @@ public abstract class Job {
 
 	}
 
-	public void handleJoblessBuff(Client c, InPacket inPacket, int skillID, byte slv) {
-		Char chr = c.getChr();
+	public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
+
+	}
+
+	public void handleJoblessBuff(Char chr, InPacket inPacket, int skillID, int slv) {
 		SkillInfo si = SkillData.getSkillInfoById(skillID);
-		TemporaryStatManager tsm = c.getChr().getTemporaryStatManager();
+		TemporaryStatManager tsm = chr.getTemporaryStatManager();
 		Option o1 = new Option();
 		Option o2 = new Option();
 		Option o3 = new Option();
@@ -446,35 +451,195 @@ public abstract class Job {
 		hitInfo.isCrit = inPacket.decodeByte() != 0;
 		inPacket.decodeByte();
 
-		hitInfo.templateID = inPacket.decodeInt();
-		hitInfo.mobID = inPacket.decodeInt();
-		hitInfo.isLeft = inPacket.decodeByte() != 0;
-		hitInfo.blockSkillId = inPacket.decodeInt();
-		hitInfo.reducedDamage = inPacket.decodeInt();
-		hitInfo.reflect = inPacket.decodeByte();
-		hitInfo.isGuard = inPacket.decodeByte();
+		switch (hitInfo.type) {
+			case -1: // touch
+				hitInfo.templateID = inPacket.decodeInt();
+				hitInfo.mobID = inPacket.decodeInt();
+				hitInfo.isLeft = inPacket.decodeByte() != 0;
+				hitInfo.blockSkillId = inPacket.decodeInt();
+				hitInfo.blockSkillDamage = inPacket.decodeInt();
+				hitInfo.reflect = inPacket.decodeByte();
+				hitInfo.guard = inPacket.decodeByte();
+				if (hitInfo.guard == 2 || hitInfo.blockSkillDamage > 0) {
+					hitInfo.powerGuard = inPacket.decodeByte();
+					hitInfo.reflectMobID = inPacket.decodeInt();
+					hitInfo.hitAction = inPacket.decodeByte();
+					hitInfo.hitPos = inPacket.decodePosition();
+					hitInfo.userHitPos = inPacket.decodePosition();
+				}
+				hitInfo.stance = inPacket.decodeByte();
+				hitInfo.stanceSkillID = inPacket.decodeInt();
+				hitInfo.cancelSkillID = inPacket.decodeInt();
+				hitInfo.reductionSkillID = inPacket.decodeInt();
+				inPacket.decodeByte(); // 0
+				break;
+			case -2:
+			case -3:
+				break;
+			case -4: // tick
+				inPacket.decodeShort(); 	// 0
+				inPacket.decodeByte(); 		// type?
+											// 1: poison
+											// 3: Shadow of Darkness
+											// 4: Dark Tornado
+											// 8: %hp damage poison
+				break;
+			case -5: // obstacle atom
+				inPacket.decodeInt(); 		// nSN
+				inPacket.decodeByte(); 		// 0
+				break;
+			case -6: // full true damaged (one hit kill)
+				break;
+			case -8: // mob skill
+				inPacket.decodeInt(); 		// nSkillID
+				inPacket.decodeInt(); 		// nSLV
+				inPacket.decodeInt(); 		// dwBounceObjectSN
+				break;
+			case -9: // hekaton field skill
+				inPacket.decodeInt();
+				inPacket.decodeShort(); 	// damage type
+			case -10: // field etc, used for demian sword?
+				inPacket.decodeByte(); 		// type
+				inPacket.decodePosition();
+				break;
+			default:
+				// log.warn(String.format("Unhandled hit info type %d", hitInfo.type));
+		}
+		handleHit(chr, inPacket, hitInfo);
+		handleHit(chr, hitInfo);
+	}
 
-		hitInfo.stance = inPacket.decodeByte();
-		hitInfo.stanceSkillID = inPacket.decodeInt();
-		hitInfo.cancelSkillID = inPacket.decodeInt();
-		hitInfo.reductionSkillID = inPacket.decodeInt();
-		hitInfo.bodyAttack = inPacket.decodeByte() != 0;
+	/**
+	 * Handles the 'middle' part of hit processing, namely the job-specific stuff like Magic Guard,
+	 * and puts this info in <code>hitInfo</code>.
+	 *
+	 * @param chr
+	 * 		The character
+	 * @param inPacket
+	 * 		packet to be processed
+	 * @param hitInfo
+	 * 		The hit info that should be altered if necessary
+	 */
+	public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+		TemporaryStatManager tsm = chr.getTemporaryStatManager();
+		Field field = chr.getField();
 
-		handleHit(c, inPacket, hitInfo);
-		handleHit(c, hitInfo);
+		// General - Damage Reduce
+		if (hitInfo.hpDamage > 0) {
+			int totalDmgReduceR = chr.getTotalStat(BaseStat.dmgReduce);
+			if (totalDmgReduceR > 0) {
+				int dmgReduce = hitInfo.hpDamage * totalDmgReduceR / 100;
+				hitInfo.hpDamage = dmgReduce < hitInfo.hpDamage ? hitInfo.hpDamage - dmgReduce : 0;
+			}
+		}
+
+		// Bishop - Holy Magic Shell
+		if (tsm.hasStat(HolyMagicShell)) {
+			if (tsm.getOption(HolyMagicShell).xOption > 0) {
+				Option o = new Option();
+				o.nOption = tsm.getOption(HolyMagicShell).nOption;
+				o.rOption = tsm.getOption(HolyMagicShell).rOption;
+				o.tOption = (int) tsm.getRemainingTime(HolyMagicShell, o.rOption);
+				o.xOption = tsm.getOption(HolyMagicShell).xOption - 1;
+				o.setInMillis(true);
+				tsm.putCharacterStatValue(HolyMagicShell, o);
+				tsm.sendSetStatPacket();
+			} else {
+				tsm.removeStatsBySkill(Magician.HOLY_MAGIC_SHELL);
+			}
+		}
+
+		// Mihile - Soul Link
+		if (tsm.hasStat(MichaelSoulLink) && chr.getId() != tsm.getOption(MichaelSoulLink).cOption) {
+			Party party = chr.getParty();
+			PartyMember mihileInParty = party.getPartyMemberByID(tsm.getOption(MichaelSoulLink).cOption);
+			if (mihileInParty != null) {
+				Char mihileChr = mihileInParty.getChr();
+				Skill skill = mihileChr.getSkill(Mihile.SOUL_LINK);
+				SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+				byte slv = (byte) skill.getCurrentLevel();
+
+				int hpDmg = hitInfo.hpDamage;
+				int mihileDmgTaken = (int) (hpDmg * ((double) si.getValue(q, slv) / 100));
+
+				hitInfo.hpDamage = hitInfo.hpDamage - mihileDmgTaken;
+				mihileChr.damage(mihileDmgTaken);
+			} else {
+				tsm.removeStatsBySkill(Mihile.SOUL_LINK);
+				tsm.removeStatsBySkill(Mihile.ROYAL_GUARD);
+				tsm.removeStatsBySkill(Mihile.ENDURING_SPIRIT);
+				tsm.sendResetStatPacket();
+			}
+		}
+
+		// Paladin - Parashock Guard
+		if (tsm.hasStat(KnightsAura) && chr.getId() != tsm.getOption(KnightsAura).nOption) {
+			Party party = chr.getParty();
+
+			PartyMember paladinInParty = party.getPartyMemberByID(tsm.getOption(KnightsAura).nOption);
+			if (paladinInParty != null) {
+				Char paladinChr = paladinInParty.getChr();
+				Skill skill = paladinChr.getSkill(Warrior.PARASHOCK_GUARD);
+				SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+				int slv = skill.getCurrentLevel();
+
+				int dmgReductionR = si.getValue(y, slv);
+				int dmgReduceAmount = (int) (hitInfo.hpDamage * ((double) dmgReductionR / 100));
+				hitInfo.hpDamage = hitInfo.hpDamage - dmgReduceAmount;
+			}
+		}
+
+		// Power Guard Damage Reflection
+		if (tsm.hasStat(PowerGuard)) {
+			if (hitInfo.blockSkillDamage > 0 && hitInfo.reflectMobID > 0) {
+				Life reflectMob = chr.getField().getLifeByObjectID(hitInfo.reflectMobID);
+				if (reflectMob != null) {
+					((Mob) reflectMob).damage(chr, hitInfo.blockSkillDamage);
+				}
+			}
+		}
+
+		// Magic Guard
+		if (chr.getTotalStat(BaseStat.magicGuard) > 0) {
+			int dmgPerc = chr.getTotalStat(BaseStat.magicGuard);
+			int dmg = hitInfo.hpDamage;
+			int mpDmg = (int) (dmg * (dmgPerc / 100D));
+			mpDmg = chr.getStat(Stat.mp) - mpDmg < 0 ? chr.getStat(Stat.mp) : mpDmg;
+			hitInfo.hpDamage = dmg - mpDmg;
+			hitInfo.mpDamage = mpDmg;
+		}
+
+		// Miss or Evade
+		if (hitInfo.hpDamage <= 0) {
+			// Hypogram Field Support
+			if (chr.getParty() != null) {
+				for (AffectedArea aa : field.getAffectedAreas().stream().filter(aa -> aa.getSkillID() == Xenon.HYPOGRAM_FIELD_SUPPORT).collect(Collectors.toList())) {
+					boolean isInsideAA = aa.getRect().hasPositionInside(chr.getPosition());
+					if (!isInsideAA) {
+						continue;
+					}
+					Option supportOption = tsm.getOptByCTSAndSkill(IndieMHPR, Xenon.HYPOGRAM_FIELD_SUPPORT);
+					if (supportOption != null) {
+						Char xenonChr = chr.getParty().getPartyMemberByID(supportOption.wOption).getChr();
+						if (xenonChr != null && xenonChr.getField() == chr.getField() && xenonChr != chr) {
+							((Xenon) xenonChr.getJobHandler()).incrementSupply(1);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/**
 	 * The final part of the hit process. Assumes the correct info (wrt buffs for example) is
 	 * already in <code>hitInfo</code>.
 	 *
-	 * @param c
-	 * 		The client
+	 * @param chr
+	 * 		The character
 	 * @param hitInfo
 	 * 		The completed hitInfo
 	 */
-	public void handleHit(Client c, HitInfo hitInfo) {
-		Char chr = c.getChr();
+	public void handleHit(Char chr, HitInfo hitInfo) {
 		hitInfo.hpDamage = Math.max(0, hitInfo.hpDamage); // to prevent -1 (dodges) healing the player.
 
 		if(chr.getStat(Stat.hp) <= hitInfo.hpDamage) {
@@ -565,83 +730,6 @@ public abstract class Job {
 		}
 	}
 
-	/**
-	 * Handles the 'middle' part of hit processing, namely the job-specific stuff like Magic Guard,
-	 * and puts this info in <code>hitInfo</code>.
-	 *
-	 * @param c
-	 * 		The client
-	 * @param inPacket
-	 * 		packet to be processed
-	 * @param hitInfo
-	 * 		The hit info that should be altered if necessary
-	 */
-	public void handleHit(Client c, InPacket inPacket, HitInfo hitInfo) {
-		Char chr = c.getChr();
-		TemporaryStatManager tsm = chr.getTemporaryStatManager();
-
-		// If no job specific skills already nullified the dmg taken
-		if(hitInfo.hpDamage != 0) {
-
-			// Bishop - Holy Magic Shell
-			if (tsm.hasStat(HolyMagicShell)) {
-				if (tsm.getOption(HolyMagicShell).xOption > 0) {
-					Option o = new Option();
-					o.nOption = tsm.getOption(HolyMagicShell).nOption;
-					o.rOption = tsm.getOption(HolyMagicShell).rOption;
-					o.tOption = (int) tsm.getRemainingTime(HolyMagicShell, o.rOption);
-					o.xOption = tsm.getOption(HolyMagicShell).xOption - 1;
-					o.setInMillis(true);
-					tsm.putCharacterStatValue(HolyMagicShell, o);
-					tsm.sendSetStatPacket();
-				} else {
-					tsm.removeStatsBySkill(Magician.HOLY_MAGIC_SHELL);
-				}
-			}
-
-			// Mihile - Soul Link
-			else if (tsm.hasStat(MichaelSoulLink) && chr.getId() != tsm.getOption(MichaelSoulLink).cOption) {
-				Party party = chr.getParty();
-
-				PartyMember mihileInParty = party.getPartyMemberByID(tsm.getOption(MichaelSoulLink).cOption);
-				if (mihileInParty != null) {
-					Char mihileChr = mihileInParty.getChr();
-					Skill skill = mihileChr.getSkill(SOUL_LINK);
-					SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-					byte slv = (byte) skill.getCurrentLevel();
-
-					int hpDmg = hitInfo.hpDamage;
-					int mihileDmgTaken = (int) (hpDmg * ((double) si.getValue(q, slv) / 100));
-
-					hitInfo.hpDamage = hitInfo.hpDamage - mihileDmgTaken;
-					mihileChr.damage(mihileDmgTaken);
-				} else {
-					tsm.removeStatsBySkill(SOUL_LINK);
-					tsm.removeStatsBySkill(ROYAL_GUARD);
-					tsm.removeStatsBySkill(ENDURING_SPIRIT);
-					tsm.sendResetStatPacket();
-				}
-			}
-
-			// Paladin - Parashock Guard
-			else if (tsm.hasStat(KnightsAura) && chr.getId() != tsm.getOption(KnightsAura).nOption) {
-				Party party = chr.getParty();
-
-				PartyMember paladinInParty = party.getPartyMemberByID(tsm.getOption(KnightsAura).nOption);
-				if (paladinInParty != null) {
-					Char paladinChr = paladinInParty.getChr();
-					Skill skill = paladinChr.getSkill(PARASHOCK_GUARD);
-					SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-					byte slv = (byte) skill.getCurrentLevel();
-
-					int dmgReductionR = si.getValue(y, slv);
-					int dmgReduceAmount = (int) (hitInfo.hpDamage * ((double) dmgReductionR / 100));
-					hitInfo.hpDamage = hitInfo.hpDamage - dmgReduceAmount;
-				}
-			}
-		}
-	}
-
 	public abstract boolean isHandlerOfJob(short id);
 
 	public SkillInfo getInfo(int skillID) {
@@ -666,12 +754,12 @@ public abstract class Job {
 	/**
 	 * Called when a player is right-clicking a buff, requesting for it to be disabled.
 	 *
-	 * @param c
-	 * 		The client
+	 * @param chr
+	 * 		The character
 	 * @param skillID
 	 * 		The skill that the player right-clicked
 	 */
-	public void handleSkillRemove(Client c, int skillID) {
+	public void handleSkillRemove(Char chr, int skillID) {
 		// nothing here yet, @Override to make use of it
 	}
 
@@ -798,7 +886,7 @@ public abstract class Job {
 		characterStat.setMp(5);
 		characterStat.setMaxMp(5);
                 
-		characterStat.setPosMap(100000000);// should be handled for eah job not here
+		characterStat.setPosMap(100000000);// should be handled for each job not here
 		Item whitePot = ItemData.getItemDeepCopy(2000002);
 		whitePot.setQuantity(100);
 		chr.addItemToInventory(whitePot);
@@ -807,6 +895,5 @@ public abstract class Job {
 		chr.addItemToInventory(manaPot);
 		Item hyperTp = ItemData.getItemDeepCopy(5040004);
 		chr.addItemToInventory(hyperTp);
-
 	}
 }

@@ -192,11 +192,11 @@ public class AffectedArea extends Life {
         return aa;
     }
 
-    public static AffectedArea getPassiveAA(Char chr, int skillID, byte slv) {
+    public static AffectedArea getPassiveAA(Char chr, int skillID, int slv) {
         AffectedArea aa = new AffectedArea(-1);
         aa.setOwner(chr);
         aa.setSkillID(skillID);
-        aa.setSlv(slv);
+        aa.setSlv((byte) slv);
         aa.setRemoveSkill(true);
 
         return aa;
