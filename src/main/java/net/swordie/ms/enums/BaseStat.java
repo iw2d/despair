@@ -1,6 +1,8 @@
 package net.swordie.ms.enums;
 
+import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.Option;
+import net.swordie.ms.client.character.skills.info.ToBaseStat;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 
 import java.util.HashMap;
@@ -149,7 +151,7 @@ public enum BaseStat {
         return null;
     }
 
-    public static Map<BaseStat, Integer> getFromCTS(CharacterTemporaryStat ctsArg, Option o) {
+    public static Map<BaseStat, Integer> getFromCTS(Char chr, CharacterTemporaryStat ctsArg, Option o) {
         Map<BaseStat, Integer> stats = new HashMap<>();
         // TODO: Left at "Albatross" in CTS
         switch (ctsArg) {
@@ -350,6 +352,9 @@ public enum BaseStat {
                 break;
             case PowerGuard:
                 stats.put(dmgReduce, o.nOption);
+                break;
+            case ComboCounter:
+                ToBaseStat.comboCounter(chr, o, stats);
                 break;
             case MagicGuard:
                 stats.put(magicGuard, o.nOption);

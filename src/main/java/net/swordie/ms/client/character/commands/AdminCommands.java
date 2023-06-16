@@ -20,6 +20,7 @@ import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.ItemConstants;
+import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.JobConstants.JobEnum;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.header.OutHeader;
@@ -1149,22 +1150,59 @@ public class AdminCommands {
             List<Skill> list = new ArrayList<>();
             Set<Short> jobs = new HashSet<>();
             short job = chr.getJob();
-            // TODO add evan checks
             // giant hack, but it's for a command, so it's k
-            if (job % 100 == 12) {
-                jobs.add(job);
-                jobs.add((short) (job - 1));
-                jobs.add((short) (job - 2));
-                jobs.add((short) (job - 12));
-            } else if (job % 100 == 11) {
-                jobs.add(job);
-                jobs.add((short) (job - 1));
-                jobs.add((short) (job - 11));
-            } else if (job % 100 == 10) {
-                jobs.add(job);
-                jobs.add((short) (job - 10));
+            if (JobConstants.isEvan(job)) {
+                jobs.add((short) 2000);
+                jobs.add((short) 2200);
+                while (job >= 2210) {
+                    jobs.add(job--);
+                }
             } else {
-                jobs.add(job);
+                if (job % 100 == 12) {
+                    jobs.add(job);
+                    jobs.add((short) (job - 1));
+                    jobs.add((short) (job - 2));
+                    jobs.add((short) (job - 3));
+                    jobs.add((short) (job - 4));
+                    jobs.add((short) (job - 5));
+                    jobs.add((short) (job - 6));
+                    jobs.add((short) (job - 7));
+                    jobs.add((short) (job - 8));
+                    jobs.add((short) (job - 9));
+                    jobs.add((short) (job - 10));
+                    jobs.add((short) (job - 11));
+                    jobs.add((short) (job - 12));
+                } else if (job % 100 == 11) {
+                    jobs.add(job);
+                    jobs.add((short) (job - 1));
+                    jobs.add((short) (job - 2));
+                    jobs.add((short) (job - 3));
+                    jobs.add((short) (job - 4));
+                    jobs.add((short) (job - 5));
+                    jobs.add((short) (job - 6));
+                    jobs.add((short) (job - 7));
+                    jobs.add((short) (job - 8));
+                    jobs.add((short) (job - 9));
+                    jobs.add((short) (job - 10));
+                    jobs.add((short) (job - 11));
+                    jobs.add((short) (job - 12));
+                } else if (job % 100 == 10) {
+                    jobs.add(job);
+                    jobs.add((short) (job - 1));
+                    jobs.add((short) (job - 2));
+                    jobs.add((short) (job - 3));
+                    jobs.add((short) (job - 4));
+                    jobs.add((short) (job - 5));
+                    jobs.add((short) (job - 6));
+                    jobs.add((short) (job - 7));
+                    jobs.add((short) (job - 8));
+                    jobs.add((short) (job - 9));
+                    jobs.add((short) (job - 10));
+                    jobs.add((short) (job - 11));
+                    jobs.add((short) (job - 12));
+                } else {
+                    jobs.add(job);
+                }
             }
             for (short j : jobs) {
                 for (Skill skill : SkillData.getSkillsByJob(j)) {

@@ -27,6 +27,7 @@ public class Hero extends Warrior {
 
     public static final int MAPLE_RETURN = 1281;
 
+    public static final int WEAPON_MASTERY_HERO = 1100000;
     public static final int WEAPON_BOOSTER_FIGHTER = 1101004;
     public static final int COMBO_ATTACK = 1101013;
     public static final int RAGE = 1101006;
@@ -40,6 +41,7 @@ public class Hero extends Warrior {
     public static final int SHOUT_DOWN = 1111014;
     public static final int ADVANCED_FINAL_ATTACK = 1120013;
     public static final int ENRAGE = 1121010;
+    public static final int ADVANCED_COMBO_REINFORCE = 1120043;
     public static final int PUNCTURE = 1121015;
     public static final int MAGIC_CRASH_HERO = 1121016;
     public static final int HEROS_WILL_HERO = 1121011;
@@ -138,6 +140,19 @@ public class Hero extends Warrior {
             num = 11;
         }
         return num;
+    }
+
+    public Skill getComboAttackSkill() {
+        Skill skill = null;
+        if (chr.hasSkill(ADVANCED_COMBO)) {
+            skill = chr.getSkill(ADVANCED_COMBO);
+        } else if (chr.hasSkill(COMBO_SYNERGY)) {
+            skill = chr.getSkill(COMBO_SYNERGY);
+        } else if (chr.hasSkill(COMBO_ATTACK)) {
+            skill = chr.getSkill(COMBO_ATTACK);
+        }
+
+        return skill;
     }
 
 
@@ -345,11 +360,7 @@ public class Hero extends Warrior {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -367,10 +378,13 @@ public class Hero extends Warrior {
                 o1.tStart = (int) System.currentTimeMillis();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1);
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PowerGuard, o2);
+                if (chr.hasSkill(skillID)) {
+                    // Power Guard effect only for caster
+                    o2.nOption = si.getValue(x, slv);
+                    o2.rOption = skillID;
+                    o2.tOption = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(PowerGuard, o2);
+                }
                 break;
             case COMBO_ATTACK:
                 o1.nOption = 1;

@@ -124,13 +124,13 @@ public class TemporaryStatManager {
             if (hasStat(cts)) {
                 Option oldOption = getCurrentStats().get(cts).get(0);
                 // remove old base stats from map
-                for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(cts, oldOption).entrySet()) {
+                for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(chr, cts, oldOption).entrySet()) {
                     removeBaseStat(stats.getKey(), stats.getValue());
                 }
             }
             getNewStats().put(cts, optList);
             getCurrentStats().put(cts, optList);
-            for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(cts, option).entrySet()) {
+            for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(chr, cts, option).entrySet()) {
                 addBaseStat(stats.getKey(), stats.getValue());
             }
             if (option.tOption > 0) {
@@ -150,7 +150,7 @@ public class TemporaryStatManager {
             if(optList.contains(option)) {
                 // remove old option of the same skill
                 Option oldOption = getOptByCTSAndSkill(cts, option.nReason);
-                for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(cts, oldOption).entrySet()) {
+                for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(chr, cts, oldOption).entrySet()) {
                     removeBaseStat(stats.getKey(), stats.getValue());
                 }
                 optList.remove(oldOption);
@@ -159,7 +159,7 @@ public class TemporaryStatManager {
             getNewStats().put(cts, optList);
             getCurrentStats().put(cts, optList);
             // Add stats to basestat
-            for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(cts, option).entrySet()) {
+            for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(chr, cts, option).entrySet()) {
                 addBaseStat(stats.getKey(), stats.getValue());
             }
             if (option.tTerm > 0) {
@@ -200,7 +200,7 @@ public class TemporaryStatManager {
         getChr().getJobHandler().handleRemoveCTS(cts);
 
         Option opt = getOption(cts);
-        for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(cts, opt).entrySet()) {
+        for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(chr, cts, opt).entrySet()) {
             removeBaseStat(stats.getKey(), stats.getValue());
         }
         getRemovedStats().put(cts, getCurrentStats().get(cts));
@@ -223,7 +223,7 @@ public class TemporaryStatManager {
         List<Option> optList = new ArrayList<>();
         optList.add(option);
         getRemovedStats().put(cts, optList);
-        for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(cts, option).entrySet()) {
+        for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(chr, cts, option).entrySet()) {
             removeBaseStat(stats.getKey(), stats.getValue());
         }
         if(getCurrentStats().containsKey(cts)) {

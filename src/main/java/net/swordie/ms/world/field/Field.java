@@ -95,6 +95,7 @@ public class Field {
     private int channel;
     private int averageMobLevel;
     private Map<String, Object> properties;
+    private int barrier;
     private boolean changeToChannelOnLeave;
     private boolean dropsDisabled;
 
@@ -1609,6 +1610,14 @@ public class Field {
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
+    }
+
+    public int getBarrier() {
+        return barrier;
+    }
+
+    public void setBarrier(int barrier) {
+        this.barrier = barrier;
     }
 
     public void setChangeToChannelOnLeave(boolean changeToChannelOnLeave) {

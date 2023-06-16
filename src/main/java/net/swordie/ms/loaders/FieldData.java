@@ -74,6 +74,7 @@ public class FieldData {
                 dataOutputStream.writeInt(field.getVrLeft());
                 dataOutputStream.writeInt(field.getVrBottom());
                 dataOutputStream.writeInt(field.getVrRight());
+                dataOutputStream.writeInt(field.getBarrier());
                 dataOutputStream.writeShort(field.getFootholds().size());
                 for (Foothold fh : field.getFootholds()) {
                     dataOutputStream.writeInt(fh.getId());
@@ -285,6 +286,9 @@ public class FieldData {
                                 }
                                 field.setFieldType(fieldType);
                             }
+                            break;
+                        case "barrier":
+                            field.setBarrier(Integer.parseInt(value));
                             break;
                     }
                 }
@@ -604,6 +608,7 @@ public class FieldData {
             field.setVrLeft(dataInputStream.readInt());
             field.setVrBottom(dataInputStream.readInt());
             field.setVrRight(dataInputStream.readInt());
+            field.setBarrier(dataInputStream.readInt());
             short fhSize = dataInputStream.readShort();
             for (int j = 0; j < fhSize; j++) {
                 Foothold fh = new Foothold(
@@ -795,6 +800,7 @@ public class FieldData {
         copy.setVrLeft(field.getVrLeft());
         copy.setVrBottom(field.getVrBottom());
         copy.setVrRight(field.getVrRight());
+        copy.setBarrier(field.getBarrier());
         copy.startBurningFieldTimer();
         int mobGens = field.getMobGens().size();
         int lv = 0;

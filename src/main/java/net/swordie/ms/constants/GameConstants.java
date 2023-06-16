@@ -818,4 +818,56 @@ public class GameConstants {
         }
         return null;
     }
+
+    public static int getStarForceMultiplier(int perc, int diff) {
+        if (perc <= 9) {
+            return -100;
+        } else if (perc <= 29) {
+            return -90;
+        } else if (perc <= 49) {
+            return -70;
+        } else if (perc <= 69) {
+            return -50;
+        } else if (perc <= 99) {
+            return -30;
+        } else if (perc == 100) {
+            return 0;
+        }
+        return Math.min(20, diff);
+    }
+
+    public static double getDamageBonusFromLevelDifference(int charLevel, int mobLevel) {
+        double mult = 0;
+        int diff = charLevel - mobLevel;
+        if (diff >= 0) {
+            diff = Math.min(diff, 5); // max 5 * 2% extra
+            mult = 10 + (diff * 2);
+        } else if (diff < 0 && diff >= -5) {
+            // can do calc based on diff, but needs some rounding, so just to a switch
+            switch (diff) {
+                case -1:
+                    mult = 1.08 * 0.98;
+                    break;
+                case -2:
+                    mult = 1.06 * 0.95;
+                    break;
+                case -3:
+                    mult = 1.04 * 0.93;
+                    break;
+                case -4:
+                    mult = 1.02 * 0.9;
+                    break;
+                case -5:
+                    mult = 1.0 * 0.88;
+                    break;
+            }
+            mult -= 1;
+            mult *= 100;
+        } else {
+            // diff < 5, max out at 40 diff (=100% damage reduction)
+            diff = Math.max(-40, diff);
+            mult = Math.round(-15 - (-2.5 * (diff + 6)));
+        }
+        return mult / 100;
+    }
 }

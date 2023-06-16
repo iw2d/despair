@@ -1,5 +1,6 @@
 package net.swordie.ms.client.character.skills.info;
 
+import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 
@@ -17,6 +18,7 @@ public class MobAttackInfo {
     public short oldPosY;
     public short hpPerc;
     public int[] damages;
+    public boolean[] crits = new boolean[15]; // could combine damage/crits into a list of tuples, but this looks better imo
     public int mobUpDownYRange;
     public byte type;
     public String currentAnimationName;
@@ -40,6 +42,7 @@ public class MobAttackInfo {
     public byte calcDamageStatIndexAndDoomed;
     public int hitPartRunTimesSize;
     public short magicInfo;
+    public Mob mob; // only used for damage calc (prevents having to search for a mob twice)
 
     public MobAttackInfo deepCopy() {
         MobAttackInfo mai = new MobAttackInfo();

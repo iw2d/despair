@@ -94,7 +94,6 @@ public class MigrationHandler {
         // blessing has to be split up, as adding skills before SetField is send will crash the client
         chr.initBlessingSkillNames();
         chr.warp(field, true);
-        chr.initBlessingSkills();
         c.write(WvsContext.updateEventNameTag(new int[]{}));
         if (chr.getGuild() != null) {
             chr.setGuild(chr.getClient().getWorld().getGuildByID(chr.getGuild().getId()));
@@ -112,6 +111,7 @@ public class MigrationHandler {
         acc.getMonsterCollection().init(chr);
         chr.checkAndRemoveExpiredItems();
         chr.initBaseStats();
+        chr.initBlessingSkills();
         chr.setOnline(true); // v195+: respect 'invisible login' setting
         chr.getOffenseManager().setChr(chr);
         c.write(WvsContext.setMaplePoint(acc.getNxCredit()));

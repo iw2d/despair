@@ -1,6 +1,7 @@
 package net.swordie.ms.client.character.commands;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.damage.DamageCalc;
 import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.enums.AccountType;
@@ -12,6 +13,7 @@ import net.swordie.ms.world.event.InGameEventManager;
 import org.apache.log4j.LogManager;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static net.swordie.ms.enums.ChatType.Mob;
@@ -19,17 +21,11 @@ import static net.swordie.ms.enums.ChatType.Mob;
 public class PlayerCommands {
     static final org.apache.log4j.Logger log = LogManager.getRootLogger();
 
-    @Command(names = {"check", "dispose", "fix"}, requiredType = AccountType.Player)
+    @Command(names = {"dispose", "fix", "fixme"}, requiredType = AccountType.Player)
     public static class Dispose extends PlayerCommand {
         public static void execute(Char chr, String[] args) {
             chr.dispose();
-            Map<BaseStat, Integer> basicStats = chr.getTotalBasicStats();
-            StringBuilder sb = new StringBuilder();
-            List<BaseStat> sortedList = Arrays.stream(BaseStat.values()).sorted(Comparator.comparing(Enum::toString)).collect(Collectors.toList());
-            for (BaseStat bs : sortedList) {
-                sb.append(String.format("%s = %d, ", bs, basicStats.getOrDefault(bs, 0)));
-            }
-            chr.chatMessage(Mob, String.format("X=%d, Y=%d, Stats: %s", chr.getPosition().getX(), chr.getPosition().getY(), sb));
+            chr.chatMessage(Mob, String.format("X=%d, Y=%d", chr.getPosition().getX(), chr.getPosition().getY()));
             ScriptManagerImpl smi = chr.getScriptManager();
             // all but field
             smi.stop(ScriptType.Portal);
@@ -37,6 +33,52 @@ public class PlayerCommands {
             smi.stop(ScriptType.Reactor);
             smi.stop(ScriptType.Quest);
             smi.stop(ScriptType.Item);
+        }
+    }
+
+    @Command(names = {"check"}, requiredType = AccountType.Player)
+    public static class Check extends PlayerCommand {
+        private static Map<Integer, Map<BaseStat, Integer>> lastCalls = new ConcurrentHashMap<>();
+        public static void execute(Char chr, String[] args) {
+            chr.dispose();
+            boolean diffMode = false;
+            if (args.length >= 2 && args[1].equalsIgnoreCase("diff") ) {
+                diffMode = true;
+            }
+            Map<BaseStat, Integer> lastStats = diffMode ? lastCalls.getOrDefault(chr.getId(), Collections.EMPTY_MAP) : Collections.EMPTY_MAP;
+            Map<BaseStat, Integer> currStats = chr.getTotalBasicStats();
+            final List<String> sortedDiffs = new ArrayList<>();
+            Arrays.stream(BaseStat.values())
+                    .sorted(Comparator.comparing(Enum::ordinal))
+                    .filter(diffMode ?
+                            stat -> lastStats.containsKey(stat) && lastStats.getOrDefault(stat, 0) != currStats.getOrDefault(stat, 0) :
+                            stat -> true
+                    )
+                    .forEach(stat -> sortedDiffs.add(lastStats.containsKey(stat) ?
+                            String.format("%s = %d -> %d", stat, lastStats.getOrDefault(stat, 0), currStats.getOrDefault(stat, 0)) :
+                            String.format("%s = %d", stat, currStats.getOrDefault(stat, 0))
+                    ));
+            lastCalls.put(chr.getId(), currStats);
+
+            String stats = String.join(", ", sortedDiffs);
+            chr.chatMessage(Mob, String.format("X=%d, Y=%d, Stats: %s", chr.getPosition().getX(), chr.getPosition().getY(), stats));
+            ScriptManagerImpl smi = chr.getScriptManager();
+            // all but field
+            smi.stop(ScriptType.Portal);
+            smi.stop(ScriptType.Npc);
+            smi.stop(ScriptType.Reactor);
+            smi.stop(ScriptType.Quest);
+            smi.stop(ScriptType.Item);
+        }
+    }
+
+    @Command(names = {"stats"}, requiredType = AccountType.Player)
+    public static class Stats extends PlayerCommand {
+        public static void execute(Char chr, String[] args) {
+            StringBuilder sb = new StringBuilder();
+            DamageCalc damageCalc = chr.getDamageCalc();
+            sb.append(String.format("Damage: %d ~ %d%n", (int) damageCalc.getMinBaseDamage(), (int) damageCalc.getMaxBaseDamage()));
+            chr.chatMessage(Mob, sb.toString());
         }
     }
 

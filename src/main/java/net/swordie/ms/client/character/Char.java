@@ -1717,6 +1717,27 @@ public class Char {
 	}
 
 	/**
+	 * Adds a skill to this Char. If the Char already has this skill, just changes the levels.
+	 *
+	 * @param skillID      the skill's id to add
+	 * @param currentLevel the current level of the skill
+	 * @param masterLevel  the master level of the skill
+	 */
+	public void addSkill(int skillID, int currentLevel, int masterLevel) {
+		Skill skill = SkillData.getSkillDeepCopyById(skillID);
+		if (skill == null && !SkillConstants.isMakingSkillRecipe(skillID)) {
+			log.error("No such skill found.");
+			return;
+		}
+		skill.setCurrentLevel(currentLevel);
+		skill.setMasterLevel(masterLevel);
+		List<Skill> list = new ArrayList<>();
+		list.add(skill);
+		addSkill(skill);
+		write(WvsContext.changeSkillRecordResult(list, true, false, false, false));
+	}
+
+	/**
 	 * Adds a {@link Skill} to this Char. Changes the old Skill if the Char already has a Skill
 	 * with the same id. Removes the skill if the given skill's id is 0.
 	 *
@@ -1735,18 +1756,19 @@ public class Char {
 	 *                             of the given skill is 0.
 	 */
 	public void addSkill(Skill skill, boolean addRegardlessOfLevel) {
+		int skillID = skill.getSkillId();
 		if (!addRegardlessOfLevel && skill.getCurrentLevel() == 0) {
-			removeSkill(skill.getSkillId());
+			removeSkill(skillID);
 			return;
 		}
 		skill.setCharId(getId());
-		boolean isPassive = SkillConstants.isPassiveSkill(skill.getSkillId());
+		boolean isPassive = SkillConstants.isPassiveSkill(skillID);
 		boolean isChanged;
-		if (getSkills().stream().noneMatch(s -> s.getSkillId() == skill.getSkillId())) {
+		if (getSkills().stream().noneMatch(s -> s.getSkillId() == skillID)) {
 			getSkills().add(skill);
 			isChanged = true;
 		} else {
-			Skill oldSkill = getSkill(skill.getSkillId());
+			Skill oldSkill = getSkill(skillID);
 			isChanged = oldSkill.getCurrentLevel() != skill.getCurrentLevel();
 			if (isPassive && isChanged) {
 				removeFromBaseStatCache(oldSkill);
@@ -4215,27 +4237,6 @@ public class Char {
 				.collect(Collectors.toSet());
 	}
 
-	/**
-	 * Adds a skill to this Char. If the Char already has this skill, just changes the levels.
-	 *
-	 * @param skillID      the skill's id to add
-	 * @param currentLevel the current level of the skill
-	 * @param masterLevel  the master level of the skill
-	 */
-	public void addSkill(int skillID, int currentLevel, int masterLevel) {
-		Skill skill = SkillData.getSkillDeepCopyById(skillID);
-		if (skill == null && !SkillConstants.isMakingSkillRecipe(skillID)) {
-			log.error("No such skill found.");
-			return;
-		}
-		skill.setCurrentLevel(currentLevel);
-		skill.setMasterLevel(masterLevel);
-		List<Skill> list = new ArrayList<>();
-		list.add(skill);
-		addSkill(skill);
-		write(WvsContext.changeSkillRecordResult(list, true, false, false, false));
-	}
-
 	public long getRuneCooldown() {
 		return runeStoneCooldown;
 	}
@@ -4838,15 +4839,19 @@ public class Char {
 
 	public void initBlessingSkills() {
 		Char fairyChar = getAccount().getCharByName(getBlessingOfFairy());
+		int fairySkill = SkillConstants.getFairyBlessingByJob(getJob());
 		if (fairyChar != null) {
-			addSkill(SkillConstants.getFairyBlessingByJob(getJob()),
-					Math.min(20, fairyChar.getLevel() / 10), 20);
+			addSkill(fairySkill, Math.min(20, fairyChar.getLevel() / 10), 20);
 		}
 		Char empressChar = getAccount().getCharByName(getBlessingOfEmpress());
+		int empressSkill = SkillConstants.getEmpressBlessingByJob(getJob());
 		if (empressChar != null) {
-			addSkill(SkillConstants.getEmpressBlessingByJob(getJob()),
-					Math.min(30, empressChar.getLevel() / 5), 30);
+			addSkill(empressSkill, Math.min(30, empressChar.getLevel() / 5), 30);
 		}
+		int blessingSkill = getSkillLevel(fairySkill) > getSkillLevel(empressSkill) ? fairySkill : empressSkill;
+		SkillInfo si = SkillData.getSkillInfoById(blessingSkill);
+		Map<BaseStat, Integer> stats = si.getBaseStatValues(this, getSkillLevel(blessingSkill));
+		stats.forEach(this::addBaseStat);
 	}
 
 	public Map<Integer, Integer> getHyperPsdSkillsCooltimeR() {
@@ -5195,4 +5200,36 @@ public class Char {
 		this.inCashShop = inCashShop;
 	}
 
+	public boolean canEquip(Item item) {
+		if (item instanceof Equip) {
+			Equip equip = (Equip) item;
+			int lv = getLevel();
+			CharacterStat cs = getAvatarData().getCharacterStat();
+			int str = cs.getStr();
+			int inte = cs.getInt();
+			int dex = cs.getDex();
+			int luk = cs.getLuk();
+			short job = getJob();
+			short rJob = equip.getrJob();
+			boolean matchingJob = rJob == 0;
+			if (!matchingJob) {
+				boolean warrior = (rJob & 1) != 0;
+				boolean magician = (rJob & 1 << 1) != 0;
+				boolean bowman = (rJob & 1 << 2) != 0;
+				boolean thief = (rJob & 1 << 3) != 0;
+				boolean pirate = (rJob & 1 << 4) != 0;
+				matchingJob = (warrior && JobConstants.isWarriorEquipJob(job)) ||
+						(magician && JobConstants.isMageEquipJob(job)) ||
+						(bowman && JobConstants.isArcherEquipJob(job)) ||
+						(thief && JobConstants.isThiefEquipJob(job)) ||
+						(pirate && JobConstants.isPirateEquipJob(job));
+			}
+			return equip.getrLevel() <= lv
+					&& equip.getrDex() <= dex
+					&& (equip.getrStr() <= str || JobConstants.isDemonAvenger(job))
+					&& equip.getrInt() <= inte
+					&& equip.getrLuk() <= luk && matchingJob;
+		}
+		return false;
+	}
 }

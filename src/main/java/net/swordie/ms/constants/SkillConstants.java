@@ -7,6 +7,7 @@ import net.swordie.ms.client.jobs.adventurer.*;
 import net.swordie.ms.client.jobs.adventurer.magician.Magician;
 import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
+import net.swordie.ms.client.jobs.adventurer.warrior.Hero;
 import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.DawnWarrior;
@@ -1577,6 +1578,9 @@ public class SkillConstants {
         switch (skillId) {
             case Warrior.IRON_BODY:
                 stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.damAbsorbShieldR, slv));
+                break;
+            case Hero.WEAPON_MASTERY_HERO:
+                stats.put(BaseStat.fd, si.getValue(SkillStat.pdR, slv));
                 break;
         }
     }

@@ -57,7 +57,7 @@ public enum WeaponType {
         return val;
     }
 
-    public WeaponType getByVal(int val) {
+    public static WeaponType getByVal(int val) {
         return Arrays.stream(values()).filter(wt -> wt.getVal() == val).findAny().orElse(null);
     }
 }
