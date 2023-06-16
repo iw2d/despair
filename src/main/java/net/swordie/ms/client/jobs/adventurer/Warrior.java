@@ -134,35 +134,6 @@ public class Warrior extends Beginner {
             MAPLE_RETURN,
     };
 
-    private final int[] buffs = new int[]{
-            WEAPON_BOOSTER_FIGHTER, // Weapon Booster - Fighter
-            COMBO_ATTACK, // Combo Attack
-            RAGE, // Rage
-            MAPLE_WARRIOR_HERO, // Maple Warrior
-            MAPLE_WARRIOR_PALADIN,
-            MAPLE_WARRIOR_DARK_KNIGHT,
-            WEAPON_BOOSTER_PAGE, // Weapon Booster - Page
-            WEAPON_BOOSTER_SPEARMAN,
-            COMBAT_ORDERS,
-            PARASHOCK_GUARD,
-            ELEMENTAL_FORCE,
-            EVIL_EYE,
-            EVIL_EYE_OF_DOMINATION,
-            EVIL_EYE_SHOCK,
-            IRON_WILL,
-            HYPER_BODY,
-            CROSS_SURGE,
-            BLAST,
-            ENRAGE,
-            SACRIFICE,
-            EPIC_ADVENTURE_DRK,
-            EPIC_ADVENTURE_HERO,
-            EPIC_ADVENTURE_PALA,
-            CRY_VALHALLA,
-            SACROSANCTITY,
-            DARK_THIRST,
-    };
-
     private Summon evilEye;
     private long lastPanicHit = Long.MIN_VALUE;
     private long lastDivineShieldHit = Long.MIN_VALUE;
@@ -191,240 +162,6 @@ public class Warrior extends Beginner {
         return JobConstants.isAdventurerWarrior(id);
     }
 
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        switch (skillID) {
-            case WEAPON_BOOSTER_FIGHTER:
-            case WEAPON_BOOSTER_PAGE:
-            case WEAPON_BOOSTER_SPEARMAN:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case RAGE:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o1);
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PowerGuard, o2);
-                break;
-            case COMBO_ATTACK:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(ComboCounter, o1);
-                break;
-            case ENRAGE:
-                removeCombo(1);
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                tsm.putCharacterStatValue(Enrage, o1); // max mobs hit
-                o2.nOption = si.getValue(y, slv);
-                o2.rOption = skillID;
-                tsm.putCharacterStatValue(EnrageCrDamMin, o2);
-                o3.nOption = si.getValue(x, slv);
-                o3.rOption = skillID;
-                tsm.putCharacterStatValue(DamR, o3);
-                break;
-            case COMBAT_ORDERS:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(CombatOrders, o1);
-                break;
-            case PARASHOCK_GUARD:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(EVA, o1); // Check for the main Buff method
-
-                if (parashockGuardTimer != null && !parashockGuardTimer.isDone()) {
-                    parashockGuardTimer.cancel(true);
-                }
-                giveParashockGuardBuff();
-                break;
-            case ELEMENTAL_FORCE:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                break;
-            case IRON_WILL:
-                o1.nOption = si.getValue(pdd, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PDD, o1);
-                o2.nOption = si.getValue(mdd, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(MDD, o2);
-                break;
-            case HYPER_BODY:
-                o1.nOption = si.getValue(x, slv) + chr.getSkillStatValue(x, HYPER_BODY_VITALITY);;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, HYPER_BODY_PERSIST);
-                tsm.putCharacterStatValue(MaxHP, o1);
-                o2.nOption = si.getValue(y, slv) + chr.getSkillStatValue(y, HYPER_BODY_SPIRIT);;
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, HYPER_BODY_PERSIST);
-                tsm.putCharacterStatValue(MaxMP, o2);
-                break;
-            case CROSS_SURGE:
-                int totalHP = c.getChr().getMaxHP();
-                int currentHP = c.getChr().getHP();
-                o1.nOption = (int) ((si.getValue(x, slv) * ((double) currentHP) / totalHP));
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamR, o1);
-                o2.nOption = (int) Math.min((0.08 * totalHP - currentHP), si.getValue(z, slv));
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamageReduce, o2);
-                break;
-            case EVIL_EYE:
-                spawnEvilEye(skillID, slv);
-                break;
-            case EVIL_EYE_OF_DOMINATION:
-                if (tsm.hasStat(Beholder)) {
-                    tsm.removeStatsBySkill(EVIL_EYE_OF_DOMINATION);
-                    spawnEvilEye(EVIL_EYE, slv);
-                } else {
-                    o1.nOption = 1;
-                    o1.rOption = skillID;
-                    o1.tOption = 0;
-                    o1.sOption = skillID;
-                    o1.ssOption = 0;
-                    tsm.putCharacterStatValue(Beholder, o1);
-                }
-                break;
-            case EVIL_EYE_SHOCK:
-                if (tsm.getOption(Beholder).nOption > 0 && tsm.getOption(Beholder).sOption > 0) //If evil eye and domination is active
-                {
-                    slv = (byte) chr.getSkill(EVIL_EYE).getCurrentLevel();
-                    Option o = new Option();
-                    o.nOption = tsm.getOption(Beholder).nOption;
-                    o.rOption = tsm.getOption(Beholder).rOption;
-                    o.tOption = tsm.getOption(Beholder).tOption;
-                    o.sOption = tsm.getOption(Beholder).sOption;
-                    o.ssOption = EVIL_EYE_SHOCK;
-                    //Remove after getting the options
-                    tsm.removeStatsBySkill(EVIL_EYE_OF_DOMINATION);
-                    spawnEvilEye(EVIL_EYE, slv);
-                    tsm.putCharacterStatValue(Beholder, o);
-                }
-                break;
-            case SACRIFICE:
-                if (tsm.hasStatBySkillId(EVIL_EYE)) {
-                    o2.nReason = skillID;
-                    o2.nValue = si.getValue(x, slv);
-                    o2.tStart = (int) System.currentTimeMillis();
-                    o2.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o2);
-
-                    o3.nReason = skillID;
-                    o3.nValue = si.getValue(indieBDR, slv);
-                    o3.tStart = (int) System.currentTimeMillis();
-                    o3.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndieBDR, o3);
-
-
-                    tsm.removeStatsBySkill(EVIL_EYE_OF_DOMINATION);
-                    tsm.removeStatsBySkill(EVIL_EYE_SHOCK);
-                    removeEvilEye(tsm, c);
-
-                    chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(y, slv))));
-                    chr.write(UserLocal.skillCooltimeSetM(EVIL_EYE, 0));
-                }
-                break;
-            case MAPLE_WARRIOR_HERO:
-            case MAPLE_WARRIOR_PALADIN:
-            case MAPLE_WARRIOR_DARK_KNIGHT:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case BLAST:
-                o1.nOption = si.getValue(cr, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(CriticalBuff, o1);
-                o2.nOption = si.getValue(damR, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamR, o2);
-                o3.nOption = si.getValue(ignoreMobpdpR, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IgnoreTargetDEF, o3);
-                break;
-
-            //Hypers
-            case EPIC_ADVENTURE_DRK:
-            case EPIC_ADVENTURE_HERO:
-            case EPIC_ADVENTURE_PALA:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case SACROSANCTITY:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(NotDamaged, o1);
-                break;
-            case CRY_VALHALLA:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieCr, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieCr, o1);
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AsrR, o2);
-                tsm.putCharacterStatValue(TerR, o2);
-                o3.nOption = 100;
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Stance, o3);
-                break;
-            case DARK_THIRST:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o1);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     public void spawnEvilEye(int skillID, int slv) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -1109,107 +846,322 @@ public class Warrior extends Beginner {
         if (skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case MAPLE_RETURN:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case HP_RECOVERY:
-                    hpRecovery();
-                    break;
-                case THREATEN:
-                    Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        switch (skillID) {
+            case MAPLE_RETURN:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case HP_RECOVERY:
+                hpRecovery();
+                break;
+            case THREATEN:
+                Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
+                if (!chr.isLeft()) {
+                    rect = rect.moveRight();
+                }
+                for (Life life : chr.getField().getLifesInRect(rect)) {
+                    if (life instanceof Mob && ((Mob) life).getHp() > 0) {
+                        Mob mob = (Mob) life;
+                        MobTemporaryStat mts = mob.getTemporaryStat();
+                        if (Util.succeedProp(si.getValue(prop, slv) + chr.getSkillStatValue(prop, THREATEN_OPPORTUNITY))) {
+                            o1.nOption = si.getValue(x, slv) + chr.getSkillStatValue(x, THREATEN_ENHANCE);
+                            o1.rOption = skillID;
+                            o1.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, THREATEN_PERSIST);
+                            mts.addStatOptions(MobStat.PAD, o1.deepCopy());
+                            mts.addStatOptions(MobStat.MAD, o1.deepCopy());
+                            mts.addStatOptions(MobStat.PDR, o1.deepCopy());
+                            mts.addStatOptions(MobStat.MDR, o1.deepCopy());
+                            o2.nOption = -si.getValue(z, slv) - chr.getSkillStatValue(y, THREATEN_ENHANCE);
+                            o2.rOption = skillID;
+                            o2.tOption = si.getValue(subTime, slv);
+                            mts.addStatOptionsAndBroadcast(MobStat.Darkness, o2);
+                        }
+                    }
+                }
+                break;
+            case GUARDIAN:
+                chr.heal(chr.getMaxHP());
+
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(NotDamaged, o1);
+                tsm.sendSetStatPacket();
+
+                Party party = chr.getParty();
+                if (party != null) {
+                    Field field = chr.getField();
+                    rect = chr.getPosition().getRectAround(si.getRects().get(0));
                     if (!chr.isLeft()) {
                         rect = rect.moveRight();
                     }
-                    for (Life life : chr.getField().getLifesInRect(rect)) {
-                        if (life instanceof Mob && ((Mob) life).getHp() > 0) {
-                            Mob mob = (Mob) life;
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            if (Util.succeedProp(si.getValue(prop, slv) + chr.getSkillStatValue(prop, THREATEN_OPPORTUNITY))) {
-                                o1.nOption = si.getValue(x, slv) + chr.getSkillStatValue(x, THREATEN_ENHANCE);
-                                o1.rOption = skillID;
-                                o1.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, THREATEN_PERSIST);
-                                mts.addStatOptions(MobStat.PAD, o1.deepCopy());
-                                mts.addStatOptions(MobStat.MAD, o1.deepCopy());
-                                mts.addStatOptions(MobStat.PDR, o1.deepCopy());
-                                mts.addStatOptions(MobStat.MDR, o1.deepCopy());
-                                o2.nOption = -si.getValue(z, slv) - chr.getSkillStatValue(y, THREATEN_ENHANCE);
-                                o2.rOption = skillID;
-                                o2.tOption = si.getValue(subTime, slv);
-                                mts.addStatOptionsAndBroadcast(MobStat.Darkness, o2);
-                            }
+                    List<PartyMember> eligblePartyMemberList = field.getPartyMembersInRect(chr, rect).stream().
+                            filter(pml -> pml.getChr().getId() != chr.getId() &&
+                                    pml.getChr().getHP() <= 0).
+                            collect(Collectors.toList());
+
+                    if (eligblePartyMemberList.size() > 0) {
+                        Char randomPartyChr = Util.getRandomFromCollection(eligblePartyMemberList).getChr();
+                        TemporaryStatManager partyTSM = randomPartyChr.getTemporaryStatManager();
+                        randomPartyChr.heal(randomPartyChr.getMaxHP());
+                        partyTSM.putCharacterStatValue(NotDamaged, o1);
+                        partyTSM.sendSetStatPacket();
+                        randomPartyChr.write(UserPacket.effect(Effect.skillAffected(skillID, (byte) 1, 0)));
+                        randomPartyChr.getField().broadcastPacket(UserRemote.effect(randomPartyChr.getId(), Effect.skillAffected(skillID, (byte) 1, 0)));
+                    }
+                }
+
+                break;
+            case MAGIC_CRASH_DRK:
+            case MAGIC_CRASH_HERO:
+            case MAGIC_CRASH_PALADIN:
+                Rect rect2 = chr.getPosition().getRectAround(si.getRects().get(0));
+                if (!chr.isLeft()) {
+                    rect2 = rect2.moveRight();
+                }
+                for (Life life : chr.getField().getLifesInRect(rect2)) {
+                    if (life instanceof Mob && ((Mob) life).getHp() > 0) {
+                        Mob mob = (Mob) life;
+                        MobTemporaryStat mts = mob.getTemporaryStat();
+                        if (Util.succeedProp(si.getValue(prop, slv))) {
+                            mts.removeBuffs();
+                            o1.nOption = 1;
+                            o1.rOption = skillID;
+                            o1.tOption = si.getValue(time, slv);
+                            mts.addStatOptionsAndBroadcast(MobStat.MagicCrash, o1);
                         }
                     }
-                    break;
-                case GUARDIAN:
-                    chr.heal(chr.getMaxHP());
+                }
+                break;
+            case HEROS_WILL_HERO:
+            case HEROS_WILL_PALADIN:
+            case HEROS_WILL_DRK:
+                tsm.removeAllDebuffs();
+                break;
+            case WEAPON_BOOSTER_FIGHTER:
+            case WEAPON_BOOSTER_PAGE:
+            case WEAPON_BOOSTER_SPEARMAN:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case RAGE:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indiePad, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o1);
+                o2.nOption = si.getValue(x, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(PowerGuard, o2);
+                break;
+            case COMBO_ATTACK:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(ComboCounter, o1);
+                break;
+            case ENRAGE:
+                removeCombo(1);
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                tsm.putCharacterStatValue(Enrage, o1); // max mobs hit
+                o2.nOption = si.getValue(y, slv);
+                o2.rOption = skillID;
+                tsm.putCharacterStatValue(EnrageCrDamMin, o2);
+                o3.nOption = si.getValue(x, slv);
+                o3.rOption = skillID;
+                tsm.putCharacterStatValue(DamR, o3);
+                break;
+            case COMBAT_ORDERS:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(CombatOrders, o1);
+                break;
+            case PARASHOCK_GUARD:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(EVA, o1); // Check for the main Buff method
 
+                if (parashockGuardTimer != null && !parashockGuardTimer.isDone()) {
+                    parashockGuardTimer.cancel(true);
+                }
+                giveParashockGuardBuff();
+                break;
+            case ELEMENTAL_FORCE:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                break;
+            case IRON_WILL:
+                o1.nOption = si.getValue(pdd, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(PDD, o1);
+                o2.nOption = si.getValue(mdd, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(MDD, o2);
+                break;
+            case HYPER_BODY:
+                o1.nOption = si.getValue(x, slv) + chr.getSkillStatValue(x, HYPER_BODY_VITALITY);;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, HYPER_BODY_PERSIST);
+                tsm.putCharacterStatValue(MaxHP, o1);
+                o2.nOption = si.getValue(y, slv) + chr.getSkillStatValue(y, HYPER_BODY_SPIRIT);;
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, HYPER_BODY_PERSIST);
+                tsm.putCharacterStatValue(MaxMP, o2);
+                break;
+            case CROSS_SURGE:
+                int totalHP = c.getChr().getMaxHP();
+                int currentHP = c.getChr().getHP();
+                o1.nOption = (int) ((si.getValue(x, slv) * ((double) currentHP) / totalHP));
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamR, o1);
+                o2.nOption = (int) Math.min((0.08 * totalHP - currentHP), si.getValue(z, slv));
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamageReduce, o2);
+                break;
+            case EVIL_EYE:
+                spawnEvilEye(skillID, slv);
+                break;
+            case EVIL_EYE_OF_DOMINATION:
+                if (tsm.hasStat(Beholder)) {
+                    tsm.removeStatsBySkill(EVIL_EYE_OF_DOMINATION);
+                    spawnEvilEye(EVIL_EYE, slv);
+                } else {
                     o1.nOption = 1;
                     o1.rOption = skillID;
-                    o1.tOption = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(NotDamaged, o1);
-                    tsm.sendSetStatPacket();
+                    o1.tOption = 0;
+                    o1.sOption = skillID;
+                    o1.ssOption = 0;
+                    tsm.putCharacterStatValue(Beholder, o1);
+                }
+                break;
+            case EVIL_EYE_SHOCK:
+                if (tsm.getOption(Beholder).nOption > 0 && tsm.getOption(Beholder).sOption > 0) //If evil eye and domination is active
+                {
+                    slv = (byte) chr.getSkill(EVIL_EYE).getCurrentLevel();
+                    Option o = new Option();
+                    o.nOption = tsm.getOption(Beholder).nOption;
+                    o.rOption = tsm.getOption(Beholder).rOption;
+                    o.tOption = tsm.getOption(Beholder).tOption;
+                    o.sOption = tsm.getOption(Beholder).sOption;
+                    o.ssOption = EVIL_EYE_SHOCK;
+                    //Remove after getting the options
+                    tsm.removeStatsBySkill(EVIL_EYE_OF_DOMINATION);
+                    spawnEvilEye(EVIL_EYE, slv);
+                    tsm.putCharacterStatValue(Beholder, o);
+                }
+                break;
+            case SACRIFICE:
+                if (tsm.hasStatBySkillId(EVIL_EYE)) {
+                    o2.nReason = skillID;
+                    o2.nValue = si.getValue(x, slv);
+                    o2.tStart = (int) System.currentTimeMillis();
+                    o2.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o2);
 
-                    Party party = chr.getParty();
-                    if (party != null) {
-                        Field field = chr.getField();
-                        rect = chr.getPosition().getRectAround(si.getRects().get(0));
-                        if (!chr.isLeft()) {
-                            rect = rect.moveRight();
-                        }
-                        List<PartyMember> eligblePartyMemberList = field.getPartyMembersInRect(chr, rect).stream().
-                                filter(pml -> pml.getChr().getId() != chr.getId() &&
-                                        pml.getChr().getHP() <= 0).
-                                collect(Collectors.toList());
+                    o3.nReason = skillID;
+                    o3.nValue = si.getValue(indieBDR, slv);
+                    o3.tStart = (int) System.currentTimeMillis();
+                    o3.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieBDR, o3);
 
-                        if (eligblePartyMemberList.size() > 0) {
-                            Char randomPartyChr = Util.getRandomFromCollection(eligblePartyMemberList).getChr();
-                            TemporaryStatManager partyTSM = randomPartyChr.getTemporaryStatManager();
-                            randomPartyChr.heal(randomPartyChr.getMaxHP());
-                            partyTSM.putCharacterStatValue(NotDamaged, o1);
-                            partyTSM.sendSetStatPacket();
-                            randomPartyChr.write(UserPacket.effect(Effect.skillAffected(skillID, (byte) 1, 0)));
-                            randomPartyChr.getField().broadcastPacket(UserRemote.effect(randomPartyChr.getId(), Effect.skillAffected(skillID, (byte) 1, 0)));
-                        }
-                    }
 
-                    break;
-                case MAGIC_CRASH_DRK:
-                case MAGIC_CRASH_HERO:
-                case MAGIC_CRASH_PALADIN:
-                    Rect rect2 = chr.getPosition().getRectAround(si.getRects().get(0));
-                    if (!chr.isLeft()) {
-                        rect2 = rect2.moveRight();
-                    }
-                    for (Life life : chr.getField().getLifesInRect(rect2)) {
-                        if (life instanceof Mob && ((Mob) life).getHp() > 0) {
-                            Mob mob = (Mob) life;
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            if (Util.succeedProp(si.getValue(prop, slv))) {
-                                mts.removeBuffs();
-                                o1.nOption = 1;
-                                o1.rOption = skillID;
-                                o1.tOption = si.getValue(time, slv);
-                                mts.addStatOptionsAndBroadcast(MobStat.MagicCrash, o1);
-                            }
-                        }
-                    }
-                    break;
-                case HEROS_WILL_HERO:
-                case HEROS_WILL_PALADIN:
-                case HEROS_WILL_DRK:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
+                    tsm.removeStatsBySkill(EVIL_EYE_OF_DOMINATION);
+                    tsm.removeStatsBySkill(EVIL_EYE_SHOCK);
+                    removeEvilEye(tsm, c);
+
+                    chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(y, slv))));
+                    chr.write(UserLocal.skillCooltimeSetM(EVIL_EYE, 0));
+                }
+                break;
+            case MAPLE_WARRIOR_HERO:
+            case MAPLE_WARRIOR_PALADIN:
+            case MAPLE_WARRIOR_DARK_KNIGHT:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case BLAST:
+                o1.nOption = si.getValue(cr, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(CriticalBuff, o1);
+                o2.nOption = si.getValue(damR, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamR, o2);
+                o3.nOption = si.getValue(ignoreMobpdpR, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IgnoreTargetDEF, o3);
+                break;
+
+            //Hypers
+            case EPIC_ADVENTURE_DRK:
+            case EPIC_ADVENTURE_HERO:
+            case EPIC_ADVENTURE_PALA:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+            case SACROSANCTITY:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(NotDamaged, o1);
+                break;
+            case CRY_VALHALLA:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieCr, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieCr, o1);
+                o2.nOption = si.getValue(x, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AsrR, o2);
+                tsm.putCharacterStatValue(TerR, o2);
+                o3.nOption = 100;
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Stance, o3);
+                break;
+            case DARK_THIRST:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indiePad, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o1);
+                break;
         }
+        tsm.sendSetStatPacket();
     }
 
     public void hpRecovery() {

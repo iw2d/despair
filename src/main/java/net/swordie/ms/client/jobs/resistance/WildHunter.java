@@ -122,31 +122,6 @@ public class WildHunter extends Citizen {
             SUMMON_JAGUAR_CRIMSON,
     };
 
-    private int[] buffs = new int[] {
-            SUMMON_JAGUAR_GREY,
-            SUMMON_JAGUAR_YELLOW,
-            SUMMON_JAGUAR_RED,
-            SUMMON_JAGUAR_PURPLE,
-            SUMMON_JAGUAR_BLUE,
-            SUMMON_JAGUAR_JAIRA,
-            SUMMON_JAGUAR_SNOW_WHITE,
-            SUMMON_JAGUAR_ONYX,
-            SUMMON_JAGUAR_CRIMSON,
-
-            RIDE_JAGUAR,
-
-            SOUL_ARROW_CROSSBOW,
-            CROSSBOW_BOOSTER,
-            CALL_OF_THE_WILD,
-            FELINE_BERSERK,
-            BACKSTEP,
-            SHARP_EYES,
-            MAPLE_WARRIOR_WH,
-            FOR_LIBERTY_WH,
-            SILENT_RAMPAGE,
-            DRILL_SALVO,
-    };
-
     private int lastUsedSkill = 0;
 
     public WildHunter(Char chr) {
@@ -169,191 +144,6 @@ public class WildHunter extends Citizen {
     @Override
     public boolean isHandlerOfJob(short id) {
         return JobConstants.isWildHunter(id);
-    }
-
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Summon summon;
-        Field field;
-        switch (skillID) {
-            case SUMMON_JAGUAR_GREY:
-            case SUMMON_JAGUAR_YELLOW:
-            case SUMMON_JAGUAR_RED:
-            case SUMMON_JAGUAR_PURPLE:
-            case SUMMON_JAGUAR_BLUE:
-            case SUMMON_JAGUAR_JAIRA:
-            case SUMMON_JAGUAR_SNOW_WHITE:
-            case SUMMON_JAGUAR_ONYX:
-            case SUMMON_JAGUAR_CRIMSON:
-                if (chr.getWildHunterInfo() == null
-                        || chr.getWildHunterInfo().getIdx() < 0
-                        || chr.getWildHunterInfo().getIdx() >= MOUNTS.length) {
-                    chr.chatMessage("You haven't selected a jaguar.");
-                    return;
-                }
-                summon = Summon.getSummonBy(chr, SUMMONS[chr.getWildHunterInfo().getIdx()], (byte) 1);
-                summon.setSummonTerm(0);
-
-                summon.setMoveAbility(MoveAbility.Jaguar);
-                summon.setAssistType(AssistType.Attack);
-                summon.setAttackActive(true);
-
-                field = c.getChr().getField();
-                field.spawnSummon(summon);
-
-                if(tsm.hasStatBySkillId(RIDE_JAGUAR)) {
-                    tsm.removeStatsBySkill(RIDE_JAGUAR);
-                    tsm.sendResetStatPacket();
-                }
-
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(JaguarSummoned, o1);
-                tsm.putCharacterStatValue(JaguarCount, o1);
-                break;
-            case RIDE_JAGUAR:
-                if (chr.getWildHunterInfo() == null
-                        || chr.getWildHunterInfo().getIdx() < 0
-                        || chr.getWildHunterInfo().getIdx() >= MOUNTS.length) {
-                    chr.chatMessage("You haven't selected a jaguar.");
-                    return;
-                }
-
-                for(int jaguarSummonSkill : jaguarSummons) {
-                    tsm.removeStatsBySkill(jaguarSummonSkill);
-                    tsm.sendResetStatPacket();
-                }
-
-                TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
-                if (tsm.hasStat(RideVehicle)) {
-                    tsm.removeStat(RideVehicle, false);
-                } else {
-                    tsb.setNOption(MOUNTS[chr.getWildHunterInfo().getIdx()]);
-                    tsb.setROption(skillID);
-                    tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
-                    tsm.sendSetStatPacket();
-                }
-                break;
-            case SOUL_ARROW_CROSSBOW:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(SoulArrow, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indiePad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o2);
-                break;
-            case CROSSBOW_BOOSTER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case CALL_OF_THE_WILD:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(z, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePADR, o1);
-                tsm.putCharacterStatValue(IndieMADR, o1);
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamageReduce, o2);
-                tsm.putCharacterStatValue(Guard, o2);
-                tsm.putCharacterStatValue(EVAR, o2);
-                o3.nReason = skillID;
-                o3.nValue = si.getValue(x, slv);
-                o3.tStart = (int) System.currentTimeMillis();
-                o3.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMMPR, o3);
-                break;
-            case FELINE_BERSERK:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieBooster, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieBooster, o1);
-                o2.nOption = si.getValue(z, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamR, o2);
-                o3.nOption = si.getValue(x, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Speed, o3);
-                break;
-            case BACKSTEP:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(DrawBack, o1);
-                break;
-            case SHARP_EYES: // x = crit rate%  |  y = max crit dmg%
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(SharpEyes, o1);
-                break;
-            case MAPLE_WARRIOR_WH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-
-            case FOR_LIBERTY_WH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-
-            case SILENT_RAMPAGE:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                break;
-            case DRILL_SALVO:
-                AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
-                aa.setMobOrigin((byte) 0);
-                aa.setPosition(chr.getPosition());
-                Rect rect = aa.getPosition().getRectAround(si.getRects().get(0));
-                if(!chr.isLeft()) {
-                    rect = rect.horizontalFlipAround(chr.getPosition().getX());
-                }
-                aa.setRect(rect);
-                aa.setFlip(!chr.isLeft());
-                aa.setDelay((short) 8);
-                chr.getField().spawnAffectedAreaAndRemoveOld(aa);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
     }
 
 
@@ -539,76 +329,238 @@ public class WildHunter extends Citizen {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case WILD_LURE:
-                case SWIPE:
-                case DASH_N_SLASH_JAGUAR_SUMMONED:
-                case SONIC_ROAR:
-                case JAGUAR_SOUL:
-                case JAGUAR_RAMPAGE:
-                    lastUsedSkill = skillID;
-                    c.write(UserLocal.jaguarSkill(skillID));
-                    break;
-                case SECRET_ASSEMBLY:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case HUNTING_ASSISTANT_UNIT:
-                    AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
-                    aa.setMobOrigin((byte) 0);
-                    aa.setPosition(chr.getPosition());
-                    Rect rect = aa.getPosition().getRectAround(si.getRects().get(0));
-                    if(!chr.isLeft()) {
-                        rect = rect.horizontalFlipAround(chr.getPosition().getX());
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        AffectedArea aa;
+        Rect rect;
+        Summon summon;
+        Field field;
+        switch (skillID) {
+            case WILD_LURE:
+            case SWIPE:
+            case DASH_N_SLASH_JAGUAR_SUMMONED:
+            case SONIC_ROAR:
+            case JAGUAR_SOUL:
+            case JAGUAR_RAMPAGE:
+                lastUsedSkill = skillID;
+                c.write(UserLocal.jaguarSkill(skillID));
+                break;
+            case SECRET_ASSEMBLY:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case HUNTING_ASSISTANT_UNIT:
+                aa = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa.setMobOrigin((byte) 0);
+                aa.setPosition(chr.getPosition());
+                rect = aa.getPosition().getRectAround(si.getRects().get(0));
+                if(!chr.isLeft()) {
+                    rect = rect.horizontalFlipAround(chr.getPosition().getX());
+                }
+                aa.setRect(rect);
+                aa.setFlip(!chr.isLeft());
+                aa.setDelay((short) 4);
+                chr.getField().spawnAffectedAreaAndRemoveOld(aa);
+                break;
+            case HEROS_WILL_WH:
+                tsm.removeAllDebuffs();
+                break;
+            case CAPTURE:
+                int mobID = inPacket.decodeInt();
+                Life life = chr.getField().getLifeByObjectID(mobID);
+                if (life instanceof Mob) {
+                    Mob mob = (Mob) life;
+                    if (mob.getMaxHp() * 0.90 <= mob.getHp()) {
+                        chr.write(UserPacket.effect(Effect.showCaptureEffect(skillID, slv, 0, 1)));
+                        return;
                     }
-                    aa.setRect(rect);
-                    aa.setFlip(!chr.isLeft());
-                    aa.setDelay((short) 4);
-                    chr.getField().spawnAffectedAreaAndRemoveOld(aa);
-                    break;
-                case HEROS_WILL_WH:
-                    tsm.removeAllDebuffs();
-                    break;
-                case CAPTURE:
-                    int mobID = inPacket.decodeInt();
-                    Life life = chr.getField().getLifeByObjectID(mobID);
-                    if (life instanceof Mob) {
-                        Mob mob = (Mob) life;
-                        if (mob.getMaxHp() * 0.90 <= mob.getHp()) {
-                            chr.write(UserPacket.effect(Effect.showCaptureEffect(skillID, slv, 0, 1)));
-                            return;
-                        }
-                        Quest quest = chr.getQuestManager().getQuestById(QuestConstants.WILD_HUNTER_JAGUAR_STORAGE_ID);
-                        if (quest == null) {
-                            quest = new Quest(QuestConstants.WILD_HUNTER_JAGUAR_STORAGE_ID, QuestStatus.Started);
-                            chr.getQuestManager().addQuest(quest);
-                        }
-                        String key = QuestConstants.getWhStorageQuestValByTemplateID(mob.getTemplateId());
-                        if (key != null) {
-                            quest.setProperty(key, "1");
-                            chr.write(WvsContext.message(MessageType.QUEST_RECORD_EX_MESSAGE,
-                                    quest.getQRKey(), quest.getQRValue(), (byte) 0));
-                            chr.write(UserPacket.effect(Effect.showCaptureEffect(skillID, slv, 0, 0)));
-                            WildHunterInfo whi = chr.getWildHunterInfo();
-                            mob.die(true);
-                        } else {
-                            chr.write(UserPacket.effect(Effect.showCaptureEffect(skillID, slv, 0, 2)));
-                        }
+                    Quest quest = chr.getQuestManager().getQuestById(QuestConstants.WILD_HUNTER_JAGUAR_STORAGE_ID);
+                    if (quest == null) {
+                        quest = new Quest(QuestConstants.WILD_HUNTER_JAGUAR_STORAGE_ID, QuestStatus.Started);
+                        chr.getQuestManager().addQuest(quest);
                     }
-                    break;
-            }
+                    String key = QuestConstants.getWhStorageQuestValByTemplateID(mob.getTemplateId());
+                    if (key != null) {
+                        quest.setProperty(key, "1");
+                        chr.write(WvsContext.message(MessageType.QUEST_RECORD_EX_MESSAGE,
+                                quest.getQRKey(), quest.getQRValue(), (byte) 0));
+                        chr.write(UserPacket.effect(Effect.showCaptureEffect(skillID, slv, 0, 0)));
+                        WildHunterInfo whi = chr.getWildHunterInfo();
+                        mob.die(true);
+                    } else {
+                        chr.write(UserPacket.effect(Effect.showCaptureEffect(skillID, slv, 0, 2)));
+                    }
+                }
+                break;
+            case SUMMON_JAGUAR_GREY:
+            case SUMMON_JAGUAR_YELLOW:
+            case SUMMON_JAGUAR_RED:
+            case SUMMON_JAGUAR_PURPLE:
+            case SUMMON_JAGUAR_BLUE:
+            case SUMMON_JAGUAR_JAIRA:
+            case SUMMON_JAGUAR_SNOW_WHITE:
+            case SUMMON_JAGUAR_ONYX:
+            case SUMMON_JAGUAR_CRIMSON:
+                if (chr.getWildHunterInfo() == null
+                        || chr.getWildHunterInfo().getIdx() < 0
+                        || chr.getWildHunterInfo().getIdx() >= MOUNTS.length) {
+                    chr.chatMessage("You haven't selected a jaguar.");
+                    return;
+                }
+                summon = Summon.getSummonBy(chr, SUMMONS[chr.getWildHunterInfo().getIdx()], (byte) 1);
+                summon.setSummonTerm(0);
+
+                summon.setMoveAbility(MoveAbility.Jaguar);
+                summon.setAssistType(AssistType.Attack);
+                summon.setAttackActive(true);
+
+                field = c.getChr().getField();
+                field.spawnSummon(summon);
+
+                if(tsm.hasStatBySkillId(RIDE_JAGUAR)) {
+                    tsm.removeStatsBySkill(RIDE_JAGUAR);
+                    tsm.sendResetStatPacket();
+                }
+
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(JaguarSummoned, o1);
+                tsm.putCharacterStatValue(JaguarCount, o1);
+                break;
+            case RIDE_JAGUAR:
+                if (chr.getWildHunterInfo() == null
+                        || chr.getWildHunterInfo().getIdx() < 0
+                        || chr.getWildHunterInfo().getIdx() >= MOUNTS.length) {
+                    chr.chatMessage("You haven't selected a jaguar.");
+                    return;
+                }
+
+                for(int jaguarSummonSkill : jaguarSummons) {
+                    tsm.removeStatsBySkill(jaguarSummonSkill);
+                    tsm.sendResetStatPacket();
+                }
+
+                TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
+                if (tsm.hasStat(RideVehicle)) {
+                    tsm.removeStat(RideVehicle, false);
+                } else {
+                    tsb.setNOption(MOUNTS[chr.getWildHunterInfo().getIdx()]);
+                    tsb.setROption(skillID);
+                    tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
+                    tsm.sendSetStatPacket();
+                }
+                break;
+            case SOUL_ARROW_CROSSBOW:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(SoulArrow, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indiePad, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o2);
+                break;
+            case CROSSBOW_BOOSTER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case CALL_OF_THE_WILD:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(z, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePADR, o1);
+                tsm.putCharacterStatValue(IndieMADR, o1);
+                o2.nOption = si.getValue(x, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamageReduce, o2);
+                tsm.putCharacterStatValue(Guard, o2);
+                tsm.putCharacterStatValue(EVAR, o2);
+                o3.nReason = skillID;
+                o3.nValue = si.getValue(x, slv);
+                o3.tStart = (int) System.currentTimeMillis();
+                o3.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMMPR, o3);
+                break;
+            case FELINE_BERSERK:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieBooster, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieBooster, o1);
+                o2.nOption = si.getValue(z, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamR, o2);
+                o3.nOption = si.getValue(x, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Speed, o3);
+                break;
+            case BACKSTEP:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(DrawBack, o1);
+                break;
+            case SHARP_EYES: // x = crit rate%  |  y = max crit dmg%
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(SharpEyes, o1);
+                break;
+            case MAPLE_WARRIOR_WH:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+
+            case FOR_LIBERTY_WH:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+
+            case SILENT_RAMPAGE:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                break;
+            case DRILL_SALVO:
+                aa = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa.setMobOrigin((byte) 0);
+                aa.setPosition(chr.getPosition());
+                rect = aa.getPosition().getRectAround(si.getRects().get(0));
+                if(!chr.isLeft()) {
+                    rect = rect.horizontalFlipAround(chr.getPosition().getX());
+                }
+                aa.setRect(rect);
+                aa.setFlip(!chr.isLeft());
+                aa.setDelay((short) 8);
+                chr.getField().spawnAffectedAreaAndRemoveOld(aa);
+                break;
         }
+        tsm.sendSetStatPacket();
     }
 
 

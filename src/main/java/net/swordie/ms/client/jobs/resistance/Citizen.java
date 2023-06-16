@@ -33,10 +33,6 @@ public class Citizen extends Job {
             POTION_MASTERY
     };
 
-    private final int[] buffs = new int[]{
-            INFILTRATE
-    };
-
     public Citizen(Char chr) {
         super(chr);
 
@@ -54,13 +50,18 @@ public class Citizen extends Job {
     }
 
     @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
+    public void handleAttack(Char chr, AttackInfo attackInfo) {
+        super.handleAttack(chr, attackInfo);
+    }
+
+    @Override
+    public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
+        super.handleSkill(chr, skillID, slv, inPacket);
         SkillInfo si = SkillData.getSkillInfoById(skillID);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
-        boolean sendStat = true;
         switch (skillID) {
             case INFILTRATE:
                 o1.nOption = si.getValue(speed, slv);
@@ -72,26 +73,8 @@ public class Citizen extends Job {
                 o2.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(DarkSight, o2);
                 chr.addSkillCooldown(skillID, 60000);
-                break;
-            default:
-                sendStat = false;
         }
-        if (sendStat) {
-            tsm.sendSetStatPacket();
-        }
-    }
-
-    @Override
-    public void handleAttack(Char chr, AttackInfo attackInfo) {
-        super.handleAttack(chr, attackInfo);
-    }
-
-    @Override
-    public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
-        super.handleSkill(chr, skillID, slv, inPacket);
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        }
+        tsm.sendSetStatPacket();
     }
 
     @Override
@@ -113,10 +96,5 @@ public class Citizen extends Job {
     @Override
     public int getFinalAttackSkill() {
         return 0;
-    }
-
-    @Override
-    public boolean isBuff(int skillID) {
-        return Arrays.stream(buffs).anyMatch(b -> b == skillID);
     }
 }

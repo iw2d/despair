@@ -102,44 +102,8 @@ public class BeastTamer extends Job {
     public static final int MEOW_CURE = 112121010;
     public static final int MEOW_REVIVE = 112121011;
 
-
     //Hyper
     public static final int TEAM_ROAR = 112121056;
-
-    private int[] buffs = new int[]{
-            MAPLE_GUARDIAN,
-            BEAR_MODE,
-            SNOW_LEOPARD_MODE,
-            HAWK_MODE,
-            CAT_MODE,
-
-            LIL_FORT,
-            BEAR_ASSAULT,
-
-            BRO_ATTACK,
-
-            FLY,
-            HAWK_FLOCK,
-            RAPTOR_TALONS,
-            BIRDS_EYE_VIEW,
-            RAZOR_BEAK,
-            DEFENSIVE_FORMATION,
-
-            MEOW_CARD,
-            MEOW_CARD_RED,
-            MEOW_CARD_BLUE,
-            MEOW_CARD_GREEN,
-            MEOW_CARD_GOLD,
-            MEOW_CARD_GOLD_SKILL,
-            KITTY_BATTLE_SQUAD,
-            KITTY_TREATS,
-            STICKY_PAWS,
-            CAT_CLAWS,
-            MOUSERS_INSIGHT,
-            FRIENDS_OF_ARBY,
-
-            TEAM_ROAR,
-    };
 
     private int[] addedSkills = new int[]{
             BEAR_MODE,
@@ -236,178 +200,6 @@ public class BeastTamer extends Job {
     private boolean isCatMode() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         return tsm.getOption(BeastMode).nOption == 4;
-    }
-
-
-    //  Buff related methods -------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        Option o5 = new Option();
-        Summon summon;
-        Field field;
-        switch (skillID) {
-            //Common
-            case BEAR_MODE:
-            case SNOW_LEOPARD_MODE:
-            case HAWK_MODE:
-            case CAT_MODE:
-                o1.nOption = (skillID - 110001500);
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(BeastMode, o1);
-
-                for (int modeId : buffsByMode.keySet()) {
-                    if (skillID == modeId) {
-                        continue;
-                    }
-                    for (int buffId : buffsByMode.get(modeId)) {
-                        tsm.removeStatsBySkill(buffId);
-                        tsm.sendResetStatPacket();
-                    }
-                }
-                break;
-            case MAPLE_GUARDIAN:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-
-            //Bear Mode
-            case LIL_FORT:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(false);
-                summon.setSummonTerm(si.getValue(time, slv));
-                summon.setMoveAbility(MoveAbility.Stop);
-                field.spawnSummon(summon);
-                break;
-            case BEAR_ASSAULT:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(q, slv);
-                tsm.putCharacterStatValue(DamR, o1);
-                o2.nOption = si.getValue(y, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(q, slv);
-                tsm.putCharacterStatValue(IncCriticalDamMin, o2);
-                o3.nOption = si.getValue(z, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(q, slv);
-                tsm.putCharacterStatValue(CriticalBuff, o3);
-                o4.nOption = si.getValue(mobCount, slv);
-                o4.rOption = skillID;
-                o4.tOption = si.getValue(q, slv);
-                tsm.putCharacterStatValue(Enrage, o4);
-                break;
-
-            //Leopard Mode
-            case BRO_ATTACK:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ACC, o1);
-                break;
-
-            //Hawk Mode
-            case FLY:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(NewFlying, o1);
-
-                //TODO  summon Defensive Formation
-                break;
-            case HAWK_FLOCK:
-                o1.nOption = si.getValue(speed, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Speed, o1);
-                o2.nOption = si.getValue(jump, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Jump, o2);
-                break;
-            case RAPTOR_TALONS:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieMad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMAD, o1);
-                break;
-            case BIRDS_EYE_VIEW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieCr, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieCr, o1);
-                o2.nOption = si.getValue(emdd, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EMDD, o2);
-                o3.nOption = si.getValue(epdd, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EPDD, o3);
-                o4.nOption = si.getValue(acc, slv);
-                o4.rOption = skillID;
-                o4.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ACC, o4);
-                o5.nOption = si.getValue(eva, slv);
-                o5.rOption = skillID;
-                o5.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EVA, o5);
-                break;
-            case RAZOR_BEAK:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieMad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMAD, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indiePad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o2);
-                break;
-
-            //Cat Mode
-            case MEOW_CARD:
-            case MEOW_CARD_GOLD_SKILL:
-                giveMeowCard(slv);
-                break;
-
-            //Hyper
-            case TEAM_ROAR:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nOption = 1;
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(NotDamaged, o2);
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(TeamRoar, o3);
-                break;
-        }
-        tsm.sendSetStatPacket();
-        chr.dispose();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
     }
 
     private void giveMeowCard(int slv) {
@@ -763,62 +555,214 @@ public class BeastTamer extends Job {
         if (skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            switch (skillID) {
-                case HOMEWARD_BOUND:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case EKA_EXPRESS: //TODO Eka Express Skill
-                    Field townField = FieldData.getFieldById(chr.getField().getReturnMap());
-                    int x = townField.getPortalByName("tp").getX();
-                    int y = townField.getPortalByName("tp").getY();
-                    Position townPosition = new Position(x, y); // Grabs the Portal Co-ordinates for the TownPortalPoint
-                    int duration = si.getValue(time, slv);
-                    if (chr.getTownPortal() != null) {
-                        TownPortal townPortal = chr.getTownPortal();
-                        townPortal.despawnTownPortal();
-                    }
-                    TownPortal townPortal = new TownPortal(chr, townPosition, chr.getPosition(), chr.getField().getReturnMap(), chr.getFieldID(), skillID, duration);
-                    townPortal.spawnTownPortal();
-                    chr.dispose();
-                    break;
-                case MEOW_CURE:
-                    tsm.removeAllDebuffs();
-                    break;
-                case MEOW_HEAL:
-                    chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(hp, slv))));
-                    break;
-                case MEOW_REVIVE:
-                    Party party = chr.getParty();
-                    if (party != null) {
-                        Field field = chr.getField();
-                        Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
-                        if (!chr.isLeft()) {
-                            rect = rect.moveRight();
-                        }
-                        List<PartyMember> eligblePartyMemberList = field.getPartyMembersInRect(chr, rect).stream().
-                                filter(pml -> pml.getChr().getId() != chr.getId() &&
-                                        pml.getChr().getHP() <= 0).
-                                collect(Collectors.toList());
 
-                        if (eligblePartyMemberList.size() > 0) {
-                            Char randomPartyChr = Util.getRandomFromCollection(eligblePartyMemberList).getChr();
-                            TemporaryStatManager partyTSM = randomPartyChr.getTemporaryStatManager();
-                            randomPartyChr.heal(randomPartyChr.getMaxHP());
-                            partyTSM.putCharacterStatValue(NotDamaged, o1);
-                            partyTSM.sendSetStatPacket();
-                            randomPartyChr.write(UserPacket.effect(Effect.skillAffected(skillID, (byte) 1, 0)));
-                            randomPartyChr.getField().broadcastPacket(UserRemote.effect(randomPartyChr.getId(), Effect.skillAffected(skillID, (byte) 1, 0)));
-                        }
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        Option o5 = new Option();
+        Summon summon;
+        Field field;
+        switch (skillID) {
+            case HOMEWARD_BOUND:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case EKA_EXPRESS: //TODO Eka Express Skill
+                Field townField = FieldData.getFieldById(chr.getField().getReturnMap());
+                int portalX = townField.getPortalByName("tp").getX();
+                int portalY = townField.getPortalByName("tp").getY();
+                Position townPosition = new Position(portalX, portalY); // Grabs the Portal Co-ordinates for the TownPortalPoint
+                int duration = si.getValue(time, slv);
+                if (chr.getTownPortal() != null) {
+                    TownPortal townPortal = chr.getTownPortal();
+                    townPortal.despawnTownPortal();
+                }
+                TownPortal townPortal = new TownPortal(chr, townPosition, chr.getPosition(), chr.getField().getReturnMap(), chr.getFieldID(), skillID, duration);
+                townPortal.spawnTownPortal();
+                chr.dispose();
+                break;
+            case MEOW_CURE:
+                tsm.removeAllDebuffs();
+                break;
+            case MEOW_HEAL:
+                chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(hp, slv))));
+                break;
+            case MEOW_REVIVE:
+                Party party = chr.getParty();
+                if (party != null) {
+                    field = chr.getField();
+                    Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
+                    if (!chr.isLeft()) {
+                        rect = rect.moveRight();
                     }
-                    break;
-            }
+                    List<PartyMember> eligblePartyMemberList = field.getPartyMembersInRect(chr, rect).stream().
+                            filter(pml -> pml.getChr().getId() != chr.getId() &&
+                                    pml.getChr().getHP() <= 0).
+                            collect(Collectors.toList());
+
+                    if (eligblePartyMemberList.size() > 0) {
+                        Char randomPartyChr = Util.getRandomFromCollection(eligblePartyMemberList).getChr();
+                        TemporaryStatManager partyTSM = randomPartyChr.getTemporaryStatManager();
+                        randomPartyChr.heal(randomPartyChr.getMaxHP());
+                        partyTSM.putCharacterStatValue(NotDamaged, o1);
+                        partyTSM.sendSetStatPacket();
+                        randomPartyChr.write(UserPacket.effect(Effect.skillAffected(skillID, (byte) 1, 0)));
+                        randomPartyChr.getField().broadcastPacket(UserRemote.effect(randomPartyChr.getId(), Effect.skillAffected(skillID, (byte) 1, 0)));
+                    }
+                }
+                break;
+            case BEAR_MODE:
+            case SNOW_LEOPARD_MODE:
+            case HAWK_MODE:
+            case CAT_MODE:
+                o1.nOption = (skillID - 110001500);
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(BeastMode, o1);
+
+                for (int modeId : buffsByMode.keySet()) {
+                    if (skillID == modeId) {
+                        continue;
+                    }
+                    for (int buffId : buffsByMode.get(modeId)) {
+                        tsm.removeStatsBySkill(buffId);
+                        tsm.sendResetStatPacket();
+                    }
+                }
+                break;
+            case MAPLE_GUARDIAN:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+
+            //Bear Mode
+            case LIL_FORT:
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                field = c.getChr().getField();
+                summon.setFlyMob(false);
+                summon.setSummonTerm(si.getValue(time, slv));
+                summon.setMoveAbility(MoveAbility.Stop);
+                field.spawnSummon(summon);
+                break;
+            case BEAR_ASSAULT:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(q, slv);
+                tsm.putCharacterStatValue(DamR, o1);
+                o2.nOption = si.getValue(y, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(q, slv);
+                tsm.putCharacterStatValue(IncCriticalDamMin, o2);
+                o3.nOption = si.getValue(z, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(q, slv);
+                tsm.putCharacterStatValue(CriticalBuff, o3);
+                o4.nOption = si.getValue(mobCount, slv);
+                o4.rOption = skillID;
+                o4.tOption = si.getValue(q, slv);
+                tsm.putCharacterStatValue(Enrage, o4);
+                break;
+
+            //Leopard Mode
+            case BRO_ATTACK:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ACC, o1);
+                break;
+
+            //Hawk Mode
+            case FLY:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(NewFlying, o1);
+
+                //TODO  summon Defensive Formation
+                break;
+            case HAWK_FLOCK:
+                o1.nOption = si.getValue(speed, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Speed, o1);
+                o2.nOption = si.getValue(jump, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Jump, o2);
+                break;
+            case RAPTOR_TALONS:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieMad, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMAD, o1);
+                break;
+            case BIRDS_EYE_VIEW:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieCr, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieCr, o1);
+                o2.nOption = si.getValue(emdd, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(EMDD, o2);
+                o3.nOption = si.getValue(epdd, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(EPDD, o3);
+                o4.nOption = si.getValue(acc, slv);
+                o4.rOption = skillID;
+                o4.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ACC, o4);
+                o5.nOption = si.getValue(eva, slv);
+                o5.rOption = skillID;
+                o5.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(EVA, o5);
+                break;
+            case RAZOR_BEAK:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieMad, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMAD, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indiePad, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o2);
+                break;
+
+            //Cat Mode
+            case MEOW_CARD:
+            case MEOW_CARD_GOLD_SKILL:
+                giveMeowCard(slv);
+                break;
+
+            //Hyper
+            case TEAM_ROAR:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nOption = 1;
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(NotDamaged, o2);
+                o3.nOption = 1;
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(TeamRoar, o3);
+                break;
         }
+        tsm.sendSetStatPacket();
+        chr.dispose();
     }
 
     public static void beastTamerRegroup(Char chr) { //Handled in WorldHandler

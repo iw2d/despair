@@ -147,40 +147,6 @@ public class Thief extends Beginner {
             MAPLE_RETURN,
     };
 
-    private int[] buffs = new int[]{
-            HASTE,
-            DARK_SIGHT,
-            ASSASSINS_MARK,
-            CLAW_BOOSTER,
-            SHADOW_PARTNER_NL,
-            SHADOW_STARS,
-            DARK_FLARE_NL,
-            MAPLE_WARRIOR_NL,
-
-            DAGGER_BOOSTER,
-            MESOGUARD,
-            SHADOW_PARTNER_SHAD,
-            DARK_FLARE_SHAD,
-            PICK_POCKET,
-            SHADOWER_INSTINCT,
-            MAPLE_WARRIOR_SHAD,
-
-            SELF_HASTE,
-            KATARA_BOOSTER,
-            MIRROR_IMAGE,
-            FINAL_CUT,
-            MIRRORED_TARGET,
-            MAPLE_WARRIOR_DB,
-
-            EPIC_ADVENTURE_NL,
-            EPIC_ADVENTURE_SHAD,
-            EPIC_ADVENTURE_DB,
-            BLEED_DART,
-            FLIP_THE_COIN,
-            BLADE_CLONE,
-            ASURAS_ANGER,
-    };
-
     public Thief(Char chr) {
         super(chr);
 
@@ -207,186 +173,6 @@ public class Thief extends Beginner {
         return JobConstants.isAdventurerThief(id);
     }
 
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Summon summon;
-        Field field;
-        switch (skillID) {
-            case HASTE:
-            case SELF_HASTE:
-                o1.nOption = si.getValue(speed, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Speed, o1);
-                o2.nOption = si.getValue(jump, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Jump, o2);
-                // SpeedMax?
-                break;
-            case DARK_SIGHT:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DarkSight, o1);
-                break;
-            case ASSASSINS_MARK:
-                if (tsm.hasStat(NightLordMark)) {
-                    tsm.removeStatsBySkill(skillID);
-                    tsm.sendResetStatPacket();
-                } else {
-                    o1.nOption = 1;
-                    o1.rOption = skillID;
-                    o1.tOption = 0;
-                    tsm.putCharacterStatValue(NightLordMark, o1);
-                }
-                break;
-            case CLAW_BOOSTER:
-            case DAGGER_BOOSTER:
-            case KATARA_BOOSTER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case SHADOW_PARTNER_NL:
-            case SHADOW_PARTNER_SHAD:
-            case MIRROR_IMAGE:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ShadowPartner, o1);
-                break;
-            case MAPLE_WARRIOR_DB:
-            case MAPLE_WARRIOR_NL:
-            case MAPLE_WARRIOR_SHAD:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
-            case SHADOW_STARS:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(NoBulletConsume, o1);
-                break;
-            case MESOGUARD:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(MesoGuard, o1);
-                break;
-            case PICK_POCKET:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PickPocket, o1);
-                break;
-            case SHADOWER_INSTINCT:
-                int pad = si.getValue(x, slv);
-                if (tsm.hasStat(KillingPoint)) {
-                    pad += si.getValue(kp, slv) * tsm.getOption(KillingPoint).nOption;
-                    tsm.removeStat(KillingPoint, false);
-                }
-                o1.nOption = pad;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PAD, o1);
-                o2.nOption = si.getValue(ignoreMobpdpR, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
-                break;
-            case MIRRORED_TARGET:
-                if(tsm.getOptByCTSAndSkill(ShadowPartner, MIRROR_IMAGE) != null) {
-                    summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                    field = c.getChr().getField();
-                    summon.setFlyMob(false);
-                    summon.setMoveAction((byte) 0);
-                    summon.setMoveAbility(MoveAbility.Stop);
-                    summon.setAssistType(AssistType.None);
-                    summon.setAttackActive(false);
-                    summon.setAvatarLook(chr.getAvatarData().getAvatarLook());
-                    summon.setMaxHP(si.getValue(x, slv));
-                    summon.setHp(summon.getMaxHP());
-                    field.spawnSummon(summon);
-
-                    tsm.removeStatsBySkill(MIRROR_IMAGE);
-                }
-                break;
-            case DARK_FLARE_NL:
-            case DARK_FLARE_SHAD:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(false);
-                summon.setMoveAction((byte) 0);
-                summon.setMoveAbility(MoveAbility.Stop);
-                field.spawnSummon(summon);
-                break;
-
-            case EPIC_ADVENTURE_DB:
-            case EPIC_ADVENTURE_NL:
-            case EPIC_ADVENTURE_SHAD:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case BLEED_DART:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(BleedingToxin, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indiePad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o2);
-                break;
-            case FLIP_THE_COIN:
-                incrementFlipTheCoinStack(tsm, c);
-                c.write(WvsContext.flipTheCoinEnabled((byte) 0));
-                break;
-            case BLADE_CLONE:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(WindBreakerFinal, o1);
-                o2.nOption = 10;
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamR, o2);
-                break;
-            case ASURAS_ANGER:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 10;
-                tsm.putCharacterStatValue(Asura, o1);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     private void incrementFlipTheCoinStack(TemporaryStatManager tsm, Client c) {
         Option o = new Option();
@@ -1176,66 +962,225 @@ public class Thief extends Beginner {
         if(skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case MAPLE_RETURN:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case SMOKE_SCREEN:
-                    AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
-                    aa.setMobOrigin((byte) 0);
-                    aa.setPosition(chr.getPosition());
-                    aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
-                    aa.setDelay((short) 4);
-                    chr.getField().spawnAffectedArea(aa);
-                    break;
-                case FRAILTY_CURSE:
-                    SkillInfo fci = SkillData.getSkillInfoById(skillID);
-                    int lt1 = si.getValue(lt, slv);
-                    int rb1 = si.getValue(rb, slv);
-                    AffectedArea aa2 = AffectedArea.getPassiveAA(chr, skillID, slv);
-                    aa2.setMobOrigin((byte) 0);
-                    aa2.setPosition(chr.getPosition());
-                    aa2.setRect(aa2.getPosition().getRectAround(fci.getRects().get(0)));
-                    aa2.setFlip(!chr.isLeft());
-                    aa2.setDelay((short) 9);
-                    chr.getField().spawnAffectedArea(aa2);
-                    break;
-                case MESO_EXPLOSION:
-                    Field field = chr.getField();
-                    int rectRange = si.getValue(range, slv);
-                    Rect rect = new Rect(
-                            new Position(
-                                    chr.getPosition().getX() - rectRange,
-                                    chr.getPosition().getY() - rectRange),
-                            new Position(
-                                    chr.getPosition().getX() + rectRange,
-                                    chr.getPosition().getY() + rectRange)
-                    );
-                    List<Drop> dropList = field.getDropsInRect(rect).stream()
-                            .filter(d -> d.getOwnerID() == chr.getId()
-                                    && d.isMoney())
-                            .limit(si.getValue(bulletCount, slv) + chr.getSkillStatValue(bulletCount, MESO_EXPLOSION_ENHANCE))
-                            .collect(Collectors.toList());
-                    createMesoExplosionForceAtom(dropList);
-                    break;
-                case SHADOW_VEIL:
-                    chr.write(UserLocal.skillUseResult((byte) 1, skillID));
-                    break;
-                case HEROS_WILL_NL:
-                case HEROS_WILL_SHAD:
-                case HEROS_WILL_DB:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Summon summon;
+        Field field;
+        switch (skillID) {
+            case MAPLE_RETURN:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case SMOKE_SCREEN:
+                AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa.setMobOrigin((byte) 0);
+                aa.setPosition(chr.getPosition());
+                aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
+                aa.setDelay((short) 4);
+                chr.getField().spawnAffectedArea(aa);
+                break;
+            case FRAILTY_CURSE:
+                SkillInfo fci = SkillData.getSkillInfoById(skillID);
+                int lt1 = si.getValue(lt, slv);
+                int rb1 = si.getValue(rb, slv);
+                AffectedArea aa2 = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa2.setMobOrigin((byte) 0);
+                aa2.setPosition(chr.getPosition());
+                aa2.setRect(aa2.getPosition().getRectAround(fci.getRects().get(0)));
+                aa2.setFlip(!chr.isLeft());
+                aa2.setDelay((short) 9);
+                chr.getField().spawnAffectedArea(aa2);
+                break;
+            case MESO_EXPLOSION:
+                field = chr.getField();
+                int rectRange = si.getValue(range, slv);
+                Rect rect = new Rect(
+                        new Position(
+                                chr.getPosition().getX() - rectRange,
+                                chr.getPosition().getY() - rectRange),
+                        new Position(
+                                chr.getPosition().getX() + rectRange,
+                                chr.getPosition().getY() + rectRange)
+                );
+                List<Drop> dropList = field.getDropsInRect(rect).stream()
+                        .filter(d -> d.getOwnerID() == chr.getId()
+                                && d.isMoney())
+                        .limit(si.getValue(bulletCount, slv) + chr.getSkillStatValue(bulletCount, MESO_EXPLOSION_ENHANCE))
+                        .collect(Collectors.toList());
+                createMesoExplosionForceAtom(dropList);
+                break;
+            case SHADOW_VEIL:
+                chr.write(UserLocal.skillUseResult((byte) 1, skillID));
+                break;
+            case HEROS_WILL_NL:
+            case HEROS_WILL_SHAD:
+            case HEROS_WILL_DB:
+                tsm.removeAllDebuffs();
+                break;
+            case HASTE:
+            case SELF_HASTE:
+                o1.nOption = si.getValue(speed, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Speed, o1);
+                o2.nOption = si.getValue(jump, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Jump, o2);
+                // SpeedMax?
+                break;
+            case DARK_SIGHT:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DarkSight, o1);
+                break;
+            case ASSASSINS_MARK:
+                if (tsm.hasStat(NightLordMark)) {
+                    tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
+                } else {
+                    o1.nOption = 1;
+                    o1.rOption = skillID;
+                    o1.tOption = 0;
+                    tsm.putCharacterStatValue(NightLordMark, o1);
+                }
+                break;
+            case CLAW_BOOSTER:
+            case DAGGER_BOOSTER:
+            case KATARA_BOOSTER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case SHADOW_PARTNER_NL:
+            case SHADOW_PARTNER_SHAD:
+            case MIRROR_IMAGE:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ShadowPartner, o1);
+                break;
+            case MAPLE_WARRIOR_DB:
+            case MAPLE_WARRIOR_NL:
+            case MAPLE_WARRIOR_SHAD:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
+                break;
+            case SHADOW_STARS:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(NoBulletConsume, o1);
+                break;
+            case MESOGUARD:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(MesoGuard, o1);
+                break;
+            case PICK_POCKET:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(PickPocket, o1);
+                break;
+            case SHADOWER_INSTINCT:
+                int pad = si.getValue(x, slv);
+                if (tsm.hasStat(KillingPoint)) {
+                    pad += si.getValue(kp, slv) * tsm.getOption(KillingPoint).nOption;
+                    tsm.removeStat(KillingPoint, false);
+                }
+                o1.nOption = pad;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(PAD, o1);
+                o2.nOption = si.getValue(ignoreMobpdpR, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
+                break;
+            case MIRRORED_TARGET:
+                if(tsm.getOptByCTSAndSkill(ShadowPartner, MIRROR_IMAGE) != null) {
+                    summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                    field = c.getChr().getField();
+                    summon.setFlyMob(false);
+                    summon.setMoveAction((byte) 0);
+                    summon.setMoveAbility(MoveAbility.Stop);
+                    summon.setAssistType(AssistType.None);
+                    summon.setAttackActive(false);
+                    summon.setAvatarLook(chr.getAvatarData().getAvatarLook());
+                    summon.setMaxHP(si.getValue(x, slv));
+                    summon.setHp(summon.getMaxHP());
+                    field.spawnSummon(summon);
+
+                    tsm.removeStatsBySkill(MIRROR_IMAGE);
+                }
+                break;
+            case DARK_FLARE_NL:
+            case DARK_FLARE_SHAD:
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                field = c.getChr().getField();
+                summon.setFlyMob(false);
+                summon.setMoveAction((byte) 0);
+                summon.setMoveAbility(MoveAbility.Stop);
+                field.spawnSummon(summon);
+                break;
+
+            case EPIC_ADVENTURE_DB:
+            case EPIC_ADVENTURE_NL:
+            case EPIC_ADVENTURE_SHAD:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+            case BLEED_DART:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(BleedingToxin, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indiePad, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o2);
+                break;
+            case FLIP_THE_COIN:
+                incrementFlipTheCoinStack(tsm, c);
+                c.write(WvsContext.flipTheCoinEnabled((byte) 0));
+                break;
+            case BLADE_CLONE:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(WindBreakerFinal, o1);
+                o2.nOption = 10;
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamR, o2);
+                break;
+            case ASURAS_ANGER:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 10;
+                tsm.putCharacterStatValue(Asura, o1);
+                break;
         }
+        tsm.sendSetStatPacket();
     }
 
 

@@ -347,10 +347,6 @@ public abstract class Job {
 
 	}
 
-	public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-
-	}
-
 	public void handleJoblessBuff(Char chr, InPacket inPacket, int skillID, int slv) {
 		SkillInfo si = SkillData.getSkillInfoById(skillID);
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -870,7 +866,7 @@ public abstract class Job {
 		}
 	}
 
-	public boolean isBuff(int skillID) {
+	private boolean isBuff(int skillID) {
 		return Arrays.stream(buffs).anyMatch(b -> b == skillID);
 	}
 

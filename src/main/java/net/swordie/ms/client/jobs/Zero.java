@@ -96,15 +96,6 @@ public class Zero extends Job {
             BURST_LEAP,
     };
 
-    private int[] buffs = new int[] {
-            DIVINE_FORCE,
-            DIVINE_SPEED,
-            RHINNES_PROTECTION,
-            TIME_HOLDING,
-            REWIND,
-            FOCUSED_TIME,
-    };
-
     private int doubleTimePrevSkill = 0;
 
     public static int getAlphaOrBetaSkill(int skillID) {
@@ -188,154 +179,6 @@ public class Zero extends Job {
     private boolean isBeta() {
         return chr.getZeroInfo().isZeroBetaState();
     }
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        Option o5 = new Option();
-        Option o6 = new Option();
-        Option o7 = new Option();
-        switch (skillID) {
-            case DIVINE_FORCE:
-                if(tsm.hasStatBySkillId(skillID)) {
-                    tsm.removeStatsBySkill(skillID);
-                } else {
-                    o1.nReason = skillID;
-                    o1.nValue = si.getValue(indieAsrR, slv);
-                    o1.tStart = (int) System.currentTimeMillis();
-                    o1.tTerm = 0;
-                    tsm.putCharacterStatValue(IndieAsrR, o1); //Indie
-                    o2.nReason = skillID;
-                    o2.nValue = si.getValue(indieMad, slv);
-                    o2.tStart = (int) System.currentTimeMillis();
-                    o2.tTerm = 0;
-                    tsm.putCharacterStatValue(IndieMAD, o2); //Indie
-                    o3.nReason = skillID;
-                    o3.nValue = si.getValue(indiePad, slv);
-                    o3.tStart = (int) System.currentTimeMillis();
-                    o3.tTerm = 0;
-                    tsm.putCharacterStatValue(IndiePAD, o3); //Indie
-                    o4.nReason = skillID;
-                    o4.nValue = si.getValue(indieMdd, slv);
-                    o4.tStart = (int) System.currentTimeMillis();
-                    o4.tTerm = 0;
-                    tsm.putCharacterStatValue(IndieMDD, o4); //Indie
-                    o5.nReason = skillID;
-                    o5.nValue = si.getValue(indiePdd, slv);
-                    o5.tStart = (int) System.currentTimeMillis();
-                    o5.tTerm = 0;
-                    tsm.putCharacterStatValue(IndiePDD, o5); //Indie
-                    o6.nReason = skillID;
-                    o6.nValue = si.getValue(indieTerR, slv);
-                    o6.tStart = (int) System.currentTimeMillis();
-                    o6.tTerm = 0;
-                    tsm.putCharacterStatValue(IndieTerR, o6); //Indie
-                    o7.nOption = 1;
-                    o7.rOption = skillID;
-                    o7.tOption = 0;
-                    tsm.putCharacterStatValue(ZeroAuraStr, o7);
-                }
-                break;
-            case DIVINE_SPEED:
-                if(tsm.hasStatBySkillId(skillID)) {
-                    tsm.removeStatsBySkill(skillID);
-                } else {
-                    o1.nReason = skillID;
-                    o1.nValue = si.getValue(indieAcc, slv);
-                    o1.tStart = (int) System.currentTimeMillis();
-                    o1.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndieACC, o1); //Indie
-                    o2.nReason = skillID;
-                    o2.nValue = si.getValue(indieBooster, slv);
-                    o2.tStart = (int) System.currentTimeMillis();
-                    o2.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndieBooster, o2); //Indie
-                    o3.nReason = skillID;
-                    o3.nValue = si.getValue(indieEva, slv);
-                    o3.tStart = (int) System.currentTimeMillis();
-                    o3.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndieEVA, o3); //Indie
-                    o4.nReason = skillID;
-                    o4.nValue = si.getValue(indieJump, slv);
-                    o4.tStart = (int) System.currentTimeMillis();
-                    o4.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndieJump, o4); //Indie
-                    o5.nReason = skillID;
-                    o5.nValue = si.getValue(indieSpeed, slv);
-                    o5.tStart = (int) System.currentTimeMillis();
-                    o5.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndieSpeed, o5); //Indie
-                    o6.nOption = 1;
-                    o6.rOption = skillID;
-                    o6.tOption = 0;
-                    tsm.putCharacterStatValue(ZeroAuraSpd, o6);
-                }
-                break;
-            case RHINNES_PROTECTION:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
-
-            case TIME_HOLDING:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(NotDamaged, o1);
-
-                if(chr.getStat(Stat.level) >= 200) {
-                    o2.nOption = si.getValue(y, slv);
-                    o2.rOption = TIME_HOLDING_2;
-                    o2.tOption = si.getValue(x, slv);
-                    tsm.putCharacterStatValue(DamR, o2);
-                    o3.nReason = TIME_HOLDING_2;
-                    o3.nValue = si.getValue(z, slv);
-                    o3.tStart = (int) System.currentTimeMillis();
-                    o3.tTerm = si.getValue(x, slv);
-                    tsm.putCharacterStatValue(IndieMaxDamageOverR, o3);
-                }
-
-                for (int skillId : chr.getSkillCoolTimes().keySet()) {
-                    if (!SkillData.getSkillInfoById(skillId).isNotCooltimeReset()) {
-                        chr.resetSkillCoolTime(skillId);
-                    }
-                }
-                break;
-            case REWIND:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ReviveOnce, o1);
-                break;
-            case FOCUSED_TIME:
-                o1.nReason = skillID;
-                o1.nValue = 4;
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = 2400;
-                tsm.putCharacterStatValue(IndiePADR, o1); //Indie
-                o2.nReason = skillID;
-                o2.nValue = 4;
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = 2400;
-                tsm.putCharacterStatValue(IndieMADR, o2); //Indie
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
-
 
 
     // Attack related methods ------------------------------------------------------------------------------------------
@@ -544,40 +387,165 @@ public class Zero extends Job {
     @Override
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        Option o5 = new Option();
+        Option o6 = new Option();
+        Option o7 = new Option();
+        switch(skillID) {
+            case THROWING_WEAPON:
+            case ADVANCED_THROWING_WEAPON:
+                Summon summon = Summon.getSummonBy(chr, skillID, slv);
+                summon.setFlyMob(true);
+                summon.setMoveAbility(MoveAbility.FixVMove);
+                chr.getField().spawnSummon(summon);
+                break;
+            case TEMPLE_RECALL:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case TIME_DISTORTION:
+                AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa.setMobOrigin((byte) 0);
+                aa.setPosition(chr.getPosition());
+                aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
+                aa.setDelay((short) 5);
+                chr.getField().spawnAffectedArea(aa);
+                break;
+            case DIVINE_FORCE:
+                if(tsm.hasStatBySkillId(skillID)) {
+                    tsm.removeStatsBySkill(skillID);
+                } else {
+                    o1.nReason = skillID;
+                    o1.nValue = si.getValue(indieAsrR, slv);
+                    o1.tStart = (int) System.currentTimeMillis();
+                    o1.tTerm = 0;
+                    tsm.putCharacterStatValue(IndieAsrR, o1); //Indie
+                    o2.nReason = skillID;
+                    o2.nValue = si.getValue(indieMad, slv);
+                    o2.tStart = (int) System.currentTimeMillis();
+                    o2.tTerm = 0;
+                    tsm.putCharacterStatValue(IndieMAD, o2); //Indie
+                    o3.nReason = skillID;
+                    o3.nValue = si.getValue(indiePad, slv);
+                    o3.tStart = (int) System.currentTimeMillis();
+                    o3.tTerm = 0;
+                    tsm.putCharacterStatValue(IndiePAD, o3); //Indie
+                    o4.nReason = skillID;
+                    o4.nValue = si.getValue(indieMdd, slv);
+                    o4.tStart = (int) System.currentTimeMillis();
+                    o4.tTerm = 0;
+                    tsm.putCharacterStatValue(IndieMDD, o4); //Indie
+                    o5.nReason = skillID;
+                    o5.nValue = si.getValue(indiePdd, slv);
+                    o5.tStart = (int) System.currentTimeMillis();
+                    o5.tTerm = 0;
+                    tsm.putCharacterStatValue(IndiePDD, o5); //Indie
+                    o6.nReason = skillID;
+                    o6.nValue = si.getValue(indieTerR, slv);
+                    o6.tStart = (int) System.currentTimeMillis();
+                    o6.tTerm = 0;
+                    tsm.putCharacterStatValue(IndieTerR, o6); //Indie
+                    o7.nOption = 1;
+                    o7.rOption = skillID;
+                    o7.tOption = 0;
+                    tsm.putCharacterStatValue(ZeroAuraStr, o7);
+                }
+                break;
+            case DIVINE_SPEED:
+                if(tsm.hasStatBySkillId(skillID)) {
+                    tsm.removeStatsBySkill(skillID);
+                } else {
+                    o1.nReason = skillID;
+                    o1.nValue = si.getValue(indieAcc, slv);
+                    o1.tStart = (int) System.currentTimeMillis();
+                    o1.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieACC, o1); //Indie
+                    o2.nReason = skillID;
+                    o2.nValue = si.getValue(indieBooster, slv);
+                    o2.tStart = (int) System.currentTimeMillis();
+                    o2.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieBooster, o2); //Indie
+                    o3.nReason = skillID;
+                    o3.nValue = si.getValue(indieEva, slv);
+                    o3.tStart = (int) System.currentTimeMillis();
+                    o3.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieEVA, o3); //Indie
+                    o4.nReason = skillID;
+                    o4.nValue = si.getValue(indieJump, slv);
+                    o4.tStart = (int) System.currentTimeMillis();
+                    o4.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieJump, o4); //Indie
+                    o5.nReason = skillID;
+                    o5.nValue = si.getValue(indieSpeed, slv);
+                    o5.tStart = (int) System.currentTimeMillis();
+                    o5.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieSpeed, o5); //Indie
+                    o6.nOption = 1;
+                    o6.rOption = skillID;
+                    o6.tOption = 0;
+                    tsm.putCharacterStatValue(ZeroAuraSpd, o6);
+                }
+                break;
+            case RHINNES_PROTECTION:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
+                break;
+
+            case TIME_HOLDING:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(NotDamaged, o1);
+
+                if(chr.getStat(Stat.level) >= 200) {
+                    o2.nOption = si.getValue(y, slv);
+                    o2.rOption = TIME_HOLDING_2;
+                    o2.tOption = si.getValue(x, slv);
+                    tsm.putCharacterStatValue(DamR, o2);
+                    o3.nReason = TIME_HOLDING_2;
+                    o3.nValue = si.getValue(z, slv);
+                    o3.tStart = (int) System.currentTimeMillis();
+                    o3.tTerm = si.getValue(x, slv);
+                    tsm.putCharacterStatValue(IndieMaxDamageOverR, o3);
+                }
+
+                for (int skillId : chr.getSkillCoolTimes().keySet()) {
+                    if (!SkillData.getSkillInfoById(skillId).isNotCooltimeReset()) {
+                        chr.resetSkillCoolTime(skillId);
+                    }
+                }
+                break;
+            case REWIND:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ReviveOnce, o1);
+                break;
+            case FOCUSED_TIME:
+                o1.nReason = skillID;
+                o1.nValue = 4;
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = 2400;
+                tsm.putCharacterStatValue(IndiePADR, o1); //Indie
+                o2.nReason = skillID;
+                o2.nValue = 4;
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = 2400;
+                tsm.putCharacterStatValue(IndieMADR, o2); //Indie
+                break;
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch(skillID) {
-                case THROWING_WEAPON:
-                case ADVANCED_THROWING_WEAPON:
-                    Summon summon = Summon.getSummonBy(chr, skillID, slv);
-                    summon.setFlyMob(true);
-                    summon.setMoveAbility(MoveAbility.FixVMove);
-                    chr.getField().spawnSummon(summon);
-                    break;
-                case TEMPLE_RECALL:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case TIME_DISTORTION:
-                    AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
-                    aa.setMobOrigin((byte) 0);
-                    aa.setPosition(chr.getPosition());
-                    aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
-                    aa.setDelay((short) 5);
-                    chr.getField().spawnAffectedArea(aa);
-                    break;
-            }
-        }
+        tsm.sendSetStatPacket();
     }
 
 

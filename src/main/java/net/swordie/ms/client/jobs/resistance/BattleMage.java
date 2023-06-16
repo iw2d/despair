@@ -71,24 +71,6 @@ public class BattleMage extends Citizen {
             SECRET_ASSEMBLY,
     };
 
-    private int[] buffs = new int[]{
-            CONDEMNATION,
-            CONDEMNATION_I,
-            CONDEMNATION_II,
-            CONDEMNATION_III,
-            HASTY_AURA,
-            DRAINING_AURA,
-            BLUE_AURA,
-            DARK_AURA,
-            DARK_SHOCK,
-            WEAKENING_AURA,
-            STAFF_BOOST,
-            BATTLE_RAGE,
-            MAPLE_WARRIOR_BAM,
-            FOR_LIBERTY_BAM,
-            MASTER_OF_DEATH,
-    };
-
     private int[] auras = new int[] {
             HASTY_AURA,
             DRAINING_AURA,
@@ -121,173 +103,6 @@ public class BattleMage extends Citizen {
         return JobConstants.isBattleMage(id);
     }
 
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        switch (skillID) {
-            case CONDEMNATION:
-            case CONDEMNATION_I:
-            case CONDEMNATION_II:
-            case CONDEMNATION_III:
-                o1.nOption = 0;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(BMageDeath, o1);
-                spawnDeath(skillID, slv);
-                break;
-            case STAFF_BOOST:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case HASTY_AURA:
-                for(int aura : auras) {
-                    tsm.removeStatsBySkill(aura);
-                }
-
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieSpeed, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = 0;
-                tsm.putCharacterStatValue(IndieSpeed, o1);
-                o2.nReason = skillID;
-                o2.nValue = -1;//   si.getValue(indieBooster, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = 0;
-                tsm.putCharacterStatValue(IndieBooster, o2);
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(BMageAura, o3);
-                break;
-            case DRAINING_AURA:
-                for(int aura : auras) {
-                    tsm.removeStatsBySkill(aura);
-                }
-
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(BMageAura, o3);
-                break;
-            case BLUE_AURA:
-                for(int aura : auras) {
-                    tsm.removeStatsBySkill(aura);
-                }
-
-                o1.nOption = si.getValue(asrR, slv);
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(AsrR, o1);
-                o2.nOption = si.getValue(terR, slv);
-                o2.rOption = skillID;
-                o2.tOption = 0;
-                tsm.putCharacterStatValue(TerR, o2);
-                o3.nOption = si.getValue(y, slv);
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(IgnoreMobDamR, o3);
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(BMageAura, o3);
-                applyBlueAuraDispel(); //Hyper
-                break;
-            case DARK_AURA:
-                for(int aura : auras) {
-                    tsm.removeStatsBySkill(aura);
-                }
-
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(BMageAura, o3);
-                break;
-            case WEAKENING_AURA:
-                for(int aura : auras) {
-                    tsm.removeStatsBySkill(aura);
-                }
-
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(BMageAura, o3);
-                if (WeaknessAuraTimer != null && !WeaknessAuraTimer.isDone()) {
-                    WeaknessAuraTimer.cancel(true);
-                }
-                applyWeakenAuraOnMob();
-                break;
-            case DARK_SHOCK:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(DarkLighting, o1);
-                break;
-            case BATTLE_RAGE:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(Enrage, o1);
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = 0;
-                tsm.putCharacterStatValue(DamR, o2);
-                o3.nOption = si.getValue(z, slv);
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(CriticalBuff, o3);
-                o4.nOption = si.getValue(y, slv);
-                o4.rOption = skillID;
-                o4.tOption = 0;
-                tsm.putCharacterStatValue(IncCriticalDamMin, o4);
-                break;
-            case MAPLE_WARRIOR_BAM:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case FOR_LIBERTY_BAM:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case MASTER_OF_DEATH:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AttackCountX, o1);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     public void spawnDeath(int skillID, int slv) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -599,36 +414,179 @@ public class BattleMage extends Citizen {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case PARTY_SHIELD:
-                    AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
-                    aa.setMobOrigin((byte) 0);
-                    aa.setPosition(chr.getPosition());
-                    aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
-                    aa.setDelay((short) 16);
-                    chr.getField().spawnAffectedArea(aa);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
-                    break;
-                case SECRET_ASSEMBLY:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case HEROS_WILL_BAM:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        switch (skillID) {
+            case PARTY_SHIELD:
+                AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa.setMobOrigin((byte) 0);
+                aa.setPosition(chr.getPosition());
+                aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
+                aa.setDelay((short) 16);
+                chr.getField().spawnAffectedArea(aa);
+
+                break;
+            case SECRET_ASSEMBLY:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case HEROS_WILL_BAM:
+                tsm.removeAllDebuffs();
+                break;
+            case CONDEMNATION:
+            case CONDEMNATION_I:
+            case CONDEMNATION_II:
+            case CONDEMNATION_III:
+                o1.nOption = 0;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(BMageDeath, o1);
+                spawnDeath(skillID, slv);
+                break;
+            case STAFF_BOOST:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case HASTY_AURA:
+                for(int aura : auras) {
+                    tsm.removeStatsBySkill(aura);
+                }
+
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieSpeed, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = 0;
+                tsm.putCharacterStatValue(IndieSpeed, o1);
+                o2.nReason = skillID;
+                o2.nValue = -1;//   si.getValue(indieBooster, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = 0;
+                tsm.putCharacterStatValue(IndieBooster, o2);
+                o3.nOption = 1;
+                o3.rOption = skillID;
+                o3.tOption = 0;
+                tsm.putCharacterStatValue(BMageAura, o3);
+                break;
+            case DRAINING_AURA:
+                for(int aura : auras) {
+                    tsm.removeStatsBySkill(aura);
+                }
+
+                o3.nOption = 1;
+                o3.rOption = skillID;
+                o3.tOption = 0;
+                tsm.putCharacterStatValue(BMageAura, o3);
+                break;
+            case BLUE_AURA:
+                for(int aura : auras) {
+                    tsm.removeStatsBySkill(aura);
+                }
+
+                o1.nOption = si.getValue(asrR, slv);
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(AsrR, o1);
+                o2.nOption = si.getValue(terR, slv);
+                o2.rOption = skillID;
+                o2.tOption = 0;
+                tsm.putCharacterStatValue(TerR, o2);
+                o3.nOption = si.getValue(y, slv);
+                o3.rOption = skillID;
+                o3.tOption = 0;
+                tsm.putCharacterStatValue(IgnoreMobDamR, o3);
+                o3.nOption = 1;
+                o3.rOption = skillID;
+                o3.tOption = 0;
+                tsm.putCharacterStatValue(BMageAura, o3);
+                applyBlueAuraDispel(); //Hyper
+                break;
+            case DARK_AURA:
+                for(int aura : auras) {
+                    tsm.removeStatsBySkill(aura);
+                }
+
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o3.nOption = 1;
+                o3.rOption = skillID;
+                o3.tOption = 0;
+                tsm.putCharacterStatValue(BMageAura, o3);
+                break;
+            case WEAKENING_AURA:
+                for(int aura : auras) {
+                    tsm.removeStatsBySkill(aura);
+                }
+
+                o3.nOption = 1;
+                o3.rOption = skillID;
+                o3.tOption = 0;
+                tsm.putCharacterStatValue(BMageAura, o3);
+                if (WeaknessAuraTimer != null && !WeaknessAuraTimer.isDone()) {
+                    WeaknessAuraTimer.cancel(true);
+                }
+                applyWeakenAuraOnMob();
+                break;
+            case DARK_SHOCK:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(DarkLighting, o1);
+                break;
+            case BATTLE_RAGE:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(Enrage, o1);
+                o2.nOption = si.getValue(x, slv);
+                o2.rOption = skillID;
+                o2.tOption = 0;
+                tsm.putCharacterStatValue(DamR, o2);
+                o3.nOption = si.getValue(z, slv);
+                o3.rOption = skillID;
+                o3.tOption = 0;
+                tsm.putCharacterStatValue(CriticalBuff, o3);
+                o4.nOption = si.getValue(y, slv);
+                o4.rOption = skillID;
+                o4.tOption = 0;
+                tsm.putCharacterStatValue(IncCriticalDamMin, o4);
+                break;
+            case MAPLE_WARRIOR_BAM:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case FOR_LIBERTY_BAM:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+            case MASTER_OF_DEATH:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AttackCountX, o1);
+                break;
         }
+        tsm.sendSetStatPacket();
     }
 
 

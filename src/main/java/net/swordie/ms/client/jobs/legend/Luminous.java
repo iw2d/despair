@@ -80,19 +80,6 @@ public class Luminous extends Job {
             FLASH_BLINK
     };
 
-    private final int[] buffs = new int[]{
-            MAGIC_BOOSTER,
-            SHADOW_SHELL,
-            DUSK_GUARD,
-            PHOTIC_MEDITATION,
-            RAY_OF_REDEMPTION,
-            DARK_CRESCENDO,
-            ARCANE_PITCH,
-            MAPLE_WARRIOR_LUMI,
-            HEROIC_MEMORIES_LUMI,
-            EQUALIZE,
-    };
-
     private long darkCrescendoTimer;
     private ScheduledFuture equilibriumTimer;
 
@@ -118,99 +105,6 @@ public class Luminous extends Job {
         return JobConstants.isLuminous(id);
     }
 
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        switch (skillID) {
-            case MAGIC_BOOSTER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case SHADOW_SHELL:
-                o1.nOption = 3;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                // no bOption for Luminous' AntiMagicShell
-                tsm.putCharacterStatValue(AntiMagicShell, o1);
-                break;
-            case DUSK_GUARD:
-                o1.nValue = si.getValue(indieMdd, slv);
-                o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMDD, o1);
-                o2.nValue = si.getValue(indiePdd, slv);
-                o2.nReason = skillID;
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePDD, o2);
-                break;
-            case PHOTIC_MEDITATION:
-                o1.nOption = si.getValue(emad, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EMAD, o1);
-                break;
-            case DARK_CRESCENDO:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                o1.mOption = 1;
-                tsm.putCharacterStatValue(StackBuff, o1);
-                darkCrescendoTimer = System.currentTimeMillis() + (si.getValue(time, slv) * 1000);
-                break;
-            case ARCANE_PITCH:
-                o1.nOption = si.getValue(y, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ElementalReset, o1);
-                break;
-            case MAPLE_WARRIOR_LUMI:
-                o1.nValue = si.getValue(x, slv);
-                o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case EQUALIZE:
-                LarknessManager lm = tsm.getLarknessManager();
-                lm.changeMode();
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                tsm.putCharacterStatValue(Larkness, o1);
-                equilibriumTimer = EventManager.addEvent(this::changeMode, getMoreEquilibriumTime(), TimeUnit.SECONDS);
-                chr.resetSkillCoolTime(ENDER);
-                chr.resetSkillCoolTime(DEATH_SCYTHE);
-                break;
-            case HEROIC_MEMORIES_LUMI:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     private void changeLarknessState(int skillId) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -449,39 +343,104 @@ public class Luminous extends Job {
     @Override
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
-        Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        LarknessManager lm = tsm.getLarknessManager();
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch(skillID) {
-                case ECLIPSE:
-                case SUNFIRE:
-                case CHANGE_LIGHT_DARK:
+        LarknessManager lm = tsm.getLarknessManager();        Skill skill = chr.getSkill(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        switch(skillID) {
+            case ECLIPSE:
+            case SUNFIRE:
+            case CHANGE_LIGHT_DARK:
 
-                    lm.changeMode();
-                    o1.nOption = 1;
-                    o1.rOption = EQUILIBRIUM;
+                lm.changeMode();
+                o1.nOption = 1;
+                o1.rOption = EQUILIBRIUM;
 //                    o1.tOption = SkillData.getSkillInfoById(EQUILIBRIUM).getValue(time, 1);
-                    tsm.putCharacterStatValue(Larkness, o1);
-                    equilibriumTimer = EventManager.addEvent(this::changeMode, getMoreEquilibriumTime(), TimeUnit.SECONDS);
-                    chr.resetSkillCoolTime(ENDER);
-                    chr.resetSkillCoolTime(DEATH_SCYTHE);
-                    break;
-                case HEROS_WILL_LUMI:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
-            tsm.sendSetStatPacket();
+                tsm.putCharacterStatValue(Larkness, o1);
+                equilibriumTimer = EventManager.addEvent(this::changeMode, getMoreEquilibriumTime(), TimeUnit.SECONDS);
+                chr.resetSkillCoolTime(ENDER);
+                chr.resetSkillCoolTime(DEATH_SCYTHE);
+                break;
+            case HEROS_WILL_LUMI:
+                tsm.removeAllDebuffs();
+                break;
+            case MAGIC_BOOSTER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case SHADOW_SHELL:
+                o1.nOption = 3;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                // no bOption for Luminous' AntiMagicShell
+                tsm.putCharacterStatValue(AntiMagicShell, o1);
+                break;
+            case DUSK_GUARD:
+                o1.nValue = si.getValue(indieMdd, slv);
+                o1.nReason = skillID;
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMDD, o1);
+                o2.nValue = si.getValue(indiePdd, slv);
+                o2.nReason = skillID;
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePDD, o2);
+                break;
+            case PHOTIC_MEDITATION:
+                o1.nOption = si.getValue(emad, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(EMAD, o1);
+                break;
+            case DARK_CRESCENDO:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                o1.mOption = 1;
+                tsm.putCharacterStatValue(StackBuff, o1);
+                darkCrescendoTimer = System.currentTimeMillis() + (si.getValue(time, slv) * 1000);
+                break;
+            case ARCANE_PITCH:
+                o1.nOption = si.getValue(y, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ElementalReset, o1);
+                break;
+            case MAPLE_WARRIOR_LUMI:
+                o1.nValue = si.getValue(x, slv);
+                o1.nReason = skillID;
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case EQUALIZE:
+                lm.changeMode();
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                tsm.putCharacterStatValue(Larkness, o1);
+                equilibriumTimer = EventManager.addEvent(this::changeMode, getMoreEquilibriumTime(), TimeUnit.SECONDS);
+                chr.resetSkillCoolTime(ENDER);
+                chr.resetSkillCoolTime(DEATH_SCYTHE);
+                break;
+            case HEROIC_MEMORIES_LUMI:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
         }
+        tsm.sendSetStatPacket();
     }
 
     @Override

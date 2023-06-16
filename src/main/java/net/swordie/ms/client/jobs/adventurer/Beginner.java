@@ -73,11 +73,6 @@ public class Beginner extends Job {
     }
 
     @Override
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID);
-    }
-
-    @Override
     public void setCharCreationStats(Char chr) {
         super.setCharCreationStats(chr);
         CharacterStat cs = chr.getAvatarData().getCharacterStat();

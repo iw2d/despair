@@ -85,24 +85,6 @@ public class Mechanic extends Citizen {
             HIDDEN_PEACE,
     };
 
-    private int[] buffs = new int[] {
-            HUMANOID_MECH,
-            TANK_MECH,
-
-            MECHANIC_RAGE,
-            PERFECT_ARMOR,
-            ROLL_OF_THE_DICE,
-            MAPLE_WARRIOR_MECH,
-            ROLL_OF_THE_DICE_DD,
-
-            SUPPORT_UNIT_HEX, //Summon
-            ENHANCED_SUPPORT_UNIT,
-            ROBO_LAUNCHER_RM7, //Summon
-            BOTS_N_TOTS, //Summon
-            FULL_SPREAD, //Summon
-            FOR_LIBERTY_MECH,
-    };
-
     private int[] homingBeacon = new int[] {
             HOMING_BEACON,
             ADV_HOMING_BEACON,
@@ -131,187 +113,6 @@ public class Mechanic extends Citizen {
         return JobConstants.isMechanic(id);
     }
 
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        Option o5 = new Option();
-        Summon summon;
-        Field field;
-        switch (skillID) {
-            case HUMANOID_MECH:
-                o1.nOption = si.getCurrentLevel();
-                o1.rOption = skillID;
-                tsm.putCharacterStatValue(Mechanic, o1);
-                o2.nOption = si.getValue(epad, slv);
-                o2.rOption = skillID;
-                o2.tOption = 0;
-                tsm.putCharacterStatValue(CharacterTemporaryStat.PAD, o2);
-                o3.nOption = si.getValue(emmp, slv);
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(EMMP, o3);
-                o4.nOption = si.getValue(emhp, slv);
-                o4.rOption = skillID;
-                o4.tOption = 0;
-                tsm.putCharacterStatValue(EMHP, o4);
-                o5.nOption = si.getValue(indieSpeed, slv);
-                o5.rOption = skillID;
-                o5.tOption = 0;
-                tsm.putCharacterStatValue(IndieSpeed, o5);
-
-                tsm.sendSetStatPacket();
-
-                tsb.setNOption(MECH_VEHICLE);
-                tsb.setROption(skillID+100);
-                tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
-                break;
-            case TANK_MECH:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                tsm.putCharacterStatValue(Mechanic, o1);
-                tsm.sendSetStatPacket();
-
-                tsb.setNOption(MECH_VEHICLE);
-                tsb.setROption(skillID + 100);
-                tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
-                break;
-            case MECHANIC_RAGE:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case PERFECT_ARMOR:
-                if(tsm.hasStatBySkillId(skillID)) {
-                    tsm.removeStatsBySkill(skillID);
-                } else {
-                    o1.nOption = si.getValue(x, slv);
-                    o1.rOption = skillID;
-                    tsm.putCharacterStatValue(PowerGuard, o1);
-                }
-                break;
-            case ROLL_OF_THE_DICE:
-                int random = new Random().nextInt(6)+1;
-
-                chr.write(UserPacket.effect(Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + random)));
-                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + random)));
-
-                if(random < 2) {
-                    return;
-                }
-
-                o1.nOption = random;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-
-                tsm.throwDice(random);
-                tsm.putCharacterStatValue(Dice, o1);
-                break;
-            case ROLL_OF_THE_DICE_DD:
-                random = new Random().nextInt(6)+1;
-                int randomDD = new Random().nextInt(6)+1;
-
-                chr.write(UserPacket.effect(Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + random)));
-                chr.write(UserPacket.effect(Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/specialAffected/" + randomDD)));
-                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + random)));
-                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/specialAffected/" + randomDD)));
-
-                if(random < 2 && randomDD < 2) {
-                    return;
-                }
-
-                o1.nOption = (random * 10) + randomDD; // if rolled: 5 and 7, the DoubleDown nOption = 57
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-
-                tsm.throwDice(random, randomDD);
-                tsm.putCharacterStatValue(Dice, o1);
-                break;
-            case MAPLE_WARRIOR_MECH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case ENHANCED_SUPPORT_UNIT:
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(z, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = 80;
-                tsm.putCharacterStatValue(IndieDamR, o2);
-                // Fallthrough intended
-            case SUPPORT_UNIT_HEX:
-
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(false);
-                summon.setMoveAbility(MoveAbility.Stop);
-                summon.setAssistType(AssistType.None);
-                summon.setAttackActive(false);
-                field.spawnSummon(summon);
-
-                if(supportUnitTimer != null && !supportUnitTimer.isDone()) {
-                    supportUnitTimer.cancel(true);
-                }
-                applySupportUnitDebuffOnMob(skillID);
-                break;
-            case ROBO_LAUNCHER_RM7:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(true);
-                summon.setMoveAbility(MoveAbility.Stop);
-                field.spawnSummon(summon);
-                break;
-            case BOTS_N_TOTS:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(false);
-                summon.setMoveAbility(MoveAbility.Stop);
-                summon.setAssistType(AssistType.None);
-                summon.setAttackActive(false);
-                field.spawnSummon(summon);
-
-                if(botsNTotsTimer != null && !botsNTotsTimer.isDone()) {
-                    botsNTotsTimer.cancel(true);
-                }
-                botsNTotsTimer = EventManager.addEvent(() -> spawnBotsNTotsSubSummons(summon), 3, TimeUnit.SECONDS);
-                break;
-            case FOR_LIBERTY_MECH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case FULL_SPREAD:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(BombTime, o1);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     public void healFromSupportUnit(Summon summon) {
         Char summonOwner = summon.getChr();
@@ -509,80 +310,237 @@ public class Mechanic extends Citizen {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
         Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case SECRET_ASSEMBLY:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case OPEN_PORTAL_GX9:
-                    Field field = chr.getField();
-                    int duration = si.getValue(time, slv);
-                    if (chr.hasSkill(ROBOT_MASTERY)) {
-                        SkillInfo robotMastery = SkillData.getSkillInfoById(ROBOT_MASTERY);
-                        duration *= 1 + (double) (robotMastery.getValue(x, chr.getSkillLevel(ROBOT_MASTERY)) / 100);
-                    }
-                    OpenGate openGate = new OpenGate(chr, chr.getPosition(), chr.getParty(), gateId, duration);
-                    if (gateId == 0) {
-                        gateId = 1;
-                    } else if (gateId == 1) {
-                        gateId = 0;
-                    }
-                    openGate.spawnOpenGate(field);
-                    break;
-                case HOMING_BEACON: //4
-                case ADV_HOMING_BEACON: // 4thJob upgrade +5 -> 9
-                    if(tsm.hasStat(Mechanic) && tsm.getOption(Mechanic).nOption <= 0) {
-                        createHumanoidMechRocketForceAtom();
-                    } else if (tsm.hasStat(Mechanic) && tsm.getOption(Mechanic).nOption == 1) {
-                        createTankMechRocketForceAtom();
-                    }
-                    break;
-                case HEROS_WILL_MECH:
-                    tsm.removeAllDebuffs();
-                    break;
-                case ROCK_N_SHOCK:
-                    Summon summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                    field = chr.getField();
-                    summon.setMoveAbility(MoveAbility.Stop);
-                    summon.setAssistType(AssistType.None);
-                    if (chr.hasSkill(ROBOT_MASTERY)) {
-                        SkillInfo robotMastery = SkillData.getSkillInfoById(ROBOT_MASTERY);
-                        summon.setSummonTerm((int) (summon.getSummonTerm() * (double) (1 + (robotMastery.getValue(x, chr.getSkillLevel(ROBOT_MASTERY)) / 100))));
-                    }
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        Option o5 = new Option();
+        Summon summon;
+        Field field;
+        switch (skillID) {
+            case SECRET_ASSEMBLY:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case OPEN_PORTAL_GX9:
+                field = chr.getField();
+                int duration = si.getValue(time, slv);
+                if (chr.hasSkill(ROBOT_MASTERY)) {
+                    SkillInfo robotMastery = SkillData.getSkillInfoById(ROBOT_MASTERY);
+                    duration *= 1 + (double) (robotMastery.getValue(x, chr.getSkillLevel(ROBOT_MASTERY)) / 100);
+                }
+                OpenGate openGate = new OpenGate(chr, chr.getPosition(), chr.getParty(), gateId, duration);
+                if (gateId == 0) {
+                    gateId = 1;
+                } else if (gateId == 1) {
+                    gateId = 0;
+                }
+                openGate.spawnOpenGate(field);
+                break;
+            case HOMING_BEACON: //4
+            case ADV_HOMING_BEACON: // 4thJob upgrade +5 -> 9
+                if(tsm.hasStat(Mechanic) && tsm.getOption(Mechanic).nOption <= 0) {
+                    createHumanoidMechRocketForceAtom();
+                } else if (tsm.hasStat(Mechanic) && tsm.getOption(Mechanic).nOption == 1) {
+                    createTankMechRocketForceAtom();
+                }
+                break;
+            case HEROS_WILL_MECH:
+                tsm.removeAllDebuffs();
+                break;
+            case ROCK_N_SHOCK:
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                field = chr.getField();
+                summon.setMoveAbility(MoveAbility.Stop);
+                summon.setAssistType(AssistType.None);
+                if (chr.hasSkill(ROBOT_MASTERY)) {
+                    SkillInfo robotMastery = SkillData.getSkillInfoById(ROBOT_MASTERY);
+                    summon.setSummonTerm((int) (summon.getSummonTerm() * (double) (1 + (robotMastery.getValue(x, chr.getSkillLevel(ROBOT_MASTERY)) / 100))));
+                }
+                field.spawnAddSummon(summon);
+                int rockNShockSize = inPacket.decodeByte();
+                if (rockNShockSize == 2) {
+                    List<Summon> rockNshockLifes = field.getSummons().stream().filter(s -> s.getSkillID() == ROCK_N_SHOCK && s.getChr() == chr).collect(Collectors.toList());
                     field.spawnAddSummon(summon);
-                    int rockNShockSize = inPacket.decodeByte();
-                    if (rockNShockSize == 2) {
-                        List<Summon> rockNshockLifes = field.getSummons().stream().filter(s -> s.getSkillID() == ROCK_N_SHOCK && s.getChr() == chr).collect(Collectors.toList());
-                        field.spawnAddSummon(summon);
-                        field.broadcastPacket(UserPacket.teslaTriangle(rockNshockLifes, chr.getId()));
-                    } else {
-                        chr.resetSkillCoolTime(skillID);
-                    }
-                    break;
-                case GIANT_ROBOT_SG_88:
-                    summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                    field = chr.getField();
-                    summon.setMoveAbility(MoveAbility.Stop);
-                    summon.setAssistType(AssistType.Attack);
-                    summon.setMoveAction((byte) 1);
-                    summon.setSummonTerm(5);
+                    field.broadcastPacket(UserPacket.teslaTriangle(rockNshockLifes, chr.getId()));
+                } else {
+                    chr.resetSkillCoolTime(skillID);
+                }
+                break;
+            case GIANT_ROBOT_SG_88:
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                field = chr.getField();
+                summon.setMoveAbility(MoveAbility.Stop);
+                summon.setAssistType(AssistType.Attack);
+                summon.setMoveAction((byte) 1);
+                summon.setSummonTerm(5);
+                tsm.removeStatsBySkill(skillID);
+                field.spawnAddSummon(summon);
+                break;
+            case HUMANOID_MECH:
+                o1.nOption = si.getCurrentLevel();
+                o1.rOption = skillID;
+                tsm.putCharacterStatValue(Mechanic, o1);
+                o2.nOption = si.getValue(epad, slv);
+                o2.rOption = skillID;
+                o2.tOption = 0;
+                tsm.putCharacterStatValue(CharacterTemporaryStat.PAD, o2);
+                o3.nOption = si.getValue(emmp, slv);
+                o3.rOption = skillID;
+                o3.tOption = 0;
+                tsm.putCharacterStatValue(EMMP, o3);
+                o4.nOption = si.getValue(emhp, slv);
+                o4.rOption = skillID;
+                o4.tOption = 0;
+                tsm.putCharacterStatValue(EMHP, o4);
+                o5.nOption = si.getValue(indieSpeed, slv);
+                o5.rOption = skillID;
+                o5.tOption = 0;
+                tsm.putCharacterStatValue(IndieSpeed, o5);
+
+                tsm.sendSetStatPacket();
+
+                tsb.setNOption(MECH_VEHICLE);
+                tsb.setROption(skillID+100);
+                tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
+                break;
+            case TANK_MECH:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                tsm.putCharacterStatValue(Mechanic, o1);
+                tsm.sendSetStatPacket();
+
+                tsb.setNOption(MECH_VEHICLE);
+                tsb.setROption(skillID + 100);
+                tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
+                break;
+            case MECHANIC_RAGE:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case PERFECT_ARMOR:
+                if(tsm.hasStatBySkillId(skillID)) {
                     tsm.removeStatsBySkill(skillID);
-                    field.spawnAddSummon(summon);
-                    break;
-            }
+                } else {
+                    o1.nOption = si.getValue(x, slv);
+                    o1.rOption = skillID;
+                    tsm.putCharacterStatValue(PowerGuard, o1);
+                }
+                break;
+            case ROLL_OF_THE_DICE:
+                int random = new Random().nextInt(6)+1;
+
+                chr.write(UserPacket.effect(Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + random)));
+                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + random)));
+
+                if(random < 2) {
+                    return;
+                }
+
+                o1.nOption = random;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+
+                tsm.throwDice(random);
+                tsm.putCharacterStatValue(Dice, o1);
+                break;
+            case ROLL_OF_THE_DICE_DD:
+                random = new Random().nextInt(6)+1;
+                int randomDD = new Random().nextInt(6)+1;
+
+                chr.write(UserPacket.effect(Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + random)));
+                chr.write(UserPacket.effect(Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/specialAffected/" + randomDD)));
+                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + random)));
+                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/specialAffected/" + randomDD)));
+
+                if(random < 2 && randomDD < 2) {
+                    return;
+                }
+
+                o1.nOption = (random * 10) + randomDD; // if rolled: 5 and 7, the DoubleDown nOption = 57
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+
+                tsm.throwDice(random, randomDD);
+                tsm.putCharacterStatValue(Dice, o1);
+                break;
+            case MAPLE_WARRIOR_MECH:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case ENHANCED_SUPPORT_UNIT:
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(z, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = 80;
+                tsm.putCharacterStatValue(IndieDamR, o2);
+                // Fallthrough intended
+            case SUPPORT_UNIT_HEX:
+
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                field = c.getChr().getField();
+                summon.setFlyMob(false);
+                summon.setMoveAbility(MoveAbility.Stop);
+                summon.setAssistType(AssistType.None);
+                summon.setAttackActive(false);
+                field.spawnSummon(summon);
+
+                if(supportUnitTimer != null && !supportUnitTimer.isDone()) {
+                    supportUnitTimer.cancel(true);
+                }
+                applySupportUnitDebuffOnMob(skillID);
+                break;
+            case ROBO_LAUNCHER_RM7:
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                field = c.getChr().getField();
+                summon.setFlyMob(true);
+                summon.setMoveAbility(MoveAbility.Stop);
+                field.spawnSummon(summon);
+                break;
+            case BOTS_N_TOTS:
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                field = c.getChr().getField();
+                summon.setFlyMob(false);
+                summon.setMoveAbility(MoveAbility.Stop);
+                summon.setAssistType(AssistType.None);
+                summon.setAttackActive(false);
+                field.spawnSummon(summon);
+
+                if(botsNTotsTimer != null && !botsNTotsTimer.isDone()) {
+                    botsNTotsTimer.cancel(true);
+                }
+                botsNTotsTimer = EventManager.addEvent(() -> spawnBotsNTotsSubSummons(summon), 3, TimeUnit.SECONDS);
+                break;
+            case FOR_LIBERTY_MECH:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+            case FULL_SPREAD:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(BombTime, o1);
+                break;
         }
+        tsm.sendSetStatPacket();
     }
 
 

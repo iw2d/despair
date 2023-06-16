@@ -97,22 +97,6 @@ public class Xenon extends Job {
             MIMIC_PROTOCOL,
     };
 
-    private int[] buffs = new int[]{
-            CIRCUIT_SURGE,
-            XENON_BOOSTER,
-            EFFICIENCY_STREAMLINE,
-            HYBRID_DEFENSES,
-            AEGIS_SYSTEM,
-            MANIFEST_PROJECTOR,
-            HYPOGRAM_FIELD_FORCE_FIELD,
-            HYPOGRAM_FIELD_PENETRATE,
-            HYPOGRAM_FIELD_SUPPORT,
-            TEMPORAL_POD,
-            OOPARTS_CODE,
-            MAPLE_WARRIOR_XENON,
-            AMARANTH_GENERATOR,
-    };
-
     public Xenon(Char chr) {
         super(chr);
         if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
@@ -137,129 +121,6 @@ public class Xenon extends Job {
         return JobConstants.isXenon(id);
     }
 
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Summon summon;
-        Field field;
-        switch (skillID) {
-            case CIRCUIT_SURGE:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o1);
-                break;
-            case XENON_BOOSTER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case EFFICIENCY_STREAMLINE:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieMhpR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMHPR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMmpR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMMPR, o2);
-                break;
-            case HYBRID_DEFENSES:
-                o1.nOption = si.getValue(prop, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EVAR, o1);
-                hybridDefenseCount = si.getValue(x, slv);
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.mOption = hybridDefenseCount;
-                tsm.putCharacterStatValue(StackBuff, o1);
-                break;
-            case AEGIS_SYSTEM:
-                if (tsm.hasStat(XenonAegisSystem)) {
-                    tsm.removeStatsBySkill(skillID);
-                    tsm.sendResetStatPacket();
-                } else {
-                    o1.nOption = 1;
-                    o1.rOption = skillID;
-                    tsm.putCharacterStatValue(XenonAegisSystem, o1);
-                }
-                break;
-            case MANIFEST_PROJECTOR:
-                o1.nOption = si.getValue(y, slv);
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(ShadowPartner, o1);
-                break;
-            case OOPARTS_CODE:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(BdR, o2);
-                break;
-            case MAPLE_WARRIOR_XENON:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case AMARANTH_GENERATOR:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AmaranthGenerator, o1);
-                incrementSupply(20);
-                break;
-
-            case HYPOGRAM_FIELD_FORCE_FIELD:
-            case HYPOGRAM_FIELD_PENETRATE:
-            case HYPOGRAM_FIELD_SUPPORT:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(false);
-                summon.setMoveAction((byte) 0);
-                summon.setMoveAbility(MoveAbility.Stop);
-                field.spawnSummon(summon);
-                break;
-            case TEMPORAL_POD:
-                field = chr.getField();
-                AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
-                aa.setMobOrigin((byte) 0);
-                aa.setDelay((short) 0);
-                aa.setElemAttr(0);
-                aa.setPosition(chr.getPosition());
-                aa.setForce(0);
-                aa.setOption(0);
-                aa.setIdk(0);
-                aa.setField(chr.getField());
-                aa.setRect(chr.getPosition().getRectAround(si.getFirstRect()));
-                field.spawnAffectedArea(aa);
-                temporalPodTimer(chr);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     private void applySupplyCost(int skillID, int slv, SkillInfo si) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -479,47 +340,140 @@ public class Xenon extends Job {
     @Override
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
-        Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        Skill skill = chr.getSkill(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
         applySupplyCost(skillID, slv, si);
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case EMERGENCY_RESUPPLY:
-                    incrementSupply(si.getValue(x, slv));
-                    break;
-                case TEMPORAL_POD:
-                    AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
-                    aa.setMobOrigin((byte) 0);
-                    aa.setPosition(chr.getPosition());
-                    aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
-                    aa.setDelay((short) 4);
-                    chr.getField().spawnAffectedArea(aa);
-                    break;
-                case PROMESSA_ESCAPE:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case PINPOINT_SALVO:
-                    o1.nOption = supply--;
-                    tsm.putCharacterStatValue(SurplusSupply, o1);
-                    updateSupply();
-                    createPinPointSalvoForceAtom();
-                    break;
-                case HEROS_WILL_XENON:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        AffectedArea aa;
+        Summon summon;
+        Field field;
+        switch (skillID) {
+            case EMERGENCY_RESUPPLY:
+                incrementSupply(si.getValue(x, slv));
+                break;
+            case PROMESSA_ESCAPE:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case PINPOINT_SALVO:
+                o1.nOption = supply--;
+                tsm.putCharacterStatValue(SurplusSupply, o1);
+                updateSupply();
+                createPinPointSalvoForceAtom();
+                break;
+            case HEROS_WILL_XENON:
+                tsm.removeAllDebuffs();
+                break;
+            case CIRCUIT_SURGE:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indiePad, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o1);
+                break;
+            case XENON_BOOSTER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case EFFICIENCY_STREAMLINE:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieMhpR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMHPR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMmpR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMMPR, o2);
+                break;
+            case HYBRID_DEFENSES:
+                o1.nOption = si.getValue(prop, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(EVAR, o1);
+                hybridDefenseCount = si.getValue(x, slv);
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.mOption = hybridDefenseCount;
+                tsm.putCharacterStatValue(StackBuff, o1);
+                break;
+            case AEGIS_SYSTEM:
+                if (tsm.hasStat(XenonAegisSystem)) {
+                    tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
+                } else {
+                    o1.nOption = 1;
+                    o1.rOption = skillID;
+                    tsm.putCharacterStatValue(XenonAegisSystem, o1);
+                }
+                break;
+            case MANIFEST_PROJECTOR:
+                o1.nOption = si.getValue(y, slv);
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(ShadowPartner, o1);
+                break;
+            case OOPARTS_CODE:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nOption = si.getValue(x, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(BdR, o2);
+                break;
+            case MAPLE_WARRIOR_XENON:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case AMARANTH_GENERATOR:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AmaranthGenerator, o1);
+                incrementSupply(20);
+                break;
+
+            case HYPOGRAM_FIELD_FORCE_FIELD:
+            case HYPOGRAM_FIELD_PENETRATE:
+            case HYPOGRAM_FIELD_SUPPORT:
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                field = c.getChr().getField();
+                summon.setFlyMob(false);
+                summon.setMoveAction((byte) 0);
+                summon.setMoveAbility(MoveAbility.Stop);
+                field.spawnSummon(summon);
+                break;
+            case TEMPORAL_POD:
+                field = chr.getField();
+                aa = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa.setMobOrigin((byte) 0);
+                aa.setDelay((short) 0);
+                aa.setElemAttr(0);
+                aa.setPosition(chr.getPosition());
+                aa.setForce(0);
+                aa.setOption(0);
+                aa.setIdk(0);
+                aa.setField(chr.getField());
+                aa.setRect(chr.getPosition().getRectAround(si.getFirstRect()));
+                field.spawnAffectedArea(aa);
+                temporalPodTimer(chr);
+                break;
         }
+        tsm.sendSetStatPacket();
     }
 
 

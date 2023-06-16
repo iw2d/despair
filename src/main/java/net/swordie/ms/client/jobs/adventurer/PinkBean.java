@@ -59,18 +59,6 @@ public class PinkBean extends Job {
     private final int MAX_YOYO_STACK = 8;
     private ScheduledFuture yoyoStackTimer;
 
-    private int[] buffs = new int[]{
-            CHILL_OUT_ZZZ,
-            CHILL_OUT_TONGUE_OUT,
-            CHILL_OUT_MYSTERIOUS_COCKTAIL,
-            CHILL_OUT_NOM_NOM_MEAT,
-
-            INSTANT_GARDEN_PRETTY,
-
-            GO_MINI_BEANS,
-            EVERYBODY_HAPPY,
-    };
-
     public PinkBean(Char chr) {
         super(chr);
         if(yoyoStackTimer != null && !yoyoStackTimer.isDone()) {
@@ -83,135 +71,6 @@ public class PinkBean extends Job {
     public boolean isHandlerOfJob(short id) {
         return JobConstants.isPinkBean(id);
     }
-
-
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = c.getChr().getTemporaryStatManager();
-        Field field;
-        Summon summon;
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        Option o5 = new Option();
-        switch (skillID) {
-            case CHILL_OUT_ZZZ:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indiePadR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePADR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieExp, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieEXP, o2);
-                break;
-            case CHILL_OUT_TONGUE_OUT:  //buff + debuff (handleSkill)
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieExp, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieEXP, o2);
-                break;
-            case CHILL_OUT_MYSTERIOUS_COCKTAIL:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieAsrR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieAsrR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieExp, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieEXP, o2);
-                break;
-            case CHILL_OUT_NOM_NOM_MEAT:    //Regen 1%MaxHP per second
-                o1.nOption = si.getValue(dotHealHPPerSecondR, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DotHealHPPerSecond, o1);  //DoTHealHPPerSecond  Rate?
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieExp, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieEXP, o2);
-                break;
-            case CHILL_OUT_HEADSET:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieAsrR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieAsrR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieExp, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieEXP, o2);
-                o3.nReason = skillID;
-                o3.nValue = si.getValue(indiePadR, slv);
-                o3.tStart = (int) System.currentTimeMillis();
-                o3.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePADR, o3);
-                break;
-
-            case INSTANT_GARDEN_PRETTY: //Summon
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(false);
-                summon.setMoveAbility(MoveAbility.Stop);
-                summon.setAssistType(AssistType.None);
-                summon.setAttackActive(false);
-                field.spawnSummon(summon);
-                break;
-
-            case GO_MINI_BEANS: //  ON/OFF Buff
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(PinkbeanMinibeenMove, o1);
-                break;
-            case EVERYBODY_HAPPY:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(y, slv);
-                tsm.putCharacterStatValue(NotDamaged, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieExp, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieEXP, o2);
-                o3.nReason = skillID;
-                o3.nValue = si.getValue(indieSpeed, slv);
-                o3.tStart = (int) System.currentTimeMillis();
-                o3.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieSpeed, o3);
-                o4.nReason = skillID;
-                o4.nValue = si.getValue(indiePadR, slv);
-                o4.tStart = (int) System.currentTimeMillis();
-                o4.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePADR, o4);
-                o5.nReason = skillID;
-                o5.nValue = si.getValue(indieMadR, slv);
-                o5.tStart = (int) System.currentTimeMillis();
-                o5.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMADR, o5);
-                break;
-        }
-        tsm.sendSetStatPacket();
-        
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
-
 
 
     // Attack related methods ------------------------------------------------------------------------------------------
@@ -316,72 +175,169 @@ public class PinkBean extends Job {
         if(skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch(skillID) {
-                case CHILL_OUT_TONGUE_OUT:
-                    Rect rect = new Rect(inPacket.decodeShort(), inPacket.decodeShort()
-                            , inPacket.decodeShort(), inPacket.decodeShort());
-                    for(Life life : chr.getField().getLifesInRect(rect)) {
-                        if(life instanceof Mob && ((Mob) life).getHp() > 0) {
-                            Mob mob = (Mob) life;
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            if(Util.succeedProp(si.getValue(prop, slv))) {
-                                o1.nOption = si.getValue(x, slv);
-                                o1.rOption = skillID;
-                                o1.tOption = si.getValue(time, slv);
-                                mts.addStatOptions(MobStat.PDR, o1);
-                                mts.addStatOptions(MobStat.MDR, o1);
-                                o2.nOption = -si.getValue(z, slv);
-                                o2.rOption = skillID;
-                                o2.tOption = si.getValue(subTime, slv);
-                                mts.addStatOptionsAndBroadcast(MobStat.Darkness, o2);
-                            }
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        Field field;
+        Summon summon;
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        Option o5 = new Option();
+        switch(skillID) {
+            case CHILL_OUT_TONGUE_OUT:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                o2.nOption = -si.getValue(z, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(subTime, slv);
+                Rect rect = new Rect(inPacket.decodeShort(), inPacket.decodeShort()
+                        , inPacket.decodeShort(), inPacket.decodeShort());
+                for (Life life : chr.getField().getLifesInRect(rect)) {
+                    if (life instanceof Mob && ((Mob) life).getHp() > 0) {
+                        Mob mob = (Mob) life;
+                        MobTemporaryStat mts = mob.getTemporaryStat();
+                        if (Util.succeedProp(si.getValue(prop, slv))) {
+                            mts.addStatOptions(MobStat.PDR, o1);
+                            mts.addStatOptions(MobStat.MDR, o1);
+                            mts.addStatOptionsAndBroadcast(MobStat.Darkness, o2);
                         }
                     }
-                    break;
-                case BLAZING_YOYO:
-                case BLAZING_YOYO_2:
-                    costYoYo();
-                    break;
+                }
+                o3.nReason = skillID;
+                o3.nValue = si.getValue(indieExp, slv);
+                o3.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieEXP, o3);
+                break;
+            case BLAZING_YOYO:
+            case BLAZING_YOYO_2:
+                costYoYo();
+                break;
 
-                case INSTANT_GARDEN_BREEZY:
-                    SkillInfo isb = SkillData.getSkillInfoById(INSTANT_GARDEN_BREEZY);
-                    AffectedArea aa = AffectedArea.getPassiveAA(chr, INSTANT_GARDEN_BREEZY, slv);
-                    aa.setMobOrigin((byte) 0);
-                    aa.setPosition(chr.getPosition());
-                    if (chr.isLeft()) {
-                        aa.setFlip(false);
-                    } else {
-                        aa.setFlip(true);
-                    }
-                    aa.setRect(aa.getPosition().getRectAround(isb.getRects().get(0)));
-                    aa.setDelay((short) 10);
-                    chr.getField().spawnAffectedArea(aa);
-                    break;
-                case INSTANT_GARDEN_POSIE:
-                    SkillInfo isp = SkillData.getSkillInfoById(INSTANT_GARDEN_POSIE);
-                    AffectedArea aa2 = AffectedArea.getPassiveAA(chr, INSTANT_GARDEN_POSIE, slv);
-                    aa2.setMobOrigin((byte) 0);
-                    aa2.setPosition(chr.getPosition());
-                    if (chr.isLeft()) {
-                        aa2.setFlip(false);
-                    } else {
-                        aa2.setFlip(true);
-                    }
-                    aa2.setRect(aa2.getPosition().getRectAround(isp.getRects().get(0)));
-                    aa2.setDelay((short) 12);
-                    chr.getField().spawnAffectedArea(aa2);
-                    break;
-            }
+            case INSTANT_GARDEN_BREEZY:
+                SkillInfo isb = SkillData.getSkillInfoById(INSTANT_GARDEN_BREEZY);
+                AffectedArea aa = AffectedArea.getPassiveAA(chr, INSTANT_GARDEN_BREEZY, slv);
+                aa.setMobOrigin((byte) 0);
+                aa.setPosition(chr.getPosition());
+                if (chr.isLeft()) {
+                    aa.setFlip(false);
+                } else {
+                    aa.setFlip(true);
+                }
+                aa.setRect(aa.getPosition().getRectAround(isb.getRects().get(0)));
+                aa.setDelay((short) 10);
+                chr.getField().spawnAffectedArea(aa);
+                break;
+            case INSTANT_GARDEN_POSIE:
+                SkillInfo isp = SkillData.getSkillInfoById(INSTANT_GARDEN_POSIE);
+                AffectedArea aa2 = AffectedArea.getPassiveAA(chr, INSTANT_GARDEN_POSIE, slv);
+                aa2.setMobOrigin((byte) 0);
+                aa2.setPosition(chr.getPosition());
+                if (chr.isLeft()) {
+                    aa2.setFlip(false);
+                } else {
+                    aa2.setFlip(true);
+                }
+                aa2.setRect(aa2.getPosition().getRectAround(isp.getRects().get(0)));
+                aa2.setDelay((short) 12);
+                chr.getField().spawnAffectedArea(aa2);
+                break;
+            case CHILL_OUT_ZZZ:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indiePadR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePADR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieExp, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieEXP, o2);
+                break;
+            case CHILL_OUT_MYSTERIOUS_COCKTAIL:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieAsrR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieExp, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieEXP, o2);
+                break;
+            case CHILL_OUT_NOM_NOM_MEAT:    //Regen 1%MaxHP per second
+                o1.nOption = si.getValue(dotHealHPPerSecondR, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DotHealHPPerSecond, o1);  //DoTHealHPPerSecond  Rate?
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieExp, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieEXP, o2);
+                break;
+            case CHILL_OUT_HEADSET:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieAsrR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieExp, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieEXP, o2);
+                o3.nReason = skillID;
+                o3.nValue = si.getValue(indiePadR, slv);
+                o3.tStart = (int) System.currentTimeMillis();
+                o3.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePADR, o3);
+                break;
+            case INSTANT_GARDEN_PRETTY: //Summon
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                field = c.getChr().getField();
+                summon.setFlyMob(false);
+                summon.setMoveAbility(MoveAbility.Stop);
+                summon.setAssistType(AssistType.None);
+                summon.setAttackActive(false);
+                field.spawnSummon(summon);
+                break;
+            case GO_MINI_BEANS: //  ON/OFF Buff
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(PinkbeanMinibeenMove, o1);
+                break;
+            case EVERYBODY_HAPPY:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(y, slv);
+                tsm.putCharacterStatValue(NotDamaged, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieExp, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieEXP, o2);
+                o3.nReason = skillID;
+                o3.nValue = si.getValue(indieSpeed, slv);
+                o3.tStart = (int) System.currentTimeMillis();
+                o3.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieSpeed, o3);
+                o4.nReason = skillID;
+                o4.nValue = si.getValue(indiePadR, slv);
+                o4.tStart = (int) System.currentTimeMillis();
+                o4.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePADR, o4);
+                o5.nReason = skillID;
+                o5.nValue = si.getValue(indieMadR, slv);
+                o5.tStart = (int) System.currentTimeMillis();
+                o5.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMADR, o5);
+                break;
         }
+        tsm.sendSetStatPacket();
     }
-
-
 
     @Override
     public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {

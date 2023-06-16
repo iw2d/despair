@@ -151,24 +151,6 @@ public class Demon extends Job {
             STAR_FORCE_CONVERSION,
     };
 
-    private int[] buffs = new int[] {
-            BATTLE_PACT_DS,
-            BATTLE_PACT_DA,
-            VENGEANCE,
-            DARK_METAMORPHOSIS,
-            BOUNDLESS_RAGE,
-            LEECH_AURA,
-            MAPLE_WARRIOR_DS,
-            OVERLOAD_RELEASE,
-            DIABOLIC_RECOVERY,
-            MAPLE_WARRIOR_DA,
-            BLUE_BLOOD,
-            DEMONIC_FORTITUDE_DS,
-            DEMONIC_FORTITUDE_DA,
-            FORBIDDEN_CONTRACT,
-            WARD_EVIL,
-    };
-
     private long leechAuraCD = Long.MIN_VALUE;
     private int lastExceedSkill;
     private ScheduledFuture diabolicRecoveryTimer;
@@ -204,147 +186,6 @@ public class Demon extends Job {
         return JobConstants.isDemon(id);
     }
 
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        switch (skillID) {
-            case OVERLOAD_RELEASE:
-                int overloadCount = tsm.getOption(OverloadCount).nOption;
-                double overloadRate = (double) overloadCount / getMaxExceed();
-
-                o2.nOption = (int) (overloadRate * si.getValue(indiePMdR, slv));
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePMdR, o2);
-
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Exceed, o3);
-
-                resetExceed(tsm);
-                chr.heal((int) (overloadRate * chr.getMaxHP()));
-                break;
-            case BATTLE_PACT_DA:
-            case BATTLE_PACT_DS:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case VENGEANCE: //stun chance = prop | stun dur. = subTime
-                o1.nOption = si.getValue(y, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PowerGuard, o1);
-                break;
-            case DARK_METAMORPHOSIS:
-                o1.nOption = si.getValue(damR, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMhpR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMHPR, o2);
-                o3.nOption = si.getValue(damage, slv); //?
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PowerGuard, o3);
-                o4.nOption = 1;
-                o4.rOption = skillID;
-                o4.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DevilishPower, o4);
-                break;
-            case BOUNDLESS_RAGE:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(InfinityForce, o1);
-                break;
-            case LEECH_AURA:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Regen, o1);
-                break;
-            case WARD_EVIL:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamageReduce, o1);
-                o2.nOption = si.getValue(z, slv);
-                o2.nReason = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AsrR, o2);
-                tsm.putCharacterStatValue(TerR, o2);
-                break;
-            case DIABOLIC_RECOVERY: // x = HP restored at interval
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieMhpR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMHPR, o1);
-                o2.nOption = 1;
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DiabolikRecovery, o2);
-                if(diabolicRecoveryTimer != null && !diabolicRecoveryTimer.isDone()) {
-                    diabolicRecoveryTimer.cancel(true);
-                }
-                diabolicRecoveryHPRecovery();
-                break;
-            case MAPLE_WARRIOR_DA:
-            case MAPLE_WARRIOR_DS:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case DEMONIC_FORTITUDE_DS:
-            case DEMONIC_FORTITUDE_DA:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case FORBIDDEN_CONTRACT:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                //HP consumption from Skills = 0;
-                break;
-            case BLUE_BLOOD:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ShadowPartner, o1);
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     public void diabolicRecoveryHPRecovery() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -855,24 +696,142 @@ public class Demon extends Job {
     @Override
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        switch (skillID) {
+            case NETHER_SHIELD:
+                createNetherShieldForceAtom();
+                createNetherShieldForceAtom();
+                break;
+            case OVERLOAD_RELEASE:
+                int overloadCount = tsm.getOption(OverloadCount).nOption;
+                double overloadRate = (double) overloadCount / getMaxExceed();
+
+                o2.nOption = (int) (overloadRate * si.getValue(indiePMdR, slv));
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePMdR, o2);
+
+                o3.nOption = 1;
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Exceed, o3);
+
+                resetExceed(tsm);
+                chr.heal((int) (overloadRate * chr.getMaxHP()));
+                break;
+            case BATTLE_PACT_DA:
+            case BATTLE_PACT_DS:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case VENGEANCE: //stun chance = prop | stun dur. = subTime
+                o1.nOption = si.getValue(y, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(PowerGuard, o1);
+                break;
+            case DARK_METAMORPHOSIS:
+                o1.nOption = si.getValue(damR, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMhpR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMHPR, o2);
+                o3.nOption = si.getValue(damage, slv); //?
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(PowerGuard, o3);
+                o4.nOption = 1;
+                o4.rOption = skillID;
+                o4.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DevilishPower, o4);
+                break;
+            case BOUNDLESS_RAGE:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(InfinityForce, o1);
+                break;
+            case LEECH_AURA:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Regen, o1);
+                break;
+            case WARD_EVIL:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamageReduce, o1);
+                o2.nOption = si.getValue(z, slv);
+                o2.nReason = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AsrR, o2);
+                tsm.putCharacterStatValue(TerR, o2);
+                break;
+            case DIABOLIC_RECOVERY: // x = HP restored at interval
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieMhpR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMHPR, o1);
+                o2.nOption = 1;
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DiabolikRecovery, o2);
+                if(diabolicRecoveryTimer != null && !diabolicRecoveryTimer.isDone()) {
+                    diabolicRecoveryTimer.cancel(true);
+                }
+                diabolicRecoveryHPRecovery();
+                break;
+            case MAPLE_WARRIOR_DA:
+            case MAPLE_WARRIOR_DS:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case DEMONIC_FORTITUDE_DS:
+            case DEMONIC_FORTITUDE_DA:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+            case FORBIDDEN_CONTRACT:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                //HP consumption from Skills = 0;
+                break;
+            case BLUE_BLOOD:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ShadowPartner, o1);
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case NETHER_SHIELD:
-                    createNetherShieldForceAtom();
-                    createNetherShieldForceAtom();
-                    break;
-            }
-        }
+        tsm.sendSetStatPacket();
     }
 
     private void applyHpCostForDA(int skillID) {

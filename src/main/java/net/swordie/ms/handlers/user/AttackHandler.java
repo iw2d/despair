@@ -63,7 +63,7 @@ public class AttackHandler {
             if (si != null && si.getExtraSkillInfo().size() > 0) {
                 chr.getField().broadcastPacket(FieldPacket.registerExtraSkill(chr.getPosition(), skillID, si.getExtraSkillInfo().keySet(), attackInfo.left));
             }
-            if (si != null && si.isMassSpell() && sourceJobHandler.isBuff(skillID) && chr.getParty() != null) {
+            if (si != null && si.isMassSpell() && chr.getParty() != null) {
                 Rect r = si.getFirstRect();
                 if (r != null) {
                     Rect rectAround = chr.getRectAround(r);

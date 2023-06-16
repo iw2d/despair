@@ -89,13 +89,6 @@ public class Blaster extends Citizen {
             SECRET_ASSEMBLY,
     };
 
-    private int[] buffs = new int[] {
-            ARM_CANNON_BOOST,
-            MAPLE_WARRIOR_BLASTER,
-            FOR_LIBERTY_BLASTER,
-            CANNON_OVERDRIVE,
-    };
-
     private int gauge = 0;
     private int ammo = getMaxAmmo();
     private int lastAttack = 0;
@@ -116,57 +109,6 @@ public class Blaster extends Citizen {
     @Override
     public boolean isHandlerOfJob(short id) {
         return JobConstants.isBlaster(id);
-    }
-
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        switch (skillID) {
-            case ARM_CANNON_BOOST:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case MAPLE_WARRIOR_BLASTER:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case FOR_LIBERTY_BLASTER:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case CANNON_OVERDRIVE:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(RWMaximizeCannon, o1);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
     }
 
     public void resetBlastShield() {
@@ -446,40 +388,68 @@ public class Blaster extends Citizen {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        switch(skillID) {
+            case SECRET_ASSEMBLY:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case REVOLVING_CANNON_RELOAD:
+                reloadCylinder();
+                break;
+            case VITALITY_SHIELD:
+                if (!tsm.hasStat(RWBarrier)) {
+                    return;
+                }
+                int healAmount = (int) (0.5 * chr.getMaxHP() + tsm.getOption(RWBarrier).nOption);
+                chr.heal(healAmount);
+                resetBlastShield();
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(RWBarrierHeal, o1);
+                break;
+            case HEROS_WILL_BLASTER:
+                tsm.removeAllDebuffs();
+                break;
+            case ARM_CANNON_BOOST:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case MAPLE_WARRIOR_BLASTER:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case FOR_LIBERTY_BLASTER:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+            case CANNON_OVERDRIVE:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(RWMaximizeCannon, o1);
+                break;
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            switch(skillID) {
-                case SECRET_ASSEMBLY:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case REVOLVING_CANNON_RELOAD:
-                    reloadCylinder();
-                    break;
-                case VITALITY_SHIELD:
-                    if (!tsm.hasStat(RWBarrier)) {
-                        return;
-                    }
-                    int healAmount = (int) (0.5 * chr.getMaxHP() + tsm.getOption(RWBarrier).nOption);
-                    chr.heal(healAmount);
-                    resetBlastShield();
-                    o1.nOption = 1;
-                    o1.rOption = skillID;
-                    o1.tOption = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(RWBarrierHeal, o1);
-                    break;
-                case HEROS_WILL_BLASTER:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
-        }
+        tsm.sendSetStatPacket();
     }
 
 

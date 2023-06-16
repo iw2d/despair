@@ -83,18 +83,6 @@ public class Hayato extends Job {
             SHIMADA_HEART,
     };
 
-    private int[] buffs = new int[] {
-            QUICK_DRAW,
-            BATTOUJUTSU_ADVANCE,
-            KATANA_BOOSTER,
-            MILITARY_MIGHT,
-            IRON_SKIN,
-            AKATSUKI_HERO_HAYATO,
-            EYE_FOR_AN_EYE,
-            GOD_OF_BLADES,
-            PRINCESS_VOW_HAYATO,
-    };
-
     private int swordEnergy = 0;
 
     public Hayato(Char chr) {
@@ -115,138 +103,6 @@ public class Hayato extends Job {
         return JobConstants.isHayato(id);
     }
 
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        Option o5 = new Option();
-        switch (skillID) {
-            case QUICK_DRAW:
-                if(tsm.getOption(HayatoStance).nOption == 0) {
-                    if(swordEnergy < 150) {
-                        chr.chatMessage(ChatType.SystemNotice, "You need 150 sword energy to switch into quick draw stance.");
-                        return;
-                    } else {
-                        swordEnergy -= 150;
-                        c.write(UserLocal.modHayatoCombo(swordEnergy));
-                    }
-                }
-                if(tsm.getOption(HayatoStance).nOption == 0) {
-                    resetNormalStanceBonus();
-                } else
-                if(tsm.getOption(HayatoStance).nOption == 1) {
-                    resetQuickDrawStanceBonus();
-                }
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                tsm.putCharacterStatValue(HayatoStance, o1);
-                changeHayatoStanceBonus();
-                break;
-            case BATTOUJUTSU_ADVANCE:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(BattoujutsuAdvance, o1);
-                o2.nOption = 8;
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamR, o2);
-                break;
-            case KATANA_BOOSTER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case MILITARY_MIGHT:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMHPR, o1); //Indie
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(y, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMMPR, o1); //Indie
-                o3.nOption = si.getValue(speed, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Speed, o3);
-                o4.nOption = si.getValue(jump, slv);
-                o4.rOption = skillID;
-                o4.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Jump, o4);
-                o5.nOption = si.getValue(padX, slv);
-                o5.rOption = skillID;
-                o5.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PAD, o5);
-                break;
-            case IRON_SKIN:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AsrR, o1);
-                o1.nOption = si.getValue(y, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(TerR, o1);
-                break;
-            case AKATSUKI_HERO_HAYATO:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
-            case EYE_FOR_AN_EYE:
-                if(tsm.hasStatBySkillId(skillID)) {
-                    tsm.removeStatsBySkill(skillID);
-                } else {
-                    o1.nOption = 1;
-                    o1.rOption = skillID;
-                    tsm.putCharacterStatValue(EyeForEye, o1);
-                }
-                break;
-            case PRINCESS_VOW_HAYATO:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOver, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOver, o2);
-                break;
-            case GOD_OF_BLADES:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o1); //Indie
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AsrR, o2);
-                tsm.putCharacterStatValue(TerR, o2);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     public void changeHayatoStanceBonus() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -593,22 +449,130 @@ public class Hayato extends Job {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        Option o5 = new Option();
+        switch(skillID) {
+            case AKATSUKI_BLOSSOMS:
+                tsm.removeAllDebuffs();
+                break;
+            case QUICK_DRAW:
+                if(tsm.getOption(HayatoStance).nOption == 0) {
+                    if(swordEnergy < 150) {
+                        chr.chatMessage(ChatType.SystemNotice, "You need 150 sword energy to switch into quick draw stance.");
+                        return;
+                    } else {
+                        swordEnergy -= 150;
+                        c.write(UserLocal.modHayatoCombo(swordEnergy));
+                    }
+                }
+                if(tsm.getOption(HayatoStance).nOption == 0) {
+                    resetNormalStanceBonus();
+                } else
+                if(tsm.getOption(HayatoStance).nOption == 1) {
+                    resetQuickDrawStanceBonus();
+                }
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                tsm.putCharacterStatValue(HayatoStance, o1);
+                changeHayatoStanceBonus();
+                break;
+            case BATTOUJUTSU_ADVANCE:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(BattoujutsuAdvance, o1);
+                o2.nOption = 8;
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamR, o2);
+                break;
+            case KATANA_BOOSTER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case MILITARY_MIGHT:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMHPR, o1); //Indie
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(y, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMMPR, o1); //Indie
+                o3.nOption = si.getValue(speed, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Speed, o3);
+                o4.nOption = si.getValue(jump, slv);
+                o4.rOption = skillID;
+                o4.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Jump, o4);
+                o5.nOption = si.getValue(padX, slv);
+                o5.rOption = skillID;
+                o5.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(PAD, o5);
+                break;
+            case IRON_SKIN:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AsrR, o1);
+                o1.nOption = si.getValue(y, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(TerR, o1);
+                break;
+            case AKATSUKI_HERO_HAYATO:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
+                break;
+            case EYE_FOR_AN_EYE:
+                if(tsm.hasStatBySkillId(skillID)) {
+                    tsm.removeStatsBySkill(skillID);
+                } else {
+                    o1.nOption = 1;
+                    o1.rOption = skillID;
+                    tsm.putCharacterStatValue(EyeForEye, o1);
+                }
+                break;
+            case PRINCESS_VOW_HAYATO:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOver, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOver, o2);
+                break;
+            case GOD_OF_BLADES:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indiePad, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o1); //Indie
+                o2.nOption = si.getValue(x, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AsrR, o2);
+                tsm.putCharacterStatValue(TerR, o2);
+                break;
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch(skillID) {
-                case AKATSUKI_BLOSSOMS:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
-        }
+        tsm.sendSetStatPacket();
     }
 
 

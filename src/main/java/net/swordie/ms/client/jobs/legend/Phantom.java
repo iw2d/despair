@@ -81,21 +81,6 @@ public class Phantom extends Job {
             DEXTEROUS_TRAINING,
     };
 
-    private final int[] buffs = new int[]{
-            GHOSTWALK,
-            IMPECCABLE_MEMORY_I,
-            IMPECCABLE_MEMORY_II,
-            CANE_BOOSTER,
-            IMPECCABLE_MEMORY_III,
-            FINAL_FEINT,
-            BAD_LUCK_WARD,
-            CLAIR_DE_LUNE,
-            IMPECCABLE_MEMORY_IV,
-            PRIERE_DARIA,
-            MAPLE_WARRIOR_PH,
-            HEROIC_MEMORIES_PH,
-    };
-
     private byte cardAmount;
     private Set<Job> stealJobHandlers = new HashSet<>();
 
@@ -122,103 +107,6 @@ public class Phantom extends Job {
         return JobConstants.isPhantom(id);
     }
 
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        switch (skillID) {
-            case GHOSTWALK:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DarkSight, o1);
-                break;
-            case CANE_BOOSTER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case FINAL_FEINT:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ReviveOnce, o1);
-                break;
-            case BAD_LUCK_WARD:
-                o1.nValue = si.getValue(indieMhpR, slv);
-                o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMHPR, o1);
-                o2.nValue = si.getValue(indieMmpR, slv);
-                o2.nReason = skillID;
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMMPR, o2);
-                o3.nOption = si.getValue(x, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AsrR, o3);
-                o4.nOption = si.getValue(y, slv);
-                o4.rOption = skillID;
-                o4.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(TerR, o4);
-                break;
-            case CLAIR_DE_LUNE:
-                o1.nValue = si.getValue(indiePad, slv);
-                o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o1);
-                o2.nValue = si.getValue(indieAcc, slv);
-                o2.nReason = skillID;
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieACC, o2);
-                break;
-            case PRIERE_DARIA:
-                o1.nOption = si.getValue(damR, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamR, o1);
-                o2.nOption = si.getValue(ignoreMobpdpR, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
-                break;
-            case MAPLE_WARRIOR_PH:
-                o1.nValue = si.getValue(x, slv);
-                o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case HEROIC_MEMORIES_PH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     private void giveJudgmentDrawBuff(int skillId) {
 
@@ -451,36 +339,111 @@ public class Phantom extends Job {
         }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        switch (skillID) {
+            case VOL_DAME:
+                stealBuffVolDame();
+                break;
+            case TO_THE_SKIES:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case JUDGMENT_DRAW_1:
+            case JUDGMENT_DRAW_2:
+                createCarteForceAtomByJudgmentDraw();
+                giveJudgmentDrawBuff(skillID);
+                resetCardStack();
+                break;
+            case HEROS_WILL_PH:
+                tsm.removeAllDebuffs();
+                break;
+            case GHOSTWALK:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DarkSight, o1);
+                break;
+            case CANE_BOOSTER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case FINAL_FEINT:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ReviveOnce, o1);
+                break;
+            case BAD_LUCK_WARD:
+                o1.nValue = si.getValue(indieMhpR, slv);
+                o1.nReason = skillID;
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMHPR, o1);
+                o2.nValue = si.getValue(indieMmpR, slv);
+                o2.nReason = skillID;
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMMPR, o2);
+                o3.nOption = si.getValue(x, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AsrR, o3);
+                o4.nOption = si.getValue(y, slv);
+                o4.rOption = skillID;
+                o4.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(TerR, o4);
+                break;
+            case CLAIR_DE_LUNE:
+                o1.nValue = si.getValue(indiePad, slv);
+                o1.nReason = skillID;
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o1);
+                o2.nValue = si.getValue(indieAcc, slv);
+                o2.nReason = skillID;
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieACC, o2);
+                break;
+            case PRIERE_DARIA:
+                o1.nOption = si.getValue(damR, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamR, o1);
+                o2.nOption = si.getValue(ignoreMobpdpR, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
+                break;
+            case MAPLE_WARRIOR_PH:
+                o1.nValue = si.getValue(x, slv);
+                o1.nReason = skillID;
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case HEROIC_MEMORIES_PH:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case VOL_DAME:
-                    stealBuffVolDame();
-                    break;
-                case TO_THE_SKIES:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case JUDGMENT_DRAW_1:
-                case JUDGMENT_DRAW_2:
-                    createCarteForceAtomByJudgmentDraw();
-                    giveJudgmentDrawBuff(skillID);
-                    resetCardStack();
-                    break;
-                case HEROS_WILL_PH:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
-        }
+        tsm.sendSetStatPacket();
     }
 
     private void stealBuffVolDame() {

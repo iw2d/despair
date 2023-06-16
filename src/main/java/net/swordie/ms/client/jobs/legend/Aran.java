@@ -123,16 +123,6 @@ public class Aran extends Job {
             RETURN_TO_RIEN,
     };
 
-    private final int[] buffs = new int[] {
-            POLEARM_BOOSTER,
-            BODY_PRESSURE,
-            SNOW_CHARGE,
-            DRAIN,
-            MAHA_BLESSING,
-            MAPLE_WARRIOR_ARAN,
-            HEROIC_MEMORIES_ARAN,
-    };
-
     private int combo;
 
     public Aran(Char chr) {
@@ -153,87 +143,6 @@ public class Aran extends Job {
         return JobConstants.isAran(id);
     }
 
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        switch (skillID) {
-            case POLEARM_BOOSTER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case BODY_PRESSURE:
-                if(tsm.hasStatBySkillId(skillID)) {
-                    tsm.removeStatsBySkill(skillID);
-                } else {
-                    o1.nOption = si.getValue(x, slv);
-                    o1.rOption = skillID;
-                    tsm.putCharacterStatValue(BodyPressure, o1);
-                }
-                break;
-            case DRAIN:
-                if(tsm.hasStatBySkillId(skillID)) {
-                    tsm.removeStatsBySkill(skillID);
-                } else {
-                    o1.nOption = si.getValue(x, slv);
-                    o1.rOption = skillID;
-                    tsm.putCharacterStatValue(AranDrain, o1);
-                }
-                break;
-            case SNOW_CHARGE:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(WeaponCharge, o1);
-                break;
-            case MAHA_BLESSING:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieMad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMAD, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indiePad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o2);
-                break;
-            case MAPLE_WARRIOR_ARAN:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-
-            case HEROIC_MEMORIES_ARAN:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     private void giveAdrenalinRushBuff(TemporaryStatManager tsm) {
         Skill skill = chr.getSkill(ADRENALINE_RUSH);
@@ -599,42 +508,100 @@ public class Aran extends Job {
     @Override
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
-        Skill skill = chr.getSkill(skillID);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        SkillInfo si = null;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
+        Skill skill = chr.getSkill(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        switch (skillID) {
+            case ADRENALINE_BURST:
+                tsm.getOption(ComboAbilityBuff).nOption = 1000;
+                giveAdrenalinRushBuff(tsm);
+                tsm.sendSetStatPacket();
+                break;
+            case RETURN_TO_RIEN:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case MAHAS_DOMAIN:
+                SkillInfo mdi = SkillData.getSkillInfoById(MAHAS_DOMAIN);
+                AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa.setMobOrigin((byte) 0);
+                aa.setPosition(chr.getPosition());
+                aa.setRect(aa.getPosition().getRectAround(mdi.getRects().get(0)));
+                chr.getField().spawnAffectedArea(aa);
+                break;
+            case HEROS_WILL_ARAN:
+                tsm.removeAllDebuffs();
+                break;
+            case POLEARM_BOOSTER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case BODY_PRESSURE:
+                if(tsm.hasStatBySkillId(skillID)) {
+                    tsm.removeStatsBySkill(skillID);
+                } else {
+                    o1.nOption = si.getValue(x, slv);
+                    o1.rOption = skillID;
+                    tsm.putCharacterStatValue(BodyPressure, o1);
+                }
+                break;
+            case DRAIN:
+                if(tsm.hasStatBySkillId(skillID)) {
+                    tsm.removeStatsBySkill(skillID);
+                } else {
+                    o1.nOption = si.getValue(x, slv);
+                    o1.rOption = skillID;
+                    tsm.putCharacterStatValue(AranDrain, o1);
+                }
+                break;
+            case SNOW_CHARGE:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(WeaponCharge, o1);
+                break;
+            case MAHA_BLESSING:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieMad, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMAD, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indiePad, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o2);
+                break;
+            case MAPLE_WARRIOR_ARAN:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+
+            case HEROIC_MEMORIES_ARAN:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case ADRENALINE_BURST:
-                    tsm.getOption(ComboAbilityBuff).nOption = 1000;
-                    giveAdrenalinRushBuff(tsm);
-                    tsm.sendSetStatPacket();
-                    break;
-                case RETURN_TO_RIEN:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case MAHAS_DOMAIN:
-                    SkillInfo mdi = SkillData.getSkillInfoById(MAHAS_DOMAIN);
-                    AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
-                    aa.setMobOrigin((byte) 0);
-                    aa.setPosition(chr.getPosition());
-                    aa.setRect(aa.getPosition().getRectAround(mdi.getRects().get(0)));
-                    chr.getField().spawnAffectedArea(aa);
-                    break;
-                case HEROS_WILL_ARAN:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
-        }
+        tsm.sendSetStatPacket();
     }
 
 

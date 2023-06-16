@@ -106,17 +106,6 @@ public class AngelicBuster extends Job {
             DAY_DREAMER,
     };
 
-    private final int[] buffs = new int[]{
-            MELODY_CROSS,
-            POWER_TRANSFER,
-            IRON_BLOSSOM,
-            STAR_GAZER,
-            NOVA_WARRIOR_AB,
-            SOUL_SEEKER_EXPERT,
-            PRETTY_EXALTATION,
-            FINAL_CONTRACT,
-    };
-
     private int affinityHeartIIcounter = 0;
     private int affinityHeartIIIcounter = 0;
 
@@ -136,97 +125,6 @@ public class AngelicBuster extends Job {
     @Override
     public boolean isHandlerOfJob(short id) {
         return JobConstants.isAngelicBuster(id);
-    }
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        switch (skillID) {
-            case MELODY_CROSS:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieBooster, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieBooster, o1);
-                o2.nOption = si.getValue(mhpX, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EMHP, o2);
-                break;
-            case POWER_TRANSFER:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PowerTransferGauge, o1);
-                break;
-            case IRON_BLOSSOM:
-                o1.nOption = si.getValue(prop, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Stance, o1);
-                break;
-            case STAR_GAZER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(SharpEyes, o1); //Changed IncCriticalDamMax to SharpEyes
-                o2.nOption = si.getValue(y, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IncCriticalDamMin, o2);
-                break;
-            case NOVA_WARRIOR_AB:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case SOUL_SEEKER_EXPERT:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(AngelicBursterSoulSeeker, o1);
-                break;
-            case PRETTY_EXALTATION:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieIgnoreMobpdpR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieBDR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieBDR, o2);
-                break;
-            case FINAL_CONTRACT:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(CriticalBuff, o1);
-                o2.nOption = si.getValue(asrR, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AsrR, o2);
-                tsm.putCharacterStatValue(TerR, o2);
-                o3.nOption = si.getValue(indieStance, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Stance, o3);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
     }
 
 
@@ -556,31 +454,99 @@ public class AngelicBuster extends Job {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        switch(skillID) {
+            case SOUL_SEEKER:
+                createSoulSeekerForceAtom();
+                createSoulSeekerForceAtom();
+                break;
+            case DAY_DREAMER:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case NOVA_TEMPERANCE_AB:
+                tsm.removeAllDebuffs();
+                break;
+            case MELODY_CROSS:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieBooster, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieBooster, o1);
+                o2.nOption = si.getValue(mhpX, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(EMHP, o2);
+                break;
+            case POWER_TRANSFER:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(PowerTransferGauge, o1);
+                break;
+            case IRON_BLOSSOM:
+                o1.nOption = si.getValue(prop, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Stance, o1);
+                break;
+            case STAR_GAZER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(SharpEyes, o1); //Changed IncCriticalDamMax to SharpEyes
+                o2.nOption = si.getValue(y, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IncCriticalDamMin, o2);
+                break;
+            case NOVA_WARRIOR_AB:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case SOUL_SEEKER_EXPERT:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(AngelicBursterSoulSeeker, o1);
+                break;
+            case PRETTY_EXALTATION:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieIgnoreMobpdpR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieBDR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieBDR, o2);
+                break;
+            case FINAL_CONTRACT:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(CriticalBuff, o1);
+                o2.nOption = si.getValue(asrR, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AsrR, o2);
+                tsm.putCharacterStatValue(TerR, o2);
+                o3.nOption = si.getValue(indieStance, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Stance, o3);
+                break;
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch(skillID) {
-                case SOUL_SEEKER:
-                    createSoulSeekerForceAtom();
-                    createSoulSeekerForceAtom();
-                    break;
-                case DAY_DREAMER:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case NOVA_TEMPERANCE_AB:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
-        }
+        tsm.sendSetStatPacket();
     }
 
 

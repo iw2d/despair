@@ -151,10 +151,10 @@ public class SkillHandler {
         if (chr.applyBulletCon(skillID, slv) && chr.applyMpCon(skillID, slv) && (chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass())) {
             chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skillID, slv, 0)));
             log.debug("SkillID: " + skillID);
-            c.getChr().dbgChatMsg("SkillID: " + skillID);
+            chr.dbgChatMsg("SkillID: " + skillID);
             Job sourceJobHandler = c.getChr().getJobHandler();
             SkillInfo si = SkillData.getSkillInfoById(skillID);
-            if (si != null && si.isMassSpell() && sourceJobHandler.isBuff(skillID) && chr.getParty() != null) {
+            if (si != null && si.isMassSpell() && chr.getParty() != null) {
                 Rect r = si.getFirstRect();
                 if (r != null) {
                     Rect rectAround = chr.getRectAround(r);

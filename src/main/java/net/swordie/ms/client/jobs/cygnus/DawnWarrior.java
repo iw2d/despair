@@ -74,17 +74,6 @@ public class DawnWarrior extends Noblesse {
             ELEMENTAL_SHIFT2
     };
 
-    private int[] buffs = new int[] {
-            SOUL_ELEMENT,
-            SOUL_SPEED,
-            FALLING_MOON,
-            RISING_SUN,
-            EQUINOX_CYCLE,
-            CALL_OF_CYGNUS_DW,
-            SOUL_FORGE,
-            GLORY_OF_THE_GUARDIANS_DW,
-    };
-
     private ScheduledFuture willOfSteelTimer;
 
     public DawnWarrior(Char chr) {
@@ -109,121 +98,6 @@ public class DawnWarrior extends Noblesse {
         return JobConstants.isDawnWarrior(id);
     }
 
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        Option o5 = new Option();
-        Summon summon;
-        Field field;
-        switch (skillID) {
-            case SOUL_ELEMENT:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(SoulMasterFinal, o1);
-                break;
-            case SOUL_SPEED:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case FALLING_MOON:
-                SkillInfo mosSI = SkillData.getSkillInfoById(MASTER_OF_THE_SWORD);
-                if(tsm.getOption(PoseType).nOption != 1) {
-                    tsm.removeStatsBySkill(RISING_SUN);
-                    tsm.sendResetStatPacket();
-                }
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(PoseType, o1);
-                o2.nOption = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(indieCr, slv) : si.getValue(indieCr, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(HayatoCr, o2);
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(BuckShot, o3);
-                break;
-            case RISING_SUN:
-                mosSI = SkillData.getSkillInfoById(MASTER_OF_THE_SWORD);
-                if(tsm.getOption(PoseType).nOption != 2) {
-                    tsm.removeStatsBySkill(FALLING_MOON);
-                    tsm.sendResetStatPacket();
-                }
-                o1.nOption = 2;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(PoseType, o1);
-                o2.nReason = skillID;
-                o2.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(v, slv) : si.getValue(indieDamR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = 0;
-                tsm.putCharacterStatValue(IndieDamR, o2); //Indie
-                o3.nOption = chr.hasSkill(MASTER_OF_THE_SWORD) ? -2 : si.getValue(indieBooster, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(HayatoBooster, o3);
-                break;
-            case EQUINOX_CYCLE:
-                o5.nOption = 1;
-                o5.rOption = skillID;
-                o5.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(GlimmeringTime, o5);
-                break;
-            case CALL_OF_CYGNUS_DW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
-            case SOUL_FORGE:    //IndieMaxDamageOver is still causing some problems
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o1);
-                o2.nReason = skillID;
-                o2.nValue = 1;//   si.getValue(indieMaxDamageOver, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(LightOfSpirit, o3);
-                break;
-            case GLORY_OF_THE_GUARDIANS_DW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     private void willOfSteel() { //TODO needs to be called
         if(chr.hasSkill(WILL_OF_STEEL)) {
@@ -417,48 +291,143 @@ public class DawnWarrior extends Noblesse {
     @Override
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
         SkillInfo si = null;
         if(skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch(skillID) {
-                case TRUE_SIGHT:
-                    // Mob Def = v
-                    // Final Dmg on mob = s
-                    Rect rect = new Rect(inPacket.decodeShort(), inPacket.decodeShort()
-                            , inPacket.decodeShort(), inPacket.decodeShort());
 
-                    if(!chr.isLeft()) {
-                        rect = rect.moveRight();
-                    }
-                    for(Life life : chr.getField().getLifesInRect(rect)) {
-                        if(life instanceof Mob && ((Mob) life).getHp() > 0) {
-                            Mob mob = (Mob) life;
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            if(Util.succeedProp(si.getValue(prop, slv))) {
-                                o1.nOption = -(si.getValue(v, slv));
-                                o1.rOption = skillID;
-                                o1.tOption = si.getValue(time, slv);
-                                mts.addStatOptionsAndBroadcast(MobStat.PDR, o1);
-                                mts.addStatOptionsAndBroadcast(MobStat.MDR, o1);
-                            }
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        Option o5 = new Option();
+        Summon summon;
+        Field field;
+        switch(skillID) {
+            case TRUE_SIGHT:
+                // Mob Def = v
+                // Final Dmg on mob = s
+                Rect rect = new Rect(inPacket.decodeShort(), inPacket.decodeShort()
+                        , inPacket.decodeShort(), inPacket.decodeShort());
+
+                if(!chr.isLeft()) {
+                    rect = rect.moveRight();
+                }
+                for(Life life : chr.getField().getLifesInRect(rect)) {
+                    if(life instanceof Mob && ((Mob) life).getHp() > 0) {
+                        Mob mob = (Mob) life;
+                        MobTemporaryStat mts = mob.getTemporaryStat();
+                        if(Util.succeedProp(si.getValue(prop, slv))) {
+                            o1.nOption = -(si.getValue(v, slv));
+                            o1.rOption = skillID;
+                            o1.tOption = si.getValue(time, slv);
+                            mts.addStatOptionsAndBroadcast(MobStat.PDR, o1);
+                            mts.addStatOptionsAndBroadcast(MobStat.MDR, o1);
                         }
                     }
-                    break;
-                case IMPERIAL_RECALL:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-            }
+                }
+                break;
+            case IMPERIAL_RECALL:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case SOUL_ELEMENT:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(SoulMasterFinal, o1);
+                break;
+            case SOUL_SPEED:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case FALLING_MOON:
+                SkillInfo mosSI = SkillData.getSkillInfoById(MASTER_OF_THE_SWORD);
+                if(tsm.getOption(PoseType).nOption != 1) {
+                    tsm.removeStatsBySkill(RISING_SUN);
+                    tsm.sendResetStatPacket();
+                }
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(PoseType, o1);
+                o2.nOption = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(indieCr, slv) : si.getValue(indieCr, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(HayatoCr, o2);
+                o3.nOption = 1;
+                o3.rOption = skillID;
+                o3.tOption = 0;
+                tsm.putCharacterStatValue(BuckShot, o3);
+                break;
+            case RISING_SUN:
+                mosSI = SkillData.getSkillInfoById(MASTER_OF_THE_SWORD);
+                if(tsm.getOption(PoseType).nOption != 2) {
+                    tsm.removeStatsBySkill(FALLING_MOON);
+                    tsm.sendResetStatPacket();
+                }
+                o1.nOption = 2;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(PoseType, o1);
+                o2.nReason = skillID;
+                o2.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(v, slv) : si.getValue(indieDamR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = 0;
+                tsm.putCharacterStatValue(IndieDamR, o2); //Indie
+                o3.nOption = chr.hasSkill(MASTER_OF_THE_SWORD) ? -2 : si.getValue(indieBooster, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(HayatoBooster, o3);
+                break;
+            case EQUINOX_CYCLE:
+                o5.nOption = 1;
+                o5.rOption = skillID;
+                o5.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(GlimmeringTime, o5);
+                break;
+            case CALL_OF_CYGNUS_DW:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
+                break;
+            case SOUL_FORGE:    //IndieMaxDamageOver is still causing some problems
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indiePad, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o1);
+                o2.nReason = skillID;
+                o2.nValue = 1;//   si.getValue(indieMaxDamageOver, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                o3.nOption = 1;
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(LightOfSpirit, o3);
+                break;
+            case GLORY_OF_THE_GUARDIANS_DW:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
         }
+        tsm.sendSetStatPacket();
     }
 
 

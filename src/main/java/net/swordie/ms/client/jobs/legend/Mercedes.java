@@ -76,19 +76,6 @@ public class Mercedes extends Job {
             ELVEN_HEALING,
     };
 
-    private final int[] buffs = new int[]{
-            DUAL_BOWGUN_BOOSTER,
-            IGNIS_ROAR,
-            WATER_SHIELD,
-            ELEMENTAL_KNIGHTS_BLUE, //Summon
-            ELEMENTAL_KNIGHTS_RED, //Summon
-            ELEMENTAL_KNIGHTS_PURPLE, //Summon
-            ANCIENT_WARDING,
-            MAPLE_WARRIOR_MERC,
-            HEROIC_MEMORIES_MERC,
-            ELVISH_BLESSING,
-    };
-
     private final int[] summonAttacks = new int[] {
             ELEMENTAL_KNIGHTS_BLUE,
             ELEMENTAL_KNIGHTS_RED,
@@ -117,101 +104,6 @@ public class Mercedes extends Job {
         return JobConstants.isMercedes(id);
     }
 
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        Summon summon;
-        Field field;
-        switch (skillID) {
-            case DUAL_BOWGUN_BOOSTER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case IGNIS_ROAR:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IgnisRore, o1);
-                o2.nValue = si.getValue(indiePad, slv);
-                o2.nReason = skillID;
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o2);
-                break;
-            case WATER_SHIELD:
-                o1.nOption = si.getValue(asrR, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AsrR, o1);
-                o2.nOption = si.getValue(terR, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(TerR, o2);
-                o3.nOption = si.getValue(x, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamAbsorbShield, o3);   //IgnoreMobDamR
-                break;
-            case ANCIENT_WARDING:
-                o1.nOption = si.getValue(emhp, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EMHP, o1);
-                o2.nValue = si.getValue(indiePadR, slv);
-                o2.nReason = skillID;
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePADR, o2);
-                break;
-            case MAPLE_WARRIOR_MERC:
-                o1.nValue = si.getValue(x, slv);
-                o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case HEROIC_MEMORIES_MERC:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case ELVISH_BLESSING:
-                o1.nValue = si.getValue(indiePad, slv);
-                o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o1);
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Stance, o2);
-                break;
-            case ELEMENTAL_KNIGHTS_BLUE:
-                summonEleKnights();
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     private void summonEleKnights() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -459,22 +351,95 @@ public class Mercedes extends Job {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        Summon summon;
+        Field field;
+        switch(skillID) {
+            case HEROS_WILL_MERC:
+                tsm.removeAllDebuffs();
+                break;
+            case DUAL_BOWGUN_BOOSTER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case IGNIS_ROAR:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IgnisRore, o1);
+                o2.nValue = si.getValue(indiePad, slv);
+                o2.nReason = skillID;
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o2);
+                break;
+            case WATER_SHIELD:
+                o1.nOption = si.getValue(asrR, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AsrR, o1);
+                o2.nOption = si.getValue(terR, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(TerR, o2);
+                o3.nOption = si.getValue(x, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamAbsorbShield, o3);   //IgnoreMobDamR
+                break;
+            case ANCIENT_WARDING:
+                o1.nOption = si.getValue(emhp, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(EMHP, o1);
+                o2.nValue = si.getValue(indiePadR, slv);
+                o2.nReason = skillID;
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePADR, o2);
+                break;
+            case MAPLE_WARRIOR_MERC:
+                o1.nValue = si.getValue(x, slv);
+                o1.nReason = skillID;
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case HEROIC_MEMORIES_MERC:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+            case ELVISH_BLESSING:
+                o1.nValue = si.getValue(indiePad, slv);
+                o1.nReason = skillID;
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o1);
+                o2.nOption = si.getValue(x, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Stance, o2);
+                break;
+            case ELEMENTAL_KNIGHTS_BLUE:
+                summonEleKnights();
+                break;
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch(skillID) {
-                case HEROS_WILL_MERC:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
-        }
+        tsm.sendSetStatPacket();
     }
 
     // Hit related methods ---------------------------------------------------------------------------------------------

@@ -73,22 +73,6 @@ public class Mihile extends Job {
     public static final int QUEEN_OF_TOMORROW = 51121053;
     public static final int SACRED_CUBE = 51121054;
 
-    private int[] buffs = new int[] {
-            ROYAL_GUARD,
-            ROYAL_GUARD_2,
-            ROYAL_GUARD_3,
-            ROYAL_GUARD_4,
-            ROYAL_GUARD_5,
-            SWORD_BOOSTER,
-            RALLY,
-            ENDURING_SPIRIT,
-            SOUL_LINK,
-            ROILING_SOUL,
-            CALL_OF_CYGNUS_MIHILE,
-            QUEEN_OF_TOMORROW,
-            SACRED_CUBE,
-    };
-
     private ScheduledFuture soulLinkBuffsTimer;
     private ScheduledFuture soulLinkHPRegenTimer;
 
@@ -101,134 +85,6 @@ public class Mihile extends Job {
         return id == JobConstants.JobEnum.NAMELESS_WARDEN.getJobId() || JobConstants.isMihile(id);
     }
 
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        switch (skillID) {
-            case ROYAL_GUARD:   //BuffStat 'ShieldAttack'  has something to do with this skill
-            case ROYAL_GUARD_2:
-            case ROYAL_GUARD_3:
-            case ROYAL_GUARD_4:
-            case ROYAL_GUARD_5:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 1;
-                tsm.putCharacterStatValue(RoyalGuardPrepare, o1);
-                break;
-            case SWORD_BOOSTER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case RALLY:
-                o1.nValue = si.getValue(indiePad, slv);
-                o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o1);
-                break;
-            case ENDURING_SPIRIT: // PDDR(DEF%) = x  |  AsrR & TerR = y & z
-                o1.nValue = si.getValue(indiePddR, slv);
-                o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePDDR, o1);
-                o2.nOption = si.getValue(y, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AsrR, o2);
-                o3.nOption = si.getValue(z, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(TerR, o3);
-                break;
-            case SOUL_LINK: // (ON/OFF)
-                if(tsm.hasStatBySkillId(SOUL_LINK)) {
-                    tsm.removeStatsBySkill(SOUL_LINK);
-                    tsm.sendResetStatPacket();
-                } else {
-                    o1.nOption = 1;
-                    o1.rOption = SOUL_LINK;
-                    o1.cOption = chr.getId();
-                    tsm.putCharacterStatValue(MichaelSoulLink, o1);
-                }
-                if(soulLinkBuffsTimer != null && !soulLinkBuffsTimer.isDone()) {
-                    soulLinkBuffsTimer.cancel(true);
-                }
-                giveSoulLinkBuffs();
-
-                if(soulLinkHPRegenTimer != null && !soulLinkHPRegenTimer.isDone()) {
-                    soulLinkHPRegenTimer.cancel(true);
-                }
-                soulLinkHPRegen();
-                break;
-            case ROILING_SOUL:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                tsm.putCharacterStatValue(Enrage, o1);
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                tsm.putCharacterStatValue(DamR, o2);
-                o3.nOption = si.getValue(y, slv);
-                o3.rOption = skillID;
-                tsm.putCharacterStatValue(IncCriticalDamMin, o3);
-                break;
-            case CALL_OF_CYGNUS_MIHILE:
-                o1.nValue = si.getValue(x, slv);
-                o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case QUEEN_OF_TOMORROW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case SACRED_CUBE:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMhpR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMHPR, o2);
-                o3.nOption = si.getValue(x, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamageReduce, o3);
-                o4.nOption = 1;
-                o4.rOption = skillID;
-                o4.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamAbsorbShield, o4);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     private void giveRoyalGuardBuff(TemporaryStatManager tsm) { //TempStat  Shield Attack is Effect
         Option o = new Option();
@@ -543,34 +399,141 @@ public class Mihile extends Job {
         if (skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case MAGIC_CRASH:
-                    Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
-                    if(!chr.isLeft()) {
-                        rect = rect.moveRight();
-                    }
-                    for(Life life : chr.getField().getLifesInRect(rect)) {
-                        if(life instanceof Mob && ((Mob) life).getHp() > 0) {
-                            Mob mob = (Mob) life;
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            if(Util.succeedProp(si.getValue(prop, slv))) {
-                                mts.removeBuffs();
-                                o1.nOption = 1;
-                                o1.rOption = skillID;
-                                o1.tOption = si.getValue(time, slv);
-                                mts.addStatOptionsAndBroadcast(MobStat.MagicCrash, o1);
-                            }
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        switch (skillID) {
+            case MAGIC_CRASH:
+                Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
+                if(!chr.isLeft()) {
+                    rect = rect.moveRight();
+                }
+                for(Life life : chr.getField().getLifesInRect(rect)) {
+                    if(life instanceof Mob && ((Mob) life).getHp() > 0) {
+                        Mob mob = (Mob) life;
+                        MobTemporaryStat mts = mob.getTemporaryStat();
+                        if(Util.succeedProp(si.getValue(prop, slv))) {
+                            mts.removeBuffs();
+                            o1.nOption = 1;
+                            o1.rOption = skillID;
+                            o1.tOption = si.getValue(time, slv);
+                            mts.addStatOptionsAndBroadcast(MobStat.MagicCrash, o1);
                         }
                     }
-                    break;
-            }
+                }
+                break;
+            case ROYAL_GUARD:   //BuffStat 'ShieldAttack'  has something to do with this skill
+            case ROYAL_GUARD_2:
+            case ROYAL_GUARD_3:
+            case ROYAL_GUARD_4:
+            case ROYAL_GUARD_5:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 1;
+                tsm.putCharacterStatValue(RoyalGuardPrepare, o1);
+                break;
+            case SWORD_BOOSTER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case RALLY:
+                o1.nValue = si.getValue(indiePad, slv);
+                o1.nReason = skillID;
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o1);
+                break;
+            case ENDURING_SPIRIT: // PDDR(DEF%) = x  |  AsrR & TerR = y & z
+                o1.nValue = si.getValue(indiePddR, slv);
+                o1.nReason = skillID;
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePDDR, o1);
+                o2.nOption = si.getValue(y, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AsrR, o2);
+                o3.nOption = si.getValue(z, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(TerR, o3);
+                break;
+            case SOUL_LINK: // (ON/OFF)
+                if(tsm.hasStatBySkillId(SOUL_LINK)) {
+                    tsm.removeStatsBySkill(SOUL_LINK);
+                    tsm.sendResetStatPacket();
+                } else {
+                    o1.nOption = 1;
+                    o1.rOption = SOUL_LINK;
+                    o1.cOption = chr.getId();
+                    tsm.putCharacterStatValue(MichaelSoulLink, o1);
+                }
+                if(soulLinkBuffsTimer != null && !soulLinkBuffsTimer.isDone()) {
+                    soulLinkBuffsTimer.cancel(true);
+                }
+                giveSoulLinkBuffs();
+
+                if(soulLinkHPRegenTimer != null && !soulLinkHPRegenTimer.isDone()) {
+                    soulLinkHPRegenTimer.cancel(true);
+                }
+                soulLinkHPRegen();
+                break;
+            case ROILING_SOUL:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                tsm.putCharacterStatValue(Enrage, o1);
+                o2.nOption = si.getValue(x, slv);
+                o2.rOption = skillID;
+                tsm.putCharacterStatValue(DamR, o2);
+                o3.nOption = si.getValue(y, slv);
+                o3.rOption = skillID;
+                tsm.putCharacterStatValue(IncCriticalDamMin, o3);
+                break;
+            case CALL_OF_CYGNUS_MIHILE:
+                o1.nValue = si.getValue(x, slv);
+                o1.nReason = skillID;
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case QUEEN_OF_TOMORROW:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+            case SACRED_CUBE:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMhpR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMHPR, o2);
+                o3.nOption = si.getValue(x, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamageReduce, o3);
+                o4.nOption = 1;
+                o4.rOption = skillID;
+                o4.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamAbsorbShield, o4);
+                break;
         }
+        tsm.sendSetStatPacket();
     }
 
 

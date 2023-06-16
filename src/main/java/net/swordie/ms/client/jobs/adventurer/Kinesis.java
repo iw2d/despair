@@ -67,18 +67,6 @@ public class Kinesis extends Job {
 
     private static final int MAX_PP = 30;
 
-    private final int[] buffs = new int[]{
-            ESP_BOOSTER,
-            MENTAL_SHIELD,
-            PSYCHIC_ARMOR,
-            PURE_POWER,
-            PSYCHIC_BULWARK,
-            PSYCHIC_REINFORCEMENT,
-            PRESIDENTS_ORDERS,
-            TELEPATH_TACTICS,
-            KINETIC_JAUNT,
-    };
-
     private final int[] nonOrbSkills = new int[] {
             ULTIMATE_METAL_PRESS,
             ULTIMATE_BPM,
@@ -127,96 +115,6 @@ public class Kinesis extends Job {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         tsm.putCharacterStatValue(KinesisPsychicPoint, o);
         tsm.sendSetStatPacket();
-    }
-
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        int curTime = (int) System.currentTimeMillis();
-        switch (skillID) {
-            case ESP_BOOSTER:
-                o1.nValue = si.getValue(indieBooster, slv);
-                o1.nReason = skillID;
-                o1.tStart = curTime;
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieBooster, o1);
-                break;
-            case MENTAL_SHIELD:
-                o1.nOption = si.getValue(x, slv);
-                o1.nReason = skillID;
-                tsm.putCharacterStatValue(KinesisPsychicEnergeShield, o1);
-                break;
-            case PSYCHIC_ARMOR:
-            case PSYCHIC_BULWARK:
-                int t = SkillData.getSkillInfoById(PSYCHIC_ARMOR).getValue(time, slv);
-                o1.nValue = si.getValue(indiePdd, slv);
-                o1.nReason = skillID;
-                o1.tStart = curTime;
-                o1.tTerm = t;
-                tsm.putCharacterStatValue(IndiePDD, o1);
-                o2.nValue = si.getValue(indieMdd, slv);
-                o2.nReason = skillID;
-                o2.tStart = curTime;
-                o2.tTerm = t;
-                tsm.putCharacterStatValue(IndieMDD, o2);
-                o3.nOption = si.getValue(stanceProp, slv);
-                o3.rOption = skillID;
-                o3.tOption = t;
-                tsm.putCharacterStatValue(IndieStance, o3);
-                break;
-            case PURE_POWER:
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.nReason = skillID;
-                o1.tStart = curTime;
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                break;
-            case PSYCHIC_REINFORCEMENT:
-                o1.nValue = si.getValue(indieMadR, slv);
-                o1.nReason = skillID;
-                o1.tStart = curTime;
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMADR, o1);
-                break;
-            case PRESIDENTS_ORDERS:
-                o1.nValue = si.getValue(x, slv);
-                o1.nReason = skillID;
-                o1.tStart = curTime;
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case TELEPATH_TACTICS:
-                o1.nValue = si.getValue(indieMad, slv);
-                o1.nReason = skillID;
-                o1.tStart = curTime;
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMADR, o1);
-                o2.nValue = si.getValue(indieDamR, slv);
-                o2.nReason = skillID;
-                o2.tStart = curTime;
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o2);
-                break;
-            case KINETIC_JAUNT:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(NewFlying, o1); //38s
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
     }
 
 
@@ -349,27 +247,98 @@ public class Kinesis extends Job {
     @Override
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
         SkillInfo si = null;
         if(skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            switch(skillID) {
-                case PSYCHIC_CHARGER:
-                    int add = (MAX_PP - getPp()) / 2;
-                    addPP(add);
-                    break;
-                case RETURN_KINESIS:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-            }
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        int curTime = (int) System.currentTimeMillis();
+        switch(skillID) {
+            case PSYCHIC_CHARGER:
+                int add = (MAX_PP - getPp()) / 2;
+                addPP(add);
+                break;
+            case RETURN_KINESIS:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case ESP_BOOSTER:
+                o1.nValue = si.getValue(indieBooster, slv);
+                o1.nReason = skillID;
+                o1.tStart = curTime;
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieBooster, o1);
+                break;
+            case MENTAL_SHIELD:
+                o1.nOption = si.getValue(x, slv);
+                o1.nReason = skillID;
+                tsm.putCharacterStatValue(KinesisPsychicEnergeShield, o1);
+                break;
+            case PSYCHIC_ARMOR:
+            case PSYCHIC_BULWARK:
+                int t = SkillData.getSkillInfoById(PSYCHIC_ARMOR).getValue(time, slv);
+                o1.nValue = si.getValue(indiePdd, slv);
+                o1.nReason = skillID;
+                o1.tStart = curTime;
+                o1.tTerm = t;
+                tsm.putCharacterStatValue(IndiePDD, o1);
+                o2.nValue = si.getValue(indieMdd, slv);
+                o2.nReason = skillID;
+                o2.tStart = curTime;
+                o2.tTerm = t;
+                tsm.putCharacterStatValue(IndieMDD, o2);
+                o3.nOption = si.getValue(stanceProp, slv);
+                o3.rOption = skillID;
+                o3.tOption = t;
+                tsm.putCharacterStatValue(IndieStance, o3);
+                break;
+            case PURE_POWER:
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.nReason = skillID;
+                o1.tStart = curTime;
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                break;
+            case PSYCHIC_REINFORCEMENT:
+                o1.nValue = si.getValue(indieMadR, slv);
+                o1.nReason = skillID;
+                o1.tStart = curTime;
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMADR, o1);
+                break;
+            case PRESIDENTS_ORDERS:
+                o1.nValue = si.getValue(x, slv);
+                o1.nReason = skillID;
+                o1.tStart = curTime;
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case TELEPATH_TACTICS:
+                o1.nValue = si.getValue(indieMad, slv);
+                o1.nReason = skillID;
+                o1.tStart = curTime;
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMADR, o1);
+                o2.nValue = si.getValue(indieDamR, slv);
+                o2.nReason = skillID;
+                o2.tStart = curTime;
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o2);
+                break;
+            case KINETIC_JAUNT:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(NewFlying, o1); //38s
+                break;
         }
+        tsm.sendSetStatPacket();
     }
 
 

@@ -99,18 +99,6 @@ public class BlazeWizard extends Noblesse {
             ELEMENTAL_SHIFT2
     };
 
-    private int[] buffs = new int[] {
-            IGNITION,
-            WORD_OF_FIRE,
-            PHOENIX_RUN,
-            FIRES_OF_CREATION_FOX,
-            FIRES_OF_CREATION_LION,
-            FLAME_BARRIER,
-            CALL_OF_CYGNUS_BW,
-            GLORY_OF_THE_GUARDIANS_BW,
-            ORBITAL_FLAME_RANGE,
-    };
-
     boolean used;
     Position chrPos;
     int prevmap;
@@ -137,137 +125,6 @@ public class BlazeWizard extends Noblesse {
         return JobConstants.isBlazeWizard(id);
     }
 
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Summon summon;
-        switch (skillID) {
-            case WORD_OF_FIRE:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case FLAME_BARRIER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamageReduce, o1);
-                break;
-            case CALL_OF_CYGNUS_BW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
-            case IGNITION:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(WizardIgnite, o1);
-                break;
-            case FIRES_OF_CREATION_FOX:
-            case FIRES_OF_CREATION_LION:
-                if (chr.hasSkillOnCooldown(FIRES_OF_CREATION_FOX) || chr.hasSkillOnCooldown(FIRES_OF_CREATION_LION)) {
-                    break;
-                }
-
-                tsm.removeStatsBySkill(skillID == FIRES_OF_CREATION_FOX ? FIRES_OF_CREATION_LION : FIRES_OF_CREATION_LION);
-                Field field = c.getChr().getField();
-
-                if (summonFox != null)
-                {
-                    field.broadcastPacket(Summoned.summonedRemoved(summonFox, LeaveType.ANIMATION));
-                }
-
-                if (summonLion != null)
-                {
-                    field.broadcastPacket(Summoned.summonedRemoved(summonLion, LeaveType.ANIMATION));
-                }
-
-                tsm.sendResetStatPacket();
-
-                chr.setSkillCooldown(FIRES_OF_CREATION, slv); // to display cooldown in quickslot
-                chr.setSkillCooldown(FIRES_OF_CREATION_FOX, slv);
-                chr.setSkillCooldown(FIRES_OF_CREATION_LION, slv);
-
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                summon.setFlyMob(skillID == FIRES_OF_CREATION_FOX);
-                summon.setMoveAbility(MoveAbility.Walk);
-                // i have to specify the summon term as the _FOX/LION skills have the time set to 0, making the summon last forever!
-                summon.setSummonTerm(SkillData.getSkillInfoById(FIRES_OF_CREATION).getValue(time, slv));
-                field.spawnSummon(summon);
-
-                if (skillID == FIRES_OF_CREATION_FOX) {
-                    summonFox = summon;
-                } else {
-                    summonLion = summon;
-                }
-
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(y, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o1);
-                o2.nOption = si.getValue(z, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ElementalReset, o2);
-                break;
-            case CINDER_MAELSTROM:  //Special Summon    //TODO
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(false);
-                summon.setMoveAbility(MoveAbility.Stop);
-                field.spawnSummon(summon);
-                break;
-            case PHOENIX_RUN:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ReviveOnce, o1);
-                break;
-            case GLORY_OF_THE_GUARDIANS_BW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-
-            case ORBITAL_FLAME_RANGE:
-                if (tsm.hasStat(AddRangeOnOff)) {
-                    tsm.removeStatsBySkill(skillID);
-                    tsm.sendResetStatPacket();
-                } else {
-                    o1.nOption = si.getValue(range, slv);
-                    o1.rOption = skillID;
-                    o1.tOption = 0;
-                    tsm.putCharacterStatValue(AddRangeOnOff, o1);
-                }
-                break;
-        }
-        tsm.sendSetStatPacket();
-        
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     @Override
     public void handleSkillRemove(Char chr, int skillID) {
@@ -434,63 +291,171 @@ public class BlazeWizard extends Noblesse {
     @Override
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
         SkillInfo si = null;
         if(skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch(skillID) {
-                case CINDER_MAELSTROM:
-                    //TODO
-                    break;
-                case FLASHFIRE:
-                    Position flamepos = chr.getPosition();
-                    if(used == true) {
-                        if(chr.getFieldID() != prevmap) {
-                            //Set Blink
-                            prevmap = chr.getFieldID();
-                            c.write(WvsContext.flameWizardFlareBlink(chr, flamepos, false));
-                            chrPos = chr.getPosition();
-                            used = true;
-                        } else {
-                            //Clear Blink + Teleport
-                            c.write(WvsContext.flameWizardFlareBlink(chr, chrPos, true));
-                            used = false;
-                        }
-                    } else {
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Summon summon;
+        switch(skillID) {
+            case FLASHFIRE:
+                Position flamepos = chr.getPosition();
+                if(used == true) {
+                    if(chr.getFieldID() != prevmap) {
                         //Set Blink
                         prevmap = chr.getFieldID();
-                        c.write(WvsContext.flameWizardFlareBlink(chr, flamepos, false));
+                        chr.write(WvsContext.flameWizardFlareBlink(chr, flamepos, false));
                         chrPos = chr.getPosition();
                         used = true;
+                    } else {
+                        //Clear Blink + Teleport
+                        chr.write(WvsContext.flameWizardFlareBlink(chr, chrPos, true));
+                        used = false;
                     }
+                } else {
+                    //Set Blink
+                    prevmap = chr.getFieldID();
+                    chr.write(WvsContext.flameWizardFlareBlink(chr, flamepos, false));
+                    chrPos = chr.getPosition();
+                    used = true;
+                }
+                break;
+            case CONTROLLED_BURN:
+                int healmp = si.getValue(x, slv);
+                int healpercent = (chr.getMaxMP() * healmp) / 100;
+                chr.healMP(healpercent);
+                break;
+            case IMPERIAL_RECALL:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case BURNING_CONDUIT:
+                AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa.setMobOrigin((byte) 0);
+                aa.setPosition(chr.getPosition());
+                aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
+                aa.setDelay((short) 15);
+                chr.getField().spawnAffectedArea(aa);
+                break;
+            case WORD_OF_FIRE:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case FLAME_BARRIER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamageReduce, o1);
+                break;
+            case CALL_OF_CYGNUS_BW:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
+                break;
+            case IGNITION:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(WizardIgnite, o1);
+                break;
+            case FIRES_OF_CREATION_FOX:
+            case FIRES_OF_CREATION_LION:
+                if (chr.hasSkillOnCooldown(FIRES_OF_CREATION_FOX) || chr.hasSkillOnCooldown(FIRES_OF_CREATION_LION)) {
                     break;
-                case CONTROLLED_BURN:
-                    int healmp = si.getValue(x, slv);
-                    int healpercent = (chr.getMaxMP() * healmp) / 100;
-                    chr.healMP(healpercent);
-                    break;
-                case IMPERIAL_RECALL:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-                case BURNING_CONDUIT:
-                    AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
-                    aa.setMobOrigin((byte) 0);
-                    aa.setPosition(chr.getPosition());
-                    aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
-                    aa.setDelay((short) 15);
-                    chr.getField().spawnAffectedArea(aa);
-                    break;
-            }
+                }
+
+                tsm.removeStatsBySkill(skillID == FIRES_OF_CREATION_FOX ? FIRES_OF_CREATION_LION : FIRES_OF_CREATION_LION);
+                Field field = c.getChr().getField();
+
+                if (summonFox != null)
+                {
+                    field.broadcastPacket(Summoned.summonedRemoved(summonFox, LeaveType.ANIMATION));
+                }
+
+                if (summonLion != null)
+                {
+                    field.broadcastPacket(Summoned.summonedRemoved(summonLion, LeaveType.ANIMATION));
+                }
+
+                tsm.sendResetStatPacket();
+
+                chr.setSkillCooldown(FIRES_OF_CREATION, slv); // to display cooldown in quickslot
+                chr.setSkillCooldown(FIRES_OF_CREATION_FOX, slv);
+                chr.setSkillCooldown(FIRES_OF_CREATION_LION, slv);
+
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                summon.setFlyMob(skillID == FIRES_OF_CREATION_FOX);
+                summon.setMoveAbility(MoveAbility.Walk);
+                // i have to specify the summon term as the _FOX/LION skills have the time set to 0, making the summon last forever!
+                summon.setSummonTerm(SkillData.getSkillInfoById(FIRES_OF_CREATION).getValue(time, slv));
+                field.spawnSummon(summon);
+
+                if (skillID == FIRES_OF_CREATION_FOX) {
+                    summonFox = summon;
+                } else {
+                    summonLion = summon;
+                }
+
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(y, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o1);
+                o2.nOption = si.getValue(z, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ElementalReset, o2);
+                break;
+            case CINDER_MAELSTROM:  //Special Summon    //TODO
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                field = c.getChr().getField();
+                summon.setFlyMob(false);
+                summon.setMoveAbility(MoveAbility.Stop);
+                field.spawnSummon(summon);
+                break;
+            case PHOENIX_RUN:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ReviveOnce, o1);
+                break;
+            case GLORY_OF_THE_GUARDIANS_BW:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+
+            case ORBITAL_FLAME_RANGE:
+                if (tsm.hasStat(AddRangeOnOff)) {
+                    tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
+                } else {
+                    o1.nOption = si.getValue(range, slv);
+                    o1.rOption = skillID;
+                    o1.tOption = 0;
+                    tsm.putCharacterStatValue(AddRangeOnOff, o1);
+                }
+                break;
         }
+        tsm.sendSetStatPacket();
+
     }
 
 

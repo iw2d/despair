@@ -64,17 +64,6 @@ public class ThunderBreaker extends Noblesse {
             ELEMENTAL_SHIFT2
     };
 
-    private int[] buffs = new int[] {
-            LIGHTNING_ELEMENTAL,
-            KNUCKLE_BOOSTER,
-            LINK_MASTERY,
-            ARC_CHARGER,
-            SPEED_INFUSION,
-            CALL_OF_CYGNUS_TB,
-            GLORY_OF_THE_GUARDIANS_TB,
-            PRIMAL_BOLT,
-    };
-
     private int[] lightningBuffs = new int[] {
             LIGHTNING_ELEMENTAL,
             ELECTRIFIED,
@@ -102,95 +91,6 @@ public class ThunderBreaker extends Noblesse {
     @Override
     public boolean isHandlerOfJob(short id) {
         return JobConstants.isThunderBreaker(id);
-    }
-
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        switch (skillID) {
-            case LIGHTNING_ELEMENTAL:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(CygnusElementSkill, o1);
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
-                break;
-            case KNUCKLE_BOOSTER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case ARC_CHARGER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ShadowPartner, o1);
-                arcChargeCDCount = 0;
-                break;
-            case SPEED_INFUSION:
-                TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.PartyBooster);
-                tsb.setNOption(-1);
-                tsb.setROption(skillID);
-                tsb.setExpireTerm(1);
-                tsm.putCharacterStatValue(PartyBooster, tsb.getOption());
-                break;
-            case CALL_OF_CYGNUS_TB:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
-            case LINK_MASTERY:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamR, o1);
-                break;
-            case GLORY_OF_THE_GUARDIANS_TB:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case PRIMAL_BOLT:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(StrikerHyperElectric, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieDamR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o2);
-                chr.resetSkillCoolTime(TYPHOON);
-                chr.resetSkillCoolTime(GALE);
-                break;
-
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
     }
 
 
@@ -333,25 +233,93 @@ public class ThunderBreaker extends Noblesse {
     @Override
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
         SkillInfo si = null;
         if (skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case IMPERIAL_RECALL:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-            }
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        switch (skillID) {
+            case IMPERIAL_RECALL:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case LIGHTNING_ELEMENTAL:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(CygnusElementSkill, o1);
+                o2.nOption = si.getValue(x, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
+                break;
+            case KNUCKLE_BOOSTER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case ARC_CHARGER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ShadowPartner, o1);
+                arcChargeCDCount = 0;
+                break;
+            case SPEED_INFUSION:
+                TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.PartyBooster);
+                tsb.setNOption(-1);
+                tsb.setROption(skillID);
+                tsb.setExpireTerm(1);
+                tsm.putCharacterStatValue(PartyBooster, tsb.getOption());
+                break;
+            case CALL_OF_CYGNUS_TB:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
+                break;
+            case LINK_MASTERY:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamR, o1);
+                break;
+            case GLORY_OF_THE_GUARDIANS_TB:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+            case PRIMAL_BOLT:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(StrikerHyperElectric, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieDamR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o2);
+                chr.resetSkillCoolTime(TYPHOON);
+                chr.resetSkillCoolTime(GALE);
+                break;
+
         }
+        tsm.sendSetStatPacket();
     }
 
     @Override

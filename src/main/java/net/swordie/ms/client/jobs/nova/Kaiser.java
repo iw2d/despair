@@ -116,25 +116,6 @@ public class Kaiser extends Job {
             DRAGON_LINK,
     };
 
-    private final int[] buffs = new int[]{
-            REALIGN_ATTACKER_MODE,
-            REALIGN_DEFENDER_MODE,
-            TEMPEST_BLADES_THREE,
-            TEMPEST_BLADES_THREE_FF,
-            BLAZE_ON,
-            FINAL_FORM_THIRD,
-            STONE_DRAGON,
-            STONE_DRAGON_FINAL_FORM,
-            CURSEBITE,
-            FINAL_FORM_FOURTH,
-            TEMPEST_BLADES_FIVE,
-            TEMPEST_BLADES_FIVE_FF,
-            GRAND_ARMOR,
-            NOVA_WARRIOR_KAISER,
-            FINAL_TRANCE,
-            KAISERS_MAJESTY,
-    };
-
     public Kaiser(Char chr) {
         super(chr);
         if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
@@ -153,231 +134,6 @@ public class Kaiser extends Job {
         return JobConstants.isKaiser(id);
     }
 
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        Option o5 = new Option();
-        Option o6 = new Option();
-        Summon summon;
-        Field field;
-        Item item = chr.getEquippedInventory().getItemBySlot((short) 11);
-        StopForceAtom stopForceAtom = new StopForceAtom();
-        int weaponID = item.getItemId();
-        switch (skillID) {
-            case REALIGN_ATTACKER_MODE:
-                if (tsm.hasStatBySkillId(skillID)) {
-                    tsm.removeStatsBySkill(skillID);
-                } else {
-                    tsm.removeStatsBySkill(REALIGN_DEFENDER_MODE);
-                    giveRealignAttackBuffs();
-                }
-                break;
-            case REALIGN_DEFENDER_MODE:
-                if (tsm.hasStatBySkillId(skillID)) {
-                    tsm.removeStatsBySkill(skillID);
-                } else {
-                    tsm.removeStatsBySkill(REALIGN_ATTACKER_MODE);
-                    giveRealignDefendBuffs();
-                }
-                break;
-            case BLAZE_ON:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case CURSEBITE:
-                o1.nOption = si.getValue(asrR, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AsrR, o1);
-                o2.nOption = si.getValue(terR, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(TerR, o2);
-                break;
-            case GRAND_ARMOR:
-                // w = party dmg taken  v = self dmg taken
-                o1.nOption = si.getValue(v, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamageReduce, o1);
-                break;
-            case NOVA_WARRIOR_KAISER:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case TEMPEST_BLADES_THREE:
-                if (tsm.getOption(StopForceAtomInfo).nOption != 1 && tsm.hasStat(StopForceAtomInfo)) {
-                    tsm.removeStat(StopForceAtomInfo, true);
-                    tsm.sendResetStatPacket();
-                }
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                List<Integer> angles = Arrays.asList(0, 0, 0);
-                stopForceAtom.setCount(3);
-                stopForceAtom.setIdx(1);
-                stopForceAtom.setWeaponId(weaponID);
-                stopForceAtom.setAngleInfo(angles);
-                tsm.setStopForceAtom(stopForceAtom);
-                tsm.putCharacterStatValue(StopForceAtomInfo, o1);
-                break;
-            case TEMPEST_BLADES_THREE_FF: //Final Form
-                if (tsm.getOption(StopForceAtomInfo).nOption != 3 && tsm.hasStat(StopForceAtomInfo)) {
-                    tsm.removeStat(StopForceAtomInfo, true);
-                    tsm.sendResetStatPacket();
-                }
-                o1.nOption = 3;
-                o1.rOption = skillID;
-                angles = Arrays.asList(0, 0, 0);
-                stopForceAtom.setCount(3);
-                stopForceAtom.setIdx(3);
-                stopForceAtom.setWeaponId(weaponID);
-                stopForceAtom.setAngleInfo(angles);
-                tsm.setStopForceAtom(stopForceAtom);
-                tsm.putCharacterStatValue(StopForceAtomInfo, o1);
-                break;
-            case TEMPEST_BLADES_FIVE:
-                if (tsm.getOption(StopForceAtomInfo).nOption != 2 && tsm.hasStat(StopForceAtomInfo)) {
-                    tsm.removeStat(StopForceAtomInfo, true);
-                    tsm.sendResetStatPacket();
-                }
-                o1.nOption = 2;
-                o1.rOption = skillID;
-                angles = Arrays.asList(0, 0, 0, 0, 0);
-                stopForceAtom.setCount(5);
-                stopForceAtom.setIdx(2);
-                stopForceAtom.setWeaponId(weaponID);
-                stopForceAtom.setAngleInfo(angles);
-                tsm.setStopForceAtom(stopForceAtom);
-                tsm.putCharacterStatValue(StopForceAtomInfo, o1);
-                break;
-            case TEMPEST_BLADES_FIVE_FF: //Final Form
-                if (tsm.getOption(StopForceAtomInfo).nOption != 4 && tsm.hasStat(StopForceAtomInfo)) {
-                    tsm.removeStat(StopForceAtomInfo, true);
-                    tsm.sendResetStatPacket();
-                }
-                o1.nOption = 4;
-                o1.rOption = skillID;
-                angles = Arrays.asList(0, 0, 0, 0, 0);
-                stopForceAtom.setCount(5);
-                stopForceAtom.setIdx(4);
-                stopForceAtom.setWeaponId(weaponID);
-                stopForceAtom.setAngleInfo(angles);
-                tsm.setStopForceAtom(stopForceAtom);
-                tsm.putCharacterStatValue(StopForceAtomInfo, o1);
-                break;
-            case FINAL_FORM_THIRD:
-                if (tsm.hasStat(StopForceAtomInfo)) {
-                    tsm.removeStat(StopForceAtomInfo, true);
-                    tsm.sendResetStatPacket();
-                }
-                o6.nOption = 1200;
-                o6.rOption = skillID;
-                o6.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Morph, o6);
-                o1.nOption = si.getValue(cr, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(CriticalBuff, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indiePMdR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePMdR, o2);
-                o3.nOption = si.getValue(jump, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Jump, o3);
-                o4.nOption = si.getValue(prop, slv);
-                o4.rOption = skillID;
-                o4.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Stance, o4);
-                o5.nOption = si.getValue(speed, slv);
-                o5.rOption = skillID;
-                o5.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Speed, o5);
-                resetGauge(c, tsm);
-                break;
-            case FINAL_TRANCE:
-            case FINAL_FORM_FOURTH:
-                if (tsm.hasStat(StopForceAtomInfo)) {
-                    tsm.removeStat(StopForceAtomInfo, true);
-                    tsm.sendResetStatPacket();
-                }
-                o6.nOption = 1201;
-                o6.rOption = skillID;
-                o6.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Morph, o6);
-                o1.nOption = si.getValue(cr, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(CriticalBuff, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indiePMdR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePMdR, o2);
-                o3.nOption = si.getValue(jump, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Jump, o3);
-                o4.nOption = si.getValue(prop, slv);
-                o4.rOption = skillID;
-                o4.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Stance, o4);
-                o5.nOption = si.getValue(speed, slv);
-                o5.rOption = skillID;
-                o5.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Speed, o5);
-                resetGauge(c, tsm);
-                break;
-            case KAISERS_MAJESTY:
-                o1.nReason = skillID;
-                o1.nValue = -1;
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieBooster, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indiePad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o2);
-                for (int skillId : chr.getSkillCoolTimes().keySet()) {
-                    if (!SkillData.getSkillInfoById(skillId).isNotCooltimeReset() && SkillData.getSkillInfoById(skillId).getHyper() == 0) {
-                        chr.resetSkillCoolTime(skillId);
-                    }
-                }
-                break;
-            case STONE_DRAGON:
-            case STONE_DRAGON_FINAL_FORM:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(false);
-                summon.setMoveAction((byte) 0);
-                summon.setMoveAbility(MoveAbility.Stop);
-                Position position = new Position(chr.isLeft() ? chr.getPosition().getX() - 250 : chr.getPosition().getX() + 250, chr.getPosition().getY());
-                summon.setCurFoothold((short) chr.getField().findFootHoldBelow(position).getId());
-                summon.setPosition(position);
-                field.spawnSummon(summon);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     public void giveRealignAttackBuffs() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -764,22 +520,225 @@ public class Kaiser extends Job {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        Option o5 = new Option();
+        Option o6 = new Option();
+        Summon summon;
+        Field field;
+        Item item = chr.getEquippedInventory().getItemBySlot((short) 11);
+        StopForceAtom stopForceAtom = new StopForceAtom();
+        int weaponID = item.getItemId();
+        switch (skillID) {
+            case NOVA_TEMPERANCE_KAISER:
+                tsm.removeAllDebuffs();
+                break;
+            case REALIGN_ATTACKER_MODE:
+                if (tsm.hasStatBySkillId(skillID)) {
+                    tsm.removeStatsBySkill(skillID);
+                } else {
+                    tsm.removeStatsBySkill(REALIGN_DEFENDER_MODE);
+                    giveRealignAttackBuffs();
+                }
+                break;
+            case REALIGN_DEFENDER_MODE:
+                if (tsm.hasStatBySkillId(skillID)) {
+                    tsm.removeStatsBySkill(skillID);
+                } else {
+                    tsm.removeStatsBySkill(REALIGN_ATTACKER_MODE);
+                    giveRealignDefendBuffs();
+                }
+                break;
+            case BLAZE_ON:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case CURSEBITE:
+                o1.nOption = si.getValue(asrR, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AsrR, o1);
+                o2.nOption = si.getValue(terR, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(TerR, o2);
+                break;
+            case GRAND_ARMOR:
+                // w = party dmg taken  v = self dmg taken
+                o1.nOption = si.getValue(v, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamageReduce, o1);
+                break;
+            case NOVA_WARRIOR_KAISER:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case TEMPEST_BLADES_THREE:
+                if (tsm.getOption(StopForceAtomInfo).nOption != 1 && tsm.hasStat(StopForceAtomInfo)) {
+                    tsm.removeStat(StopForceAtomInfo, true);
+                    tsm.sendResetStatPacket();
+                }
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                List<Integer> angles = Arrays.asList(0, 0, 0);
+                stopForceAtom.setCount(3);
+                stopForceAtom.setIdx(1);
+                stopForceAtom.setWeaponId(weaponID);
+                stopForceAtom.setAngleInfo(angles);
+                tsm.setStopForceAtom(stopForceAtom);
+                tsm.putCharacterStatValue(StopForceAtomInfo, o1);
+                break;
+            case TEMPEST_BLADES_THREE_FF: //Final Form
+                if (tsm.getOption(StopForceAtomInfo).nOption != 3 && tsm.hasStat(StopForceAtomInfo)) {
+                    tsm.removeStat(StopForceAtomInfo, true);
+                    tsm.sendResetStatPacket();
+                }
+                o1.nOption = 3;
+                o1.rOption = skillID;
+                angles = Arrays.asList(0, 0, 0);
+                stopForceAtom.setCount(3);
+                stopForceAtom.setIdx(3);
+                stopForceAtom.setWeaponId(weaponID);
+                stopForceAtom.setAngleInfo(angles);
+                tsm.setStopForceAtom(stopForceAtom);
+                tsm.putCharacterStatValue(StopForceAtomInfo, o1);
+                break;
+            case TEMPEST_BLADES_FIVE:
+                if (tsm.getOption(StopForceAtomInfo).nOption != 2 && tsm.hasStat(StopForceAtomInfo)) {
+                    tsm.removeStat(StopForceAtomInfo, true);
+                    tsm.sendResetStatPacket();
+                }
+                o1.nOption = 2;
+                o1.rOption = skillID;
+                angles = Arrays.asList(0, 0, 0, 0, 0);
+                stopForceAtom.setCount(5);
+                stopForceAtom.setIdx(2);
+                stopForceAtom.setWeaponId(weaponID);
+                stopForceAtom.setAngleInfo(angles);
+                tsm.setStopForceAtom(stopForceAtom);
+                tsm.putCharacterStatValue(StopForceAtomInfo, o1);
+                break;
+            case TEMPEST_BLADES_FIVE_FF: //Final Form
+                if (tsm.getOption(StopForceAtomInfo).nOption != 4 && tsm.hasStat(StopForceAtomInfo)) {
+                    tsm.removeStat(StopForceAtomInfo, true);
+                    tsm.sendResetStatPacket();
+                }
+                o1.nOption = 4;
+                o1.rOption = skillID;
+                angles = Arrays.asList(0, 0, 0, 0, 0);
+                stopForceAtom.setCount(5);
+                stopForceAtom.setIdx(4);
+                stopForceAtom.setWeaponId(weaponID);
+                stopForceAtom.setAngleInfo(angles);
+                tsm.setStopForceAtom(stopForceAtom);
+                tsm.putCharacterStatValue(StopForceAtomInfo, o1);
+                break;
+            case FINAL_FORM_THIRD:
+                if (tsm.hasStat(StopForceAtomInfo)) {
+                    tsm.removeStat(StopForceAtomInfo, true);
+                    tsm.sendResetStatPacket();
+                }
+                o6.nOption = 1200;
+                o6.rOption = skillID;
+                o6.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Morph, o6);
+                o1.nOption = si.getValue(cr, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(CriticalBuff, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indiePMdR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePMdR, o2);
+                o3.nOption = si.getValue(jump, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Jump, o3);
+                o4.nOption = si.getValue(prop, slv);
+                o4.rOption = skillID;
+                o4.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Stance, o4);
+                o5.nOption = si.getValue(speed, slv);
+                o5.rOption = skillID;
+                o5.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Speed, o5);
+                resetGauge(c, tsm);
+                break;
+            case FINAL_TRANCE:
+            case FINAL_FORM_FOURTH:
+                if (tsm.hasStat(StopForceAtomInfo)) {
+                    tsm.removeStat(StopForceAtomInfo, true);
+                    tsm.sendResetStatPacket();
+                }
+                o6.nOption = 1201;
+                o6.rOption = skillID;
+                o6.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Morph, o6);
+                o1.nOption = si.getValue(cr, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(CriticalBuff, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indiePMdR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePMdR, o2);
+                o3.nOption = si.getValue(jump, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Jump, o3);
+                o4.nOption = si.getValue(prop, slv);
+                o4.rOption = skillID;
+                o4.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Stance, o4);
+                o5.nOption = si.getValue(speed, slv);
+                o5.rOption = skillID;
+                o5.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Speed, o5);
+                resetGauge(c, tsm);
+                break;
+            case KAISERS_MAJESTY:
+                o1.nReason = skillID;
+                o1.nValue = -1;
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieBooster, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indiePad, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o2);
+                for (int skillId : chr.getSkillCoolTimes().keySet()) {
+                    if (!SkillData.getSkillInfoById(skillId).isNotCooltimeReset() && SkillData.getSkillInfoById(skillId).getHyper() == 0) {
+                        chr.resetSkillCoolTime(skillId);
+                    }
+                }
+                break;
+            case STONE_DRAGON:
+            case STONE_DRAGON_FINAL_FORM:
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                field = c.getChr().getField();
+                summon.setFlyMob(false);
+                summon.setMoveAction((byte) 0);
+                summon.setMoveAbility(MoveAbility.Stop);
+                Position position = new Position(chr.isLeft() ? chr.getPosition().getX() - 250 : chr.getPosition().getX() + 250, chr.getPosition().getY());
+                summon.setCurFoothold((short) chr.getField().findFootHoldBelow(position).getId());
+                summon.setPosition(position);
+                field.spawnSummon(summon);
+                break;
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case NOVA_TEMPERANCE_KAISER:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
-        }
+        tsm.sendSetStatPacket();
     }
 
 

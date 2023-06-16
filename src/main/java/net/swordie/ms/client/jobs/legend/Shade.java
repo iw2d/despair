@@ -68,15 +68,6 @@ public class Shade extends Job {
             SPIRIT_BOND_I,
     };
 
-    private final int[] buffs = new int[]{
-            FOX_SPIRITS,
-            SUMMON_OTHER_SPIRIT,
-            SPIRIT_WARD,
-            MAPLE_WARRIOR_SH,
-            HEROIC_MEMORIES_SH,
-            SPIRIT_BOND_MAX,
-    };
-
     private long spiritWardTimer;
 
     public Shade(Char chr) {
@@ -98,91 +89,6 @@ public class Shade extends Job {
     }
 
 
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        Option o5 = new Option();
-        switch (skillID) {
-            case FOX_SPIRITS:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(HiddenPossession, o1);
-                break;
-            case SUMMON_OTHER_SPIRIT:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ReviveOnce, o1);
-                break;
-            case SPIRIT_WARD:
-                o1.nOption = 3;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(SpiritGuard, o1);
-                spiritWardTimer = System.currentTimeMillis() + (si.getValue(time, slv) * 1000);
-                break;
-            case MAPLE_WARRIOR_SH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case HEROIC_MEMORIES_SH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case SPIRIT_BOND_MAX:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indiePad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o2);
-                o3.nReason = skillID;
-                o3.nValue = si.getValue(indieBDR, slv);
-                o3.tStart = (int) System.currentTimeMillis();
-                o3.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieBDR, o3);
-                o4.nReason = skillID;
-                o4.nValue = -1; //Booster
-                o4.tStart = (int) System.currentTimeMillis();
-                o4.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieBooster, o4);
-                o5.nReason = skillID;
-                o5.nValue = si.getValue(indieIgnoreMobpdpR, slv);
-                o5.tStart = (int) System.currentTimeMillis();
-                o5.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o5);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     // Attack related methods ------------------------------------------------------------------------------------------
 
@@ -417,35 +323,97 @@ public class Shade extends Job {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        Option o5 = new Option();
+        switch (skillID) {
+            case SPIRIT_TRAP:
+                SkillInfo fci = SkillData.getSkillInfoById(skillID);
+                AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa.setMobOrigin((byte) 0);
+                aa.setPosition(chr.getPosition());
+                aa.setRect(aa.getPosition().getRectAround(fci.getRects().get(0)));
+                aa.setDelay((short) 4);
+                chr.getField().spawnAffectedArea(aa);
+                break;
+            case FIRE_FOX_SPIRIT_MASTERY:
+            case FOX_SPIRITS_INIT:
+                createFoxSpiritForceAtom(skillID);
+                break;
+            case HEROS_WILL_SH:
+                tsm.removeAllDebuffs();
+                break;
+            case FOX_SPIRITS:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 0;
+                tsm.putCharacterStatValue(HiddenPossession, o1);
+                break;
+            case SUMMON_OTHER_SPIRIT:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ReviveOnce, o1);
+                break;
+            case SPIRIT_WARD:
+                o1.nOption = 3;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(SpiritGuard, o1);
+                spiritWardTimer = System.currentTimeMillis() + (si.getValue(time, slv) * 1000);
+                break;
+            case MAPLE_WARRIOR_SH:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1);
+                break;
+            case HEROIC_MEMORIES_SH:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+            case SPIRIT_BOND_MAX:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indiePad, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o2);
+                o3.nReason = skillID;
+                o3.nValue = si.getValue(indieBDR, slv);
+                o3.tStart = (int) System.currentTimeMillis();
+                o3.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieBDR, o3);
+                o4.nReason = skillID;
+                o4.nValue = -1; //Booster
+                o4.tStart = (int) System.currentTimeMillis();
+                o4.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieBooster, o4);
+                o5.nReason = skillID;
+                o5.nValue = si.getValue(indieIgnoreMobpdpR, slv);
+                o5.tStart = (int) System.currentTimeMillis();
+                o5.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o5);
+                break;
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case SPIRIT_TRAP:
-                    SkillInfo fci = SkillData.getSkillInfoById(skillID);
-                    AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
-                    aa.setMobOrigin((byte) 0);
-                    aa.setPosition(chr.getPosition());
-                    aa.setRect(aa.getPosition().getRectAround(fci.getRects().get(0)));
-                    aa.setDelay((short) 4);
-                    chr.getField().spawnAffectedArea(aa);
-                    break;
-                case FIRE_FOX_SPIRIT_MASTERY:
-                case FOX_SPIRITS_INIT:
-                    createFoxSpiritForceAtom(skillID);
-                    break;
-                case HEROS_WILL_SH:
-                    tsm.removeAllDebuffs();
-                    break;
-            }
-        }
+        tsm.sendSetStatPacket();
     }
 
 

@@ -105,21 +105,6 @@ public class NightWalker extends Noblesse {
             ELEMENTAL_SHIFT2,
     };
 
-    private int[] buffs = new int[] {
-            DARK_ELEMENTAL,
-            HASTE,
-            DARK_SIGHT,
-            SHADOW_BAT,
-            THROWING_BOOSTER,
-            DARK_SERVANT,
-            SPIRIT_PROJECTION,
-            DARKNESS_ASCENDING,
-            CALL_OF_CYGNUS_NW,
-            DARK_OMEN,
-            GLORY_OF_THE_GUARDIANS_NW,
-            SHADOW_ILLUSION,
-    };
-
     private int[] darkEleSkills = new int[] {
             DARK_ELEMENTAL,
             ADAPTIVE_DARKNESS,
@@ -157,135 +142,6 @@ public class NightWalker extends Noblesse {
         return JobConstants.isNightWalker(id);
     }
 
-
-
-    // Buff related methods --------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleBuff(Char chr, InPacket inPacket, int skillID, int slv) {
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Summon summon;
-        Field field;
-        switch (skillID) {
-            case DARK_ELEMENTAL:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ElementDarkness, o1);
-                break;
-            case HASTE:
-                o1.nOption = si.getValue(speed, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Speed, o1);
-                o2.nOption = si.getValue(jump, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Jump, o2);
-                o3.nOption = si.getValue(er, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EVAR, o3);
-                break;
-            case DARK_SIGHT:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DarkSight, o1);
-                break;
-            case THROWING_BOOSTER:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case DARK_SERVANT:
-                applyDarkServant();
-                break;
-            case SPIRIT_PROJECTION:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(NoBulletConsume, o1);
-                break;
-            case DARKNESS_ASCENDING:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ReviveOnce, o1);
-                break;
-            case CALL_OF_CYGNUS_NW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
-            case SHADOW_BAT:
-                if(tsm.hasStatBySkillId(skillID)) {
-                    tsm.removeStatsBySkill(skillID);
-                    tsm.sendResetStatPacket();
-                } else {
-                    o1.nOption = 1;
-                    o1.rOption = skillID;
-                    o1.tOption = 0;
-                    tsm.putCharacterStatValue(NightWalkerBat, o1);
-                }
-                break;
-            case GLORY_OF_THE_GUARDIANS_NW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case SHADOW_ILLUSION:
-                if(chr.getField().getSummons().stream()
-                        .anyMatch(l -> l.getChr() == chr &&
-                                l.getSkillID() == DARK_SERVANT)
-                        ) {
-                    tsm.removeStatsBySkill(DARK_SERVANT);
-                    c.getChr().getField().broadcastPacket(Summoned.summonedRemoved(darkServant, LeaveType.ANIMATION));
-                }
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ShadowIllusion, o1);
-                for(int i = skillID; i < skillID+3; i++) {
-                    summon = Summon.getSummonBy(c.getChr(), i, slv);
-                    field = c.getChr().getField();
-                    summon.setFlyMob(false);
-                    summon.setAvatarLook(chr.getAvatarData().getAvatarLook());
-                    summon.setMoveAbility(MoveAbility.WalkClone);
-                    field.spawnSummon(summon);
-                }
-                if(chr.hasSkill(DARK_SERVANT)) {
-                    EventManager.addEvent(this::applyDarkServant, si.getValue(time, slv) * 1001, TimeUnit.MILLISECONDS);
-                }
-                break;
-            case DARK_OMEN:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
-                summon.setFlyMob(false);
-                summon.setMoveAbility(MoveAbility.Stop);
-                field.spawnSummon(summon);
-                break;
-        }
-        tsm.sendSetStatPacket();
-    }
-
-    public boolean isBuff(int skillID) {
-        return super.isBuff(skillID) || Arrays.stream(buffs).anyMatch(b -> b == skillID);
-    }
 
     private void applyDarkServant() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -722,20 +578,128 @@ public class NightWalker extends Noblesse {
         if (skill != null) {
             si = SkillData.getSkillInfoById(skillID);
         }
-        if (isBuff(skillID)) {
-            handleBuff(chr, inPacket, skillID, slv);
-        } else {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            switch (skillID) {
-                case IMPERIAL_RECALL:
-                    o1.nValue = si.getValue(x, slv);
-                    Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                    chr.warp(toField);
-                    break;
-            }
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Summon summon;
+        Field field;
+        switch (skillID) {
+            case IMPERIAL_RECALL:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+            case DARK_ELEMENTAL:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ElementDarkness, o1);
+                break;
+            case HASTE:
+                o1.nOption = si.getValue(speed, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Speed, o1);
+                o2.nOption = si.getValue(jump, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Jump, o2);
+                o3.nOption = si.getValue(er, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(EVAR, o3);
+                break;
+            case DARK_SIGHT:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DarkSight, o1);
+                break;
+            case THROWING_BOOSTER:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Booster, o1);
+                break;
+            case DARK_SERVANT:
+                applyDarkServant();
+                break;
+            case SPIRIT_PROJECTION:
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(NoBulletConsume, o1);
+                break;
+            case DARKNESS_ASCENDING:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ReviveOnce, o1);
+                break;
+            case CALL_OF_CYGNUS_NW:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(x, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
+                break;
+            case SHADOW_BAT:
+                if(tsm.hasStatBySkillId(skillID)) {
+                    tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
+                } else {
+                    o1.nOption = 1;
+                    o1.rOption = skillID;
+                    o1.tOption = 0;
+                    tsm.putCharacterStatValue(NightWalkerBat, o1);
+                }
+                break;
+            case GLORY_OF_THE_GUARDIANS_NW:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieDamR, slv);
+                o1.tStart = (int) System.currentTimeMillis();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                break;
+            case SHADOW_ILLUSION:
+                if(chr.getField().getSummons().stream()
+                        .anyMatch(l -> l.getChr() == chr &&
+                                l.getSkillID() == DARK_SERVANT)
+                ) {
+                    tsm.removeStatsBySkill(DARK_SERVANT);
+                    c.getChr().getField().broadcastPacket(Summoned.summonedRemoved(darkServant, LeaveType.ANIMATION));
+                }
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(ShadowIllusion, o1);
+                for(int i = skillID; i < skillID+3; i++) {
+                    summon = Summon.getSummonBy(c.getChr(), i, slv);
+                    field = c.getChr().getField();
+                    summon.setFlyMob(false);
+                    summon.setAvatarLook(chr.getAvatarData().getAvatarLook());
+                    summon.setMoveAbility(MoveAbility.WalkClone);
+                    field.spawnSummon(summon);
+                }
+                if(chr.hasSkill(DARK_SERVANT)) {
+                    EventManager.addEvent(this::applyDarkServant, si.getValue(time, slv) * 1001, TimeUnit.MILLISECONDS);
+                }
+                break;
+            case DARK_OMEN:
+                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                field = c.getChr().getField();
+                summon.setFlyMob(false);
+                summon.setMoveAbility(MoveAbility.Stop);
+                field.spawnSummon(summon);
+                break;
         }
+        tsm.sendSetStatPacket();
     }
 
 
