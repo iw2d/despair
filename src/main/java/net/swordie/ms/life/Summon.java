@@ -9,8 +9,9 @@ import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
-import net.swordie.ms.client.jobs.adventurer.Thief;
-import net.swordie.ms.client.jobs.adventurer.Warrior;
+import net.swordie.ms.client.jobs.adventurer.thief.Thief;
+import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
+import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
 import net.swordie.ms.client.jobs.cygnus.WindArcher;
 import net.swordie.ms.client.jobs.resistance.Mechanic;
 import net.swordie.ms.client.jobs.sengoku.Kanna;
@@ -299,12 +300,12 @@ public class Summon extends Life {
 
     public void onSkillUse(int skillId) {
         switch (skillId) {
-            case Warrior.EVIL_EYE:
-                ((Warrior) chr.getJobHandler()).healByEvilEye();
+            case DarkKnight.EVIL_EYE:
+                ((DarkKnight) chr.getJobHandler()).healByEvilEye();
                 break;
 
-            case Warrior.HEX_OF_THE_EVIL_EYE:
-                ((Warrior) chr.getJobHandler()).giveHexOfTheEvilEyeBuffs();
+            case DarkKnight.HEX_OF_THE_EVIL_EYE:
+                ((DarkKnight) chr.getJobHandler()).giveHexOfTheEvilEyeBuffs();
                 break;
 
             case Mechanic.SUPPORT_UNIT_HEX:

@@ -13,7 +13,8 @@ import net.swordie.ms.client.character.potential.CharacterPotentialMan;
 import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
-import net.swordie.ms.client.jobs.adventurer.Warrior;
+import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
+import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
 import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.legend.Shade;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
@@ -431,7 +432,7 @@ public class UserHandler {
         if (skillId == Evan.DRAGON_FURY) {
             field.broadcastPacket(UserRemote.effect(chrId, Effect.showDragonFuryEffect(skillId, slv, 0, true)));
 
-        } else if (skillId == Warrior.FINAL_PACT) {
+        } else if (skillId == DarkKnight.FINAL_PACT) {
             field.broadcastPacket(UserRemote.effect(chrId, Effect.showFinalPactEffect(skillId, slv, 0, true)));
 
         } else if (skillId == WildHunter.CALL_OF_THE_HUNTER) {

@@ -2,8 +2,9 @@ package net.swordie.ms.connection.packet;
 
 
 import net.swordie.ms.client.character.Char;
-import net.swordie.ms.client.jobs.adventurer.Thief;
-import net.swordie.ms.client.jobs.adventurer.Warrior;
+import net.swordie.ms.client.jobs.adventurer.thief.Thief;
+import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
+import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
 import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.legend.Luminous;
 import net.swordie.ms.client.jobs.legend.Shade;
@@ -204,7 +205,7 @@ public class Effect {
         outPacket.encodeByte(getArg3()); // slv ?
         if (skillID == Evan.DRAGON_FURY) { // Dragon Fury
             outPacket.encodeByte(getArg5()); // bCreate
-        } else if (skillID == Warrior.FINAL_PACT) {
+        } else if (skillID == DarkKnight.FINAL_PACT) {
             outPacket.encodeByte(getArg5()); // bLoadReincarnationEffect
         } else if (skillID == Thief.CHAINS_OF_HELL) {
             outPacket.encodeByte(getArg5()); // bLeft

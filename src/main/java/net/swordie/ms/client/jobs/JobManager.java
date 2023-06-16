@@ -1,10 +1,17 @@
 package net.swordie.ms.client.jobs;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.jobs.adventurer.*;
+import net.swordie.ms.client.jobs.adventurer.archer.Archer;
+import net.swordie.ms.client.jobs.adventurer.magician.Magician;
+import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
+import net.swordie.ms.client.jobs.adventurer.thief.Thief;
+import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
+import net.swordie.ms.client.jobs.adventurer.warrior.Hero;
+import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
+import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
 import net.swordie.ms.client.jobs.cygnus.*;
 import net.swordie.ms.client.jobs.legend.*;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
@@ -22,6 +29,10 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class JobManager {
     private static final Class[] jobClasses = new Class[] {
+            Warrior.class,
+            Hero.class,
+            Paladin.class,
+            DarkKnight.class,
             Archer.class,
             BeastTamer.class,
             Beginner.class,
@@ -30,7 +41,6 @@ public class JobManager {
             PinkBean.class,
             Pirate.class,
             Thief.class,
-            Warrior.class,
 
             BlazeWizard.class,
             DawnWarrior.class,

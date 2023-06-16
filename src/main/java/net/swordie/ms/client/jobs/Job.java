@@ -17,8 +17,10 @@ import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.adventurer.Beginner;
 import net.swordie.ms.client.jobs.adventurer.BeastTamer;
-import net.swordie.ms.client.jobs.adventurer.Magician;
-import net.swordie.ms.client.jobs.adventurer.Warrior;
+import net.swordie.ms.client.jobs.adventurer.magician.Magician;
+import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
+import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
+import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.Mihile;
 import net.swordie.ms.client.jobs.cygnus.NightWalker;
@@ -575,7 +577,7 @@ public abstract class Job {
 			PartyMember paladinInParty = party.getPartyMemberByID(tsm.getOption(KnightsAura).nOption);
 			if (paladinInParty != null) {
 				Char paladinChr = paladinInParty.getChr();
-				Skill skill = paladinChr.getSkill(Warrior.PARASHOCK_GUARD);
+				Skill skill = paladinChr.getSkill(Paladin.PARASHOCK_GUARD);
 				SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
 				int slv = skill.getCurrentLevel();
 
@@ -656,8 +658,8 @@ public abstract class Job {
 			// Class Revives ----------------------------------------
 
 			// Dark Knight - Final Pact
-			else if(JobConstants.isDarkKnight(chr.getJob()) && chr.hasSkill(Warrior.FINAL_PACT_INFO)) {
-				((Warrior) chr.getJobHandler()).reviveByFinalPact();
+			else if(JobConstants.isDarkKnight(chr.getJob()) && chr.hasSkill(DarkKnight.FINAL_PACT_INFO)) {
+				((DarkKnight) chr.getJobHandler()).reviveByFinalPact();
 			}
 
 			// Night Walker - Darkness Ascending

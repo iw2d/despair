@@ -1,4 +1,4 @@
-package net.swordie.ms.client.jobs.adventurer;
+package net.swordie.ms.client.jobs.adventurer.archer;
 
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
@@ -11,6 +11,7 @@ import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.client.jobs.adventurer.Beginner;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.FieldPacket;

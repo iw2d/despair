@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.resistance;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
@@ -13,11 +12,9 @@ import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.loaders.SkillData;
 
-import java.util.Arrays;
-
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
-import static net.swordie.ms.client.jobs.adventurer.Thief.DARK_SIGHT;
+import static net.swordie.ms.client.jobs.adventurer.thief.Thief.DARK_SIGHT;
 
 /**
  * Created on 12/14/2017.
