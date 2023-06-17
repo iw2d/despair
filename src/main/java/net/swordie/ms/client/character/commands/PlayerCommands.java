@@ -75,10 +75,8 @@ public class PlayerCommands {
     @Command(names = {"stats"}, requiredType = AccountType.Player)
     public static class Stats extends PlayerCommand {
         public static void execute(Char chr, String[] args) {
-            StringBuilder sb = new StringBuilder();
             DamageCalc damageCalc = chr.getDamageCalc();
-            sb.append(String.format("Damage: %d ~ %d%n", (int) damageCalc.getMinBaseDamage(), (int) damageCalc.getMaxBaseDamage()));
-            chr.chatMessage(Mob, sb.toString());
+            chr.chatMessage(Mob, (String.format("Damage: %d ~ %d", (int) damageCalc.getMinBaseDamage(), (int) damageCalc.getMaxBaseDamage())));
         }
     }
 

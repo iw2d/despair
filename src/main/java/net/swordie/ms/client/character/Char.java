@@ -4019,7 +4019,20 @@ public class Char {
 	 * @param amount the amount of BaseStat to remove
 	 */
 	public void removeBaseStat(BaseStat bs, int amount) {
-		addBaseStat(bs, -amount);
+		if (bs != null) {
+			if (bs.isNonAdditiveStat()) {
+				if (!getNonAddBaseStats().containsKey(bs)) {
+					getNonAddBaseStats().put(bs, new HashSet<>());
+				}
+				if (getNonAddBaseStats().get(bs).contains(amount)) {
+					getNonAddBaseStats().get(bs).remove(amount);
+				} else {
+					log.warn(String.format("Trying to remove NonAddBaseStat %s %d that does not exist.", bs, amount));
+				}
+			} else {
+				getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0L) - amount);
+			}
+		}
 	}
 
 	public Map<BaseStat, Integer> getSetBaseStats() { return setBaseStats; }
