@@ -21,21 +21,24 @@ public class ToBaseStat {
         int totalFdBonus = 0;
         Skill skill = ((Hero) chr.getJobHandler()).getComboAttackSkill();
         switch (skill.getSkillId()) {
+            case Hero.COMBO_SYNERGY:
+                totalFdBonus = chr.getSkillStatValue(SkillStat.damR, Hero.COMBO_SYNERGY);
             case Hero.COMBO_ATTACK:
                 stats.put(BaseStat.pad, orbAmount * chr.getSkillStatValue(SkillStat.y, Hero.COMBO_ATTACK));
                 break;
             case Hero.ADVANCED_COMBO:
+                stats.put(BaseStat.pad, orbAmount * chr.getSkillStatValue(SkillStat.y, Hero.COMBO_ATTACK));
                 totalFdBonus = chr.getSkillStatValue(SkillStat.v, Hero.ADVANCED_COMBO);
-                break;
-            case Hero.COMBO_SYNERGY:
-                totalFdBonus = chr.getSkillStatValue(SkillStat.indieDamR, Hero.COMBO_SYNERGY);
                 break;
         }
         if (chr.hasSkill(Hero.ADVANCED_COMBO_REINFORCE)) {
             totalFdBonus += chr.getSkillStatValue(SkillStat.damR, Hero.ADVANCED_COMBO_REINFORCE);
         }
-
         stats.put(BaseStat.fd, orbAmount * totalFdBonus);
+
+        if (chr.hasSkill(Hero.ADVANCED_COMBO_BOSS_RUSH)) {
+            stats.put(BaseStat.bd, orbAmount * chr.getSkillStatValue(SkillStat.w, Hero.ADVANCED_COMBO_BOSS_RUSH));
+        }
         return stats;
     }
 }

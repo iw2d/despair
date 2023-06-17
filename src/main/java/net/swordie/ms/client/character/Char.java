@@ -3479,30 +3479,32 @@ public class Char {
 	}
 
 	public void setOnline(boolean online) {
-		if (getGuild() != null) {
-			setGuild(getGuild()); // Hack to ensure that all chars have the same instance of a guild
-			Guild g = getGuild();
-			GuildMember gm = g.getMemberByCharID(getId());
-			gm.setOnline(online);
-			gm.setChr(online ? this : null);
-			Alliance ally = getGuild().getAlliance();
-			if (ally != null) {
-				ally.broadcast(WvsContext.allianceResult(
-						AllianceResult.notifyLoginOrLogout(ally, g, gm, !this.online && online)), this);
-			} else {
-				getGuild().broadcast(WvsContext.guildResult(
-						GuildResult.notifyLoginOrLogout(g, gm, online, online)), this);
-			}
-		}
-		this.online = online;
-		if (getParty() != null) {
-			PartyMember pm = getParty().getPartyMemberByID(getId());
+		Party party = getParty();
+		if (party != null) {
+			PartyMember pm = party.getPartyMemberByID(getId());
 			if (pm != null) {
 				pm.setChr(online ? this : null);
 				pm.updateInfoByChar(this);
 				getParty().updateFull();
 			}
 		}
+		Guild guild = getGuild();
+		if (guild != null) {
+			GuildMember gm = guild.getMemberByCharID(getId());
+			gm.setLevel(getLevel());
+			gm.setJob(getJob());
+			gm.setOnline(online);
+			gm.setChr(online ? this : null);
+			Alliance ally = getGuild().getAlliance();
+			if (ally != null) {
+				ally.broadcast(WvsContext.allianceResult(
+						AllianceResult.notifyLoginOrLogout(ally, guild, gm, online)), this);
+			} else {
+				getGuild().broadcast(WvsContext.guildResult(
+						GuildResult.notifyLoginOrLogout(guild, gm, online, online)), this);
+			}
+		}
+		this.online = online;
 	}
 
 	public void setParty(Party party) {
@@ -3882,7 +3884,7 @@ public class Char {
 	 * @param baseStat the requested stat
 	 * @return the amount of stat
 	 */
-	private double getTotalStatAsDouble(BaseStat baseStat) {
+	public double getTotalStatAsDouble(BaseStat baseStat) {
 		double stat = 0;
 		if (baseStat == null) {
 			return stat;

@@ -99,6 +99,14 @@ public class SkillData {
         }
     }
 
+    public static void loadAllSkills() {
+        long start = System.currentTimeMillis();
+        String dir = ServerConstants.DAT_DIR + "/skills";
+        File folder = new File(dir);
+        Arrays.stream(folder.listFiles()).parallel().forEach(SkillData::loadSkill);
+        log.info(String.format("Loaded %s skills from data files in %dms.", getSkillInfos().size(), System.currentTimeMillis() - start));
+    }
+
     public static void loadSkill(File file) {
         try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(file))) {
             SkillInfo skillInfo = new SkillInfo();
@@ -1154,6 +1162,8 @@ public class SkillData {
     }
 
     public static void clear() {
+        getSkillInfos().clear();
         getMobSkillInfos().clear();
+        loadAllSkills();
     }
 }

@@ -4,6 +4,7 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.damage.DamageCalc;
 import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.UserPacket;
+import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.AccountType;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.scripts.ScriptManagerImpl;
@@ -76,7 +77,14 @@ public class PlayerCommands {
     public static class Stats extends PlayerCommand {
         public static void execute(Char chr, String[] args) {
             DamageCalc damageCalc = chr.getDamageCalc();
-            chr.chatMessage(Mob, (String.format("Damage: %d ~ %d", (int) damageCalc.getMinBaseDamage(), (int) damageCalc.getMaxBaseDamage())));
+            chr.chatMessage(Mob, String.format("Damage: %d ~ %d", (int) damageCalc.getMinBaseDamage(), (int) damageCalc.getMaxBaseDamage()));
+            if (JobConstants.isMageEquipJob(chr.getJob())) {
+                chr.chatMessage(Mob, String.format("  MATT: %d", chr.getTotalStat(BaseStat.mad)));
+            } else {
+                chr.chatMessage(Mob, String.format("   ATT: %d", chr.getTotalStat(BaseStat.pad)));
+            }
+            chr.chatMessage(Mob, String.format("   IED: %.2f", chr.getTotalStatAsDouble(BaseStat.ied)));
+            chr.chatMessage(Mob, String.format("    FD: %.2f", chr.getTotalStatAsDouble(BaseStat.fd)));
         }
     }
 

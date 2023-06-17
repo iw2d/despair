@@ -10,12 +10,15 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
+
+import java.util.concurrent.ScheduledFuture;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -35,6 +38,7 @@ public class Hero extends Warrior {
     public static final int MAPLE_WARRIOR_HERO = 1121000;
     public static final int COMBO_FURY = 1101012;
     public static final int COMBO_FURY_DOWN = 1100012;
+    public static final int SELF_RECOVERY = 1110000;
     public static final int COMBO_SYNERGY = 1110013;
     public static final int PANIC = 1111003;
     public static final int SHOUT = 1111008;
@@ -42,6 +46,7 @@ public class Hero extends Warrior {
     public static final int ADVANCED_FINAL_ATTACK = 1120013;
     public static final int ENRAGE = 1121010;
     public static final int ADVANCED_COMBO_REINFORCE = 1120043;
+    public static final int ADVANCED_COMBO_BOSS_RUSH = 1120045;
     public static final int PUNCTURE = 1121015;
     public static final int MAGIC_CRASH_HERO = 1121016;
     public static final int HEROS_WILL_HERO = 1121011;
@@ -55,6 +60,7 @@ public class Hero extends Warrior {
     };
 
     private long lastPanicHit = Long.MIN_VALUE;
+    private ScheduledFuture selfRecoveryTimer;
 
     public Hero(Char chr) {
         super(chr);
@@ -67,6 +73,7 @@ public class Hero extends Warrior {
                 }
             }
         }
+        selfRecoveryTimer = EventManager.addFixedRateEvent(this::selfRecovery, 4000, 4000);
     }
 
     @Override
@@ -155,6 +162,13 @@ public class Hero extends Warrior {
         return skill;
     }
 
+    public void selfRecovery() {
+        if (chr.hasSkill(SELF_RECOVERY)) {
+            chr.heal(chr.getSkillStatValue(hp, SELF_RECOVERY));
+            chr.healMP(chr.getSkillStatValue(mp, SELF_RECOVERY));
+        }
+    }
+
 
     // Attack related methods ------------------------------------------------------------------------------------------
 
@@ -184,6 +198,8 @@ public class Hero extends Warrior {
         Option o2 = new Option();
         Option o3 = new Option();
         Option o4 = new Option();
+        Option o5 = new Option();
+        Option o6 = new Option();
         switch (attackInfo.skillId) {
             case COMBO_FURY:
                 removeCombo(1);
@@ -226,6 +242,13 @@ public class Hero extends Warrior {
                     o4.nOption = -si.getValue(x, slv);
                     o4.rOption = skill.getSkillId();
                     o4.tOption = dur / 2;
+
+                    o5.nOption = 1;
+                    o5.rOption = skill.getSkillId();
+                    o5.tOption = dur;
+                    o6.nOption = 1;
+                    o6.rOption = skill.getSkillId();
+                    o6.tOption = dur / 2;
                     for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                         if (mob == null) {
@@ -236,7 +259,7 @@ public class Hero extends Warrior {
                         mts.addStatOptionsAndBroadcast(MobStat.MAD, mob.isBoss() ? o2 : o1);
                         if (Util.succeedProp(si.getValue(prop, slv))) {
                             mts.addStatOptionsAndBroadcast(MobStat.ACC, mob.isBoss() ? o4 : o3);
-                            mts.addStatOptionsAndBroadcast(MobStat.Blind, mob.isBoss() ? o4 : o3);
+                            mts.addStatOptionsAndBroadcast(MobStat.Blind, mob.isBoss() ? o6 : o5);
                         }
                     }
                 }

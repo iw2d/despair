@@ -204,6 +204,12 @@ public class LoginHandler {
         User user = c.getUser();
         Account account = user.getAccountByWorldId(worldId);
         World world = Server.getInstance().getWorldById(worldId);
+
+        if (!Server.getInstance().isOnline()) {
+            c.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Server is offline.")));
+            return;
+        }
+
         if (user != null && world != null && world.getChannelById(channel) != null) {
             if (account == null) {
                 account = new Account(user, worldId);
@@ -375,6 +381,11 @@ public class LoginHandler {
 
     @Handler(op = InHeader.CHAR_SELECT_NO_PIC)
     public static void handleCharSelectNoPic(Client c, InPacket inPacket) {
+        if (!Server.getInstance().isOnline()) {
+            c.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Server is offline.")));
+            return;
+        }
+
         inPacket.decodeArr(2);
         int characterId = inPacket.decodeInt();
         String mac = inPacket.decodeString();

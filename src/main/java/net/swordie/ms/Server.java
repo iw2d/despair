@@ -2,13 +2,17 @@ package net.swordie.ms;
 
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.User;
+import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.connection.crypto.MapleCrypto;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.connection.netty.ChannelAcceptor;
 import net.swordie.ms.connection.netty.ChannelHandler;
 import net.swordie.ms.connection.netty.ChatAcceptor;
 import net.swordie.ms.connection.netty.LoginAcceptor;
+import net.swordie.ms.connection.packet.UserLocal;
+import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.GameConstants;
+import net.swordie.ms.enums.ChatType;
 import net.swordie.ms.loaders.*;
 import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.util.Loader;
@@ -42,6 +46,8 @@ public class Server extends Properties {
 	private List<World> worldList = new ArrayList<>();
 	private Set<Integer> users = new HashSet<>(); // just save the ids, no need to save the references
 	private CashShop cashShop;
+	private boolean online = false;
+	private boolean shutdownFromCommand = false;
 
 	public static Server getInstance() {
 		return server;
@@ -68,8 +74,12 @@ public class Server extends Properties {
 		StringData.load();
 		FieldData.loadWorldMap();
 		ChannelHandler.initHandlers(false);
-
+		SkillData.loadAllSkills();
 		FieldData.loadNPCFromSQL();
+
+		ShutDownTask shutDownTask = new ShutDownTask();
+		shutDownTask.start();
+
 		log.info("Finished loading custom NPCs in " + (System.currentTimeMillis() - startNow) + "ms");
 
 		MapleCrypto.initialize(ServerConstants.VERSION);
@@ -95,6 +105,7 @@ public class Server extends Properties {
 			log.info(String.format("Starting script engine for %s", ScriptManagerImpl.SCRIPT_ENGINE_NAME));
 		}).start();
 
+		setOnline(true);
 	}
 
 	private void checkAndCreateDat() {
@@ -184,6 +195,14 @@ public class Server extends Properties {
 
 	}
 
+	public boolean isOnline() {
+		return online;
+	}
+
+	public void setOnline(boolean online) {
+		this.online = online;
+	}
+
 	public CashShop getCashShop() {
 		return this.cashShop;
 	}
@@ -198,5 +217,54 @@ public class Server extends Properties {
 
 	public boolean isUserLoggedIn(User user) {
 		return users.contains(user.getId());
+	}
+
+
+	public boolean isShutdownFromCommand() {
+		return shutdownFromCommand;
+	}
+
+	public void setShutdownFromCommand(boolean shutdownFromCommand) {
+		this.shutdownFromCommand = shutdownFromCommand;
+	}
+
+	public void sendShutdownMessage(int time) {
+		String msg = "Server is shutting down in ";
+		String timeMsg = time + (!isShutdownFromCommand() ? " seconds." :" minutes. ");
+		String end = "Please log off safely before the server shuts down.";
+		for (World world : getWorlds()) {
+			world.broadcastPacket(UserLocal.chatMsg(ChatType.Notice2, "[Notice] " + msg + timeMsg + end));
+			world.broadcastPacket(UserLocal.addPopupSay(9010063, 10000,
+					"#e#b[Notice]#k#n " + msg + "#e#r" + timeMsg + "#k#n" + end, "FarmSE.img/boxResult"));
+		}
+	}
+
+	public class ShutDownTask {
+
+		private static final int shutdownTime = 5000;
+
+		public void start() {
+			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+				log.info("Shutting down sever...");
+				Server.getInstance().setOnline(false);
+				if (!isShutdownFromCommand()) {
+					// broadcast message if manually shutting down...
+					sendShutdownMessage(shutdownTime / 1000);
+					// wait for manual shut down time (shutdownTime)...
+					try {
+						Thread.sleep(shutdownTime);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+
+				// proceed to shutdown
+				for (World world : getWorlds()) {
+					world.shutdown();
+				}
+
+				log.info("Shutdown complete!");
+			}));
+		}
 	}
 }

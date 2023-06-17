@@ -1210,7 +1210,7 @@ public class AdminCommands {
                     skill.setCurrentLevel(maxLevel);
                     skill.setMasterLevel(maxLevel);
                     list.add(skill);
-                    chr.addSkill(skill);
+                    chr.addSkill(skill, true);
                 }
                 if (list.size() > 0) {
                     chr.getClient().write(WvsContext.changeSkillRecordResult(list, true, false, false, false));

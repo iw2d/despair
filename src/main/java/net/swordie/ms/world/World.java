@@ -326,6 +326,18 @@ public class World {
         return ally;
     }
 
+    public void shutdown() {
+        for (Channel channel : getChannels()) {
+            System.err.println("Shutting down channel " + channel.getChannelId() + "...");
+            channel.shutdown();
+        }
+        System.err.println("Accounts have been saved.");
+        for (Alliance ally : getAlliances().values()) {
+            // also saves guilds
+            DatabaseManager.saveToDB(ally);
+        }
+    }
+
     public void clearCache() {
         for (Channel channel : getChannels()) {
             channel.clearCache();

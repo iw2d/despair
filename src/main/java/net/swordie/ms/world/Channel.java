@@ -5,6 +5,7 @@ import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.OutPacket;
+import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.loaders.FieldData;
@@ -254,5 +255,9 @@ public class Channel {
         areaBossSpawns.get(curChannelId).putIfAbsent(targetFieldId, System.currentTimeMillis() + GameConstants.SILENT_CRUSADE_BOSS_COOLDOWN * 60 * 1000);
 
         return true;
+    }
+
+    public void shutdown() {
+        broadcastPacket(WvsContext.returnToTitle());// account is supposed to be saved when they return to login screen.
     }
 }
