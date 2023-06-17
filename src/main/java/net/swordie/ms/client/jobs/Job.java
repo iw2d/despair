@@ -20,7 +20,6 @@ import net.swordie.ms.client.jobs.adventurer.BeastTamer;
 import net.swordie.ms.client.jobs.adventurer.magician.Magician;
 import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
 import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
-import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.Mihile;
 import net.swordie.ms.client.jobs.cygnus.NightWalker;
@@ -451,31 +450,7 @@ public abstract class Job {
 		inPacket.decodeByte();
 
 		switch (hitInfo.type) {
-			case -1: // touch
-				hitInfo.templateID = inPacket.decodeInt();
-				hitInfo.mobID = inPacket.decodeInt();
-				hitInfo.isLeft = inPacket.decodeByte() != 0;
-				hitInfo.blockSkillId = inPacket.decodeInt();
-				hitInfo.blockSkillDamage = inPacket.decodeInt();
-				hitInfo.reflect = inPacket.decodeByte();
-				hitInfo.guard = inPacket.decodeByte();
-				if (hitInfo.guard == 2 || hitInfo.blockSkillDamage > 0) {
-					hitInfo.powerGuard = inPacket.decodeByte();
-					hitInfo.reflectMobID = inPacket.decodeInt();
-					hitInfo.hitAction = inPacket.decodeByte();
-					hitInfo.hitPos = inPacket.decodePosition();
-					hitInfo.userHitPos = inPacket.decodePosition();
-				}
-				hitInfo.stance = inPacket.decodeByte();
-				hitInfo.stanceSkillID = inPacket.decodeInt();
-				hitInfo.cancelSkillID = inPacket.decodeInt();
-				hitInfo.reductionSkillID = inPacket.decodeInt();
-				inPacket.decodeByte(); // 0
-				break;
-			case -2:
-			case -3:
-				break;
-			case -4: // tick
+			case -4: // tick damage
 				inPacket.decodeShort(); 	// 0
 				inPacket.decodeByte(); 		// type?
 											// 1: poison
@@ -489,20 +464,43 @@ public abstract class Job {
 				break;
 			case -6: // full true damaged (one hit kill)
 				break;
-			case -8: // mob skill
-				inPacket.decodeInt(); 		// nSkillID
-				inPacket.decodeInt(); 		// nSLV
-				inPacket.decodeInt(); 		// dwBounceObjectSN
+			case -8: // mob skill, used for BounceAttack 217
+				hitInfo.mobSkillID = inPacket.decodeInt(); // nSkillID
+				inPacket.decodeInt(); 					   // nSLV
+				hitInfo.userID = inPacket.decodeInt(); 	   // dwBounceObjectSN
 				break;
 			case -9: // hekaton field skill
 				inPacket.decodeInt();
 				inPacket.decodeShort(); 	// damage type
+				break;
 			case -10: // field etc, used for demian sword?
 				inPacket.decodeByte(); 		// type
 				inPacket.decodePosition();
 				break;
-			default:
-				// log.warn(String.format("Unhandled hit info type %d", hitInfo.type));
+			default: // touch
+				if (inPacket.getUnreadAmount() >= 13) {
+					hitInfo.templateID = inPacket.decodeInt();
+					hitInfo.mobID = inPacket.decodeInt();
+					hitInfo.isLeft = inPacket.decodeByte() != 0;
+					hitInfo.blockSkillID = inPacket.decodeInt();
+					hitInfo.blockSkillDamage = inPacket.decodeInt();
+					hitInfo.reflect = inPacket.decodeByte();
+					hitInfo.guard = inPacket.decodeByte();
+					if (hitInfo.blockSkillDamage > 0) {
+						hitInfo.powerGuard = inPacket.decodeByte();
+						hitInfo.reflectMobID = inPacket.decodeInt();
+						hitInfo.hitAction = inPacket.decodeByte();
+						hitInfo.hitPos = inPacket.decodePosition();
+						hitInfo.userHitPos = inPacket.decodePosition();
+					}
+					hitInfo.stance = inPacket.decodeByte();
+					hitInfo.stanceSkillID = inPacket.decodeInt();
+					hitInfo.cancelSkillID = inPacket.decodeInt();
+					hitInfo.mpDamage = inPacket.decodeInt();
+					inPacket.decodeByte(); // 0
+				} else {
+					log.warn(String.format("Unhandled hit info type %d : %s", hitInfo.type, Util.readableByteArray(inPacket.decodeArr(inPacket.getUnreadAmount()))));
+				}
 		}
 		handleHit(chr, inPacket, hitInfo);
 		handleHit(chr, hitInfo);

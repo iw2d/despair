@@ -14,7 +14,7 @@ public class HitInfo {
     public int templateID;
     public int mobID;
     public boolean isLeft;
-    public int blockSkillId;
+    public int blockSkillID;
     public int blockSkillDamage;
     public byte reflect;
     public byte guard;
@@ -27,17 +27,12 @@ public class HitInfo {
     public int stanceSkillID;
     public int cancelSkillID;
     public int reductionSkillID;
-
+    public int mobSkillID;
+    public int userID;
 
     public int mpDamage;
-    public int otherUserID;
-    public int action;
-    public int specialEffectSkill; // mask: 0x1 if true, 0x2 if custom skillID. Default is 33110000 (jaguar boost)
-    public int reflectDamage;
-    public int userSkillID;
-    public short obstacle;
-    public byte isGuard;
-    public boolean bodyAttack;
+    public byte specialEffectSkill; // mask: 0x1 if true, 0x2 if custom skillID. Default is 33110000 (jaguar boost)
+    public int userSkillID; // accessed on miss, for skills like shadow shifter
 
     @Override
     public String toString() {
@@ -50,7 +45,7 @@ public class HitInfo {
                 "templateID = " + this.templateID + ", " +
                 "mobID = " + this.mobID + ", " +
                 "isLeft = " + this.isLeft + ", " +
-                "blockSkillId = " + this.blockSkillId + ", " +
+                "blockSkillId = " + this.blockSkillID + ", " +
                 "blockSkillDamage = " + this.blockSkillDamage + ", " +
                 "reflect = " + this.reflect + ", " +
                 "guard = " + this.guard + ", " +

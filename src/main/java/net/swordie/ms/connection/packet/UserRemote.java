@@ -13,7 +13,6 @@ import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.AvatarModifiedMask;
-import net.swordie.ms.enums.ChairType;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.movement.MovementInfo;
 import net.swordie.ms.util.Position;
@@ -250,36 +249,41 @@ public class UserRemote {
         outPacket.encodeInt(chr.getId());
 
         outPacket.encodeByte(hitInfo.type);
-        outPacket.encodeInt(hitInfo.hpDamage);
+        outPacket.encodeInt(hitInfo.hpDamage); // ignored
         outPacket.encodeByte(hitInfo.isCrit);
         outPacket.encodeByte(hitInfo.hpDamage == 0);
-        if (hitInfo.type == -8) {
-            outPacket.encodeInt(hitInfo.blockSkillId);
-            outPacket.encodeInt(0); // ignored
-            outPacket.encodeInt(hitInfo.otherUserID);
+
+        if (hitInfo.type < -1) {
+            if (hitInfo.type == -8) {
+                outPacket.encodeInt(hitInfo.mobSkillID);
+                outPacket.encodeInt(0); // ignored
+                outPacket.encodeInt(hitInfo.userID);
+            }
         } else {
             outPacket.encodeInt(hitInfo.templateID);
-            outPacket.encodeByte(hitInfo.action);
+            outPacket.encodeByte(hitInfo.isLeft);
             outPacket.encodeInt(hitInfo.mobID);
+            outPacket.encodeInt(hitInfo.blockSkillID);
+            outPacket.encodeInt(hitInfo.blockSkillDamage);
+            outPacket.encodeByte(hitInfo.guard);
 
-            outPacket.encodeInt(0); // ignored
-            outPacket.encodeInt(hitInfo.reflectDamage);
-            outPacket.encodeByte(hitInfo.isGuard); // bGuard
-            if (hitInfo.reflectDamage > 0) {
-                outPacket.encodeByte(hitInfo.isGuard);
-                outPacket.encodeInt(hitInfo.mobID);
-
+            if (hitInfo.blockSkillDamage > 0) {
+                outPacket.encodeByte(hitInfo.powerGuard);
+                outPacket.encodeInt(hitInfo.reflectMobID);
                 outPacket.encodeByte(hitInfo.hitAction);
-                outPacket.encodePosition(chr.getPosition());
+                outPacket.encodePosition(hitInfo.userHitPos == null ? chr.getPosition() : hitInfo.userHitPos);
             }
+
             outPacket.encodeByte(hitInfo.specialEffectSkill);
             if ((hitInfo.specialEffectSkill & 1) != 0) {
                 outPacket.encodeInt(hitInfo.stanceSkillID);
             }
         }
+
         outPacket.encodeInt(hitInfo.hpDamage);
+
         if (hitInfo.hpDamage == -1) {
-           outPacket.encodeInt(hitInfo.userSkillID);
+            outPacket.encodeInt(hitInfo.userSkillID);
         }
 
         return outPacket;
