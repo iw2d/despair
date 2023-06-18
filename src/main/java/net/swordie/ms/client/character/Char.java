@@ -39,6 +39,7 @@ import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.JobManager;
 import net.swordie.ms.client.jobs.adventurer.magician.Magician;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
+import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.client.jobs.resistance.WildHunterInfo;
@@ -75,6 +76,7 @@ import net.swordie.ms.scripts.ScriptInfo;
 import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.scripts.ScriptType;
 import net.swordie.ms.util.*;
+import net.swordie.ms.util.container.Tuple;
 import net.swordie.ms.world.Channel;
 import net.swordie.ms.world.World;
 import net.swordie.ms.world.field.*;
@@ -1816,6 +1818,7 @@ public class Char {
 	 */
 	public void initBaseStats() {
 		getBaseStats().clear();
+		getNonAddBaseStats().clear();
 		Map<BaseStat, Long> stats = getBaseStats();
 		stats.put(BaseStat.cr, 5L);
 		stats.put(BaseStat.minCd, 20L);
@@ -1825,6 +1828,8 @@ public class Char {
 		stats.put(BaseStat.acc, 11L);
 		stats.put(BaseStat.eva, 8L);
 		stats.put(BaseStat.buffTimeR, 100L);
+		stats.put(BaseStat.dropR, 100L);
+		stats.put(BaseStat.mesoR, 100L);
 		getSkills().stream().filter(skill -> SkillConstants.isPassiveSkill_NoPsdSkillsCheck(skill.getSkillId())).
 				forEach(this::addToBaseStatCache);
 	}
@@ -2438,6 +2443,10 @@ public class Char {
 	public Item getEquippedItemByBodyPart(BodyPart bodyPart) {
 		List<Item> items = getEquippedInventory().getItemsByBodyPart(bodyPart);
 		return items.size() > 0 ? items.get(0) : null;
+	}
+
+	public WeaponType getEquippedWeaponType() {
+		return WeaponType.getByVal(ItemConstants.getWeaponType(getEquippedItemByBodyPart(BodyPart.Weapon).getItemId()));
 	}
 
 	public boolean isLeft() {
@@ -3086,8 +3095,8 @@ public class Char {
 		int newHP = curHP + amount > maxHP ? maxHP : curHP + amount < 0 ? 0 : curHP + amount;
 
 		if (showEffect && newHP != curHP) {
-			write(UserPacket.effect(Effect.changeHPEffect(newHP - curHP)));
-			getField().broadcastPacket(UserRemote.effect(getId(), Effect.changeHPEffect(newHP - curHP)));
+			write(UserPacket.effect(Effect.changeHPEffect(newHP - curHP, false)));
+			getField().broadcastPacket(UserRemote.effect(getId(), Effect.changeHPEffect(newHP - curHP, false)));
 		}
 
 		Map<Stat, Object> stats = new HashMap<>();
@@ -4018,21 +4027,21 @@ public class Char {
 	 * Removes a BaseStat's amount from this Char's BaseStat cache.
 	 *
 	 * @param bs     The BaseStat
-	 * @param amount the amount of BaseStat to remove
+	 * @param value the amount of BaseStat to remove
 	 */
-	public void removeBaseStat(BaseStat bs, int amount) {
+	public void removeBaseStat(BaseStat bs, int value) {
 		if (bs != null) {
 			if (bs.isNonAdditiveStat()) {
 				if (!getNonAddBaseStats().containsKey(bs)) {
 					getNonAddBaseStats().put(bs, new HashSet<>());
 				}
-				if (getNonAddBaseStats().get(bs).contains(amount)) {
-					getNonAddBaseStats().get(bs).remove(amount);
+				if (getNonAddBaseStats().get(bs).contains(value)) {
+					getNonAddBaseStats().get(bs).remove(value);
 				} else {
-					log.warn(String.format("Trying to remove NonAddBaseStat %s %d that does not exist.", bs, amount));
+					log.warn(String.format("Trying to remove NonAddBaseStat %s %d that does not exist.", bs, value));
 				}
 			} else {
-				getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0L) - amount);
+				getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0L) - value);
 			}
 		}
 	}
@@ -4053,7 +4062,20 @@ public class Char {
 	}
 
 	public void removeSetBaseStat(BaseStat bs, int value) {
-		addSetBaseStat(bs, -value);
+		if (bs != null) {
+			if (bs.isNonAdditiveStat()) {
+				if (!getSetNonAddBaseStats().containsKey(bs)) {
+					getSetNonAddBaseStats().put(bs, new HashSet<>());
+				}
+				if (getSetNonAddBaseStats().get(bs).contains(value)) {
+					getSetNonAddBaseStats().get(bs).remove(value);
+				} else {
+					log.warn(String.format("Trying to remove NonAddBaseStat %s %d that does not exist.", bs, value));
+				}
+			} else {
+				getSetBaseStats().put(bs, getSetBaseStats().getOrDefault(bs, 0) - value);
+			}
+		}
 	}
 
 	/**

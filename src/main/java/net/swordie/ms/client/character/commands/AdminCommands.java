@@ -499,26 +499,6 @@ public class AdminCommands {
         }
     }
 
-    @Command(names = {"stats"}, requiredType = Tester)
-    public static class Stats extends AdminCommand {
-        public static void execute(Char chr, String[] args) {
-            int strength = chr.getStat(Stat.str);
-            int dexterity = chr.getStat(Stat.dex);
-            int intellect = chr.getStat(Stat.inte);
-            int luck = chr.getStat(Stat.luk);
-            int hp = chr.getStat(Stat.hp);
-            int mhp = chr.getStat(Stat.mhp);
-            int mp = chr.getStat(Stat.mp);
-            int mmp = chr.getStat(Stat.mmp);
-            double hpratio = (((double) hp) / mhp) * 100;
-            double mpratio = (((double) mp) / mmp) * 100;
-            DecimalFormat formatNumbers = new DecimalFormat("##.00");
-            NumberFormat addDeci = NumberFormat.getNumberInstance(Locale.US);
-            chr.chatMessage(Notice2, "STR: " + addDeci.format(strength) + "  DEX: " + addDeci.format(dexterity) + "  INT: " + addDeci.format(intellect) + "  LUK: " + addDeci.format(luck));
-            chr.chatMessage(Notice2, "HP: " + addDeci.format(hp) + " / " + addDeci.format(mhp) + " (" + formatNumbers.format(hpratio) + "%)   MP: " + addDeci.format(mp) + " / " + addDeci.format(mmp) + " (" + formatNumbers.format(mpratio) + "%)");
-        }
-    }
-
     @Command(names = {"spawn"}, requiredType = GameMaster)
     public static class Spawn extends AdminCommand {
         public static void execute(Char chr, String[] args) {

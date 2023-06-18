@@ -11,7 +11,6 @@ import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.party.Party;
-import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.ItemConstants;
@@ -38,6 +37,7 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Paladin extends Warrior {
+    public static final int WEAPON_MASTERY_PAGE = 1200000;
     public static final int WEAPON_BOOSTER_PAGE = 1201004;
     public static final int FINAL_ATTACK_PAGE = 1200002;
     public static final int CLOSE_COMBAT = 1201013;
@@ -51,6 +51,8 @@ public class Paladin extends Warrior {
     public static final int PARASHOCK_GUARD = 1211014;
     public static final int DIVINE_CHARGE = 1221004;
     public static final int THREATEN = 1211013;
+    public static final int ADVANCED_CHARGE = 1220010;
+    public static final int HIGH_PALADIN = 1220018;
     public static final int HEAVENS_HAMMER = 1221011;
     public static final int ELEMENTAL_FORCE = 1221015;
     public static final int MAPLE_WARRIOR_PALADIN = 1221000;
@@ -94,75 +96,51 @@ public class Paladin extends Warrior {
         return JobConstants.isPaladin(id);
     }
 
-    private void giveParashockGuardBuff() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (chr.hasSkill(PARASHOCK_GUARD) && tsm.getOptByCTSAndSkill(EVA, PARASHOCK_GUARD) != null) {
-            Skill skill = chr.getSkill(PARASHOCK_GUARD);
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            byte slv = (byte) skill.getCurrentLevel();
-            Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
-            if (!chr.isLeft()) {
-                rect = rect.moveRight();
-            }
-            Party party = chr.getParty();
-
-            if (party != null) {
-                for (PartyMember partyMember : party.getOnlineMembers()) {
-                    Char partyChr = partyMember.getChr();
-                    TemporaryStatManager partyTSM = partyChr.getTemporaryStatManager();
-                    int partyChrX = partyChr.getPosition().getX();
-                    int partyChrY = partyChr.getPosition().getY();
-
-                    if (partyChr.getId() == chr.getId()) {
-                        continue;
-                    }
-
-                    if (partyChrX >= rect.getLeft() && partyChrY >= rect.getTop()       // if  Party Members in Range
-                            && partyChrX <= rect.getRight() && partyChrY <= rect.getBottom()) {
-
-                        Option o4 = new Option();
-                        Option o5 = new Option();
-                        o4.nOption = si.getValue(x, slv);
-                        o4.rOption = skill.getSkillId();
-                        o4.tOption = 2;
-                        partyTSM.putCharacterStatValue(Guard, o4);
-                        o5.nOption = chr.getId();
-                        o5.rOption = skill.getSkillId();
-                        o5.tOption = 2;
-                        o5.bOption = 1;
-                        partyTSM.putCharacterStatValue(KnightsAura, o5);
-                        partyTSM.sendSetStatPacket();
-                    } else {
-                        partyTSM.removeStatsBySkill(skill.getSkillId());
-                        partyTSM.sendResetStatPacket();
+    private Char getReviveTarget(Rect range) {
+        Party party = chr.getParty();
+        if (party != null) {
+            List<Char> pChrList = chr.getParty().getPartyMembersInSameField(chr).stream().filter(pChr -> range.hasPositionInside(pChr.getPosition())).collect(Collectors.toList());
+            Char closestChr = null;
+            double closestDst = Double.MIN_VALUE;
+            for (Char pChr : pChrList) {
+                if (pChr.getHP() <= 0) {
+                    double dst = chr.getPosition().distance(pChr.getPosition());
+                    if (dst > closestDst) {
+                        closestChr = pChr;
+                        closestDst = dst;
                     }
                 }
             }
-            Option o = new Option();
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            o.nOption = chr.getId();
-            o.rOption = skill.getSkillId();
-            o.bOption = 1;
-            tsm.putCharacterStatValue(KnightsAura, o);
-            o1.nReason = skill.getSkillId();
-            o1.nValue = si.getValue(indiePad, slv);
-            o1.tStart = (int) System.currentTimeMillis();
-            tsm.putCharacterStatValue(IndiePAD, o1);
-            o2.nReason = skill.getSkillId();
-            o2.nValue = si.getValue(z, slv);
-            o2.tStart = (int) System.currentTimeMillis();
-            tsm.putCharacterStatValue(IndiePDDR, o2);
-            o3.nOption = -si.getValue(x, slv);
-            o3.rOption = skill.getSkillId();
-            tsm.putCharacterStatValue(Guard, o3);
-
-            parashockGuardTimer = EventManager.addEvent(this::giveParashockGuardBuff, 1, TimeUnit.SECONDS);
-        } else {
-            tsm.removeStatsBySkill(PARASHOCK_GUARD);
-            tsm.sendResetStatPacket();
+            if (closestChr != null) {
+                return closestChr;
+            }
         }
+        return null;
+    }
+
+
+    private void giveParashockGuardBuff() {
+        Skill skill = chr.getSkill(PARASHOCK_GUARD);
+        SkillInfo si = SkillData.getSkillInfoById(PARASHOCK_GUARD);
+        int slv = skill.getCurrentLevel();
+        Option o1 = new Option();
+
+        Party party = chr.getParty();
+        if (party != null) {
+            Rect rect = chr.getRectAround(si.getFirstRect());
+            List<Char> pChrList = chr.getParty().getPartyMembersInSameField(chr).stream().filter(pc -> rect.hasPositionInside(pc.getPosition())).collect(Collectors.toList());
+            for (Char pChr : pChrList) {
+                if (pChr.getHP() > 0) {
+                    o1.nOption = slv;
+                    o1.rOption = PARASHOCK_GUARD;
+                    o1.bOption = 0;
+                    o1.tOption = 2;
+                    pChr.getTemporaryStatManager().putCharacterStatValue(KnightsAura, o1);
+                    pChr.getTemporaryStatManager().sendSetStatPacket();
+                }
+            }
+        }
+        parashockGuardTimer = EventManager.addEvent(this::giveParashockGuardBuff, 1, TimeUnit.SECONDS);
     }
 
 
@@ -316,27 +294,28 @@ public class Paladin extends Warrior {
     }
 
     private void giveChargeBuff(int skillId, TemporaryStatManager tsm) {
-        Option o = new Option();
-        SkillInfo chargeInfo = SkillData.getSkillInfoById(1200014);
-        int amount = 1;
+        SkillInfo si = SkillData.getSkillInfoById(ELEMENTAL_CHARGE);
+        int count = 1;
         if (tsm.hasStat(ElementalCharge)) {
-            amount = tsm.getOption(ElementalCharge).mOption;
+            count = tsm.getOption(ElementalCharge).mOption;
             if (lastCharge == skillId) {
                 return;
             }
-            if (amount < chargeInfo.getValue(z, 1)) {
-                amount++;
+            if (count < si.getValue(z, 1)) {
+                count++;
             }
         }
         lastCharge = skillId;
-        o.nOption = 1;
-        o.rOption = 1200014;
-        o.tOption = (10 * chargeInfo.getValue(time, 1)); // elemental charge  // 10x actual duration
-        o.mOption = amount;
-        o.wOption = amount * chargeInfo.getValue(w, 1); // elemental charge
-        o.uOption = amount * chargeInfo.getValue(u, 1);
-        o.zOption = amount * chargeInfo.getValue(z, 1);
-        tsm.putCharacterStatValue(ElementalCharge, o);
+        Option o1 = new Option();
+        o1.nOption = count * chr.getSkillStatValue(x, ADVANCED_CHARGE); // damR
+        o1.rOption = ELEMENTAL_CHARGE;
+        o1.tOption = si.getValue(time, 1);
+        o1.mOption = count; // count
+        o1.uOption = count * si.getValue(u, 1); // asr
+        int padMult = chr.hasSkill(ADVANCED_CHARGE) ? chr.getSkillStatValue(y, ADVANCED_CHARGE) : si.getValue(y, 1);
+        o1.wOption = count * padMult; // pad
+        o1.zOption = si.getValue(w, 1); // dmgReduce
+        tsm.putCharacterStatValue(ElementalCharge, o1);
         tsm.sendSetStatPacket();
     }
 
@@ -377,22 +356,20 @@ public class Paladin extends Warrior {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
+        SkillInfo si = SkillData.getSkillInfoById(skillID);;
 
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
         Option o4 = new Option();
+        Rect rect;
+        Char ptChr;
         switch (skillID) {
             case HP_RECOVERY:
                 hpRecovery();
                 break;
             case THREATEN:
-                Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
+                rect = chr.getRectAround(si.getFirstRect());
                 if (!chr.isLeft()) {
                     rect = rect.moveRight();
                 }
@@ -417,37 +394,27 @@ public class Paladin extends Warrior {
                 }
                 break;
             case GUARDIAN:
-                chr.heal(chr.getMaxHP());
+                // note: skill only triggers if not in a pt or a dead pt member is nearby
+                // but the detect radius is bigger than the actual skill range
+                ptChr = getReviveTarget(chr.getRectAround(si.getFirstRect()));
+                if (ptChr != null) {
+                    o1.nOption = 1;
+                    o1.rOption = skillID;
+                    o1.tOption = si.getValue(time, slv);
 
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(NotDamaged, o1);
-                tsm.sendSetStatPacket();
+                    tsm.putCharacterStatValue(NotDamaged, o1);
 
-                Party party = chr.getParty();
-                if (party != null) {
-                    Field field = chr.getField();
-                    rect = chr.getPosition().getRectAround(si.getRects().get(0));
-                    if (!chr.isLeft()) {
-                        rect = rect.moveRight();
-                    }
-                    List<PartyMember> eligblePartyMemberList = field.getPartyMembersInRect(chr, rect).stream().
-                            filter(pml -> pml.getChr().getId() != chr.getId() &&
-                                    pml.getChr().getHP() <= 0).
-                            collect(Collectors.toList());
+                    TemporaryStatManager ptTsm = ptChr.getTemporaryStatManager();
+                    ptChr.heal(ptChr.getMaxHP());
+                    ptTsm.putCharacterStatValue(NotDamaged, o1);
+                    ptTsm.sendSetStatPacket();
 
-                    if (eligblePartyMemberList.size() > 0) {
-                        Char randomPartyChr = Util.getRandomFromCollection(eligblePartyMemberList).getChr();
-                        TemporaryStatManager partyTSM = randomPartyChr.getTemporaryStatManager();
-                        randomPartyChr.heal(randomPartyChr.getMaxHP());
-                        partyTSM.putCharacterStatValue(NotDamaged, o1);
-                        partyTSM.sendSetStatPacket();
-                        randomPartyChr.write(UserPacket.effect(Effect.skillAffected(skillID, (byte) 1, 0)));
-                        randomPartyChr.getField().broadcastPacket(UserRemote.effect(randomPartyChr.getId(), Effect.skillAffected(skillID, (byte) 1, 0)));
-                    }
+                    ptChr.write(UserPacket.effect(Effect.skillAffected(skillID, (byte) 1, ptChr.getMaxHP())));
+                    ptChr.getField().broadcastPacket(UserRemote.effect(ptChr.getId(), Effect.skillAffected(skillID, (byte) 1, ptChr.getMaxHP())));
+                } else {
+                    chr.chatMessage("There are no nearby allies to revive.");
+                    chr.resetSkillCoolTime(skillID);
                 }
-
                 break;
             case COMBAT_ORDERS:
                 o1.nOption = si.getValue(x, slv);
@@ -456,10 +423,20 @@ public class Paladin extends Warrior {
                 tsm.putCharacterStatValue(CombatOrders, o1);
                 break;
             case PARASHOCK_GUARD:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(EVA, o1); // Check for the main Buff method
+                o1.nOption = slv;
+                o1.rOption = PARASHOCK_GUARD;
+                o1.bOption = 1;
+                o2.nReason = PARASHOCK_GUARD;
+                o2.nValue = si.getValue(indiePad, slv);
+                o2.tStart = (int) System.currentTimeMillis();
+                o3.nReason = PARASHOCK_GUARD;
+                o3.nValue = si.getValue(z, slv);
+                o3.tStart = (int) System.currentTimeMillis();
+
+                tsm.putCharacterStatValue(KnightsAura, o1);
+                tsm.putCharacterStatValue(IndiePAD, o2);
+                tsm.putCharacterStatValue(IndiePDDR, o3);
+                // guard chance handled client side with KnightsAura
 
                 if (parashockGuardTimer != null && !parashockGuardTimer.isDone()) {
                     parashockGuardTimer.cancel(true);
@@ -491,11 +468,11 @@ public class Paladin extends Warrior {
             byte slv = (byte) skill.getCurrentLevel();
             SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
             int recovery = si.getValue(x, slv);
-            int amount = 10;
+            int amount = 10; // si.getValue(y, slv);
 
             if (tsm.hasStat(Restoration)) {
                 amount = tsm.getOption(Restoration).nOption;
-                if (amount < 300) {
+                if (amount < 300) { // only displayed to 30 stacks
                     amount = amount + 10;
                 }
             }
@@ -503,8 +480,8 @@ public class Paladin extends Warrior {
             o.nOption = amount;
             o.rOption = skill.getSkillId();
             o.tOption = si.getValue(time, slv);
-            int heal = (recovery + 10) - amount > 10 ? (recovery + 10) - amount : 10;
-            chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)));
+            int heal = recovery - Math.max(10, amount);
+            chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)), true);
             tsm.putCharacterStatValue(Restoration, o);
             tsm.sendSetStatPacket();
         }
@@ -522,7 +499,7 @@ public class Paladin extends Warrior {
             Skill skill = chr.getSkill(DIVINE_SHIELD);
             SkillInfo si = SkillData.getSkillInfoById(DIVINE_SHIELD);
             int slv = skill.getCurrentLevel();
-            int shieldprop = si.getValue(prop, slv);
+            int shieldProp = si.getValue(prop, slv);
             Option o1 = new Option();
             Option o2 = new Option();
             int divShieldCoolDown = si.getValue(cooltime, slv);
@@ -534,8 +511,8 @@ public class Paladin extends Warrior {
                     divShieldAmount = 0;
                 }
             } else {
-                if (lastDivineShieldHit + (divShieldCoolDown * 1000) < System.currentTimeMillis()) {
-                    if (Util.succeedProp(shieldprop)) {
+                if (lastDivineShieldHit + (divShieldCoolDown * 1000L) < System.currentTimeMillis()) {
+                    if (Util.succeedProp(shieldProp)) {
                         lastDivineShieldHit = System.currentTimeMillis();
                         o1.nOption = 1;
                         o1.rOption = DIVINE_SHIELD;
@@ -544,7 +521,7 @@ public class Paladin extends Warrior {
                         o2.nOption = si.getValue(epad, slv);
                         o2.rOption = DIVINE_SHIELD;
                         o2.tOption = si.getValue(time, slv);
-                        tsm.putCharacterStatValue(PAD, o2);
+                        tsm.putCharacterStatValue(BlessingArmorIncPAD, o2);
                         tsm.sendSetStatPacket();
                         divShieldAmount = 0;
                     }
@@ -555,15 +532,15 @@ public class Paladin extends Warrior {
         //Paladin - Shield Mastery
         Item shield = chr.getEquippedItemByBodyPart(BodyPart.Shield);
         if (chr.hasSkill(SHIELD_MASTERY) && shield != null && ItemConstants.isShield(shield.getItemId())) {
-            if (hitInfo.hpDamage == 0 && hitInfo.mpDamage == 0) {
-                // Guarded
+            if (hitInfo.guard == 2) {
+                Field field = chr.getField();
+                Skill skill = chr.getSkill(SHIELD_MASTERY);
+                int slv = skill.getCurrentLevel();
+                SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
                 int mobID = hitInfo.mobID;
-                Mob mob = (Mob) chr.getField().getLifeByObjectID(mobID);
+                Mob mob = (Mob) field.getLifeByObjectID(mobID);
                 if (mob != null) {
                     Option o = new Option();
-                    Skill skill = chr.getSkill(SHIELD_MASTERY);
-                    byte slv = (byte) skill.getCurrentLevel();
-                    SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
                     int proc = si.getValue(subProp, slv);
                     if (Util.succeedProp(proc) && !mob.isBoss()) {
                         MobTemporaryStat mts = mob.getTemporaryStat();
@@ -573,6 +550,7 @@ public class Paladin extends Warrior {
                         mts.addStatOptionsAndBroadcast(MobStat.Stun, o);
                     }
                 }
+                chr.write(UserPacket.effect(Effect.changeHPEffect(0, true)));
             }
         }
 
@@ -581,9 +559,18 @@ public class Paladin extends Warrior {
 
     private void resetDivineShield() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        tsm.removeStat(BlessingArmor, false);
-        tsm.removeStat(PAD, false);
+        tsm.removeStat(BlessingArmor, true);
+        tsm.removeStat(BlessingArmorIncPAD, true);
         tsm.sendResetStatPacket();
+    }
+
+    @Override
+    public void handleSkillRemove(Char chr, int skillID) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (skillID == PARASHOCK_GUARD) {
+            parashockGuardTimer.cancel(true);
+            parashockGuardTimer = null;
+        }
     }
 
     @Override

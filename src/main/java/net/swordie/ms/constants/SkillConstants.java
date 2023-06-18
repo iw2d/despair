@@ -1,5 +1,8 @@
 package net.swordie.ms.constants;
 
+import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.items.BodyPart;
+import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.jobs.Zero;
@@ -8,6 +11,7 @@ import net.swordie.ms.client.jobs.adventurer.magician.Magician;
 import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
 import net.swordie.ms.client.jobs.adventurer.warrior.Hero;
+import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.DawnWarrior;
@@ -1123,12 +1127,24 @@ public class SkillConstants {
 
     public static boolean isPassiveSkill_NoPsdSkillsCheck(int skillId) {
         SkillInfo si = SkillData.getSkillInfoById(skillId);
-        return si != null && si.isPsd();
+        return si != null && si.isPsd() || SkillConstants.isPsd(skillId);
     }
 
     public static boolean isPassiveSkill(int skillId) {
         SkillInfo si = SkillData.getSkillInfoById(skillId);
-        return si != null && si.isPsd() && si.getPsdSkills().size() == 0;
+        return si != null && si.isPsd() && si.getPsdSkills().size() == 0 || SkillConstants.isPsd(skillId);
+    }
+
+    public static boolean isPsd(int skillId) {
+        // for skills that aren't specified as passives in wz
+        switch (skillId) {
+            case Hero.ADVANCED_COMBO:
+            case Paladin.WEAPON_MASTERY_PAGE:
+                return true;
+            default:
+                break;
+        }
+        return false;
     }
 
     public static boolean isHyperstatSkill(int skillID) {
@@ -1568,19 +1584,31 @@ public class SkillConstants {
         return KEYDOWN_SKILLS.contains(nSkillID);
     }
 
-    public static void putMissingBaseStatsBySkill(Map<BaseStat, Integer> stats, SkillInfo si, int slv) {
+    public static void putMissingBaseStatsBySkill(Char chr, Map<BaseStat, Integer> stats, SkillInfo si, int slv) {
         int skillId = si.getSkillId();
         // pad/mad not in wz
         if (SkillConstants.isBlessingSkill(skillId)) {
             stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
             stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
         }
+        Item item;
         switch (skillId) {
-            case Warrior.IRON_BODY:
-                stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.damAbsorbShieldR, slv));
+            case Hero.ADVANCED_COMBO:
+                stats.put(BaseStat.mastery, si.getValue(SkillStat.mastery, slv) - chr.getSkillStatValue(SkillStat.mastery, Hero.WEAPON_MASTERY_FIGHTER));
                 break;
-            case Hero.WEAPON_MASTERY_HERO:
-                stats.put(BaseStat.fd, si.getValue(SkillStat.pdR, slv));
+            case Paladin.SHIELD_MASTERY:
+                item = chr.getEquippedItemByBodyPart(BodyPart.Shield);
+                if (item != null && ItemConstants.isShield(item.getItemId())) {
+                    stats.put(BaseStat.pddR, si.getValue(SkillStat.x, slv));
+                    stats.put(BaseStat.mddR, si.getValue(SkillStat.x, slv));
+                    stats.put(BaseStat.pad, si.getValue(SkillStat.y, slv));
+                }
+                break;
+            case Paladin.HIGH_PALADIN:
+                si.getSkillStatsByWT(chr.getEquippedWeaponType()).forEach((ss, value) ->
+                        stats.put(ss.getBaseStat(), value + stats.getOrDefault(ss.getBaseStat(), 0))
+                );
+                stats.put(BaseStat.mastery, stats.getOrDefault(BaseStat.mastery, 0) - chr.getSkillStatValue(SkillStat.mastery, Paladin.WEAPON_MASTERY_PAGE));
                 break;
         }
     }

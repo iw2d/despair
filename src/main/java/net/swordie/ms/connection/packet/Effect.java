@@ -162,9 +162,8 @@ public class Effect {
                 outPacket.encodeByte(getArg1()); // amount being healed     0 = Miss
                 break;
             case IncDecHPEffect_EX:
-                outPacket.encodeInt(getArg1()); // hp amount
-                outPacket.encodeByte(getArg2()); // unk
-                outPacket.encodeByte(getArg3()); // unk
+                outPacket.encodeInt(getArg1()); // nDelta, hp amount
+                outPacket.encodeByte(getArg2()); // bGuard, show GUARD instead of MISS when nDelta = 0
                 break;
             case IncDecHPRegenEffect:
                 outPacket.encodeInt(getArg1()); // hp amount
@@ -240,11 +239,12 @@ public class Effect {
         }
     }
 
-    public static Effect changeHPEffect(int hpDiff) {
+    public static Effect changeHPEffect(int hpDiff, boolean isGuard) {
         Effect effect = new Effect();
         effect.setUserEffectType(IncDecHPEffect_EX);
 
         effect.setArg1(hpDiff);
+        effect.setArg2(isGuard ? 1 : 0);
 
         return effect;
     }

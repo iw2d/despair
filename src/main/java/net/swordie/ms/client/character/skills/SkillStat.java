@@ -412,6 +412,10 @@ public enum SkillStat {
                 return BaseStat.lukLv;
             case lukR:
                 return BaseStat.lukR;
+            case indiePMdR:
+            case pdR: // for physical dmg
+            case mdR: // for magical dmg
+                return BaseStat.fd;
             case bdR:
             case indieBDR:
             case nbdR:
@@ -442,6 +446,13 @@ public enum SkillStat {
                 return BaseStat.mpRecovery;
             case bufftimeR:
                 return BaseStat.buffTimeR;
+            case damAbsorbShieldR:
+            case ignoreMobDamR:
+                return BaseStat.dmgReduce;
+            case disCountR:
+                return BaseStat.shopDiscountR;
+            case pqPointR:
+                return BaseStat.pqShopDiscountR;
         }
         return null;
     }

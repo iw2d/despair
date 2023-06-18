@@ -36,6 +36,7 @@ public enum BaseStat {
     cr, // Crit rate
     minCd, // Min crit damage
     maxCd, // Max crit damage
+    damR, // Damage %
     fd, // Final damage (total damage)
     bd, // Boss damage
     ied, // Ignore enemy defense
@@ -256,6 +257,8 @@ public enum BaseStat {
             case IndieCr:
                 stats.put(cr, o.nValue);
                 break;
+            case Enrage:
+                stats.put(fd, o.nOption);
             case EnrageCr:
                 stats.put(cr, o.nOption);
                 break;
@@ -307,9 +310,9 @@ public enum BaseStat {
                 stats.put(lukR, o.nValue);
                 break;
             case IndieDamR:
-                stats.put(fd, o.nValue);
-                break;
             case DamR:
+                stats.put(damR, o.nValue);
+                break;
             case BeastFormDamageUp:
                 stats.put(fd, o.nOption);
                 break;
@@ -402,6 +405,15 @@ public enum BaseStat {
                 break;
             case IndieScriptBuff:
                 stats.put(buffTimeR, o.nValue);
+                break;
+            case BlessingArmorIncPAD:
+                stats.put(pad, o.nOption);
+                break;
+            case ElementalCharge:
+                stats.put(damR, o.nOption);
+                stats.put(asr, o.uOption);
+                stats.put(pad, o.wOption);
+                stats.put(dmgReduce, o.zOption);
                 break;
             default:
                 stats.put(unk, o.nOption);

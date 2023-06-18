@@ -1921,6 +1921,9 @@ public class Equip extends Item {
             case mesoR:
                 res += getSocketStat(ScrollStat.incMesoProp);
                 break;
+            case mastery:
+                res += ItemConstants.getBaseMastery(getItemId());
+                break;
         }
         return res;
     }

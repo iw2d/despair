@@ -4,6 +4,7 @@ import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.enums.WeaponType;
 import net.swordie.ms.life.mob.skill.MobSkillStat;
 import net.swordie.ms.loaders.containerclasses.MakingSkillRecipe;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
@@ -83,6 +84,16 @@ public class SkillData {
                     dataOutputStream.writeInt(extraSkillInfo.getKey());
                     dataOutputStream.writeInt(extraSkillInfo.getValue());
                 }
+                dataOutputStream.writeShort(si.getPsdWT().size());
+                for (Map.Entry<WeaponType, Map<SkillStat, Integer>> psdWTEntry : si.getPsdWT().entrySet()) {
+                    dataOutputStream.writeByte(psdWTEntry.getKey().getVal());
+
+                    dataOutputStream.writeShort(psdWTEntry.getValue().size());
+                    for (Map.Entry<SkillStat, Integer> ssEntry : psdWTEntry.getValue().entrySet()) {
+                        dataOutputStream.writeUTF(ssEntry.getKey().toString());
+                        dataOutputStream.writeInt(ssEntry.getValue());
+                    }
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -154,6 +165,18 @@ public class SkillData {
             short extraSkillInfoSize = dataInputStream.readShort();
             for (int j = 0; j < extraSkillInfoSize; j++) {
                 skillInfo.addExtraSkillInfo(dataInputStream.readInt(), dataInputStream.readInt());
+            }
+            short psdWTMapSize = dataInputStream.readShort();
+            for (int i = 0; i < psdWTMapSize; i++) {
+                WeaponType wt = WeaponType.getByVal(dataInputStream.readByte());
+                short skillStatMapSize = dataInputStream.readShort();
+                Map<SkillStat, Integer> skillStatMap = new HashMap<>();
+                for (int j = 0; j < skillStatMapSize; j++) {
+                    SkillStat ss = SkillStat.getSkillStatByString(dataInputStream.readUTF());
+                    int value = dataInputStream.readInt();
+                    skillStatMap.put(ss, value);
+                }
+                skillInfo.addPsdWT(wt, skillStatMap);
             }
             getSkillInfos().put(skillInfo.getSkillId(), skillInfo);
         } catch (IOException e) {
@@ -336,6 +359,34 @@ public class SkillData {
                                         if (extraSkillId > 0) {
                                             skill.addExtraSkillInfo(extraSkillId, extraSkillDelay);
                                         }
+                                    }
+                                    break;
+                                case "psdWT":
+                                    for (Node psdWTNode : XMLApi.getAllChildren(mainLevelNode)) {
+                                        Map<String, String> psdWTAttr = XMLApi.getAttributes(psdWTNode);
+                                        String weaponType = psdWTAttr.get("name");
+                                        WeaponType wt = WeaponType.getByVal(Integer.parseInt(weaponType));
+                                        if (wt == null) {
+                                            log.error(String.format("Unknown WeaponType %s, in SkillID: %d", weaponType, skillId));
+                                            continue;
+                                        }
+                                        Map<SkillStat, Integer> skillStatMap = new HashMap<>();
+                                        for (Node skillStatNode : XMLApi.getAllChildren(psdWTNode)) {
+                                            Map<String, String> skillStatAttr = XMLApi.getAttributes(skillStatNode);
+                                            String skillStatStr = skillStatAttr.get("name");
+                                            String skillStatValue = skillStatAttr.get("value");
+                                            SkillStat skillStat = SkillStat.getSkillStatByString(skillStatStr);
+                                            if (skillStat == null) {
+                                                log.error(String.format("Unknown psdWT SkillStat: %s, in SkillID: %d", skillStatStr, skillId));
+                                                continue;
+                                            }
+                                            if (!Util.isNumber(skillStatValue)) {
+                                                log.error(String.format("Unknown psdWT SkillStat Value: %s, in SkillID: %d", skillStatStr, skillId));
+                                                continue;
+                                            }
+                                            skillStatMap.put(skillStat, Integer.parseInt(skillStatValue));
+                                        }
+                                        skill.addPsdWT(wt, skillStatMap);
                                     }
                                     break;
                             }

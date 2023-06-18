@@ -30,7 +30,7 @@ public class Hero extends Warrior {
 
     public static final int MAPLE_RETURN = 1281;
 
-    public static final int WEAPON_MASTERY_HERO = 1100000;
+    public static final int WEAPON_MASTERY_FIGHTER = 1100000;
     public static final int WEAPON_BOOSTER_FIGHTER = 1101004;
     public static final int COMBO_ATTACK = 1101013;
     public static final int RAGE = 1101006;
@@ -417,15 +417,12 @@ public class Hero extends Warrior {
                 break;
             case ENRAGE:
                 removeCombo(1);
-                o1.nOption = 1;
+                o1.nOption = 100 * si.getValue(x, slv) + 1; // fd = n / 100, mobsHit = n % 100
                 o1.rOption = skillID;
-                tsm.putCharacterStatValue(Enrage, o1); // max mobs hit
+                tsm.putCharacterStatValue(Enrage, o1);
                 o2.nOption = si.getValue(y, slv);
                 o2.rOption = skillID;
                 tsm.putCharacterStatValue(EnrageCrDamMin, o2);
-                o3.nOption = si.getValue(x, slv);
-                o3.rOption = skillID;
-                tsm.putCharacterStatValue(DamR, o3);
                 break;
             case CRY_VALHALLA:
                 o1.nReason = skillID;

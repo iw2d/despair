@@ -53,6 +53,12 @@ public class Position {
         return new Rect(x + rect.getLeft(), y + rect.getTop(), x + rect.getRight(), y + rect.getBottom());
     }
 
+    public double distance(Position pos) {
+        int dX = getX() - pos.getX();
+        int dY = getY() - pos.getY();
+        return Math.sqrt(dX * dX + dY * dY);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

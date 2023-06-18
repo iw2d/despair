@@ -1331,16 +1331,16 @@ public class Mob extends Life {
         dropInfoSet.addAll(ItemConstants.getConsumableMobDrops(level));
         dropInfoSet.addAll(ItemConstants.getEquipMobDrops(job, level));
         // DropRate & MesoRate Increases
-        int mostDamageCharDropRate = (getMostDamageChar() != null ? getMostDamageChar().getTotalStat(BaseStat.dropR) : 0);
-        int mostDamageCharMesoRate = (getMostDamageChar() != null ? getMostDamageChar().getTotalStat(BaseStat.mesoR) : 0);
+        int mostDamageCharDropRate = (getMostDamageChar() != null ? getMostDamageChar().getTotalStat(BaseStat.dropR) : 100);
+        int mostDamageCharMesoRate = (getMostDamageChar() != null ? getMostDamageChar().getTotalStat(BaseStat.mesoR) : 100);
         int dropRateMob = (getTemporaryStat().hasCurrentMobStat(MobStat.Treasure)
                 ? getTemporaryStat().getCurrentOptionsByMobStat(MobStat.Treasure).yOption
                 : 0); // Item Drop Rate
         int mesoRateMob = (getTemporaryStat().hasCurrentMobStat(MobStat.Treasure)
                 ? getTemporaryStat().getCurrentOptionsByMobStat(MobStat.Treasure).zOption
                 : 0); // Meso Drop Rate
-        int totalMesoRate = mesoRateMob + mostDamageCharMesoRate;
         int totalDropRate = dropRateMob + mostDamageCharDropRate;
+        int totalMesoRate = mesoRateMob + mostDamageCharMesoRate;
         for (Item item : getMostDamageChar().getCashInventory().getItems()) {
             if (ItemConstants.is2XDropCoupon(item.getItemId())) {
                 totalDropRate *= 2;

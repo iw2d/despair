@@ -1107,7 +1107,7 @@ public class Field {
                     questMult = 50;
                 }
             }
-            if (dropInfo.willDrop(dropRate, questMult)) {
+            if (dropInfo.willDrop(dropRate * questMult)) {
                 x = (x + diff) > maxX ? maxX - 10 : (x + diff) < minX ? minX + 10 : x + diff;
                 Position posTo;
                 if (fh == null) {
@@ -1120,7 +1120,7 @@ public class Field {
                 DropInfo copy = null;
                 if (dropInfo.isMoney()) {
                     copy = dropInfo.deepCopy();
-                    copy.setMoney((int) (dropInfo.getMoney() * ((100 + mesoRate) / 100D)));
+                    copy.setMoney((int) (dropInfo.getMoney() * (mesoRate / 100D)));
                 }
                 drop(copy != null ? copy : dropInfo, position, posTo, ownerID);
                 diff = diff < 0 ? Math.abs(diff - GameConstants.DROP_DIFF) : -(diff + GameConstants.DROP_DIFF);

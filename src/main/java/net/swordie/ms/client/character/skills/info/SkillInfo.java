@@ -5,6 +5,7 @@ import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.Stat;
+import net.swordie.ms.enums.WeaponType;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Tuple;
@@ -45,7 +46,8 @@ public class SkillInfo {
     private boolean psd;
     private Set<Integer> addAttackSkills = new HashSet<>();
     private Map<Integer, Integer> extraSkillInfo = new HashMap<>();
-    private boolean ignoreCounter;
+    private Map<WeaponType, Map<SkillStat, Integer>> psdWT = new HashMap<>(); // <WeaponType, <SkillStat, Value>>
+    private Map<Integer, Map<SkillStat, Integer>> cachedData = new HashMap<>(); // <Level, <SkillStat, Value>>
 
     public int getSkillId() {
         return skillId;
@@ -97,6 +99,14 @@ public class SkillInfo {
         if(value == null || slv == 0) {
             return 0;
         }
+        if (!cachedData.containsKey(slv)) {
+            cachedData.put(slv, new HashMap<>());
+        }
+        Map<SkillStat, Integer> lvCache = cachedData.get(slv);
+        if (lvCache.containsKey(skillStat)) {
+            return lvCache.get(skillStat);
+        }
+        // Not in cache: evaluate
         // Sometimes newlines get taken, just remove those
         value = value.replace("\n", "").replace("\r", "");
         value = value.replace("\\n", "").replace("\\r", ""); // unluko
@@ -180,14 +190,14 @@ public class SkillInfo {
     public Map<BaseStat, Integer> getBaseStatValues(Char chr, int slv) {
         Map<BaseStat, Integer> stats = new HashMap<>();
         for (SkillStat ss : getSkillStatInfo().keySet()) {
-            Tuple<BaseStat, Integer> bs = getBaseStatValue(ss, slv, chr);
+            Tuple<BaseStat, Integer> bs = getBaseStatValue(ss, chr, slv);
             stats.put(bs.getLeft(), bs.getRight());
         }
-        SkillConstants.putMissingBaseStatsBySkill(stats, this, slv);
+        SkillConstants.putMissingBaseStatsBySkill(chr, stats, this, slv);
         return stats;
     }
 
-    private Tuple<BaseStat, Integer> getBaseStatValue(SkillStat ss, int slv, Char chr) {
+    public Tuple<BaseStat, Integer> getBaseStatValue(SkillStat ss, Char chr, int slv) {
         BaseStat bs = ss.getBaseStat();
         int value = getValue(ss, slv);
         switch (ss) {
@@ -340,5 +350,25 @@ public class SkillInfo {
 
     public boolean isIgnoreCounter() {
         return getValue(SkillStat.ignoreCounter, 1) != 0;
+    }
+
+    public Map<WeaponType, Map<SkillStat, Integer>> getPsdWT() {
+        return psdWT;
+    }
+
+    public void setPsdWT(Map<WeaponType, Map<SkillStat, Integer>> psdWT) {
+        this.psdWT = psdWT;
+    }
+
+    public Map<SkillStat, Integer> getSkillStatsByWT(WeaponType weaponType) {
+        return getPsdWT().getOrDefault(weaponType, Collections.EMPTY_MAP);
+    }
+
+    public void addPsdWT(WeaponType wt, Map<SkillStat, Integer> skillStats) {
+        getPsdWT().put(wt, skillStats);
+    }
+
+    public boolean isPsdWTSkill() {
+        return getPsdWT().size() > 0;
     }
 }

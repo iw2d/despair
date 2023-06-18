@@ -48,7 +48,7 @@ public class DamageCalc {
 
     public long calcPDamageForPvM(int skillID, int slv, int dotDmg) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        WeaponType weaponType = getWeaponType();
+        WeaponType weaponType = chr.getEquippedWeaponType();
         SkillInfo si = SkillData.getSkillInfoById(skillID);
         double mult = (si == null ? 100 : dotDmg) / 100D;
         mult = mult == 0 ? si.getValue(SkillStat.damage, slv) / 100D : mult;
@@ -57,86 +57,27 @@ public class DamageCalc {
         BaseStat attStat = mainStat == inte ? mad : pad;
         Map<BaseStat, Integer> basicStats = chr.getTotalBasicStats();
         int setBaseDamage = tsm.hasStat(SetBaseDamage) ? tsm.getOption(SetBaseDamage).nOption : 0;
-        long damage = calcDamageByWT(weaponType, basicStats, setBaseDamage, skillID);
-        return (long) (damage * mult);
+        double damage = calcDamageByWT(weaponType, basicStats, setBaseDamage, skillID);
+        return Math.round(damage * mult);
     }
 
     public double getMinBaseDamage() {
-        return 0.5 + getMaxBaseDamage() * (getMastery() / 100D); // 0.5 for rounding to closest int
+        return getMaxBaseDamage() * (chr.getTotalStat(mastery) / 100D);
     }
 
     public double getMaxBaseDamage() {
-        WeaponType weaponType = getWeaponType();
-        BaseStat mainStat = GameConstants.getMainStatForJob(chr.getJob());
-        BaseStat secStat = GameConstants.getSecStatByMainStat(mainStat);
-        BaseStat attStat = mainStat == inte ? mad : pad;
+        WeaponType weaponType = chr.getEquippedWeaponType();
         Map<BaseStat, Integer> basicStats = chr.getTotalBasicStats();
-        long damage = calcDamageByWT(weaponType, basicStats, 0, 0);
-        return (damage);
+        double damage = calcDamageByWT(weaponType, basicStats, 0, 0);
+        damage *= (1 + chr.getTotalStat(damR) / 100D);
+        return damage;
     }
 
-    private WeaponType getWeaponType() {
-        return WeaponType.getByVal(ItemConstants.getWeaponType(chr.getEquippedItemByBodyPart(BodyPart.Weapon).getItemId()));
-    }
-
-    private double getMastery() {
-        int mas = chr.getTotalStat(mastery);
-        int base = 0;
-        switch (getWeaponType()) {
-            case None:
-                break;
-            // physical melee
-            case Desperado:
-            case ChainSword:
-            case Chain:
-            case Gauntlet:
-            case OneHandedSword:
-            case OneHandedAxe:
-            case OneHandedMace:
-            case Dagger:
-            case Katara:
-            case Cane:
-            case Barehand:
-            case TwoHandedSword:
-            case TwoHandedAxe:
-            case TwoHandedMace:
-            case Spear:
-            case Polearm:
-            case Knuckle:
-            case Katana:
-            case BigSword:
-            case LongSword:
-            case ArmCannon:
-                base = 20;
-                break;
-            // physical ranged
-            case SoulShooter:
-            case Bow:
-            case Crossbow:
-            case Claw:
-            case Gun:
-            case DualBowgun:
-            case HandCannon:
-                base = 15;
-                break;
-            // magic
-            case ShiningRod:
-            case Scepter:
-            case PsyLimiter:
-            case Wand:
-            case Staff:
-            case Fan:
-                base = 25;
-                break;
-        }
-        return Math.min(99, base + mas); // 99% mastery is maximum
-    }
-
-    private long calcDamageByWT(WeaponType wt, Map<BaseStat, Integer> stats, int setBaseDamage, int skillID) {
+    private double calcDamageByWT(WeaponType wt, Map<BaseStat, Integer> stats, int setBaseDamage, int skillID) {
         if (setBaseDamage > 0) {
             return setBaseDamage;
         }
-        long dmg = 0;
+        double dmg = 0;
         double jobConst = JobConstants.getDamageConstant(chr.getJob());
         short job = chr.getJob();
         if (JobConstants.isBeginnerJob(job)) {
@@ -264,22 +205,21 @@ public class DamageCalc {
         return dmg;
     }
 
-    private long calcHybridBaseDamage(int stat1, int stat2, int stat3, int stat4, int pad, double finalDamage) {
-        return (long) ((stat1 * 3.5 + stat2 * 3.5 + stat3 * 3.5 + stat4) / 100.0 * (pad * finalDamage) + 0.5);
+    private double calcHybridBaseDamage(int stat1, int stat2, int stat3, int stat4, int pad, double finalDamage) {
+        return (stat1 * 3.5 + stat2 * 3.5 + stat3 * 3.5 + stat4) / 100.0 * (pad * finalDamage);
     }
 
-    private long calcBaseDamage(int mainStat, int secStat, int tertStat, int pad, double finalDamage) {
-        return (long) ((tertStat + secStat + 4 * mainStat) / 100.0 * (pad * finalDamage) + 0.5);
+    private double calcBaseDamage(int mainStat, int secStat, int tertStat, int pad, double finalDamage) {
+        return (tertStat + secStat + 4 * mainStat) / 100.0 * (pad * finalDamage);
     }
 
-    private long calcBaseDamageByHp(int rawHp, int totalHp, int str, int pad, double finalDamage) {
-        return (long) (((int) (rawHp / 3.5) + 0.8 * ((int) ((totalHp - rawHp) / 3.5)) + str) / 100.0 * (pad * finalDamage) + 0.5);
+    private double calcBaseDamageByHp(int rawHp, int totalHp, int str, int pad, double finalDamage) {
+        return ((int) (rawHp / 3.5) + 0.8 * ((int) ((totalHp - rawHp) / 3.5)) + str) / 100.0 * (pad * finalDamage);
     }
 
     public void checkDamage(AttackInfo attackInfo) {
-
-        long minDamage = (long) getMinBaseDamage();
-        long maxDamage = (long) getMaxBaseDamage();
+        long minDamage = Math.round(getMinBaseDamage());
+        long maxDamage = Math.round(getMaxBaseDamage());
         int skillId = attackInfo.skillId;
         // make seperate variables, as they can change based on the mob being a boss or not
         int chrIed = chr.getTotalStat(BaseStat.ied);

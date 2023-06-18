@@ -128,7 +128,7 @@ public class MobHandler {
                     long curTime = System.currentTimeMillis();
                     long interval = msi.getSkillStatIntValue(MobSkillStat.interval) * 1000;
                     long nextUseableTime = curTime + interval;
-                    c.getChr().chatMessage(ChatType.Mob, String.format("Mob" + mob + " did skill with ID %d (%s), level = %d",
+                    c.getChr().dbgChatMsg(String.format("Mob" + mob + " did skill with ID %d (%s), level = %d",
                             mobSkill.getSkillID(), MobSkillID.getMobSkillIDByVal(mobSkill.getSkillID()), mobSkill.getLevel()));
                     mob.putSkillCooldown(skillID, slv, nextUseableTime);
                     if (mobSkill.getSkillAfter() > 0) {

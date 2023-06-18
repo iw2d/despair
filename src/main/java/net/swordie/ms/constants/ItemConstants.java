@@ -1967,5 +1967,58 @@ public class ItemConstants {
     public static boolean isFusionAnvil(int itemId) {
         return itemId / 100 == 50624;
     }
+
+    public static int getBaseMastery(int itemId) {
+        if (isWeapon(itemId)) {
+            WeaponType wt = WeaponType.getByVal(getWeaponType(itemId));
+            switch (wt) {
+                case None:
+                    break;
+                // physical melee
+                case Desperado:
+                case ChainSword:
+                case Chain:
+                case Gauntlet:
+                case OneHandedSword:
+                case OneHandedAxe:
+                case OneHandedMace:
+                case Dagger:
+                case Katara:
+                case Cane:
+                case Barehand:
+                case TwoHandedSword:
+                case TwoHandedAxe:
+                case TwoHandedMace:
+                case Spear:
+                case Polearm:
+                case Knuckle:
+                case Katana:
+                case BigSword:
+                case LongSword:
+                case ArmCannon:
+                    return 20;
+                // physical ranged
+                case SoulShooter:
+                case Bow:
+                case Crossbow:
+                case Claw:
+                case Gun:
+                case DualBowgun:
+                case HandCannon:
+                    return 15;
+                // magic
+                case ShiningRod:
+                case Scepter:
+                case PsyLimiter:
+                case Wand:
+                case Staff:
+                case Fan:
+                    return 25;
+                default:
+                    break;
+            }
+        }
+        return 0;
+    }
 }
 

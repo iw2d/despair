@@ -486,7 +486,7 @@ public abstract class Job {
 					hitInfo.blockSkillDamage = inPacket.decodeInt();
 					hitInfo.reflect = inPacket.decodeByte();
 					hitInfo.guard = inPacket.decodeByte();
-					if (hitInfo.blockSkillDamage > 0) {
+					if (hitInfo.guard == 2 || hitInfo.blockSkillDamage > 0) {
 						hitInfo.powerGuard = inPacket.decodeByte();
 						hitInfo.reflectMobID = inPacket.decodeInt();
 						hitInfo.hitAction = inPacket.decodeByte();
@@ -566,23 +566,6 @@ public abstract class Job {
 				tsm.removeStatsBySkill(Mihile.ROYAL_GUARD);
 				tsm.removeStatsBySkill(Mihile.ENDURING_SPIRIT);
 				tsm.sendResetStatPacket();
-			}
-		}
-
-		// Paladin - Parashock Guard
-		if (tsm.hasStat(KnightsAura) && chr.getId() != tsm.getOption(KnightsAura).nOption) {
-			Party party = chr.getParty();
-
-			PartyMember paladinInParty = party.getPartyMemberByID(tsm.getOption(KnightsAura).nOption);
-			if (paladinInParty != null) {
-				Char paladinChr = paladinInParty.getChr();
-				Skill skill = paladinChr.getSkill(Paladin.PARASHOCK_GUARD);
-				SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-				int slv = skill.getCurrentLevel();
-
-				int dmgReductionR = si.getValue(y, slv);
-				int dmgReduceAmount = (int) (hitInfo.hpDamage * ((double) dmgReductionR / 100));
-				hitInfo.hpDamage = hitInfo.hpDamage - dmgReduceAmount;
 			}
 		}
 
