@@ -1,8 +1,6 @@
 package net.swordie.ms.client.jobs;
 
 import net.swordie.ms.client.character.Char;
-import net.swordie.ms.client.character.CharacterStat;
-import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.jobs.adventurer.*;
 import net.swordie.ms.client.jobs.adventurer.archer.Archer;
 import net.swordie.ms.client.jobs.adventurer.magician.Magician;
@@ -19,8 +17,6 @@ import net.swordie.ms.client.jobs.nova.Kaiser;
 import net.swordie.ms.client.jobs.resistance.*;
 import net.swordie.ms.client.jobs.sengoku.Hayato;
 import net.swordie.ms.client.jobs.sengoku.Kanna;
-import net.swordie.ms.connection.InPacket;
-import net.swordie.ms.constants.JobConstants;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -28,7 +24,7 @@ import java.lang.reflect.InvocationTargetException;
  * Created on 12/14/2017.
  */
 public class JobManager {
-    private static final Class[] jobClasses = new Class[] {
+    private static final Class<Job>[] jobClasses = new Class[] {
             Warrior.class,
             Hero.class,
             Paladin.class,
@@ -61,9 +57,9 @@ public class JobManager {
             AngelicBuster.class,
             Kaiser.class,
 
+            Citizen.class,
             BattleMage.class,
             Blaster.class,
-            Citizen.class,
             Demon.class,
             Mechanic.class,
             WildHunter.class,
@@ -75,71 +71,15 @@ public class JobManager {
             Zero.class
     };
 
-    private short id;
-
-    public JobConstants.JobEnum getJobEnum() {
-        return JobConstants.getJobEnumById(getId());
-    }
-    public void setDefaultCharStatValues(CharacterStat characterStat) {
-        characterStat.setLevel(1);
-        characterStat.setStr(12);
-        characterStat.setDex(5);
-        characterStat.setInt(4);
-        characterStat.setLuk(4);
-        characterStat.setMaxHp(50);
-        characterStat.setHp(50);
-        characterStat.setMaxMp(5);
-        characterStat.setMp(5);
-    }
-
-    public static void handleAttack(Char chr, AttackInfo attackInfo) {
-        for(Class clazz : jobClasses) {
-            Job job = null;
-            try {
-                job = (Job) clazz.getDeclaredConstructor().newInstance();
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-            if(job != null && job.isHandlerOfJob(chr.getJob())) {
-                job.handleAttack(chr, attackInfo);
-            }
-        }
-    }
-
-    public static void handleSkill(Char chr, InPacket inPacket) {
-        for(Class clazz : jobClasses) {
-            Job job = null;
-            try {
-                job = (Job) clazz.getDeclaredConstructor().newInstance();
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-            if(job != null && job.isHandlerOfJob(chr.getJob())) {
-                inPacket.decodeInt(); // crc
-                int skillID = inPacket.decodeInt();
-                byte slv = inPacket.decodeByte();
-                job.handleSkill(chr, skillID, slv, inPacket);
-            }
-        }
-    }
-
-    public short getId() {
-        return id;
-    }
-
-    public void setId(short id) {
-        this.id = id;
-    }
-
     public static Job getJobById(short id, Char chr) {
         Job job = null;
-        for(Class clazz : jobClasses) {
+        for(Class<Job> clazz : jobClasses) {
             try {
-                job = (Job) clazz.getConstructor(Char.class).newInstance(chr);
+                job = clazz.getConstructor(Char.class).newInstance(chr);
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                 e.printStackTrace();
             }
-            if(job != null && job.isHandlerOfJob(id)) {
+            if (job != null && job.isHandlerOfJob(id)) {
                 return job;
             }
         }

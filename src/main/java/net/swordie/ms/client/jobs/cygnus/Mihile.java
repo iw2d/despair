@@ -357,7 +357,7 @@ public class Mihile extends Job {
     }
 
     private void doRoyalGuardAttack() {
-        c.write(UserLocal.royalGuardAttack(true));
+        chr.write(UserLocal.royalGuardAttack(true));
     }
 
     @Override

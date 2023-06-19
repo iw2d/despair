@@ -108,8 +108,8 @@ public class BattleMage extends Citizen {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o1 = new Option();
         SkillInfo si = SkillData.getSkillInfoById(skillID);
-        Field field = c.getChr().getField();
-        death = Summon.getSummonBy(c.getChr(), skillID, slv);
+        Field field = chr.getField();
+        death = Summon.getSummonBy(chr, skillID, slv);
         death.setFlyMob(true);
         death.setSummonTerm(0);
         death.setMoveAbility(MoveAbility.Walk);

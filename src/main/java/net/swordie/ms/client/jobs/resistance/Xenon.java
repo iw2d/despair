@@ -450,8 +450,8 @@ public class Xenon extends Job {
             case HYPOGRAM_FIELD_FORCE_FIELD:
             case HYPOGRAM_FIELD_PENETRATE:
             case HYPOGRAM_FIELD_SUPPORT:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAction((byte) 0);
                 summon.setMoveAbility(MoveAbility.Stop);

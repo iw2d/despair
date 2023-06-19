@@ -371,7 +371,7 @@ public class BeastTamer extends Job {
         Skill skill = chr.getSkill(DEFENSIVE_FORMATION);
         SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
         byte slv = (byte) skill.getCurrentLevel();
-        defensiveFormation = Summon.getSummonBy(c.getChr(), DEFENSIVE_FORMATION, slv);
+        defensiveFormation = Summon.getSummonBy(chr, DEFENSIVE_FORMATION, slv);
         defensiveFormation.setFlyMob(true);
         defensiveFormation.setSummonTerm(si.getValue(time, slv));
         defensiveFormation.setMoveAbility(MoveAbility.Fly); // Different MoveAbility?
@@ -498,8 +498,8 @@ public class BeastTamer extends Job {
                     continue;
                 }
                 if (Util.succeedProp(summonProp)) {
-                    summon = Summon.getSummonBy(c.getChr(), BRO_ATTACK, slv);
-                    field = c.getChr().getField();
+                    summon = Summon.getSummonBy(chr, BRO_ATTACK, slv);
+                    field = chr.getField();
                     summon.setFlyMob(false);
                     summon.setPosition(mob.getPosition());
                     summon.setSummonTerm(si.getValue(x, slv));
@@ -641,8 +641,8 @@ public class BeastTamer extends Job {
 
             //Bear Mode
             case LIL_FORT:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setSummonTerm(si.getValue(time, slv));
                 summon.setMoveAbility(MoveAbility.Stop);

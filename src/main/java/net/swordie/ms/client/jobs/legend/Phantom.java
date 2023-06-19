@@ -315,7 +315,7 @@ public class Phantom extends Job {
 
     public void setCardAmount(byte cardAmount) {
         this.cardAmount = cardAmount;
-        c.write(UserLocal.incJudgementStack(getCardAmount()));
+        chr.write(UserLocal.incJudgementStack(getCardAmount()));
     }
 
     private void cartDeck() {

@@ -84,7 +84,7 @@ public class Kanna extends Job {
     }
 
     public void spawnHaku() {
-        c.write(FieldPacket.enterFieldFoxMan(chr));
+        chr.write(FieldPacket.enterFieldFoxMan(chr));
     }
 
     public static void hakuFoxFire(Char chr) {

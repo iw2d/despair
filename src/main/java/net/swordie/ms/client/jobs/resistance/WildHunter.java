@@ -346,7 +346,7 @@ public class WildHunter extends Citizen {
             case JAGUAR_SOUL:
             case JAGUAR_RAMPAGE:
                 lastUsedSkill = skillID;
-                c.write(UserLocal.jaguarSkill(skillID));
+                chr.write(UserLocal.jaguarSkill(skillID));
                 break;
             case SECRET_ASSEMBLY:
                 o1.nValue = si.getValue(x, slv);
@@ -418,7 +418,7 @@ public class WildHunter extends Citizen {
                 summon.setAssistType(AssistType.Attack);
                 summon.setAttackActive(true);
 
-                field = c.getChr().getField();
+                field = chr.getField();
                 field.spawnSummon(summon);
 
                 if(tsm.hasStatBySkillId(RIDE_JAGUAR)) {

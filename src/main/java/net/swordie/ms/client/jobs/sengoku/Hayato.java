@@ -299,7 +299,7 @@ public class Hayato extends Job {
                     tsm.putCharacterStatValue(IndieDamR, o1); //Indie
                     tsm.sendSetStatPacket();
                     swordEnergy = 0;
-                    c.write(UserLocal.modHayatoCombo(swordEnergy));
+                    chr.write(UserLocal.modHayatoCombo(swordEnergy));
                 }
                 break;
             case HITOKIRI_STRIKE:
@@ -430,7 +430,7 @@ public class Hayato extends Job {
                         swordEnergy += 2;
                     }
                 }
-                c.write(UserLocal.modHayatoCombo(swordEnergy));
+                chr.write(UserLocal.modHayatoCombo(swordEnergy));
             }
         }
     }
@@ -467,7 +467,7 @@ public class Hayato extends Job {
                         return;
                     } else {
                         swordEnergy -= 150;
-                        c.write(UserLocal.modHayatoCombo(swordEnergy));
+                        chr.write(UserLocal.modHayatoCombo(swordEnergy));
                     }
                 }
                 if(tsm.getOption(HayatoStance).nOption == 0) {

@@ -396,6 +396,11 @@ public class SkillHandler {
         chr.getTemporaryStatManager().resetByTime(Util.getCurrentTime());
     }
 
+    @Handler(op = InHeader.USER_CALC_DAMAGE_STAT_SET_REQUEST)
+    public static void handleUserCalcDamageStatSetRequest(Char chr, InPacket inPacket) {
+        chr.getJobHandler().handleCalcDamageStatSet();
+    }
+
     @Handler(op = InHeader.USER_FINAL_ATTACK_REQUEST)
     public static void handleUserFinalAttackRequest(Client c, InPacket inPacket) {
         Char chr = c.getChr();

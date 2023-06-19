@@ -197,6 +197,7 @@ public class GameConstants {
     private static int[] guildExp = new int[MAX_GUILD_LV];
 
     // Skills
+    public static final int DEFAULT_STUN_DURATION = 3; // for skills that don't have the stun duration specified in wz
     public static final int TIME_LEAP_QR_KEY = 99996; // Quest where personal Time Leap CDs get stored
 
     //Merchant

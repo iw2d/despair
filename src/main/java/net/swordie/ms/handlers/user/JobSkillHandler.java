@@ -250,7 +250,7 @@ public class JobSkillHandler {
     public static void handleRequestSetBlessOfDarkness(Client c, InPacket inPacket) {
         Char chr = c.getChr();
         if (JobConstants.isLuminous(chr.getJob())) {
-            Luminous.changeBlackBlessingCount(c, true);
+            Luminous.changeBlackBlessingCount(chr, true);
         }
     }
 

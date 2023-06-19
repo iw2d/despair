@@ -415,6 +415,9 @@ public enum BaseStat {
                 stats.put(pad, o.wOption);
                 stats.put(dmgReduce, o.zOption);
                 break;
+            case CrossOverChain:
+                stats.put(fd, o.nOption);
+                break;
             default:
                 stats.put(unk, o.nOption);
         }

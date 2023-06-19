@@ -528,8 +528,8 @@ public class WindArcher extends Noblesse {
                 break;
             case EMERALD_FLOWER:
             case EMERALD_DUST:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAction((byte) 0);
                 summon.setMoveAbility(MoveAbility.Stop);

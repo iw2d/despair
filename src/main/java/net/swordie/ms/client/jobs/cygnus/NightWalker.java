@@ -157,8 +157,8 @@ public class NightWalker extends Noblesse {
         tsm.putCharacterStatValue(ShadowServant, o1);
         tsm.sendSetStatPacket();
 
-        darkServant = Summon.getSummonBy(c.getChr(), skill.getSkillId(), slv);
-        Field field = c.getChr().getField();
+        darkServant = Summon.getSummonBy(chr, skill.getSkillId(), slv);
+        Field field = chr.getField();
         darkServant.setFlyMob(false);
         darkServant.setAvatarLook(chr.getAvatarData().getAvatarLook());
         darkServant.setMoveAbility(MoveAbility.WalkClone);
@@ -673,15 +673,15 @@ public class NightWalker extends Noblesse {
                                 l.getSkillID() == DARK_SERVANT)
                 ) {
                     tsm.removeStatsBySkill(DARK_SERVANT);
-                    c.getChr().getField().broadcastPacket(Summoned.summonedRemoved(darkServant, LeaveType.ANIMATION));
+                    chr.getField().broadcastPacket(Summoned.summonedRemoved(darkServant, LeaveType.ANIMATION));
                 }
                 o1.nOption = 1;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(ShadowIllusion, o1);
                 for(int i = skillID; i < skillID+3; i++) {
-                    summon = Summon.getSummonBy(c.getChr(), i, slv);
-                    field = c.getChr().getField();
+                    summon = Summon.getSummonBy(chr, i, slv);
+                    field = chr.getField();
                     summon.setFlyMob(false);
                     summon.setAvatarLook(chr.getAvatarData().getAvatarLook());
                     summon.setMoveAbility(MoveAbility.WalkClone);
@@ -692,8 +692,8 @@ public class NightWalker extends Noblesse {
                 }
                 break;
             case DARK_OMEN:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAbility(MoveAbility.Stop);
                 field.spawnSummon(summon);

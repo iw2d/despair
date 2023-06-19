@@ -120,7 +120,7 @@ public class Mechanic extends Citizen {
             SkillInfo si = SkillData.getSkillInfoById(SUPPORT_UNIT_HEX);
             byte slv = (byte) summonOwner.getSkill(SUPPORT_UNIT_HEX).getCurrentLevel();
             int healrate = si.getValue(hp, slv);
-            c.getChr().heal((int) (c.getChr().getMaxHP() * ((double) healrate / 100)));
+            chr.heal((int) (chr.getMaxHP() * ((double) healrate / 100)));
         }
     }
 
@@ -354,7 +354,7 @@ public class Mechanic extends Citizen {
                 tsm.removeAllDebuffs();
                 break;
             case ROCK_N_SHOCK:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                summon = Summon.getSummonBy(chr, skillID, slv);
                 field = chr.getField();
                 summon.setMoveAbility(MoveAbility.Stop);
                 summon.setAssistType(AssistType.None);
@@ -373,7 +373,7 @@ public class Mechanic extends Citizen {
                 }
                 break;
             case GIANT_ROBOT_SG_88:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                summon = Summon.getSummonBy(chr, skillID, slv);
                 field = chr.getField();
                 summon.setMoveAbility(MoveAbility.Stop);
                 summon.setAssistType(AssistType.Attack);
@@ -487,8 +487,8 @@ public class Mechanic extends Citizen {
                 // Fallthrough intended
             case SUPPORT_UNIT_HEX:
 
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAbility(MoveAbility.Stop);
                 summon.setAssistType(AssistType.None);
@@ -501,15 +501,15 @@ public class Mechanic extends Citizen {
                 applySupportUnitDebuffOnMob(skillID);
                 break;
             case ROBO_LAUNCHER_RM7:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(true);
                 summon.setMoveAbility(MoveAbility.Stop);
                 field.spawnSummon(summon);
                 break;
             case BOTS_N_TOTS:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAbility(MoveAbility.Stop);
                 summon.setAssistType(AssistType.None);

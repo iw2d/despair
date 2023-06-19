@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.adventurer.thief;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.items.Item;
@@ -175,7 +174,7 @@ public class Thief extends Beginner {
     }
 
 
-    private void incrementFlipTheCoinStack(TemporaryStatManager tsm, Client c) {
+    private void incrementFlipTheCoinStack(TemporaryStatManager tsm) {
         Option o = new Option();
         Option o1 = new Option();
         Option o2 = new Option();
@@ -216,7 +215,7 @@ public class Thief extends Beginner {
         long totalCrit = chr.getBaseStats().get(BaseStat.cr);
         totalCrit += tsm.getOption(CriticalBuff).nOption + tsm.getOption(CriticalGrowing).nOption;
         if (Util.succeedProp((int) (totalCrit > 100 ? 100 : totalCrit))) {
-            c.write(WvsContext.flipTheCoinEnabled((byte) 1));
+            chr.write(WvsContext.flipTheCoinEnabled((byte) 1));
         }
     }
 
@@ -274,7 +273,7 @@ public class Thief extends Beginner {
         }
     }
 
-    private void incrementShadowInstinct(int skillId, TemporaryStatManager tsm, Client c) {
+    private void incrementShadowInstinct(int skillId, TemporaryStatManager tsm) {
         Option o = new Option();
         SkillInfo InstinctInfo = SkillData.getSkillInfoById(SHADOWER_INSTINCT);
         Skill skill = chr.getSkill(SHADOWER_INSTINCT);
@@ -410,7 +409,7 @@ public class Thief extends Beginner {
 
                 // Shadower Instinct
                 if (chr.hasSkill(SHADOWER_INSTINCT) && tsm.hasStat(IgnoreMobpdpR)) {
-                    incrementShadowInstinct(skillID, tsm, c);
+                    incrementShadowInstinct(skillID, tsm);
                 }
 
             }
@@ -1110,8 +1109,8 @@ public class Thief extends Beginner {
                 break;
             case MIRRORED_TARGET:
                 if(tsm.getOptByCTSAndSkill(ShadowPartner, MIRROR_IMAGE) != null) {
-                    summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                    field = c.getChr().getField();
+                    summon = Summon.getSummonBy(chr, skillID, slv);
+                    field = chr.getField();
                     summon.setFlyMob(false);
                     summon.setMoveAction((byte) 0);
                     summon.setMoveAbility(MoveAbility.Stop);
@@ -1127,8 +1126,8 @@ public class Thief extends Beginner {
                 break;
             case DARK_FLARE_NL:
             case DARK_FLARE_SHAD:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAction((byte) 0);
                 summon.setMoveAbility(MoveAbility.Stop);
@@ -1161,8 +1160,8 @@ public class Thief extends Beginner {
                 tsm.putCharacterStatValue(IndiePAD, o2);
                 break;
             case FLIP_THE_COIN:
-                incrementFlipTheCoinStack(tsm, c);
-                c.write(WvsContext.flipTheCoinEnabled((byte) 0));
+                incrementFlipTheCoinStack(tsm);
+                chr.write(WvsContext.flipTheCoinEnabled((byte) 0));
                 break;
             case BLADE_CLONE:
                 o1.nOption = 1;

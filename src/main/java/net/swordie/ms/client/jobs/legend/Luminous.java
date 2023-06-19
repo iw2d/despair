@@ -124,10 +124,10 @@ public class Luminous extends Job {
             SkillInfo lti = SkillData.getSkillInfoById(LUNAR_TIDE);
             Skill skill = chr.getSkill(LUNAR_TIDE);
             byte slv = (byte) skill.getCurrentLevel();
-            int maxMP = c.getChr().getStat(Stat.mmp);
-            int curMP = c.getChr().getStat(Stat.mp);
-            int maxHP = c.getChr().getStat(Stat.mhp);
-            int curHP = c.getChr().getStat(Stat.hp);
+            int maxMP = chr.getStat(Stat.mmp);
+            int curMP = chr.getStat(Stat.mp);
+            int maxHP = chr.getStat(Stat.mhp);
+            int curHP = chr.getStat(Stat.hp);
             double ratioHP = ((double)curHP/maxHP);
             double ratioMP = ((double)curMP)/maxMP;
 
@@ -157,8 +157,7 @@ public class Luminous extends Job {
         }
     }
 
-    public static void changeBlackBlessingCount(Client c, boolean increment) {
-        Char chr = c.getChr();
+    public static void changeBlackBlessingCount(Char chr, boolean increment) {
         Option o = new Option();
         Option o2 = new Option();
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -469,7 +468,7 @@ public class Luminous extends Job {
                 Skill skill = chr.getSkill(BLACK_BLESSING);
                 SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
                 byte slv = (byte) skill.getCurrentLevel();
-                changeBlackBlessingCount(c, false); // deduct orbs as player gets hit
+                changeBlackBlessingCount(chr, false); // deduct orbs as player gets hit
                 int dmgAbsorbed = si.getValue(x, slv);
                 hitInfo.hpDamage = (int) (hitInfo.hpDamage * ((double) dmgAbsorbed / 100));
             }

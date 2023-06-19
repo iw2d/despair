@@ -27,9 +27,6 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Hero extends Warrior {
-
-    public static final int MAPLE_RETURN = 1281;
-
     public static final int WEAPON_MASTERY_FIGHTER = 1100000;
     public static final int WEAPON_BOOSTER_FIGHTER = 1101004;
     public static final int COMBO_ATTACK = 1101013;
@@ -55,24 +52,11 @@ public class Hero extends Warrior {
     public static final int EPIC_ADVENTURE_HERO = 1121053; //Lv200
     public static final int CRY_VALHALLA = 1121054; //Lv150
 
-    private int[] addedSkills = new int[]{
-            MAPLE_RETURN,
-    };
-
     private long lastPanicHit = Long.MIN_VALUE;
     private ScheduledFuture selfRecoveryTimer;
 
     public Hero(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
         selfRecoveryTimer = EventManager.addFixedRateEvent(this::selfRecovery, 4000, 4000);
     }
 
@@ -297,16 +281,16 @@ public class Hero extends Warrior {
                 break;
             case PUNCTURE:
                 removeCombo(si.getValue(y, slv));
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = si.getValue(x, slv);
-                    o1.rOption = skillID;
-                    o1.tOption = si.getValue(time, slv);
-                    mts.addStatOptions(MobStat.HitCriDamR, o1); // TODO: check party effect - si.getValue(u, slv)
+                    mts.addStatOptions(MobStat.HitCriDamR, o1);
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         mts.createAndAddBurnedInfo(chr, skill);
                     }
@@ -390,18 +374,13 @@ public class Hero extends Warrior {
         Option o3 = new Option();
         Option o4 = new Option();
         switch (skillID) {
-            case MAPLE_RETURN:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case RAGE:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1);
-                if (chr.hasSkill(skillID)) {
+                if (this.chr == chr) {
                     // Power Guard effect only for caster
                     o2.nOption = si.getValue(x, slv);
                     o2.rOption = skillID;
@@ -427,7 +406,7 @@ public class Hero extends Warrior {
             case CRY_VALHALLA:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieCr, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieCr, o1);
                 o2.nOption = si.getValue(x, slv);
@@ -456,6 +435,14 @@ public class Hero extends Warrior {
             }
         }
         super.handleHit(chr, inPacket, hitInfo);
+    }
+
+    @Override
+    public void handleCancelTimer(Char chr) {
+        super.handleCancelTimer(chr);
+        if (selfRecoveryTimer != null && !selfRecoveryTimer.isDone()) {
+            selfRecoveryTimer.cancel(true);
+        }
     }
 
     @Override

@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.adventurer;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.*;
@@ -15,7 +14,6 @@ import net.swordie.ms.world.field.Field;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
-import net.swordie.ms.enums.ChatType;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.enums.MoveAbility;
 import net.swordie.ms.loaders.SkillData;
@@ -26,7 +24,6 @@ import net.swordie.ms.life.Life;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 
-import java.util.Arrays;
 import java.util.concurrent.ScheduledFuture;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -147,8 +144,8 @@ public class PinkBean extends Job {
                     continue;
                 }
                 if(Util.succeedProp(minibeanproc)) {
-                    summon = Summon.getSummonBy(c.getChr(), MINI_BEANS, slv);
-                    field = c.getChr().getField();
+                    summon = Summon.getSummonBy(chr, MINI_BEANS, slv);
+                    field = chr.getField();
                     summon.setFlyMob(true);
                     summon.setPosition(mob.getPosition());
                     summon.setMoveAbility(MoveAbility.FlyRandom);
@@ -295,8 +292,8 @@ public class PinkBean extends Job {
                 tsm.putCharacterStatValue(IndiePADR, o3);
                 break;
             case INSTANT_GARDEN_PRETTY: //Summon
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAbility(MoveAbility.Stop);
                 summon.setAssistType(AssistType.None);

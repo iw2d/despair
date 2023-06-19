@@ -483,7 +483,7 @@ public class Kaiser extends Job {
         tsm.sendSetStatPacket();
     }
 
-    private void resetGauge(Client c, TemporaryStatManager tsm) {
+    private void resetGauge(TemporaryStatManager tsm) {
         tsm.removeStat(SmashStack, false);
         tsm.sendResetStatPacket();
     }
@@ -673,7 +673,7 @@ public class Kaiser extends Job {
                 o5.rOption = skillID;
                 o5.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Speed, o5);
-                resetGauge(c, tsm);
+                resetGauge(tsm);
                 break;
             case FINAL_TRANCE:
             case FINAL_FORM_FOURTH:
@@ -706,7 +706,7 @@ public class Kaiser extends Job {
                 o5.rOption = skillID;
                 o5.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Speed, o5);
-                resetGauge(c, tsm);
+                resetGauge(tsm);
                 break;
             case KAISERS_MAJESTY:
                 o1.nReason = skillID;
@@ -727,8 +727,8 @@ public class Kaiser extends Job {
                 break;
             case STONE_DRAGON:
             case STONE_DRAGON_FINAL_FORM:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAction((byte) 0);
                 summon.setMoveAbility(MoveAbility.Stop);

@@ -77,13 +77,14 @@ public class PlayerCommands {
     public static class Stats extends PlayerCommand {
         public static void execute(Char chr, String[] args) {
             DamageCalc damageCalc = chr.getDamageCalc();
-            chr.chatMessage(Mob, String.format("Damage: %d ~ %d", Math.round(damageCalc.getMinBaseDamage()), Math.round(damageCalc.getMaxBaseDamage())));
+            chr.chatMessage(Mob, String.format("Damage: %.2f ~ %.2f", damageCalc.getMinBaseDamage(), damageCalc.getMaxBaseDamage()));
             if (JobConstants.isMageEquipJob(chr.getJob())) {
-                chr.chatMessage(Mob, String.format("  MATT: %d", chr.getTotalStat(BaseStat.mad)));
+                chr.chatMessage(Mob, String.format("    MATT: %d", chr.getTotalStat(BaseStat.mad)));
             } else {
-                chr.chatMessage(Mob, String.format("   ATT: %d", chr.getTotalStat(BaseStat.pad)));
+                chr.chatMessage(Mob, String.format("    Att: %d", chr.getTotalStat(BaseStat.pad)));
             }
-            chr.chatMessage(Mob, String.format("   IED: %.2f", chr.getTotalStatAsDouble(BaseStat.ied)));
+            chr.chatMessage(Mob, String.format("    Dam: %d", chr.getTotalStat(BaseStat.damR)));
+            chr.chatMessage(Mob, String.format("    IED: %.2f", chr.getTotalStatAsDouble(BaseStat.ied)));
             chr.chatMessage(Mob, String.format("    FD: %.2f", chr.getTotalStatAsDouble(BaseStat.fd)));
         }
     }

@@ -1,8 +1,6 @@
 package net.swordie.ms.client.jobs.adventurer.magician;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
-import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.TownPortal;
@@ -1160,8 +1158,8 @@ public class Magician extends Beginner {
             case IFRIT:
             case ELQUINES:
             case BAHAMUT:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(true);
                 summon.setMoveAbility(MoveAbility.Walk);
                 field.spawnSummon(summon);
@@ -1176,8 +1174,8 @@ public class Magician extends Beginner {
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case THUNDER_STORM:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(true);
                 field.spawnSummon(summon);
                 break;

@@ -1034,7 +1034,6 @@ public enum InHeader {
             USER_CHANGE_STAT_REQUEST,
             SUMMONED_MOVE,
             USER_TEMPORARY_STAT_UPDATE_REQUEST,
-            USER_CALC_DAMAGE_STAT_SET_REQUEST,
             MOB_APPLY_CTRL,
             USER_REQUEST_INSTANCE_TABLE,
             USER_QUEST_REQUEST,

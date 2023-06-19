@@ -125,7 +125,7 @@ public class Mercedes extends Job {
 
         summonList.add(summon);
         if(summonList.size() > 2) {
-            c.write(Summoned.summonedRemoved(summonList.get(0), LeaveType.ANIMATION));
+            chr.write(Summoned.summonedRemoved(summonList.get(0), LeaveType.ANIMATION));
             tsm.removeStatsBySkill(summonList.get(0).getSkillID());
             summonList.remove(0);
         }

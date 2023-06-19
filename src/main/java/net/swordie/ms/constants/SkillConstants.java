@@ -10,6 +10,7 @@ import net.swordie.ms.client.jobs.adventurer.*;
 import net.swordie.ms.client.jobs.adventurer.magician.Magician;
 import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
+import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
 import net.swordie.ms.client.jobs.adventurer.warrior.Hero;
 import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
@@ -1127,12 +1128,12 @@ public class SkillConstants {
 
     public static boolean isPassiveSkill_NoPsdSkillsCheck(int skillId) {
         SkillInfo si = SkillData.getSkillInfoById(skillId);
-        return si != null && si.isPsd() || SkillConstants.isPsd(skillId);
+        return (si != null && si.isPsd()) || SkillConstants.isPsd(skillId);
     }
 
     public static boolean isPassiveSkill(int skillId) {
         SkillInfo si = SkillData.getSkillInfoById(skillId);
-        return si != null && si.isPsd() && si.getPsdSkills().size() == 0 || SkillConstants.isPsd(skillId);
+        return (si != null && si.isPsd() && si.getPsdSkills().size() == 0) || SkillConstants.isPsd(skillId);
     }
 
     public static boolean isPsd(int skillId) {
@@ -1609,6 +1610,14 @@ public class SkillConstants {
                         stats.put(ss.getBaseStat(), value + stats.getOrDefault(ss.getBaseStat(), 0))
                 );
                 stats.put(BaseStat.mastery, stats.getOrDefault(BaseStat.mastery, 0) - chr.getSkillStatValue(SkillStat.mastery, Paladin.WEAPON_MASTERY_PAGE));
+                break;
+            case DarkKnight.WEAPON_MASTERY_SPEARMAN:
+                si.getSkillStatsByWT(chr.getEquippedWeaponType()).forEach((ss, value) ->
+                        stats.put(ss.getBaseStat(), value + stats.getOrDefault(ss.getBaseStat(), 0))
+                );
+                break;
+            case DarkKnight.BARRICADE_MASTERY:
+                stats.put(BaseStat.mastery, si.getValue(SkillStat.mastery, slv) - chr.getSkillStatValue(SkillStat.mastery, DarkKnight.WEAPON_MASTERY_SPEARMAN));
                 break;
         }
     }

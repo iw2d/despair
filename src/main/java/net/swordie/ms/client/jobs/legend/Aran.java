@@ -428,7 +428,7 @@ public class Aran extends Job {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         this.combo = Math.max(0, combo);
         tsm.getOption(ComboAbilityBuff).nOption = getCombo();
-        c.write(WvsContext.modComboResponse(getCombo()));
+        chr.write(WvsContext.modComboResponse(getCombo()));
 
     }
 

@@ -210,7 +210,7 @@ public class Blaster extends Citizen {
                     addGauge();
                 }
                 lastAttack = skillID;
-                //c.write(UserLocal.rwMultiChargeCancelRequest((byte)1, skillID));
+                //chr.write(UserLocal.rwMultiChargeCancelRequest((byte)1, skillID));
                 break;
         }
         incrementComboTraining(skillID, tsm);

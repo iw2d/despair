@@ -156,7 +156,7 @@ public class BlazeWizard extends Noblesse {
             byte slv = (byte) chr.getSkill(getFlameElement()).getCurrentLevel();
             Summon summon;
             Field field;
-            field = c.getChr().getField();
+            field = chr.getField();
             summon = Summon.getSummonBy(chr, getFlameElement(), slv);
             summon.setFlyMob(false);
             summon.setAttackActive(false);
@@ -274,7 +274,7 @@ public class BlazeWizard extends Noblesse {
         hashMap.remove(mob);
         Life checkMob = chr.getField().getLifeByObjectID(mob.getObjectId());
         if(checkMob != null && checkMob instanceof Mob) {
-            c.write(UserLocal.explosionAttack(IGNITION_EXPLOSION, mob.getPosition(), mob.getObjectId(), 10));
+            chr.write(UserLocal.explosionAttack(IGNITION_EXPLOSION, mob.getPosition(), mob.getObjectId(), 10));
         }
 
     }
@@ -375,7 +375,7 @@ public class BlazeWizard extends Noblesse {
                 }
 
                 tsm.removeStatsBySkill(skillID == FIRES_OF_CREATION_FOX ? FIRES_OF_CREATION_LION : FIRES_OF_CREATION_LION);
-                Field field = c.getChr().getField();
+                Field field = chr.getField();
 
                 if (summonFox != null)
                 {
@@ -393,7 +393,7 @@ public class BlazeWizard extends Noblesse {
                 chr.setSkillCooldown(FIRES_OF_CREATION_FOX, slv);
                 chr.setSkillCooldown(FIRES_OF_CREATION_LION, slv);
 
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                summon = Summon.getSummonBy(chr, skillID, slv);
                 summon.setFlyMob(skillID == FIRES_OF_CREATION_FOX);
                 summon.setMoveAbility(MoveAbility.Walk);
                 // i have to specify the summon term as the _FOX/LION skills have the time set to 0, making the summon last forever!
@@ -417,8 +417,8 @@ public class BlazeWizard extends Noblesse {
                 tsm.putCharacterStatValue(ElementalReset, o2);
                 break;
             case CINDER_MAELSTROM:  //Special Summon    //TODO
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAbility(MoveAbility.Stop);
                 field.spawnSummon(summon);

@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.adventurer.pirate;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.GuidedBullet;
@@ -1029,16 +1028,16 @@ public class Pirate extends Beginner {
                 break;
 
             case ROLLING_RAINBOW: //Stationary, Attacks
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAction((byte) 0);
                 summon.setMoveAbility(MoveAbility.Stop);
                 field.spawnSummon(summon);
                 break;
             case OCTO_CANNON: //Stationary, Attacks
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAction((byte) 0);
                 summon.setMoveAbility(MoveAbility.Stop);
@@ -1050,8 +1049,8 @@ public class Pirate extends Beginner {
                         5321004
                 };
                 for(int summonZ : summons) {
-                    summon = Summon.getSummonBy(c.getChr(), summonZ, slv);
-                    field = c.getChr().getField();
+                    summon = Summon.getSummonBy(chr, summonZ, slv);
+                    field = chr.getField();
                     summon.setFlyMob(false);
                     summon.setMoveAction((byte) 0);
                     summon.setMoveAbility(MoveAbility.Stop);
@@ -1059,8 +1058,8 @@ public class Pirate extends Beginner {
                 }
                 break;
             case TURRET_DEPLOYMENT: //Stationary, Attacks
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAction((byte) 0);
                 summon.setMoveAbility(MoveAbility.Stop);
@@ -1075,8 +1074,8 @@ public class Pirate extends Beginner {
                 chr.reduceSkillCoolTime(NAUTILUS_STRIKE_SAIR, (long) (chr.getRemainingCoolTime(NAUTILUS_STRIKE_SAIR) * 0.5F));
                 break;
             case ANCHOR_AWEIGH: //Stationary, Pulls mobs
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAbility(MoveAbility.Stop);
                 Position position = new Position(chr.isLeft() ? chr.getPosition().getX() - 250 : chr.getPosition().getX() + 250, chr.getPosition().getY());

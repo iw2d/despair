@@ -1,9 +1,7 @@
 package net.swordie.ms.client.jobs.adventurer.archer;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
-import net.swordie.ms.client.character.quest.QuestManager;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
@@ -131,7 +129,6 @@ public class Archer extends Beginner {
     }
 
     private void quiverCartridge(TemporaryStatManager tsm, AttackInfo attackInfo, int slv) {
-        Char chr = c.getChr();
         if (quiverCartridge == null) {
             return;
         }
@@ -664,8 +661,8 @@ public class Archer extends Beginner {
                 break;
             case PHOENIX:
             case FREEZER:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(true);
                 summon.setMoveAbility(MoveAbility.Fly);
                 field.spawnSummon(summon);
@@ -752,7 +749,7 @@ public class Archer extends Beginner {
                 tsm.putCharacterStatValue(AdvancedQuiver, o1);
                 break;
             case ARROW_ILLUSION:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
+                summon = Summon.getSummonBy(chr, skillID, slv);
                 summon.setMoveAbility(MoveAbility.Stop);
                 summon.setMaxHP(si.getValue(x, slv));
                 Position position = new Position(chr.isLeft() ? chr.getPosition().getX() - 250 : chr.getPosition().getX() + 250, chr.getPosition().getY());
@@ -760,7 +757,7 @@ public class Archer extends Beginner {
                 summon.setPosition(position);
                 summon.setMaxHP(si.getValue(x, slv));
                 summon.setHp(summon.getMaxHP());
-                field = c.getChr().getField();
+                field = chr.getField();
                 field.spawnSummon(summon);
                 break;
             case EPIC_ADVENTURE_XBOW:

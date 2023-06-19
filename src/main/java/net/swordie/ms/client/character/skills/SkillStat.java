@@ -292,6 +292,8 @@ public enum SkillStat {
 
     public BaseStat getBaseStat() {
         switch (this) {
+            case actionSpeed:
+                return BaseStat.booster;
             case pddX:
             case mdd2pdd:
             case pdd:
@@ -413,6 +415,9 @@ public enum SkillStat {
             case lukR:
                 return BaseStat.lukR;
             case indiePMdR:
+            case damR:
+            case indieDamR:
+                return BaseStat.damR;
             case pdR: // for physical dmg
             case mdR: // for magical dmg
                 return BaseStat.fd;

@@ -1,10 +1,10 @@
 package net.swordie.ms.client.jobs.adventurer.warrior;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
+import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
@@ -12,15 +12,16 @@ import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
+import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.*;
+import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
-import net.swordie.ms.world.field.Field;
 
 import java.util.Arrays;
 
@@ -31,6 +32,7 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class DarkKnight extends Warrior {
+    public static final int WEAPON_MASTERY_SPEARMAN = 1300000;
     public static final int FINAL_ATTACK_SPEARMAN = 1300002;
     public static final int WEAPON_BOOSTER_SPEARMAN = 1301004;
     public static final int IRON_WILL = 1301006;
@@ -43,7 +45,8 @@ public class DarkKnight extends Warrior {
     public static final int HEX_OF_THE_EVIL_EYE = 1310016;
     public static final int LORD_OF_DARKNESS = 1310009;
     public static final int MAPLE_WARRIOR_DARK_KNIGHT = 1321000;
-    public static final int REVENGE_OF_THE_EVIL_EYE = 1320012;
+    public static final int REVENGE_OF_THE_EVIL_EYE = 1320011;
+    public static final int BARRICADE_MASTERY = 1320018;
     public static final int FINAL_PACT_INFO = 1320016;
     public static final int FINAL_PACT = 1320019;
     public static final int MAGIC_CRASH_DRK = 1321014;
@@ -59,26 +62,13 @@ public class DarkKnight extends Warrior {
     public static final int FINAL_PACT_DAMAGE = 1320046;
     public static final int FINAL_PACT_COOLDOWN = 1320047;
 
-    private int[] addedSkills = new int[]{
-            MAPLE_RETURN,
-    };
-
     private Summon evilEye;
-    private long revengeEvilEye = Long.MIN_VALUE;
-    private long finishFinalPact;
-    private int killCount;
+    private long evilEyeEnd = Long.MIN_VALUE;
+    private long evilEyeRevenge = Long.MIN_VALUE;
+    private long finalPactEnd = Long.MIN_VALUE;
 
     public DarkKnight(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override
@@ -86,79 +76,113 @@ public class DarkKnight extends Warrior {
         return JobConstants.isDarkKnight(id);
     }
 
-    public void spawnEvilEye(int skillID, int slv) {
+    public void spawnEvilEye(boolean refresh) {
+        removeEvilEye();
+
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        SkillInfo si = SkillData.getSkillInfoById(EVIL_EYE);
+        int summonSlv = chr.getSkillLevel(EVIL_EYE);
+        int summonTerm = si.getValue(SkillStat.time, summonSlv);
+
+        long remaining = evilEyeEnd - Util.getCurrentTimeLong();
+        if (!refresh && remaining > 0) {
+            summonTerm = (int) (remaining / 1000);
+        }
+
+        Summon summon = new Summon(EVIL_EYE);
+        summon.setChr(chr);
+        summon.setSkillID(EVIL_EYE);
+        summon.setSlv((byte) summonSlv);
+        summon.setSummonTerm(summonTerm);
+        summon.setCharLevel((byte) chr.getStat(Stat.level));
+        summon.setPosition(chr.getPosition().deepCopy());
+        summon.setMoveAction((byte) 1);
+        summon.setCurFoothold((short) chr.getField().findFootHoldBelow(summon.getPosition()).getId());
+        summon.setFlyMob(true);
+        summon.setMoveAbility(MoveAbility.Fly);
+        summon.setAssistType(AssistType.Heal);
+        summon.setEnterType(EnterType.Animation);
+        summon.setBeforeFirstAttack(false);
+        summon.setTemplateId(EVIL_EYE);
+        summon.setAttackActive(true);
+
+        evilEye = summon;
+        evilEyeEnd = Util.getCurrentTimeLong() + (summonTerm * 1000L);
+        chr.getField().spawnSummon(evilEye);
+
         Option o1 = new Option();
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-
-        Field field;
-        evilEye = Summon.getSummonBy(c.getChr(), skillID, slv);
-        field = c.getChr().getField();
-        evilEye.setFlyMob(true);
-        evilEye.setMoveAbility(MoveAbility.Fly);
-        evilEye.setAssistType(AssistType.Heal);
-        evilEye.setAttackActive(true);
-        field.spawnSummon(evilEye);
-
-        o1.nReason = skillID;
-        o1.nValue = 1;
-        o1.summon = evilEye;
-        o1.tStart = (int) System.currentTimeMillis();
-        o1.tTerm = si.getValue(time, slv);
-        tsm.putCharacterStatValue(IndieEmpty, o1);
+        o1.nOption = 1;
+        o1.rOption = EVIL_EYE;
+        o1.tOption = summonTerm;
+        o1.sOption = 0;
+        o1.ssOption = 0;
+        tsm.putCharacterStatValue(Beholder, o1);
         tsm.sendSetStatPacket();
     }
 
-    public void removeEvilEye(TemporaryStatManager tsm, Client c) {
-        tsm.removeStatsBySkill(EVIL_EYE);
-        tsm.sendResetStatPacket();
-        c.getChr().getField().broadcastPacket(Summoned.summonedRemoved(evilEye, LeaveType.ANIMATION));
+    public void updateEvilEye(int skillID) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        Option o1 = new Option();
+        o1.nReason = skillID; // not sent, used as ID
+        o1.sOption = skillID == EVIL_EYE_OF_DOMINATION ? skillID : 0;
+        o1.ssOption = skillID == EVIL_EYE_SHOCK ? skillID : 0;
+        tsm.putCharacterStatValue(Beholder, o1);
+        tsm.sendSetStatPacket();
+    }
+
+    public void removeEvilEye() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (tsm.hasStat(Beholder)) {
+            tsm.removeStat(Beholder, true);
+            if (evilEye != null) {
+                chr.getField().broadcastPacket(Summoned.summonedRemoved(evilEye, LeaveType.ANIMATION));
+                evilEye = null;
+            }
+        }
     }
 
     public void healByEvilEye() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (chr.hasSkill(EVIL_EYE) && tsm.hasStatBySkillId(EVIL_EYE)) {
+        if (chr.getHP() > 0) {
             Skill skill = chr.getSkill(EVIL_EYE);
             SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            byte slv = (byte) skill.getCurrentLevel();
-            chr.heal(si.getValue(hp, slv));
+            int slv = skill.getCurrentLevel();
+            chr.heal(si.getValue(hp, slv), true);
         }
     }
 
     public void giveHexOfTheEvilEyeBuffs() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        Skill skill = chr.getSkill(HEX_OF_THE_EVIL_EYE);
+        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+        int slv = skill.getCurrentLevel();
+
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
         Option o4 = new Option();
-        Skill skill = chr.getSkill(HEX_OF_THE_EVIL_EYE);
-        byte slv = (byte) skill.getCurrentLevel();
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        if (tsm.getOptByCTSAndSkill(EPDD, HEX_OF_THE_EVIL_EYE) == null) {
-            o1.nOption = si.getValue(epad, slv);
-            o1.rOption = skill.getSkillId();
-            o1.tOption = si.getValue(time, slv);
-            tsm.putCharacterStatValue(EPAD, o1);
+        o1.nOption = si.getValue(epad, slv);
+        o1.rOption = skill.getSkillId();
+        o1.tOption = si.getValue(time, slv);
+        tsm.putCharacterStatValue(EPAD, o1);
 
-            o2.nOption = si.getValue(epdd, slv);
-            o2.rOption = skill.getSkillId();
-            o2.tOption = si.getValue(time, slv);
-            tsm.putCharacterStatValue(EPDD, o2);
-            tsm.putCharacterStatValue(EMDD, o2);
+        o2.nOption = si.getValue(epdd, slv);
+        o2.rOption = skill.getSkillId();
+        o2.tOption = si.getValue(time, slv);
+        tsm.putCharacterStatValue(EPDD, o2);
+        tsm.putCharacterStatValue(EMDD, o2);
 
-            o3.nReason = skill.getSkillId();
-            o3.nValue = si.getValue(indieCr, slv);
-            o3.tStart = (int) System.currentTimeMillis();
-            o3.tTerm = si.getValue(time, slv);
-            tsm.putCharacterStatValue(IndieCr, o3);
+        o3.nReason = skill.getSkillId();
+        o3.nValue = si.getValue(indieCr, slv);
+        o3.tStart = Util.getCurrentTime();
+        o3.tTerm = si.getValue(time, slv);
+        tsm.putCharacterStatValue(IndieCr, o3);
 
-            o4.nOption = si.getValue(acc, slv);
-            o4.rOption = skill.getSkillId();
-            o4.tOption = si.getValue(time, slv);
-            tsm.putCharacterStatValue(ACC, o4);
-            tsm.putCharacterStatValue(EVA, o4);
-            tsm.sendSetStatPacket();
-        }
+        o4.nOption = si.getValue(acc, slv);
+        o4.rOption = skill.getSkillId();
+        o4.tOption = si.getValue(time, slv);
+        tsm.putCharacterStatValue(ACC, o4);
+        tsm.putCharacterStatValue(EVA, o4);
+        tsm.sendSetStatPacket();
     }
 
 
@@ -194,6 +218,9 @@ public class DarkKnight extends Warrior {
         Option o4 = new Option();
         switch (attackInfo.skillId) {
             case SPEAR_SWEEP:
+                o1.nOption = 1;
+                o1.rOption = skill.getSkillId();
+                o1.tOption = GameConstants.DEFAULT_STUN_DURATION;
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
@@ -201,36 +228,29 @@ public class DarkKnight extends Warrior {
                     }
                     if (!mob.isBoss()) {
                         MobTemporaryStat mts = mob.getTemporaryStat();
-                        o1.nOption = 1;
-                        o1.rOption = skill.getSkillId();
-                        o1.tOption = si.getValue(time, slv);
                         mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
                 }
                 break;
             case EVIL_EYE:
-                if (tsm.getOption(Beholder).ssOption > 0) //If can use EVIL_EYE_SHOCK
-                {
-                    skill = chr.getSkill(EVIL_EYE_SHOCK);
-                    si = SkillData.getSkillInfoById(skill.getSkillId());
-                    slv = skill.getCurrentLevel();
+                if (tsm.hasStat(Beholder) && tsm.getOption(Beholder).ssOption == EVIL_EYE_SHOCK) {
+                    skillID = EVIL_EYE_SHOCK;
+                    si = SkillData.getSkillInfoById(EVIL_EYE_SHOCK);
+                    slv = chr.getSkillLevel(EVIL_EYE_SHOCK);
 
-                    if (Util.succeedProp(si.getValue(prop, slv))) {
-                        for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                            Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                            if (mob == null) {
-                                continue;
-                            }
-                            if (!mob.isBoss()) {
-                                MobTemporaryStat mts = mob.getTemporaryStat();
-                                o1.nOption = 1;
-                                o1.rOption = skill.getSkillId();
-                                o1.tOption = si.getValue(time, slv);
-                                mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                            }
-                            //TODO add removal of shock
+                    o1.nOption = 1;
+                    o1.rOption = skillID;
+                    o1.tOption = si.getValue(time, slv);
+                    for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                        if (mob == null || mob.isBoss()) {
+                            continue;
+                        }
+                        if (Util.succeedProp(si.getValue(prop, slv))) {
+                            mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
                         }
                     }
+                    EventManager.addEvent(() -> spawnEvilEye(false), 1500);
                 }
                 break;
         }
@@ -240,7 +260,7 @@ public class DarkKnight extends Warrior {
     private void darkThirst(TemporaryStatManager tsm) {
         if (tsm.getOptByCTSAndSkill(IndiePAD, DARK_THIRST) != null) {
             Skill skill = chr.getSkill(DARK_THIRST);
-            byte slv = (byte) skill.getCurrentLevel();
+            int slv = skill.getCurrentLevel();
             SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
             int heal = si.getValue(x, slv);
             chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)));
@@ -248,9 +268,9 @@ public class DarkKnight extends Warrior {
     }
 
     public void lordOfDarkness() {
-        if (chr.hasSkill(LORD_OF_DARKNESS)) {
+        if (chr.hasSkill(LORD_OF_DARKNESS) && chr.getHP() > 0) {
             Skill skill = chr.getSkill(LORD_OF_DARKNESS);
-            byte slv = (byte) skill.getCurrentLevel();
+            int slv = skill.getCurrentLevel();
             SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
             int proc = si.getValue(prop, slv);
             if (Util.succeedProp(proc)) {
@@ -273,7 +293,7 @@ public class DarkKnight extends Warrior {
         Skill faSkill = getFinalAtkSkill();
         if (faSkill != null) {
             SkillInfo si = SkillData.getSkillInfoById(faSkill.getSkillId());
-            byte slv = (byte) faSkill.getCurrentLevel();
+            int slv = faSkill.getCurrentLevel();
             int proc = si.getValue(prop, slv);
 
             if (Util.succeedProp(proc)) {
@@ -290,11 +310,7 @@ public class DarkKnight extends Warrior {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -312,86 +328,58 @@ public class DarkKnight extends Warrior {
                 tsm.putCharacterStatValue(MDD, o2);
                 break;
             case HYPER_BODY:
-                o1.nOption = si.getValue(x, slv) + chr.getSkillStatValue(x, HYPER_BODY_VITALITY);;
+                o1.nOption = si.getValue(x, slv) + this.chr.getSkillStatValue(x, HYPER_BODY_VITALITY);;
                 o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, HYPER_BODY_PERSIST);
+                o1.tOption = si.getValue(time, slv) + this.chr.getSkillStatValue(time, HYPER_BODY_PERSIST);
                 tsm.putCharacterStatValue(MaxHP, o1);
-                o2.nOption = si.getValue(y, slv) + chr.getSkillStatValue(y, HYPER_BODY_SPIRIT);;
+                o2.nOption = si.getValue(y, slv) + this.chr.getSkillStatValue(y, HYPER_BODY_SPIRIT);;
                 o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, HYPER_BODY_PERSIST);
+                o2.tOption = si.getValue(time, slv) + this.chr.getSkillStatValue(time, HYPER_BODY_PERSIST);
                 tsm.putCharacterStatValue(MaxMP, o2);
                 break;
             case CROSS_SURGE:
-                int totalHP = c.getChr().getMaxHP();
-                int currentHP = c.getChr().getHP();
-                o1.nOption = (int) ((si.getValue(x, slv) * ((double) currentHP) / totalHP));
+                o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamR, o1);
-                o2.nOption = (int) Math.min((0.08 * totalHP - currentHP), si.getValue(z, slv));
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamageReduce, o2);
+                o1.xOption = si.getValue(z, slv);
+                tsm.putCharacterStatValue(CrossOverChain, o1);
                 break;
             case EVIL_EYE:
-                spawnEvilEye(skillID, slv);
+                spawnEvilEye(true);
                 break;
             case EVIL_EYE_OF_DOMINATION:
-                if (tsm.hasStat(Beholder)) {
+                if (tsm.hasStatBySkillId(EVIL_EYE_OF_DOMINATION)) {
                     tsm.removeStatsBySkill(EVIL_EYE_OF_DOMINATION);
-                    spawnEvilEye(EVIL_EYE, slv);
+                    spawnEvilEye(false);
                 } else {
-                    o1.nOption = 1;
-                    o1.rOption = skillID;
-                    o1.tOption = 0;
-                    o1.sOption = skillID;
-                    o1.ssOption = 0;
-                    tsm.putCharacterStatValue(Beholder, o1);
+                    updateEvilEye(EVIL_EYE_OF_DOMINATION);
                 }
                 break;
             case EVIL_EYE_SHOCK:
-                if (tsm.getOption(Beholder).nOption > 0 && tsm.getOption(Beholder).sOption > 0) //If evil eye and domination is active
-                {
-                    slv = (byte) chr.getSkill(EVIL_EYE).getCurrentLevel();
-                    Option o = new Option();
-                    o.nOption = tsm.getOption(Beholder).nOption;
-                    o.rOption = tsm.getOption(Beholder).rOption;
-                    o.tOption = tsm.getOption(Beholder).tOption;
-                    o.sOption = tsm.getOption(Beholder).sOption;
-                    o.ssOption = EVIL_EYE_SHOCK;
-                    //Remove after getting the options
-                    tsm.removeStatsBySkill(EVIL_EYE_OF_DOMINATION);
-                    spawnEvilEye(EVIL_EYE, slv);
-                    tsm.putCharacterStatValue(Beholder, o);
-                }
+                updateEvilEye(EVIL_EYE_SHOCK);
                 break;
             case SACRIFICE:
-                if (tsm.hasStatBySkillId(EVIL_EYE)) {
+                if (tsm.hasStat(Beholder)) {
+                    o1.nReason = skillID;
+                    o1.nValue = si.getValue(x, slv);
+                    o1.tStart = Util.getCurrentTime();
+                    o1.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o1);
+
                     o2.nReason = skillID;
-                    o2.nValue = si.getValue(x, slv);
-                    o2.tStart = (int) System.currentTimeMillis();
+                    o2.nValue = si.getValue(indieBDR, slv);
+                    o2.tStart = Util.getCurrentTime();
                     o2.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o2);
-
-                    o3.nReason = skillID;
-                    o3.nValue = si.getValue(indieBDR, slv);
-                    o3.tStart = (int) System.currentTimeMillis();
-                    o3.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndieBDR, o3);
-
-
-                    tsm.removeStatsBySkill(EVIL_EYE_OF_DOMINATION);
-                    tsm.removeStatsBySkill(EVIL_EYE_SHOCK);
-                    removeEvilEye(tsm, c);
+                    tsm.putCharacterStatValue(IndieBDR, o2);
 
                     chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(y, slv))));
-                    chr.write(UserLocal.skillCooltimeSetM(EVIL_EYE, 0));
+                    removeEvilEye();
                 }
                 break;
             case DARK_THIRST:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1);
                 break;
@@ -411,6 +399,7 @@ public class DarkKnight extends Warrior {
         return super.alterCooldownSkill(skillId);
     }
 
+    @Override
     public void handleRemoveCTS(CharacterTemporaryStat cts) {
         super.handleRemoveCTS(cts);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -424,6 +413,36 @@ public class DarkKnight extends Warrior {
         }
     }
 
+    @Override
+    public void handleCalcDamageStatSet() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (chr.hasSkill(FINAL_PACT_INFO) || tsm.hasStatBySkillId(FINAL_PACT_INFO)) {
+            SkillInfo si = SkillData.getSkillInfoById(FINAL_PACT_INFO);
+            int slv = chr.getSkillLevel(FINAL_PACT_INFO);
+
+            int currentRatio = (int) ((double) chr.getHP() / chr.getMaxHP() * 100D);
+            int targetRatio = si.getValue(x, slv);
+            int damR = si.getValue(damage, slv);
+            if (tsm.hasStat(Reincarnation) && chr.hasSkill(FINAL_PACT_DAMAGE)) {
+                damR += chr.getSkillStatValue(damage, FINAL_PACT_DAMAGE);
+            }
+
+            if (currentRatio < targetRatio || damR == 0) {
+                if (tsm.hasStatBySkillId(FINAL_PACT_INFO)) {
+                    tsm.removeStatsBySkill(FINAL_PACT_INFO);
+                    tsm.sendResetStatPacket();
+                }
+            } else if (!tsm.hasStatBySkillId(FINAL_PACT_INFO) || tsm.getOptByCTSAndSkill(IndieDamR, FINAL_PACT_INFO).nValue != damR) {
+                Option o1 = new Option();
+                o1.nValue = damR;
+                o1.nReason = FINAL_PACT_INFO;
+                o1.tStart = Util.getCurrentTime();
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                tsm.sendSetStatPacket();
+            }
+        }
+    }
+
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
@@ -431,17 +450,17 @@ public class DarkKnight extends Warrior {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (chr.hasSkill(REVENGE_OF_THE_EVIL_EYE)) {
             Skill skill = chr.getSkill(REVENGE_OF_THE_EVIL_EYE);
-            byte slv = (byte) skill.getCurrentLevel();
+            int slv = skill.getCurrentLevel();
             SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
             int proc = si.getValue(prop, slv);
             int cd = 1000 * si.getValue(cooltime, slv);
             int heal = si.getValue(x, slv);
             if (chr.hasSkill(EVIL_EYE) && tsm.hasStatBySkillId(EVIL_EYE)) {
-                if (cd + revengeEvilEye < System.currentTimeMillis()) {
+                if (cd + evilEyeRevenge < Util.getCurrentTimeLong()) {
                     if (Util.succeedProp(proc)) {
-                        c.write(Summoned.summonBeholderRevengeAttack(evilEye, hitInfo.mobID));
-                        chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)));
-                        revengeEvilEye = System.currentTimeMillis();
+                        chr.write(Summoned.summonBeholderRevengeAttack(evilEye, hitInfo.mobID));
+                        chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)), true);
+                        evilEyeRevenge = Util.getCurrentTimeLong();
                     }
                 }
             }
@@ -455,9 +474,8 @@ public class DarkKnight extends Warrior {
             return;
         }
 
-        Skill skill = chr.getSkill(FINAL_PACT_INFO);
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        byte slv = (byte) skill.getCurrentLevel();
+        SkillInfo si = SkillData.getSkillInfoById(FINAL_PACT_INFO);
+        int slv = chr.getSkillLevel(FINAL_PACT_INFO);
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -476,15 +494,9 @@ public class DarkKnight extends Warrior {
         o2.rOption = FINAL_PACT;
         o2.tOption = si.getValue(time, slv);
         tsm.putCharacterStatValue(NotDamaged, o2);
-        if (chr.hasSkill(FINAL_PACT_DAMAGE)) {
-            o3.nReason = FINAL_PACT;
-            o3.nValue = 20;
-            o3.tTerm = si.getValue(time, slv);
-            tsm.putCharacterStatValue(IndieDamR, o3);
-        }
         tsm.sendSetStatPacket();
 
-        finishFinalPact = System.currentTimeMillis() + (si.getValue(time, slv) * 1000L);
+        finalPactEnd = Util.getCurrentTimeLong() + (si.getValue(time, slv) * 1000L);
         int finalPactCooltime = si.getValue(cooltime, slv);
         if (chr.hasSkill(FINAL_PACT_COOLDOWN)) {
             finalPactCooltime *= 0.9;
@@ -502,9 +514,9 @@ public class DarkKnight extends Warrior {
         if (skill == null || !tsm.hasStat(Reincarnation)) {
             return;
         }
-        int duration = (int) (finishFinalPact - System.currentTimeMillis());
+        int duration = (int) (finalPactEnd - Util.getCurrentTimeLong());
 
-        killCount = tsm.getOption(Reincarnation).xOption;
+        int killCount = tsm.getOption(Reincarnation).xOption;
         if (killCount > 0) {
             killCount--;
 

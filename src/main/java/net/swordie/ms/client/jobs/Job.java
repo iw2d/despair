@@ -19,7 +19,6 @@ import net.swordie.ms.client.jobs.adventurer.Beginner;
 import net.swordie.ms.client.jobs.adventurer.BeastTamer;
 import net.swordie.ms.client.jobs.adventurer.magician.Magician;
 import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
-import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.Mihile;
 import net.swordie.ms.client.jobs.cygnus.NightWalker;
@@ -66,7 +65,6 @@ public abstract class Job {
 	private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
 
     protected Char chr;
-	protected Client c;
 
 	public static final int MONOLITH = 80011261;
 	public static final int ELEMENTAL_SYLPH = 80001518;
@@ -131,7 +129,7 @@ public abstract class Job {
 			Evan.RECOVERY
 	};
 
-	private int[] buffs = new int[] {
+	private final int[] buffs = new int[] {
 			BOSS_SLAYERS,
 			UNDETERRED,
 			FOR_THE_GUILD,
@@ -142,9 +140,7 @@ public abstract class Job {
 
 	public Job(Char chr) {
 		this.chr = chr;
-		this.c = chr.getClient();
-
-		if (c != null && chr.getId() != 0 && c.getWorld().isReboot()) {
+		if (chr.getId() != 0 && chr.getWorld().isReboot()) {
 			if (!chr.hasSkill(REBOOT)) {
 				Skill skill = SkillData.getSkillDeepCopyById(REBOOT);
 				skill.setCurrentLevel(1);
@@ -152,6 +148,8 @@ public abstract class Job {
 			}
 		}
 	}
+
+	public abstract boolean isHandlerOfJob(short id);
 
 	public void handleAttack(Char chr, AttackInfo attackInfo) {
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -232,10 +230,10 @@ public abstract class Job {
 				tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
 				tsm.sendSetStatPacket();
 			} else {
-				field = c.getChr().getField();
+				field = chr.getField();
 				int noviceSkill = SkillConstants.getNoviceSkillFromRace(skillID);
 				if (noviceSkill == 1085 || noviceSkill == 1087 || noviceSkill == 1090 || noviceSkill == 1179) {
-					summon = Summon.getSummonBy(c.getChr(), skillID, (byte) slv);
+					summon = Summon.getSummonBy(chr, skillID, (byte) slv);
 					summon.setMoveAction((byte) 4);
 					summon.setAssistType(AssistType.Heal);
 					summon.setFlyMob(true);
@@ -254,8 +252,8 @@ public abstract class Job {
 				// TOOD: make sure user owns skill
 				switch (skillID) {
 					case MONOLITH:
-						summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-						field = c.getChr().getField();
+						summon = Summon.getSummonBy(chr, skillID, slv);
+						field = chr.getField();
 						summon.setMoveAbility(MoveAbility.Stop);
 						field.spawnSummon(summon);
 						field.setKishin(true);
@@ -271,7 +269,7 @@ public abstract class Job {
 					case SNOW_RING:
 					case LIGHTNING_RING:
 					case WIND_RING:
-						summon = Summon.getSummonBy(c.getChr(), skillID, (byte) slv);
+						summon = Summon.getSummonBy(chr, skillID, (byte) slv);
 						summon.setMoveAction((byte) 4);
 						summon.setAssistType(AssistType.Heal);
 						summon.setFlyMob(true);
@@ -303,7 +301,7 @@ public abstract class Job {
 					case GNOME_SYLPH_2:
 					case DEVIL_SYLPH_2:
 					case ANGEL_SYLPH_2:
-						summon = Summon.getSummonBy(c.getChr(), skillID, (byte) slv);
+						summon = Summon.getSummonBy(chr, skillID, (byte) slv);
 						field.spawnSummon(summon);
 						break;
 				}
@@ -697,20 +695,18 @@ public abstract class Job {
 		}
 		chr.setStat(Stat.mp, curMP);
 		stats.put(Stat.mp, curMP);
-		c.write(WvsContext.statChanged(stats));
+		chr.write(WvsContext.statChanged(stats));
 		chr.getField().broadcastPacket(UserRemote.hit(chr, hitInfo), chr);
 		if (chr.getParty() != null) {
 			chr.getParty().broadcast(UserRemote.receiveHP(chr), chr);
 		}
 		if (curHP <= 0) {
 			// TODO Add more items for protecting exp and whatnot
-			c.write(UserLocal.openUIOnDead(true, chr.getBuffProtectorItem() != null,
+			chr.write(UserLocal.openUIOnDead(true, chr.getBuffProtectorItem() != null,
 					false, false, false,
 					ReviveType.NORMAL.getVal(),0));
 		}
 	}
-
-	public abstract boolean isHandlerOfJob(short id);
 
 	public SkillInfo getInfo(int skillID) {
 		return SkillData.getSkillInfoById(skillID);
@@ -720,7 +716,9 @@ public abstract class Job {
 		return chr;
 	}
 
-	public abstract int getFinalAttackSkill();
+	public int getFinalAttackSkill() {
+		return 0;
+	}
 
 	/**
 	 * Handles when specific CTSs are removed.
@@ -728,7 +726,7 @@ public abstract class Job {
 	 * @param cts The Character Temporary Stat
 	 */
 	public void handleRemoveCTS(CharacterTemporaryStat cts) {
-		// nothing here yet, @Override to make use of it
+
 	}
 
 	/**
@@ -740,7 +738,7 @@ public abstract class Job {
 	 * 		The skill that the player right-clicked
 	 */
 	public void handleSkillRemove(Char chr, int skillID) {
-		// nothing here yet, @Override to make use of it
+
 	}
 
 	/**
@@ -749,7 +747,14 @@ public abstract class Job {
 	 * @param mob The Mob that has died.
 	 */
 	public void handleMobDeath(Mob mob) {
-		// nothing here yet, @Override to make use of it
+
+	}
+
+	/**
+	 * Called when client sends a request to recalculate the damage stat
+	 */
+	public void handleCalcDamageStatSet() {
+
 	}
 
 	public void handleLevelUp() {
@@ -801,7 +806,7 @@ public abstract class Job {
 		chr.heal(chr.getMaxHP());
 		chr.healMP(chr.getMaxMP());
 
-		if (c.getWorld().isReboot()) {
+		if (chr.getWorld().isReboot()) {
 			Skill skill = SkillData.getSkillDeepCopyById(REBOOT2);
 			skill.setCurrentLevel(level);
 			chr.addSkill(skill);

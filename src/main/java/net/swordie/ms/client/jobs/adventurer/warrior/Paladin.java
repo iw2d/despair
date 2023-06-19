@@ -13,6 +13,7 @@ import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
+import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.handlers.EventManager;
@@ -69,10 +70,6 @@ public class Paladin extends Warrior {
     public static final int THREATEN_OPPORTUNITY = 1220044;
     public static final int THREATEN_ENHANCE = 1220045;
 
-    private int[] addedSkills = new int[]{
-            MAPLE_RETURN,
-    };
-
     private long lastDivineShieldHit = Long.MIN_VALUE;
     private int lastCharge = 0;
     private int divShieldAmount = 0;
@@ -80,15 +77,6 @@ public class Paladin extends Warrior {
 
     public Paladin(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override
@@ -428,10 +416,10 @@ public class Paladin extends Warrior {
                 o1.bOption = 1;
                 o2.nReason = PARASHOCK_GUARD;
                 o2.nValue = si.getValue(indiePad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o3.nReason = PARASHOCK_GUARD;
                 o3.nValue = si.getValue(z, slv);
-                o3.tStart = (int) System.currentTimeMillis();
+                o3.tStart = Util.getCurrentTime();
 
                 tsm.putCharacterStatValue(KnightsAura, o1);
                 tsm.putCharacterStatValue(IndiePAD, o2);
@@ -446,7 +434,7 @@ public class Paladin extends Warrior {
             case ELEMENTAL_FORCE:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 break;
@@ -511,9 +499,9 @@ public class Paladin extends Warrior {
                     divShieldAmount = 0;
                 }
             } else {
-                if (lastDivineShieldHit + (divShieldCoolDown * 1000L) < System.currentTimeMillis()) {
+                if (lastDivineShieldHit + (divShieldCoolDown * 1000L) < Util.getCurrentTimeLong()) {
                     if (Util.succeedProp(shieldProp)) {
-                        lastDivineShieldHit = System.currentTimeMillis();
+                        lastDivineShieldHit = Util.getCurrentTimeLong();
                         o1.nOption = 1;
                         o1.rOption = DIVINE_SHIELD;
                         o1.tOption = si.getValue(time, slv);
@@ -546,7 +534,7 @@ public class Paladin extends Warrior {
                         MobTemporaryStat mts = mob.getTemporaryStat();
                         o.nOption = 1;
                         o.rOption = skill.getSkillId();
-                        o.tOption = 3;  // Value isn't given
+                        o.tOption = GameConstants.DEFAULT_STUN_DURATION;
                         mts.addStatOptionsAndBroadcast(MobStat.Stun, o);
                     }
                 }
@@ -566,10 +554,15 @@ public class Paladin extends Warrior {
 
     @Override
     public void handleSkillRemove(Char chr, int skillID) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (skillID == PARASHOCK_GUARD) {
+        if (skillID == PARASHOCK_GUARD && parashockGuardTimer != null && !parashockGuardTimer.isDone()) {
             parashockGuardTimer.cancel(true);
-            parashockGuardTimer = null;
+        }
+    }
+
+    @Override
+    public void handleCancelTimer(Char chr) {
+        if (parashockGuardTimer != null && !parashockGuardTimer.isDone()) {
+            parashockGuardTimer.cancel(true);
         }
     }
 

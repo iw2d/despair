@@ -303,7 +303,6 @@ public class Summon extends Life {
             case DarkKnight.EVIL_EYE:
                 ((DarkKnight) chr.getJobHandler()).healByEvilEye();
                 break;
-
             case DarkKnight.HEX_OF_THE_EVIL_EYE:
                 ((DarkKnight) chr.getJobHandler()).giveHexOfTheEvilEyeBuffs();
                 break;
@@ -321,8 +320,8 @@ public class Summon extends Life {
                 }
                 break;
         }
-        chr.write(UserPacket.effect(Effect.skillAffected(skillID, (byte) 1, getObjectId())));
-        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffected(skillID, (byte) 1, getObjectId())));
+        chr.write(UserPacket.effect(Effect.skillAffected(skillId, (byte) 1, getObjectId())));
+        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffected(skillId, (byte) 1, getObjectId())));
     }
 
     public void onHit(int damage, int mobTemplateId) {

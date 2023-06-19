@@ -147,7 +147,7 @@ public class Evan extends Job {
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         if(chr.getField() != oldField) {
             debrisCount = 0;
-            c.write(FieldPacket.delWreckage(chr));
+            chr.write(FieldPacket.delWreckage(chr));
         }
         oldField = chr.getField();
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -178,7 +178,7 @@ public class Evan extends Job {
                         if(debrisCount < getMaxDebris()) {
                             debrisPos.put(debrisCount, mob.getPosition());
                             debrisCount++;
-                            c.write(FieldPacket.addWreckage(chr, mob, getDebrisSkill(), debrisCount));
+                            chr.write(FieldPacket.addWreckage(chr, mob, getDebrisSkill(), debrisCount));
                         }
                     }
                 }
@@ -226,7 +226,7 @@ public class Evan extends Job {
             return;
         }
         for(int i = 0; i<debrisCount; i++) {
-            c.write(FieldPacket.delWreckage(chr));
+            chr.write(FieldPacket.delWreckage(chr));
             Life life = Util.getRandomFromCollection(lifes);
             int mobID = (life).getObjectId(); //
             int inc = ForceAtomEnum.WRECKAGE.getInc();
@@ -430,8 +430,8 @@ public class Evan extends Job {
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case SUMMON_ONYX_DRAGON:
-                summon = Summon.getSummonBy(c.getChr(), skillID, slv);
-                field = c.getChr().getField();
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
                 summon.setFlyMob(true);
                 summon.setMoveAbility(MoveAbility.Stop);
                 field.spawnSummon(summon);

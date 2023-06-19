@@ -28,7 +28,6 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
 public class Warrior extends Beginner {
 
     public static final int MAPLE_RETURN = 1281;
-    public static final int IRON_BODY = 1000003;
 
     private int[] addedSkills = new int[]{
             MAPLE_RETURN,
@@ -140,7 +139,7 @@ public class Warrior extends Beginner {
             case DarkKnight.MAPLE_WARRIOR_DARK_KNIGHT:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
@@ -149,12 +148,12 @@ public class Warrior extends Beginner {
             case DarkKnight.EPIC_ADVENTURE_DRK:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
