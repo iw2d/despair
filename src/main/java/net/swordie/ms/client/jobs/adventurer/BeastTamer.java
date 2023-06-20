@@ -12,7 +12,7 @@ import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
-import net.swordie.ms.client.jobs.adventurer.magician.Magician;
+import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
@@ -359,7 +359,7 @@ public class BeastTamer extends Job {
         Option o2 = new Option();
         SkillInfo si = SkillData.getSkillInfoById(FRIENDS_OF_ARBY);
         int slv = si.getCurrentLevel();
-        if (tsm.getOptByCTSAndSkill(HolySymbol, Magician.HOLY_SYMBOL) == null) { // Only apply if player doesn't have Holy Symbol
+        if (tsm.getOptByCTSAndSkill(HolySymbol, Bishop.HOLY_SYMBOL) == null) { // Only apply if player doesn't have Holy Symbol
             o1.nOption = si.getValue(x, slv);
             o1.rOption = FRIENDS_OF_ARBY;
             tsm.putCharacterStatValue(HolySymbol, o1);

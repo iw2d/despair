@@ -8,7 +8,7 @@ import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
-import net.swordie.ms.client.jobs.adventurer.magician.Magician;
+import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyDamageInfo;
 import net.swordie.ms.connection.OutPacket;
@@ -1618,7 +1618,7 @@ public class Mob extends Life {
 
     public boolean isInfestedByViralSlime() {
         MobTemporaryStat mts = getTemporaryStat();
-        return mts.hasBurnFromSkillAndOwner(Magician.VIRAL_SLIME, 0);
+        return mts.hasBurnFromSkillAndOwner(FirePoison.VIRAL_SLIME, 0);
     }
 
     public void spawnEliteVersion() {

@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.info.HitInfo;
@@ -17,6 +16,7 @@ import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.adventurer.Beginner;
 import net.swordie.ms.client.jobs.adventurer.BeastTamer;
+import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
 import net.swordie.ms.client.jobs.adventurer.magician.Magician;
 import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
@@ -540,7 +540,7 @@ public abstract class Job {
 				tsm.putCharacterStatValue(HolyMagicShell, o);
 				tsm.sendSetStatPacket();
 			} else {
-				tsm.removeStatsBySkill(Magician.HOLY_MAGIC_SHELL);
+				tsm.removeStatsBySkill(Bishop.HOLY_MAGIC_SHELL);
 			}
 		}
 
@@ -620,14 +620,14 @@ public abstract class Job {
 	public void handleHit(Char chr, HitInfo hitInfo) {
 		hitInfo.hpDamage = Math.max(0, hitInfo.hpDamage); // to prevent -1 (dodges) healing the player.
 
-		if(chr.getStat(Stat.hp) <= hitInfo.hpDamage) {
+		if (chr.getStat(Stat.hp) <= hitInfo.hpDamage) {
 			TemporaryStatManager tsm = chr.getTemporaryStatManager();
 
 			// Global Revives ---------------------------------------
 
-			// Global - Door (Bishop)
-			if(tsm.hasStatBySkillId(Magician.HEAVENS_DOOR)) {
-				Magician.reviveByHeavensDoor(chr);
+			// Global - Heaven's Door (Bishop)
+			if (tsm.hasStatBySkillId(Bishop.HEAVENS_DOOR)) {
+				Bishop.reviveByHeavensDoor(chr);
 			}
 
 			// Global - Shade Link Skill (Shade)
@@ -638,7 +638,7 @@ public abstract class Job {
 			// Class Revives ----------------------------------------
 
 			// Dark Knight - Final Pact
-			else if(JobConstants.isDarkKnight(chr.getJob()) && chr.hasSkill(DarkKnight.FINAL_PACT_INFO)) {
+			else if (JobConstants.isDarkKnight(chr.getJob()) && chr.hasSkill(DarkKnight.FINAL_PACT_INFO)) {
 				((DarkKnight) chr.getJobHandler()).reviveByFinalPact();
 			}
 

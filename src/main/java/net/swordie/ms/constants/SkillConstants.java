@@ -7,6 +7,7 @@ import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.jobs.Zero;
 import net.swordie.ms.client.jobs.adventurer.*;
+import net.swordie.ms.client.jobs.adventurer.magician.IceLightning;
 import net.swordie.ms.client.jobs.adventurer.magician.Magician;
 import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
@@ -66,7 +67,7 @@ public class SkillConstants {
                     AngelicBuster.SOUL_RESONANCE,
                     BlazeWizard.DRAGON_BLAZE_FIRST,
                     Phantom.TEMPEST,
-                    Magician.LIGHTNING_ORB,
+                    IceLightning.LIGHTNING_ORB,
                     Pirate.FALLING_STARS,
                     Pirate.BACKUP_BEATDOWN,
                     AngelicBuster.SUPREME_SUPERNOVA)
@@ -1046,14 +1047,14 @@ public class SkillConstants {
 
     public static boolean isIceSkill(int skillID) {
         switch (skillID) {
-            case Magician.CHILLING_STEP:
-            case Magician.COLD_BEAM:
-            case Magician.ICE_STRIKE:
-            case Magician.GLACIER_CHAIN:
-            case Magician.FREEZING_BREATH:
-            case Magician.BLIZZARD:
-            case Magician.FROZEN_ORB:
-            case Magician.ELQUINES:
+            case IceLightning.CHILLING_STEP:
+            case IceLightning.COLD_BEAM:
+            case IceLightning.ICE_STRIKE:
+            case IceLightning.GLACIER_CHAIN:
+            case IceLightning.FREEZING_BREATH:
+            case IceLightning.BLIZZARD:
+            case IceLightning.FROZEN_ORB:
+            case IceLightning.ELQUINES:
                 return true;
 
             default:
@@ -1303,8 +1304,8 @@ public class SkillConstants {
             case 5711021:
             case 22171063:
             case 22141012:
-            case Magician.THUNDER_STORM:
-            case Magician.FROZEN_ORB:
+            case IceLightning.THUNDER_STORM:
+            case IceLightning.FROZEN_ORB:
             case Thief.SHADOW_VEIL:
             case BlazeWizard.CATACLYSM:
             case ThunderBreaker.GALE:

@@ -37,9 +37,8 @@ import net.swordie.ms.client.guild.GuildMember;
 import net.swordie.ms.client.guild.result.GuildResult;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.JobManager;
-import net.swordie.ms.client.jobs.adventurer.magician.Magician;
+import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
-import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.client.jobs.resistance.WildHunterInfo;
@@ -76,7 +75,6 @@ import net.swordie.ms.scripts.ScriptInfo;
 import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.scripts.ScriptType;
 import net.swordie.ms.util.*;
-import net.swordie.ms.util.container.Tuple;
 import net.swordie.ms.world.Channel;
 import net.swordie.ms.world.World;
 import net.swordie.ms.world.field.*;
@@ -4694,7 +4692,7 @@ public class Char {
 		if (getTemporaryStatManager().hasStat(NoBulletConsume) || JobConstants.isPhantom(getJob())) {
 			return true;
 		}
-		if (skillID == Magician.MEGIDDO_FLAME || skillID == Thief.MESO_EXPLOSION) {
+		if (skillID == FirePoison.MEGIDDO_FLAME || skillID == Thief.MESO_EXPLOSION) {
 			return true;
 		}
 		SkillInfo si = SkillData.getSkillInfoById(skillID);

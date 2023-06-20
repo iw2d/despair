@@ -5,7 +5,7 @@ import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.jobs.Job;
-import net.swordie.ms.client.jobs.adventurer.magician.Magician;
+import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.NightWalker;
 import net.swordie.ms.client.jobs.resistance.Mechanic;
@@ -543,7 +543,7 @@ public class AttackHandler {
             if (skillID == BlazeWizard.IGNITION_EXPLOSION) {
                 ai.option = inPacket.decodeInt();
             }
-            if (skillID == Magician.MIST_ERUPTION) {
+            if (skillID == FirePoison.MIST_ERUPTION) {
                 byte size = inPacket.decodeByte();
                 int[] mists = new int[size];
                 for (int i = 0; i < size; i++) {
@@ -551,7 +551,7 @@ public class AttackHandler {
                 }
                 ai.mists = mists;
             }
-            if (skillID == Magician.POISON_MIST) {
+            if (skillID == FirePoison.POISON_MIST) {
                 byte force = inPacket.decodeByte();
                 short forcedXSh = inPacket.decodeShort();
                 short forcedYSh = inPacket.decodeShort();

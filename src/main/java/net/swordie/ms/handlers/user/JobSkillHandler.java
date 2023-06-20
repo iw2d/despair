@@ -9,7 +9,7 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.adventurer.archer.Archer;
 import net.swordie.ms.client.jobs.adventurer.BeastTamer;
-import net.swordie.ms.client.jobs.adventurer.magician.Magician;
+import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.legend.Aran;
 import net.swordie.ms.client.jobs.legend.Luminous;
@@ -294,7 +294,7 @@ public class JobSkillHandler {
         int skillID = inPacket.decodeInt();
         inPacket.decodeInt(); //unk
 
-        if (skillID != Magician.HOLY_FOUNTAIN) {
+        if (skillID != Bishop.HOLY_FOUNTAIN) {
             chr.getOffenseManager().addOffense(String.format("Character %d tried to heal from %d as Holy Fountain.", chr.getId(), skillID));
             return;
         }

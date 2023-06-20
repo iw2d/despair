@@ -10,7 +10,7 @@ import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Zero;
 import net.swordie.ms.client.jobs.adventurer.archer.Archer;
 import net.swordie.ms.client.jobs.adventurer.BeastTamer;
-import net.swordie.ms.client.jobs.adventurer.magician.Magician;
+import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.legend.Aran;
@@ -221,18 +221,18 @@ public class AffectedArea extends Life {
         Option o2 = new Option();
         Option o3 = new Option();
         switch (skillID) {
-            case Magician.POISON_MIST:
+            case FirePoison.POISON_MIST:
                 if (!mts.hasBurnFromSkillAndOwner(skillID, getCharID())) {
                     int dotDmg = si.getValue(dot, slv);
-                    int dotTime = ((Magician) chr.getJobHandler()).getExtendedDoTTime(si.getValue(SkillStat.dotTime, slv));
-                    if (chr.hasSkill(Magician.MIST_ERUPTION)) {
-                        dotDmg = chr.getSkillStatValue(SkillStat.x, Magician.MIST_ERUPTION); // passive DoT dmg boost to Poison Mist
+                    int dotTime = ((FirePoison) chr.getJobHandler()).getExtendedDoTTime(si.getValue(SkillStat.dotTime, slv));
+                    if (chr.hasSkill(FirePoison.MIST_ERUPTION)) {
+                        dotDmg = chr.getSkillStatValue(SkillStat.x, FirePoison.MIST_ERUPTION); // passive DoT dmg boost to Poison Mist
                     }
-                    if (chr.hasSkill(Magician.POISON_MIST_CRIPPLE)) {
-                        dotDmg += chr.getSkillStatValue(dot, Magician.POISON_MIST_CRIPPLE);
+                    if (chr.hasSkill(FirePoison.POISON_MIST_CRIPPLE)) {
+                        dotDmg += chr.getSkillStatValue(dot, FirePoison.POISON_MIST_CRIPPLE);
                     }
-                    if (chr.hasSkill(Magician.POISON_MIST_AFTERMATH)) {
-                        dotTime += chr.getSkillStatValue(SkillStat.dotTime, Magician.POISON_MIST_AFTERMATH);
+                    if (chr.hasSkill(FirePoison.POISON_MIST_AFTERMATH)) {
+                        dotTime += chr.getSkillStatValue(SkillStat.dotTime, FirePoison.POISON_MIST_AFTERMATH);
                     }
                     mts.createAndAddBurnedInfo(chr, skillID, slv, dotDmg, si.getValue(dotInterval, slv), dotTime, 1);
                 }

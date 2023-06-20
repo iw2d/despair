@@ -870,6 +870,18 @@ public class TemporaryStatManager {
         }
     }
 
+    public boolean hasDebuffs() {
+        return hasStat(CharacterTemporaryStat.Stun) ||
+                hasStat(CharacterTemporaryStat.Poison) ||
+                hasStat(CharacterTemporaryStat.Seal) ||
+                hasStat(CharacterTemporaryStat.Darkness) ||
+                hasStat(CharacterTemporaryStat.Thaw) ||
+                hasStat(CharacterTemporaryStat.Weakness) ||
+                hasStat(CharacterTemporaryStat.Curse) ||
+                hasStat(CharacterTemporaryStat.Slow) ||
+                hasStat(CharacterTemporaryStat.Blind);
+    }
+
     public void removeAllDebuffs() {
         removeStat(CharacterTemporaryStat.Stun, false);
         removeStat(CharacterTemporaryStat.Poison, false);

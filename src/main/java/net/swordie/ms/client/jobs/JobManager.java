@@ -3,13 +3,10 @@ package net.swordie.ms.client.jobs;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.jobs.adventurer.*;
 import net.swordie.ms.client.jobs.adventurer.archer.Archer;
-import net.swordie.ms.client.jobs.adventurer.magician.Magician;
+import net.swordie.ms.client.jobs.adventurer.magician.*;
 import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
-import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
-import net.swordie.ms.client.jobs.adventurer.warrior.Hero;
-import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
-import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
+import net.swordie.ms.client.jobs.adventurer.warrior.*;
 import net.swordie.ms.client.jobs.cygnus.*;
 import net.swordie.ms.client.jobs.legend.*;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
@@ -29,11 +26,16 @@ public class JobManager {
             Hero.class,
             Paladin.class,
             DarkKnight.class,
+
+            Magician.class,
+            FirePoison.class,
+            IceLightning.class,
+            Bishop.class,
+
             Archer.class,
             BeastTamer.class,
             Beginner.class,
             Kinesis.class,
-            Magician.class,
             PinkBean.class,
             Pirate.class,
             Thief.class,

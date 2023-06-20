@@ -58,6 +58,7 @@ public class HitInfo {
                 "stanceSkillID = " + this.stanceSkillID + ", " +
                 "cancelSkillID = " + this.cancelSkillID + ", " +
                 "reductionSkillID = " + this.reductionSkillID + ", " +
+                "mpDamage = " + this.mpDamage + ", " +
         "}";
     }
 }
