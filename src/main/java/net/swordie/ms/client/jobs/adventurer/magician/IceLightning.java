@@ -30,6 +30,7 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  */
 public class IceLightning extends Magician {
     public static final int MP_EATER_IL = 2200000;
+    public static final int SPELL_MASTERY_IL = 2200006;
     public static final int CHILLING_STEP = 2201009;
     public static final int COLD_BEAM = 2201008;
     public static final int FREEZING_CRUSH = 2200011;

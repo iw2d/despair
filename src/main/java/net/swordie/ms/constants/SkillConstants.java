@@ -7,14 +7,10 @@ import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.jobs.Zero;
 import net.swordie.ms.client.jobs.adventurer.*;
-import net.swordie.ms.client.jobs.adventurer.magician.IceLightning;
-import net.swordie.ms.client.jobs.adventurer.magician.Magician;
+import net.swordie.ms.client.jobs.adventurer.magician.*;
 import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
-import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
-import net.swordie.ms.client.jobs.adventurer.warrior.Hero;
-import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
-import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
+import net.swordie.ms.client.jobs.adventurer.warrior.*;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.DawnWarrior;
 import net.swordie.ms.client.jobs.cygnus.NightWalker;
@@ -1142,6 +1138,9 @@ public class SkillConstants {
         switch (skillId) {
             case Hero.ADVANCED_COMBO:
             case Paladin.WEAPON_MASTERY_PAGE:
+            case FirePoison.SPELL_MASTERY_FP:
+            case IceLightning.SPELL_MASTERY_IL:
+            case Bishop.SPELL_MASTERY_BISH:
                 return true;
             default:
                 break;
@@ -1620,6 +1619,13 @@ public class SkillConstants {
             case DarkKnight.BARRICADE_MASTERY:
                 stats.put(BaseStat.mastery, si.getValue(SkillStat.mastery, slv) - chr.getSkillStatValue(SkillStat.mastery, DarkKnight.WEAPON_MASTERY_SPEARMAN));
                 break;
+            case FirePoison.SPELL_MASTERY_FP:
+            case IceLightning.SPELL_MASTERY_IL:
+            case Bishop.SPELL_MASTERY_BISH:
+                stats.put(BaseStat.mastery, si.getValue(SkillStat.mastery, slv));
+                stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
+                break;
+
         }
     }
 }

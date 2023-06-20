@@ -4,6 +4,7 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.info.ToBaseStat;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
+import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -417,6 +418,13 @@ public enum BaseStat {
                 break;
             case CrossOverChain:
                 stats.put(fd, o.nOption);
+                break;
+            case DotBasedBuff:
+                if (o.rOption == FirePoison.FERVENT_DRAIN) {
+                    stats.put(fd, o.nOption * 5);
+                } else if (o.rOption == FirePoison.ELEMENTAL_DRAIN) {
+                    stats.put(fd, o.nOption * 3);
+                }
                 break;
             default:
                 stats.put(unk, o.nOption);

@@ -1238,8 +1238,10 @@ public class Mob extends Life {
         newHp = newHp > Integer.MAX_VALUE ? Integer.MAX_VALUE : newHp;
         doOneTimeEvent(oldHp, newHp, maxHP);
         if (oldHp > 0 && newHp <= 0) {
-            // Boss sponges
             die(true);
+            onKilledByChar(damageDealer);
+
+            // Boss sponges
             if (damageDealer.hasQuestInProgress(38022) && getTemplateId() == 9300811) {
                 damageDealer.getScriptManager().setQRValue(38022, "clear", false);
             }

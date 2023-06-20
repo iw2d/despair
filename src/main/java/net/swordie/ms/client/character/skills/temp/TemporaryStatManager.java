@@ -94,7 +94,7 @@ public class TemporaryStatManager {
         return getTwoStates().get(tsi.getIndex());
     }
 
-    public void putCharacterStatValue(CharacterTemporaryStat cts, Option option) {
+    public synchronized void putCharacterStatValue(CharacterTemporaryStat cts, Option option) {
         boolean indie = cts.isIndie();
         option.setTimeToMillis();
         SkillInfo skillinfo = SkillData.getSkillInfoById(indie ? option.nReason : option.rOption);
@@ -654,7 +654,7 @@ public class TemporaryStatManager {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         TreeMap<CharacterTemporaryStat, List<Option>> sortedStats = new TreeMap<>(stats);
-        for(Map.Entry<CharacterTemporaryStat, List<Option>> stat : sortedStats.entrySet()) {
+        for (Map.Entry<CharacterTemporaryStat, List<Option>> stat : sortedStats.entrySet()) {
             int curTime = (int) System.currentTimeMillis();
             List<Option> options = stat.getValue();
             if(options == null) {
@@ -662,7 +662,7 @@ public class TemporaryStatManager {
                 continue;
             }
             outPacket.encodeInt(options.size());
-            for(Option option : options) {
+            for (Option option : options) {
                 outPacket.encodeInt(option.nReason);
                 outPacket.encodeInt(option.nValue);
                 outPacket.encodeInt(option.nKey);

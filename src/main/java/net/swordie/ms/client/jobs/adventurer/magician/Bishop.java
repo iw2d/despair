@@ -35,7 +35,8 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Bishop extends Magician {
-    public static final int MP_EATER_BISHOP = 2300000;
+    public static final int MP_EATER_BISH = 2300000;
+    public static final int SPELL_MASTERY_BISH = 2300006;
     public static final int HEAL = 2301002;
     public static final int MAGIC_BOOSTER_BISH = 2301008;
     public static final int BLESSED_ENSEMBLE = 2300009;

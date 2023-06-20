@@ -26,7 +26,7 @@ import net.swordie.ms.world.field.Field;
 
 import java.util.Random;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -36,6 +36,7 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  */
 public class FirePoison extends Magician {
     public static final int MP_EATER_FP = 2100000;
+    public static final int SPELL_MASTERY_FP = 2100006;
     public static final int POISON_BREATH = 2101005;
     public static final int MAGIC_BOOSTER_FP = 2101008;
     public static final int MEDITATION_FP = 2101001;
@@ -68,14 +69,12 @@ public class FirePoison extends Magician {
     public static final int POISON_MIST_CRIPPLE = 2120045;
     public static final int PARALYZE_CRIPPLE = 2120047;
 
-    private int ferventDrainStack;
-    private ScheduledFuture ferventDrainTimer;
+    private ScheduledFuture elementalDrainTimer;
+    private AtomicInteger viralSlimeCount = new AtomicInteger(0);
 
     public FirePoison(Char chr) {
         super(chr);
-        if (chr != null && chr.getId() != 0 && isHandlerOfJob(chr.getJob()) && JobConstants.isFirePoison(chr.getJob())) {
-            ferventDrainTimer = EventManager.addFixedRateEvent(this::giveFerventDrain, 2, 2, TimeUnit.SECONDS);
-        }
+        elementalDrainTimer = EventManager.addFixedRateEvent(this::elementalDrain, 2000, 2000);
     }
 
     @Override
@@ -87,8 +86,14 @@ public class FirePoison extends Magician {
 
     // Buff related methods --------------------------------------------------------------------------------------------
 
-    public void summonViralSlime(Position position) {
-        Summon viralSlime = Summon.getSummonBy(chr, VIRAL_SLIME, (byte) chr.getSkillLevel(VIRAL_SLIME));
+    public void summonViralSlime(Position position, boolean fromSkillCast) {
+        if (fromSkillCast) {
+            viralSlimeCount.set(0);
+        } else if (viralSlimeCount.incrementAndGet() > chr.getSkillStatValue(x, VIRAL_SLIME)) {
+            return;
+        }
+
+        Summon viralSlime = Summon.getSummonBy(chr, VIRAL_SLIME, chr.getSkillLevel(VIRAL_SLIME));
         Field field = chr.getField();
         viralSlime.setFlyMob(false);
         viralSlime.setPosition(position);
@@ -98,16 +103,12 @@ public class FirePoison extends Magician {
         field.spawnAddSummon(viralSlime);
     }
 
-    private int getViralSlimeCount() {
-        return (int) chr.getField().getSummons().stream().filter(s -> s.getSkillID() == VIRAL_SLIME && s.getChr() == chr).count();
-    }
-
     @Override
     public void handleMobDeath(Mob mob) {
         MobTemporaryStat mts = mob.getTemporaryStat();
-        if (mts.hasBurnFromSkillAndOwner(VIRAL_SLIME, chr.getId()) && getViralSlimeCount() < 10) {
-            summonViralSlime(mob.getPosition());
-            summonViralSlime(mob.getPosition());
+        if (mts.hasBurnFromSkillAndOwner(VIRAL_SLIME, chr.getId())) {
+            summonViralSlime(mob.getPosition(), false);
+            summonViralSlime(mob.getPosition(), false);
         }
         super.handleMobDeath(mob);
     }
@@ -141,27 +142,22 @@ public class FirePoison extends Magician {
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
+        AffectedArea aa;
         switch (attackInfo.skillId) {
             case POISON_BREATH:
-                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    if (Util.succeedProp(si.getValue(prop, slv))) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        mts.createAndAddBurnedInfo(chr, skillID, slv, si.getValue(dot, slv), si.getValue(dotInterval, slv), getExtendedDoTTime(si.getValue(dotTime, slv)), 1);
-                    }
-                }
+                applyDot(attackInfo, skillID, slv, si);
                 break;
             case POISON_MIST:
-                AffectedArea aa = AffectedArea.getAffectedArea(chr, attackInfo);
+                aa = AffectedArea.getAffectedArea(chr, attackInfo);
                 aa.setPosition(chr.getPosition());
                 aa.setRect(aa.getPosition().getRectAround(si.getFirstRect()));
                 aa.setDelay((short) 9);
                 chr.getField().spawnAffectedArea(aa);
                 break;
             case TELEPORT_MASTERY_FP:
+                o1.nOption = 1;
+                o1.rOption = skill.getSkillId();
+                o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
@@ -170,9 +166,6 @@ public class FirePoison extends Magician {
                         }
                         MobTemporaryStat mts = mob.getTemporaryStat();
                         if (!mob.isBoss()) {
-                            o1.nOption = 1;
-                            o1.rOption = skill.getSkillId();
-                            o1.tOption = si.getValue(time, slv);
                             mts.addStatOptions(MobStat.Stun, o1);
                         }
                         mts.createAndAddBurnedInfo(chr, skillID, slv, si.getValue(dot, slv), si.getValue(dotInterval, slv), getExtendedDoTTime(si.getValue(dotTime, slv)), 1);
@@ -234,26 +227,17 @@ public class FirePoison extends Magician {
                     field.removeLife(id);
                 }
                 break;
-            case MEGIDDO_FLAME_ATOM:
-            case IFRIT:
             case VIRAL_SLIME:
-                if (attackInfo.skillId == MEGIDDO_FLAME_ATOM) {
-                    skillID = MEGIDDO_FLAME;
-                    si = SkillData.getSkillInfoById(MEGIDDO_FLAME);
-                    slv = (byte) chr.getSkillLevel(MEGIDDO_FLAME);
-                }
-                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if (mob == null) {
-                        continue;
-                    }
-                    MobTemporaryStat mts = mob.getTemporaryStat();
-                    mts.createAndAddBurnedInfo(chr, skillID, slv, si.getValue(dot, slv), si.getValue(dotInterval, slv), getExtendedDoTTime(si.getValue(dotTime, slv)), 1);
-                }
-                if (attackInfo.skillId == VIRAL_SLIME) {
-                    Summon viralSlime = attackInfo.summon;
-                    chr.getField().removeLife(viralSlime.getObjectId(), true);
-                }
+                Summon viralSlime = attackInfo.summon;
+                chr.getField().removeLife(viralSlime.getObjectId(), true);
+                tsm.removeStatsBySkill(VIRAL_SLIME);
+                applyDot(attackInfo, skillID, slv, si);
+                break;
+            case IFRIT:
+                applyDot(attackInfo, skillID, slv, si);
+                break;
+            case MEGIDDO_FLAME_ATOM:
+                applyDot(attackInfo, MEGIDDO_FLAME, chr.getSkillLevel(MEGIDDO_FLAME), SkillData.getSkillInfoById(MEGIDDO_FLAME));
                 break;
         }
 
@@ -338,13 +322,37 @@ public class FirePoison extends Magician {
         }
     }
 
-    // Elemental/Fervent Drain
-    private int getFerventDrainStack() {
-        return ferventDrainStack;
+    private void applyDot(AttackInfo attackInfo, int skillId, int slv, SkillInfo si) {
+        for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+            Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+            if (mob == null) {
+                continue;
+            }
+            MobTemporaryStat mts = mob.getTemporaryStat();
+            mts.createAndAddBurnedInfo(chr, skillId, slv, si.getValue(dot, slv), si.getValue(dotInterval, slv), getExtendedDoTTime(si.getValue(dotTime, slv)), 1);
+        }
     }
 
-    private void setFerventDrainStack(int ferventDrainStack) {
-        this.ferventDrainStack = ferventDrainStack;
+    private void elementalDrain() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        int dotStacks = (int) chr.getField().getMobs().stream().filter(m -> m.getTemporaryStat().hasBurnFromOwner(chr.getId())).count();
+        if (dotStacks == 0) {
+            tsm.removeStat(DotBasedBuff, true);
+            tsm.sendResetStatPacket();
+            return;
+        }
+
+        int skillId = getElementalDrainSkill();
+        if (skillId == 0) {
+            return;
+        }
+
+        Option o1 = new Option();
+
+        o1.nOption = Math.min(dotStacks, 5);
+        o1.rOption = skillId;
+        tsm.putCharacterStatValue(DotBasedBuff, o1);
+        tsm.sendSetStatPacket();
     }
 
     private int getElementalDrainSkill() {
@@ -355,40 +363,6 @@ public class FirePoison extends Magician {
             res = ELEMENTAL_DRAIN;
         }
         return res;
-    }
-
-    private void giveFerventDrain() {
-        Field field = chr.getField();
-        if (field != null) {
-            setFerventDrainStack((int) field.getMobs().stream().filter(m -> m.getTemporaryStat().hasBurnFromOwner(chr.getId())).count());
-            updateElementDrain();
-        }
-    }
-
-    private void updateElementDrain() {
-        if(!chr.hasSkill(ELEMENTAL_DRAIN)) {
-            return;
-        }
-        Skill skill = chr.getSkill(getElementalDrainSkill());
-        SkillInfo edi = SkillData.getSkillInfoById(skill.getSkillId());
-        byte slv = (byte) skill.getCurrentLevel();
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o = new Option();
-        Option o1 = new Option();
-
-        o.nOption = (getFerventDrainStack() > 5 ? 5 : getFerventDrainStack());
-        o.rOption = ELEMENTAL_DRAIN;
-        tsm.putCharacterStatValue(DotBasedBuff, o);
-
-        o1.nOption = ( (getFerventDrainStack() > 5 ? 5 : getFerventDrainStack()) * edi.getValue(x, slv) );
-        o1.rOption = ELEMENTAL_DRAIN;
-        tsm.putCharacterStatValue(DamR, o1);
-        if(getFerventDrainStack() <= 0) {
-            tsm.removeStatsBySkill(ELEMENTAL_DRAIN);
-            tsm.sendResetStatPacket();
-        } else {
-            tsm.sendSetStatPacket();
-        }
     }
 
     @Override
@@ -432,7 +406,7 @@ public class FirePoison extends Magician {
                 }
                 break;
             case VIRAL_SLIME:
-                summonViralSlime(chr.getPosition());
+                summonViralSlime(chr.getPosition(), true);
                 break;
             case INFERNO_AURA:
                 o1.nOption = 1;
@@ -444,9 +418,7 @@ public class FirePoison extends Magician {
         tsm.sendSetStatPacket();
     }
 
-
-    // Hit related methods ---------------------------------------------------------------------------------------------
-
+    @Override
     public void handleMobDebuffSkill(Char chr) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (chr.hasSkill(ELEMENTAL_ADAPTATION_FP) && tsm.getOptByCTSAndSkill(AntiMagicShell, ELEMENTAL_ADAPTATION_FP) != null) {
@@ -458,8 +430,8 @@ public class FirePoison extends Magician {
 
     @Override
     public void handleCancelTimer(Char chr) {
-        if (ferventDrainTimer != null && !ferventDrainTimer.isDone()) {
-            ferventDrainTimer.cancel(true);
+        if (elementalDrainTimer != null && !elementalDrainTimer.isDone()) {
+            elementalDrainTimer.cancel(true);
         }
         super.handleCancelTimer(chr);
     }
@@ -470,14 +442,13 @@ public class FirePoison extends Magician {
             return;
         }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o = new Option();
-        Skill skill = chr.getSkill(ELEMENTAL_ADAPTATION_FP);
-        byte slv = (byte) skill.getCurrentLevel();
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+        SkillInfo si = SkillData.getSkillInfoById(ELEMENTAL_ADAPTATION_FP);
+        int slv = chr.getSkillLevel(ELEMENTAL_ADAPTATION_FP);
         int proc = si.getValue(prop, slv);
 
-        int stack = tsm.getOption(AntiMagicShell).nOption;
-        if(stack > 0) {
+        Option o = new Option();
+        int stack = tsm.getOptByCTSAndSkill(AntiMagicShell, ELEMENTAL_ADAPTATION_FP).nOption;
+        if (stack > 0) {
             if(Util.succeedProp(proc)) {
                 stack--;
 

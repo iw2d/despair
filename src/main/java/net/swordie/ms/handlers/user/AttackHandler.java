@@ -38,7 +38,6 @@ public class AttackHandler {
 
     // No handler, gets called from other handlers
     private static void handleAttack(Char chr, AttackInfo attackInfo) {
-        chr.dbgChatMsg(attackInfo.skillId + "");
         int skillID = attackInfo.skillId;
         Field field = chr.getField();
         if ((field.getFieldLimit() & FieldOption.SkillLimit.getVal()) > 0 ||
@@ -135,7 +134,6 @@ public class AttackHandler {
 
                 }
                 if (mob != null && mob.getHp() < 0) {
-                    mob.onKilledByChar(chr);
                     // MultiKill +1,  per killed mob
                     multiKillMessage++;
                     mobexp = mob.getForcedMobStat().getExp();

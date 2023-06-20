@@ -341,8 +341,8 @@ public class Magician extends Beginner {
         } else if (chr.hasSkill(IceLightning.MP_EATER_IL)) {
             skill = chr.getSkill(IceLightning.MP_EATER_IL);
 
-        } else if (chr.hasSkill(Bishop.MP_EATER_BISHOP)) {
-            skill = chr.getSkill(Bishop.MP_EATER_BISHOP);
+        } else if (chr.hasSkill(Bishop.MP_EATER_BISH)) {
+            skill = chr.getSkill(Bishop.MP_EATER_BISH);
         }
         return skill;
     }
