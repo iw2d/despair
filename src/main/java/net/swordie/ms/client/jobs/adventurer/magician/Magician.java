@@ -38,7 +38,7 @@ public class Magician extends Beginner {
             MAPLE_RETURN,
     };
 
-    private int infinityStack = 0;
+    private long infinityEnd = Long.MIN_VALUE;
     private ScheduledFuture infinityTimer;
 
     public Magician(Char chr) {
@@ -64,28 +64,29 @@ public class Magician extends Beginner {
     // Buff related methods --------------------------------------------------------------------------------------------
 
     private void infinity() {
-        int skillId = getInfinitySkill();
-        if(!chr.hasSkill(skillId)) {
-            return;
-        }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Skill skill = chr.getSkill(skillId);
-        byte slv = (byte) skill.getCurrentLevel();
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        infinityStack++;
-        if(tsm.hasStat(Infinity)) {
-            o1.nValue = infinityStack * si.getValue(damage, slv);
-            o1.nReason = skillId + 100; //To make the buff icon hidden
-            o1.tStart = Util.getCurrentTime();
-            tsm.putCharacterStatValue(IndieMADR, o1);
-            tsm.sendSetStatPacket();
-            chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(y, slv))));
-            infinityTimer = EventManager.addEvent(this::infinity, 4, TimeUnit.SECONDS);
-        } else {
-            tsm.removeStatsBySkill(skillId + 100);
-            tsm.sendResetStatPacket();
-            infinityStack = 0;
+        int skillId = getInfinitySkill();
+        SkillInfo si = SkillData.getSkillInfoById(skillId);
+        int slv = chr.getSkillLevel(skillId);
+
+        int remaining = (int) ((infinityEnd - Util.getCurrentTimeLong()) / 1000);
+        if (tsm.hasStat(Infinity)) {
+            if (remaining > 0 && chr.hasSkill(skillId)) {
+                chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(y, slv))));
+                chr.healMP((int) (chr.getMaxMP() / ((double) 100 / si.getValue(y, slv))));
+
+                Option o1 = new Option();
+                o1.nOption = tsm.getOption(Infinity).nOption + si.getValue(damage, slv);
+                o1.rOption = skillId;
+                o1.tOption = remaining;
+                tsm.putCharacterStatValue(Infinity, o1);
+                tsm.sendSetStatPacket();
+
+                infinityTimer = EventManager.addEvent(this::infinity, 4, TimeUnit.SECONDS);
+            } else {
+                tsm.removeStat(Infinity, true);
+                tsm.sendResetStatPacket();
+            }
         }
     }
 
@@ -258,15 +259,17 @@ public class Magician extends Beginner {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Infinity, o1);
+
                 o2.nOption = si.getValue(prop, slv);
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Stance, o2);
-                infinityStack = 0;
+
+                infinityEnd = Util.getCurrentTimeLong() + (si.getValue(time, slv) * 1000L);
                 if(infinityTimer != null && !infinityTimer.isDone()) {
                     infinityTimer.cancel(true);
                 }
-                infinity();
+                infinityTimer = EventManager.addEvent(this::infinity, 4, TimeUnit.SECONDS);
                 break;
             case FirePoison.IFRIT:
             case IceLightning.ELQUINES:

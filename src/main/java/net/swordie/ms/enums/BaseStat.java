@@ -420,11 +420,14 @@ public enum BaseStat {
                 stats.put(fd, o.nOption);
                 break;
             case DotBasedBuff:
-                if (o.rOption == FirePoison.FERVENT_DRAIN) {
+                if (o.nReason == FirePoison.FERVENT_DRAIN) {
                     stats.put(fd, o.nOption * 5);
-                } else if (o.rOption == FirePoison.ELEMENTAL_DRAIN) {
+                } else if (o.nReason == FirePoison.ELEMENTAL_DRAIN) {
                     stats.put(fd, o.nOption * 3);
                 }
+                break;
+            case Infinity:
+                stats.put(fd, o.nOption - 1);
                 break;
             default:
                 stats.put(unk, o.nOption);

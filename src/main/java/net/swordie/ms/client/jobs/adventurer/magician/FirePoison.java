@@ -226,6 +226,7 @@ public class FirePoison extends Magician {
                     Field field = chr.getField();
                     field.removeLife(id);
                 }
+                chr.resetSkillCoolTime(FLAME_HAZE);
                 break;
             case VIRAL_SLIME:
                 Summon viralSlime = attackInfo.summon;
@@ -350,7 +351,8 @@ public class FirePoison extends Magician {
         Option o1 = new Option();
 
         o1.nOption = Math.min(dotStacks, 5);
-        o1.rOption = skillId;
+        o1.rOption = ELEMENTAL_DRAIN;
+        o1.nReason = skillId; // used for tracking fd
         tsm.putCharacterStatValue(DotBasedBuff, o1);
         tsm.sendSetStatPacket();
     }
@@ -408,6 +410,11 @@ public class FirePoison extends Magician {
             case VIRAL_SLIME:
                 summonViralSlime(chr.getPosition(), true);
                 break;
+            case ELEMENTAL_ADAPTATION_FP:
+                o1.nOption = 0;
+                o1.rOption = skillID;
+                tsm.putCharacterStatValue(AntiMagicShell, o1);
+                break;
             case INFERNO_AURA:
                 o1.nOption = 1;
                 o1.rOption = skillID;
@@ -421,9 +428,25 @@ public class FirePoison extends Magician {
     @Override
     public void handleMobDebuffSkill(Char chr) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (chr.hasSkill(ELEMENTAL_ADAPTATION_FP) && tsm.getOptByCTSAndSkill(AntiMagicShell, ELEMENTAL_ADAPTATION_FP) != null) {
-            deductEleAdaptationFP();
+        if (tsm.hasStatBySkillId(ELEMENTAL_ADAPTATION_FP)) {
+            SkillInfo si = SkillData.getSkillInfoById(ELEMENTAL_ADAPTATION_FP);
+            int slv = chr.getSkillLevel(ELEMENTAL_ADAPTATION_FP);
+
             tsm.removeAllDebuffs();
+
+            int mpCost = (int) (chr.getMaxMP() * si.getValue(x, slv) / 100D);
+            chr.healMP(-mpCost);
+            if (tsm.getOption(AntiMagicShell).nOption < si.getValue(y, slv) && Util.succeedProp(si.getValue(prop, slv))) {
+                Option o1 = new Option();
+                o1.nOption = tsm.getOption(AntiMagicShell).nOption + 1;
+                o1.rOption = ELEMENTAL_ADAPTATION_FP;
+                tsm.putCharacterStatValue(AntiMagicShell, o1);
+                tsm.sendSetStatPacket();
+            } else {
+                tsm.removeStatsBySkill(ELEMENTAL_ADAPTATION_FP);
+                tsm.sendResetStatPacket();
+            }
+            return;
         }
         super.handleMobDebuffSkill(chr);
     }
@@ -434,36 +457,6 @@ public class FirePoison extends Magician {
             elementalDrainTimer.cancel(true);
         }
         super.handleCancelTimer(chr);
-    }
-
-    // Elemental Adaptation - FP
-    private void deductEleAdaptationFP() {
-        if(!chr.hasSkill(ELEMENTAL_ADAPTATION_FP)) {
-            return;
-        }
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        SkillInfo si = SkillData.getSkillInfoById(ELEMENTAL_ADAPTATION_FP);
-        int slv = chr.getSkillLevel(ELEMENTAL_ADAPTATION_FP);
-        int proc = si.getValue(prop, slv);
-
-        Option o = new Option();
-        int stack = tsm.getOptByCTSAndSkill(AntiMagicShell, ELEMENTAL_ADAPTATION_FP).nOption;
-        if (stack > 0) {
-            if(Util.succeedProp(proc)) {
-                stack--;
-
-                o.nOption = stack;
-                o.rOption = ELEMENTAL_ADAPTATION_FP;
-                tsm.putCharacterStatValue(AntiMagicShell, o);
-                tsm.sendSetStatPacket();
-            } else {
-                tsm.removeStatsBySkill(ELEMENTAL_ADAPTATION_FP);
-                tsm.sendResetStatPacket();
-            }
-        } else {
-            tsm.removeStatsBySkill(ELEMENTAL_ADAPTATION_FP);
-            tsm.sendResetStatPacket();
-        }
     }
 
     @Override
