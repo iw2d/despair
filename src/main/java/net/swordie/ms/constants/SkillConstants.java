@@ -1,8 +1,5 @@
 package net.swordie.ms.constants;
 
-import net.swordie.ms.client.character.Char;
-import net.swordie.ms.client.character.items.BodyPart;
-import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.jobs.Zero;
@@ -1123,29 +1120,46 @@ public class SkillConstants {
         return skillID;
     }
 
-    public static boolean isPassiveSkill_NoPsdSkillsCheck(int skillId) {
-        SkillInfo si = SkillData.getSkillInfoById(skillId);
-        return (si != null && si.isPsd()) || SkillConstants.isPsd(skillId);
-    }
-
     public static boolean isPassiveSkill(int skillId) {
         SkillInfo si = SkillData.getSkillInfoById(skillId);
-        return (si != null && si.isPsd() && si.getPsdSkills().size() == 0) || SkillConstants.isPsd(skillId);
+        if (skillId % 10000 / 10 == 105) {
+            // hyper active skills are type = 50 for some reason
+            return false;
+        }
+        if (SkillConstants.isBlessingSkill(skillId)) {
+            // special handling for blessing skills in Char::initBlessingSkills
+            return false;
+        }
+        return (si != null && si.getType() == 50) ||
+                (si != null && si.isPsd() && (si.getSkillStatInfo().containsKey(SkillStat.coolTimeR))) ||
+                isPassiveStatSkill(skillId);
     }
 
-    public static boolean isPsd(int skillId) {
-        // for skills that aren't specified as passives in wz
+    public static boolean isPassiveStatSkill(int skillId) {
+        // for non-passive skills that give passive stats
         switch (skillId) {
             case Hero.ADVANCED_COMBO:
-            case Paladin.WEAPON_MASTERY_PAGE:
-            case FirePoison.SPELL_MASTERY_FP:
-            case IceLightning.SPELL_MASTERY_IL:
-            case Bishop.SPELL_MASTERY_BISH:
+            case Hero.ADVANCED_FINAL_ATTACK:
+            case FirePoison.IFRIT:
                 return true;
             default:
-                break;
+                return false;
         }
-        return false;
+    }
+
+    public static boolean isPsdWTSkill(int skillId) {
+        SkillInfo si = SkillData.getSkillInfoById(skillId);
+        return (si != null && !si.getPsdWT().isEmpty()) || isShieldMasterySkill(skillId);
+    }
+
+    public static boolean isShieldMasterySkill(int skillId) {
+        // handle shield mastery too
+        switch (skillId) {
+            case Paladin.SHIELD_MASTERY:
+                return true;
+            default:
+                return false;
+        }
     }
 
     public static boolean isHyperstatSkill(int skillID) {
@@ -1585,47 +1599,29 @@ public class SkillConstants {
         return KEYDOWN_SKILLS.contains(nSkillID);
     }
 
-    public static void putMissingBaseStatsBySkill(Char chr, Map<BaseStat, Integer> stats, SkillInfo si, int slv) {
+    public static void fixBaseStatsBySkill(Map<BaseStat, Integer> stats, SkillInfo si, int slv) {
         int skillId = si.getSkillId();
-        // pad/mad not in wz
         if (SkillConstants.isBlessingSkill(skillId)) {
             stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
-            stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
+            stats.put(BaseStat.mad, si.getValue(SkillStat.y, slv));
+            stats.put(BaseStat.acc, si.getValue(SkillStat.z, slv));
+            stats.put(BaseStat.eva, si.getValue(SkillStat.z, slv));
         }
-        Item item;
         switch (skillId) {
+            case Hero.COMBO_SYNERGY:
             case Hero.ADVANCED_COMBO:
-                stats.put(BaseStat.mastery, si.getValue(SkillStat.mastery, slv) - chr.getSkillStatValue(SkillStat.mastery, Hero.WEAPON_MASTERY_FIGHTER));
+            case Hero.ADVANCED_COMBO_REINFORCE:
+                stats.put(BaseStat.damR, 0);
                 break;
-            case Paladin.SHIELD_MASTERY:
-                item = chr.getEquippedItemByBodyPart(BodyPart.Shield);
-                if (item != null && ItemConstants.isShield(item.getItemId())) {
-                    stats.put(BaseStat.pddR, si.getValue(SkillStat.x, slv));
-                    stats.put(BaseStat.mddR, si.getValue(SkillStat.x, slv));
-                    stats.put(BaseStat.pad, si.getValue(SkillStat.y, slv));
-                }
-                break;
-            case Paladin.HIGH_PALADIN:
-                si.getSkillStatsByWT(chr.getEquippedWeaponType()).forEach((ss, value) ->
-                        stats.put(ss.getBaseStat(), value + stats.getOrDefault(ss.getBaseStat(), 0))
-                );
-                stats.put(BaseStat.mastery, stats.getOrDefault(BaseStat.mastery, 0) - chr.getSkillStatValue(SkillStat.mastery, Paladin.WEAPON_MASTERY_PAGE));
-                break;
-            case DarkKnight.WEAPON_MASTERY_SPEARMAN:
-                si.getSkillStatsByWT(chr.getEquippedWeaponType()).forEach((ss, value) ->
-                        stats.put(ss.getBaseStat(), value + stats.getOrDefault(ss.getBaseStat(), 0))
-                );
-                break;
-            case DarkKnight.BARRICADE_MASTERY:
-                stats.put(BaseStat.mastery, si.getValue(SkillStat.mastery, slv) - chr.getSkillStatValue(SkillStat.mastery, DarkKnight.WEAPON_MASTERY_SPEARMAN));
+            case DarkKnight.FINAL_PACT:
+            case DarkKnight.FINAL_PACT_INFO:
+                stats.clear(); // handled as a buff
                 break;
             case FirePoison.SPELL_MASTERY_FP:
             case IceLightning.SPELL_MASTERY_IL:
             case Bishop.SPELL_MASTERY_BISH:
-                stats.put(BaseStat.mastery, si.getValue(SkillStat.mastery, slv));
                 stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
                 break;
-
         }
     }
 }

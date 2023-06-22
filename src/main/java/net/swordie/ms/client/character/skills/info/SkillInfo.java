@@ -1,7 +1,11 @@
 package net.swordie.ms.client.character.skills.info;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.items.BodyPart;
+import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.skills.SkillStat;
+import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
+import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.Stat;
@@ -191,9 +195,30 @@ public class SkillInfo {
         Map<BaseStat, Integer> stats = new HashMap<>();
         for (SkillStat ss : getSkillStatInfo().keySet()) {
             Tuple<BaseStat, Integer> bs = getBaseStatValue(ss, chr, slv);
-            stats.put(bs.getLeft(), bs.getRight());
+            if (bs.getLeft() != null) {
+                stats.put(bs.getLeft(), bs.getRight());
+            }
         }
-        SkillConstants.putMissingBaseStatsBySkill(chr, stats, this, slv);
+        SkillConstants.fixBaseStatsBySkill(stats, this, slv);
+        return stats;
+    }
+
+    public Map<BaseStat, Integer> getPsdWTStatValues(Char chr, int slv) {
+        Map<BaseStat, Integer> stats = new HashMap<>();
+        getSkillStatsByWT(chr.getEquippedWeaponType()).forEach((ss, value) ->
+                stats.put(ss.getBaseStat(), value + stats.getOrDefault(ss.getBaseStat(), 0))
+        );
+        // handle shield mastery
+        Item shield = chr.getEquippedItemByBodyPart(BodyPart.Shield);
+        if (shield != null && ItemConstants.isShield(shield.getItemId())) {
+            switch (getSkillId()) {
+                case Paladin.SHIELD_MASTERY:
+                    stats.put(BaseStat.pddR, getValue(SkillStat.x, slv));
+                    stats.put(BaseStat.mddR, getValue(SkillStat.x, slv));
+                    stats.put(BaseStat.pad, getValue(SkillStat.y, slv));
+                    break;
+            }
+        }
         return stats;
     }
 

@@ -379,7 +379,7 @@ public class Char {
 	private boolean skillCDBypass = false;
 	// TODO Move this to CharacterStat?
 	@Transient
-	private Map<BaseStat, Long> baseStats = new HashMap<>();
+	private Map<BaseStat, Integer> baseStats = new HashMap<>();
 	@Transient
 	private Map<BaseStat, Set<Integer>> nonAddBaseStats = new HashMap<>();
 	@Transient
@@ -1817,19 +1817,23 @@ public class Char {
 	public void initBaseStats() {
 		getBaseStats().clear();
 		getNonAddBaseStats().clear();
-		Map<BaseStat, Long> stats = getBaseStats();
-		stats.put(BaseStat.cr, 5L);
-		stats.put(BaseStat.minCd, 20L);
-		stats.put(BaseStat.maxCd, 50L);
-		stats.put(BaseStat.pdd, 9L);
-		stats.put(BaseStat.mdd, 9L);
-		stats.put(BaseStat.acc, 11L);
-		stats.put(BaseStat.eva, 8L);
-		stats.put(BaseStat.buffTimeR, 100L);
-		stats.put(BaseStat.dropR, 100L);
-		stats.put(BaseStat.mesoR, 100L);
-		getSkills().stream().filter(skill -> SkillConstants.isPassiveSkill_NoPsdSkillsCheck(skill.getSkillId())).
-				forEach(this::addToBaseStatCache);
+		Map<BaseStat, Integer> stats = getBaseStats();
+		stats.put(BaseStat.cr, 5);
+		stats.put(BaseStat.minCd, 20);
+		stats.put(BaseStat.maxCd, 50);
+		stats.put(BaseStat.pdd, 9);
+		stats.put(BaseStat.mdd, 9);
+		stats.put(BaseStat.acc, 11);
+		stats.put(BaseStat.eva, 8);
+		stats.put(BaseStat.buffTimeR, 100);
+		stats.put(BaseStat.dropR, 100);
+		stats.put(BaseStat.mesoR, 100);
+		getSkills().stream()
+				.filter(skill -> SkillConstants.isPassiveSkill(skill.getSkillId()))
+				.forEach(this::addToBaseStatCache);
+		getSkills().stream()
+				.filter(skill -> SkillConstants.isPsdWTSkill(skill.getSkillId()))
+				.forEach(this::initPsdWTSkill);
 	}
 
 	/**
@@ -1839,13 +1843,13 @@ public class Char {
 	 */
 	public void addToBaseStatCache(Skill skill) {
 		SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-		if(SkillConstants.isPassiveSkill(skill.getSkillId())) {
+		if (SkillConstants.isPassiveSkill(skill.getSkillId()) && si.getPsdSkills().isEmpty()) {
 			Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel());
 			stats.forEach(this::addBaseStat);
 		}
 		if (si.isPsd() && si.getSkillStatInfo().containsKey(SkillStat.coolTimeR)) {
-			for(int psdSkill : si.getPsdSkills()) {
-				getHyperPsdSkillsCooltimeR().put(psdSkill, si.getValue(SkillStat.coolTimeR, 1));
+			for (int psdSkill : si.getPsdSkills()) {
+				getHyperPsdSkillsCooltimeR().put(psdSkill, si.getValue(SkillStat.coolTimeR, skill.getCurrentLevel()));
 			}
 		}
 	}
@@ -1857,8 +1861,33 @@ public class Char {
 	 */
 	public void removeFromBaseStatCache(Skill skill) {
 		SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-		Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel());
-		stats.forEach(this::removeBaseStat);
+		if (SkillConstants.isPassiveSkill(skill.getSkillId()) && si.getPsdSkills().isEmpty()) {
+			Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel());
+			stats.forEach(this::removeBaseStat);
+		}
+		if (si.isPsd() && si.getSkillStatInfo().containsKey(SkillStat.coolTimeR)) {
+			for (int psdSkill : si.getPsdSkills()) {
+				getHyperPsdSkillsCooltimeR().remove(psdSkill, si.getValue(SkillStat.coolTimeR, skill.getCurrentLevel()));
+			}
+		}
+	}
+
+	/**
+	 * Initialize stat bonuses from psdWT skills
+	 *
+	 * @param skill The skill to retrieve bonus stats from
+	 */
+	public void initPsdWTSkill(Skill skill) {
+		SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+		Map<BaseStat, Integer> stats = si.getPsdWTStatValues(this, skill.getCurrentLevel());
+		stats.forEach((bs, value) -> {
+			if (bs == BaseStat.mastery) {
+				// mastery from PsdWT skills are additive
+				getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0) + value);
+			} else {
+				addBaseStat(bs, value);
+			}
+		});
 	}
 
 	/**
@@ -3944,7 +3973,7 @@ public class Char {
 			// Stat allocated by sp
 			stat += baseStat.toStat() == null ? 0 : getStat(baseStat.toStat());
 			// Stat gained by passives
-			stat += getBaseStats().getOrDefault(baseStat, 0L);
+			stat += getBaseStats().getOrDefault(baseStat, 0);
 			// Stat gained by buffs
 			int ctsStat = getTemporaryStatManager().getBaseStats().getOrDefault(baseStat, 0);
 			stat += ctsStat;
@@ -3992,7 +4021,7 @@ public class Char {
 		return stats;
 	}
 
-	public Map<BaseStat, Long> getBaseStats() {
+	public Map<BaseStat, Integer> getBaseStats() {
 		return baseStats;
 	}
 
@@ -4004,19 +4033,21 @@ public class Char {
 	 * Adds a BaseStat's amount to this Char's BaseStat cache.
 	 *
 	 * @param bs     The BaseStat
-	 * @param amount the amount of BaseStat to add
+	 * @param value  the amount of BaseStat to add
 	 */
-	public void addBaseStat(BaseStat bs, int amount) {
+	public void addBaseStat(BaseStat bs, int value) {
 		if (bs != null) {
 			if (bs.isNonAdditiveStat()) {
 				if (!getNonAddBaseStats().containsKey(bs)) {
 					getNonAddBaseStats().put(bs, new HashSet<>());
 				}
-				getNonAddBaseStats().get(bs).add(amount);
-//                chatMessage("[addBaseStat] key: %s value: %s", bs.toString(), Integer.toString(amount));
+				getNonAddBaseStats().get(bs).add(value);
+			} else if (bs == BaseStat.mastery) {
+				if (getBaseStats().getOrDefault(bs, 0) < value) {
+					getBaseStats().put(bs, value);
+				}
 			} else {
-				getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0L) + amount);
-//                chatMessage("[addBaseStat else] key: %s value: %s", bs.toString(), Integer.toString(amount));
+				getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0) + value);
 			}
 		}
 	}
@@ -4025,7 +4056,7 @@ public class Char {
 	 * Removes a BaseStat's amount from this Char's BaseStat cache.
 	 *
 	 * @param bs     The BaseStat
-	 * @param value the amount of BaseStat to remove
+	 * @param value  the amount of BaseStat to remove
 	 */
 	public void removeBaseStat(BaseStat bs, int value) {
 		if (bs != null) {
@@ -4038,8 +4069,12 @@ public class Char {
 				} else {
 					log.warn(String.format("Trying to remove NonAddBaseStat %s %d that does not exist.", bs, value));
 				}
+			} else if (bs == BaseStat.mastery) {
+				if (getBaseStats().getOrDefault(bs, 0) == value) {
+					getBaseStats().put(bs, 0);
+				}
 			} else {
-				getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0L) - value);
+				getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0) - value);
 			}
 		}
 	}

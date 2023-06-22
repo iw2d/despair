@@ -28,6 +28,8 @@ import net.swordie.ms.life.Life;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
+import net.swordie.ms.life.mob.skill.MobSkill;
+import net.swordie.ms.life.mob.skill.MobSkillID;
 import net.swordie.ms.life.npc.Npc;
 import net.swordie.ms.loaders.*;
 import net.swordie.ms.loaders.containerclasses.SkillStringInfo;
@@ -1966,6 +1968,28 @@ public class AdminCommands {
                 sb.append(skillName).append(" (").append(id).append("), ");
             }
             chr.chatMessage(sb.toString().substring(0, sb.toString().length() - 2));
+        }
+    }
+
+    @Command(names = {"showcts"}, requiredType = Tester)
+    public static class showCTS extends AdminCommand {
+        public static void execute(Char chr, String[] args) {
+            TemporaryStatManager tsm = chr.getTemporaryStatManager();
+            chr.chatMessage("Current CTS:");
+
+            for (CharacterTemporaryStat cts : tsm.getCurrentStats().keySet()) {
+                chr.chatMessage(String.format("    %s", cts.name()));
+            }
+        }
+    }
+
+    @Command(names = {"mobskill"}, requiredType = Tester)
+    public static class mobSkill extends AdminCommand {
+        public static void execute(Char chr, String[] args) {
+            MobSkill mobSkill = new MobSkill();
+            mobSkill.setSkillID(MobSkillID.Stun.getVal());
+            mobSkill.setLevel(3);
+            mobSkill.applyEffect(chr);
         }
     }
 
