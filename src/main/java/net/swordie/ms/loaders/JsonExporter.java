@@ -132,10 +132,17 @@ public class JsonExporter {
             JSONArray hyperSkillArray = new JSONArray();
             for (JobConstants.JobEnum je : jobEnums) {
                 JSONArray skillArray = new JSONArray();
-                for (Skill skill : SkillData.getSkillsByJob(je.getJobId())) {
-                    int skillId = skill.getSkillId();
+
+                List<Integer> skillIds = SkillData.getSkillInfos().entrySet().stream()
+                        .filter(entry -> entry.getValue().getRootId() == je.getJobId())
+                        .map(entry -> entry.getKey())
+                        .toList();
+                for (int skillId : skillIds) {
                     SkillInfo si = SkillData.getSkillInfoById(skillId);
                     SkillStringInfo ssi = StringData.getSkillStringById(skillId);
+                    if (si == null || ssi == null) {
+                        continue;
+                    }
 
                     JSONObject skillObject = new JSONObject();
                     skillObject.put("id", skillId);
@@ -143,6 +150,7 @@ public class JsonExporter {
                     skillObject.put("desc", ssi.getDesc());
                     skillObject.put("h", ssi.getH());
                     skillObject.put("type", si.getType());
+                    skillObject.put("invisible", si.isInvisible());
                     skillObject.put("maxLevel", si.getMaxLevel());
 
                     JSONObject skillStatObject = new JSONObject();
