@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.legend;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.info.HitInfo;
@@ -31,7 +30,6 @@ import net.swordie.ms.life.Life;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -299,7 +297,7 @@ public class Evan extends Job {
     }
 
     public Dragon getDragon() {
-        if (dragon == null && chr.getJob() != JobConstants.JobEnum.EVAN_NOOB.getJobId()) {
+        if (dragon == null && chr.getJob() != JobConstants.JobEnum.EVAN.getJobId()) {
             dragon = new Dragon(0);
             dragon.setOwner(chr);
         }

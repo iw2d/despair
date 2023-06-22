@@ -1374,7 +1374,7 @@ public class SkillConstants {
 
     public static int getNoviceSkillRoot(short job) {
         if (job / 100 == 22 || job == 2001) {
-            return JobConstants.JobEnum.EVAN_NOOB.getJobId();
+            return JobConstants.JobEnum.EVAN.getJobId();
         }
         if (job / 100 == 23 || job == 2002) {
             return JobConstants.JobEnum.MERCEDES.getJobId();
@@ -1401,7 +1401,7 @@ public class SkillConstants {
             return JobConstants.JobEnum.SHADE.getJobId();
         }
         if (JobConstants.isKinesis(job)) {
-            return JobConstants.JobEnum.KINESIS_0.getJobId();
+            return JobConstants.JobEnum.KINESIS.getJobId();
         }
         if (JobConstants.isBlaster(job)) {
             return JobConstants.JobEnum.CITIZEN.getJobId();

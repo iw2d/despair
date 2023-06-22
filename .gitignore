@@ -4,6 +4,7 @@ SwordieMS.iml
 WZ/
 info txts/
 dat/
+json/
 bin/classes/headerText.txt
 bin/classes/decodeforlocal.txt
 bin/

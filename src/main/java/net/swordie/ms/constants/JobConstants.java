@@ -78,7 +78,7 @@ public class JobConstants {
     }
 
     public static boolean isCannonShooter(short job) {
-        return job / 10 == 53 || job == JobEnum.PIRATE_CANNONNEER.getJobId();
+        return job / 10 == 53 || job == JobEnum.PIRATE_CANNONEER.getJobId();
     }
 
     public static boolean isJett(short job) {
@@ -112,7 +112,7 @@ public class JobConstants {
 
     public static boolean isEvan(short job) {
         return job / 100 == 22
-                || job == JobEnum.EVAN_NOOB.getJobId();
+                || job == JobEnum.EVAN.getJobId();
     }
 
     public static boolean isMercedes(short job) {
@@ -315,7 +315,7 @@ public class JobConstants {
         BLADE_LORD(433, 0),
         BLADE_MASTER(434, 0),
         PIRATE(500, 0),
-        PIRATE_CANNONNEER(501, 0),
+        PIRATE_CANNONEER(501, 0),
         JETT1(508, 0),
         BRAWLER(510, 0),
         MARAUDER(511, 0),
@@ -354,7 +354,7 @@ public class JobConstants {
         THUNDERBREAKER3(1511, 1000),
         THUNDERBREAKER4(1512, 1000),
         LEGEND(2000, 2000),
-        EVAN_NOOB(2001, 2001),
+        EVAN(2001, 2001),
         MERCEDES(2002, 2002),
         PHANTOM(2003, 2003),
         LUMINOUS(2004, 2004),
@@ -452,7 +452,7 @@ public class JobConstants {
         BEAST_TAMER_4(11212, 11000),
         PINK_BEAN_0(13000, 13000),
         PINK_BEAN_1(13100, 13000),
-        KINESIS_0(14000, 14000),
+        KINESIS(14000, 14000),
         KINESIS_1(14200, 14000),
         KINESIS_2(14210, 14000),
         KINESIS_3(14211, 14000),
@@ -552,7 +552,7 @@ public class JobConstants {
                 case CLERIC:
                 case PRIEST:
                 case BISHOP:
-                case EVAN_NOOB:
+                case EVAN:
                 case EVAN1:
                 case EVAN2:
                 case EVAN3:
@@ -640,7 +640,7 @@ public class JobConstants {
                 case MECHANIC_4:
                     wts.add(WeaponType.Gun);
                     break;
-                case PIRATE_CANNONNEER:
+                case PIRATE_CANNONEER:
                 case CANNONEER:
                 case CANNON_BLASTER:
                 case CANNON_MASTER:
@@ -767,7 +767,7 @@ public class JobConstants {
                 case BEAST_TAMER_4:
                     wts.add(WeaponType.Scepter);
                     break;
-                case KINESIS_0:
+                case KINESIS:
                 case KINESIS_1:
                 case KINESIS_2:
                 case KINESIS_3:
@@ -784,7 +784,7 @@ public class JobConstants {
         EXPLORER(1, JobFlag.ENABLED, JobEnum.BEGINNER),
         CYGNUS(2, JobFlag.ENABLED, JobEnum.NOBLESSE),
         ARAN(3, JobFlag.ENABLED, JobEnum.LEGEND),
-        EVAN(4, JobFlag.ENABLED, JobEnum.EVAN_NOOB),
+        EVAN(4, JobFlag.ENABLED, JobEnum.EVAN),
         MERCEDES(5, JobFlag.ENABLED, JobEnum.MERCEDES),
         DEMON(6, JobFlag.ENABLED, JobEnum.DEMON_SLAYER),
         PHANTOM(7, JobFlag.ENABLED, JobEnum.PHANTOM),
@@ -802,7 +802,7 @@ public class JobConstants {
         KANNA(19, JobFlag.ENABLED, JobEnum.KANNA),
         CHASE(20, JobFlag.ENABLED, JobEnum.BEAST_TAMER),
         PINK_BEAN(21, JobFlag.ENABLED, JobEnum.PINK_BEAN_0),
-        KINESIS(22, JobFlag.ENABLED, JobEnum.KINESIS_0);
+        KINESIS(22, JobFlag.ENABLED, JobEnum.KINESIS);
 
         private final int jobType, flag;
         private JobEnum beginJob;
