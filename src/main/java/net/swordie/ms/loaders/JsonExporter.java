@@ -1,7 +1,5 @@
 package net.swordie.ms.loaders;
 
-import net.swordie.ms.ServerConstants;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.loaders.containerclasses.SkillStringInfo;
@@ -152,6 +150,11 @@ public class JsonExporter {
                     skillObject.put("type", si.getType());
                     skillObject.put("invisible", si.isInvisible());
                     skillObject.put("maxLevel", si.getMaxLevel());
+                    skillObject.put("isPsd", si.isPsd());
+
+                    JSONArray psdSkillArray = new JSONArray();
+                    si.getPsdSkills().forEach(psdSkillArray::put);
+                    skillObject.put("psdSkill", psdSkillArray);
 
                     JSONObject skillStatObject = new JSONObject();
                     si.getSkillStatInfo().forEach((ss, value) -> skillStatObject.put(ss.name(), value));
