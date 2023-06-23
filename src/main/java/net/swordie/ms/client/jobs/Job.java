@@ -859,6 +859,15 @@ public abstract class Job {
 		return Arrays.stream(buffs).anyMatch(b -> b == skillID);
 	}
 
+	public final int getBuffedSkillDuration(int duration) {
+		return (int) ((double) duration * (chr.getTotalStat(BaseStat.buffTimeR) / 100D));
+	}
+
+	public final int getBuffedSkillCooldown(int cooldown) {
+		int cooltimeR = Math.max(100 - chr.getTotalStat(BaseStat.reduceCooltime), 0);
+		return (int) ((double) cooldown * (cooltimeR / 100D));
+	}
+
 	public void setCharCreationStats(Char chr) {
 		CharacterStat characterStat = chr.getAvatarData().getCharacterStat();
 		characterStat.setLevel(1);

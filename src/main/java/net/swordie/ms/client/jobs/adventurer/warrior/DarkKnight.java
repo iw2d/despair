@@ -82,7 +82,7 @@ public class DarkKnight extends Warrior {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         SkillInfo si = SkillData.getSkillInfoById(EVIL_EYE);
         int summonSlv = chr.getSkillLevel(EVIL_EYE);
-        int summonTerm = si.getValue(SkillStat.time, summonSlv);
+        int summonTerm = getBuffedSkillDuration(si.getValue(SkillStat.time, summonSlv));
 
         long remaining = evilEyeEnd - Util.getCurrentTimeLong();
         if (!refresh && remaining > 0) {
@@ -496,8 +496,8 @@ public class DarkKnight extends Warrior {
         tsm.putCharacterStatValue(NotDamaged, o2);
         tsm.sendSetStatPacket();
 
-        finalPactEnd = Util.getCurrentTimeLong() + (si.getValue(time, slv) * 1000L);
-        int finalPactCooltime = si.getValue(cooltime, slv);
+        finalPactEnd = Util.getCurrentTimeLong() + (getBuffedSkillDuration(si.getValue(time, slv)) * 1000L);
+        int finalPactCooltime = getBuffedSkillCooldown(si.getValue(cooltime, slv));
         if (chr.hasSkill(FINAL_PACT_COOLDOWN)) {
             finalPactCooltime *= 0.9;
         }

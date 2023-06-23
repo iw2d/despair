@@ -62,7 +62,7 @@ public class FirePoison extends Magician {
     public static final int HEROS_WILL_FP = 2121008;
 
     public static final int EPIC_ADVENTURE_FP = 2121053;
-    public static final int INFERNO_AURA = 2221054;
+    public static final int INFERNO_AURA = 2121054;
     public static final int MEGIDDO_FLAME = 2121052;
     public static final int MEGIDDO_FLAME_ATOM = 2121055;
     public static final int POISON_MIST_AFTERMATH = 2120044;
@@ -265,7 +265,7 @@ public class FirePoison extends Magician {
             int inc = ForceAtomEnum.DA_ORB.getInc();
             int type = ForceAtomEnum.DA_ORB.getForceAtomType();
             ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
-                    0, 500, (int) System.currentTimeMillis(), 1, 0,
+                    0, 500, Util.getCurrentTime(), 1, 0,
                     new Position(0, -100));
             chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                     true, mobID2, MEGIDDO_FLAME_ATOM, forceAtomInfo, new Rect(), 0, 300,
@@ -288,7 +288,7 @@ public class FirePoison extends Magician {
                 int inc = ForceAtomEnum.DA_ORB_RECREATION.getInc();
                 int type = ForceAtomEnum.DA_ORB_RECREATION.getForceAtomType();
                 ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 30, 5,
-                        anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
+                        anglenum, 0, Util.getCurrentTime(), 1, 0,
                         new Position(0, 0));
                 chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
                         true, mobID, MEGIDDO_FLAME_ATOM, forceAtomInfo, new Rect(), 0, 300,
@@ -418,8 +418,7 @@ public class FirePoison extends Magician {
             case INFERNO_AURA:
                 o1.nOption = 1;
                 o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(IceAura, o1);
+                tsm.putCharacterStatValue(FireAura, o1);
                 break;
         }
         tsm.sendSetStatPacket();

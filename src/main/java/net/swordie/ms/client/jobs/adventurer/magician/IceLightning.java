@@ -57,7 +57,7 @@ public class IceLightning extends Magician {
     public static final int LIGHTNING_ORB = 2221052;
 
     public static final int EPIC_ADVENTURE_IL = 2221053;
-    public static final int ABSOLUTE_ZERO_AURA = 2121054;
+    public static final int ABSOLUTE_ZERO_AURA = 2221054;
 
     public IceLightning(Char chr) {
         super(chr);

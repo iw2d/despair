@@ -99,12 +99,10 @@ public class TemporaryStatManager {
         option.setTimeToMillis();
         SkillInfo skillinfo = SkillData.getSkillInfoById(indie ? option.nReason : option.rOption);
         if(skillinfo != null && !skillinfo.isNotIncBuffDuration()) {
-            int duration = (indie ? option.tTerm : option.tOption);
-            long buffTimeR = getChr().getTotalStat(BaseStat.buffTimeR); // includes the 100% base
             if (indie) {
-                option.tTerm = (int) ((buffTimeR * duration) / 100);
+                option.tTerm = getChr().getJobHandler().getBuffedSkillDuration(option.tTerm);
             } else {
-                option.tOption = (int) ((buffTimeR * duration) / 100);
+                option.tOption = getChr().getJobHandler().getBuffedSkillDuration(option.tOption);
             }
         }
         if(cts == CombatOrders) {

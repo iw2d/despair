@@ -78,7 +78,6 @@ public class Magician extends Beginner {
                 Option o1 = new Option();
                 o1.nOption = tsm.getOption(Infinity).nOption + si.getValue(damage, slv);
                 o1.rOption = skillId;
-                o1.tOption = remaining;
                 tsm.putCharacterStatValue(Infinity, o1);
                 tsm.sendSetStatPacket();
 
@@ -146,28 +145,19 @@ public class Magician extends Beginner {
             return;
         }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o = new Option();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        int amount = 1;
+
+        int damR = 0;
         if (tsm.hasStat(ArcaneAim)) {
-            amount = tsm.getOption(ArcaneAim).nOption;
-            if (amount < si.getValue(y, slv)) {
-                amount++;
-            }
+            damR = tsm.getOption(ArcaneAim).nOption;
         }
-        o.nOption = amount;
-        o.rOption = skillId;
-        o.tOption = 5; // No Time Variable
-        tsm.putCharacterStatValue(ArcaneAim, o);
-        o1.nOption = si.getValue(ignoreMobpdpR, slv);
+        if (damR < si.getValue(x, slv) * si.getValue(y, slv)) {
+            damR += si.getValue(x, slv);
+        }
+        Option o1 = new Option();
+        o1.nOption = damR;
         o1.rOption = skillId;
         o1.tOption = 5; // No Time Variable
-        tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o1);
-        o2.nOption = (amount * si.getValue(x, slv));
-        o2.rOption = skillId;
-        o2.tOption = 5; // No Time Variable
-        tsm.putCharacterStatValue(DamR, o2);
+        tsm.putCharacterStatValue(ArcaneAim, o1);
         tsm.sendSetStatPacket();
     }
 
@@ -226,7 +216,7 @@ public class Magician extends Beginner {
             case IceLightning.MEDITATION_IL:
                 o1.nValue = si.getValue(indieMad, slv);
                 o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMAD, o1);
                 break;
@@ -265,7 +255,7 @@ public class Magician extends Beginner {
                 o2.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Stance, o2);
 
-                infinityEnd = Util.getCurrentTimeLong() + (si.getValue(time, slv) * 1000L);
+                infinityEnd = Util.getCurrentTimeLong() + (getBuffedSkillDuration(si.getValue(time, slv)) * 1000L);
                 if(infinityTimer != null && !infinityTimer.isDone()) {
                     infinityTimer.cancel(true);
                 }
@@ -294,12 +284,12 @@ public class Magician extends Beginner {
             case Bishop.EPIC_ADVENTURE_BISH:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;

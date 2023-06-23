@@ -24,6 +24,7 @@ import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Position;
+import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 import org.apache.log4j.Logger;
 
@@ -208,7 +209,7 @@ public class Summon extends Life {
         summon.setChr(chr);
         summon.setSkillID(skillID);
         summon.setSlv((byte) slv);
-        summon.setSummonTerm(si.getValue(SkillStat.time, slv));
+        summon.setSummonTerm(chr.getJobHandler().getBuffedSkillDuration(si.getValue(SkillStat.time, slv)));
         summon.setCharLevel((byte) chr.getStat(Stat.level));
         summon.setPosition(chr.getPosition().deepCopy());
         summon.setMoveAction((byte) 1);
@@ -225,7 +226,7 @@ public class Summon extends Life {
         o1.nReason = skillID;
         o1.nValue = 1;
         o1.summon = summon;
-        o1.tStart = (int) System.currentTimeMillis();
+        o1.tStart = Util.getCurrentTime();
         o1.tTerm = summon.getSummonTerm() / 1000;
         tsm.putCharacterStatValue(IndieEmpty, o1);
         tsm.sendSetStatPacket();

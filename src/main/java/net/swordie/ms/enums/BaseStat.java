@@ -407,6 +407,9 @@ public enum BaseStat {
             case IndieScriptBuff:
                 stats.put(buffTimeR, o.nValue);
                 break;
+            case ArcaneAim:
+                stats.put(damR, o.nOption);
+                break;
             case BlessingArmorIncPAD:
                 stats.put(pad, o.nOption);
                 break;
