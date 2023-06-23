@@ -626,7 +626,7 @@ public abstract class Job {
 			// Global Revives ---------------------------------------
 
 			// Global - Heaven's Door (Bishop)
-			if (tsm.hasStatBySkillId(Bishop.HEAVENS_DOOR)) {
+			if (tsm.hasStat(HeavensDoor)) {
 				Bishop.reviveByHeavensDoor(chr);
 			}
 

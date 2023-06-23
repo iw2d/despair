@@ -152,13 +152,10 @@ public class IceLightning extends Magician {
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
+                        if (mob == null || mob.isBoss()) {
                             continue;
                         }
-                        if(!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
                 }
                 break;

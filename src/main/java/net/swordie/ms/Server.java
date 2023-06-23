@@ -241,7 +241,7 @@ public class Server extends Properties {
 
 	public class ShutDownTask {
 
-		private static final int shutdownTime = 5000;
+		private static final int shutdownTime = 1000;
 
 		public void start() {
 			Runtime.getRuntime().addShutdownHook(new Thread(() -> {

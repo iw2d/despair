@@ -3939,7 +3939,9 @@ public class Char {
 			// Stat gained by equips
 			for (Item item : getEquippedInventory().getItems()) {
 				Equip equip = (Equip) item;
-				// maybe add canEquip here
+				if (!canEquip(equip)) {
+					continue;
+				}
 				statSet.addAll(equip.getNonAddBaseStat(baseStat));
 			}
 			// Stat gained by set effects
@@ -3984,6 +3986,9 @@ public class Char {
 			// Stat gained by equips
 			for (Item item : getEquippedInventory().getItems()) {
 				Equip equip = (Equip) item;
+				if (!canEquip(equip)) {
+					continue;
+				}
 				stat += equip.getBaseStat(baseStat);
 			}
 			// Stat gained by set effects

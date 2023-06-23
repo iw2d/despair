@@ -77,16 +77,24 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
     public void channelInactive(ChannelHandlerContext ctx) {
         log.debug("[ChannelHandler] | Channel inactive.");
         Client c = (Client) ctx.channel().attr(CLIENT_KEY).get();
-        User user = c.getUser();
-        Char chr = c.getChr();
-        if (c != null && chr != null && !chr.isChangingChannel()) {
-            chr.logout();
-        } else if (c != null && chr != null && chr.isChangingChannel()) {
-            chr.setChangingChannel(false);
-        } else if (user != null) {
-            user.unstuck();
-        } else {
-            log.warn("[ChannelHandler] | Was not able to save character, data inconsistency may have occurred.");
+        if (c != null) {
+            User user = c.getUser();
+            Char chr = c.getChr();
+            if (chr != null) {
+                synchronized (chr) {
+                    if (chr.isOnline()) {
+                        if (!chr.isChangingChannel()) {
+                            chr.logout();
+                        } else {
+                            chr.setChangingChannel(false);
+                        }
+                    }
+                }
+            } else if (user != null) {
+                user.unstuck();
+            } else {
+                log.warn("[ChannelHandler] | Was not able to save character, data inconsistency may have occurred.");
+            }
         }
         NettyClient o = ctx.channel().attr(CLIENT_KEY).get();
         if (o != null) {

@@ -150,7 +150,7 @@ public class DatabaseManager {
         }
     }
 
-    public static Session getSession() {
+    public synchronized static Session getSession() {
         return sessionFactory.getCurrentSession();
     }
 
@@ -229,9 +229,7 @@ public class DatabaseManager {
     }
 
     public static void modifyObjectFromDB(Class clazz, int id, String columnName, Object value) {
-        Session session = null;
-        try {
-            session = getSession();
+        try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
             // String.format for query, just to fill in the class
             // Can't set the FROM clause with a parameter it seems
@@ -240,8 +238,6 @@ public class DatabaseManager {
             query.setParameter("val", value);
             query.executeUpdate();
             transaction.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

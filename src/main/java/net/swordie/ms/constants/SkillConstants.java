@@ -1143,6 +1143,8 @@ public class SkillConstants {
             case FirePoison.IFRIT:
             case IceLightning.ELEMENTAL_DECREASE_IL:
             case IceLightning.ELQUINES:
+            case Bishop.INVINCIBLE:
+            case Bishop.DIVINE_PROTECTION:
                 return true;
             default:
                 return false;
@@ -1627,6 +1629,9 @@ public class SkillConstants {
             case FirePoison.ELEMENTAL_DECREASE_FP:
             case IceLightning.ELEMENTAL_DECREASE_IL:
                 stats.put(BaseStat.fd, si.getValue(SkillStat.mdR, slv));
+                break;
+            case Bishop.DIVINE_PROTECTION:
+                stats.put(BaseStat.ter, si.getValue(SkillStat.asrR, slv));
                 break;
         }
     }

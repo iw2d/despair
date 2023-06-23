@@ -46,7 +46,7 @@ public class MobTemporaryStat {
 	private final TreeMap<MobStat, Option> currentStatVals = new TreeMap<>(mobStatComper);
 	private TreeMap<MobStat, Option> newStatVals = new TreeMap<>(mobStatComper);
 	private TreeMap<MobStat, Option> removedStatVals = new TreeMap<>(mobStatComper);
-	private Map<MobStat, ScheduledFuture> schedules = new HashMap<>();
+	private Map<MobStat, ScheduledFuture> schedules = new ConcurrentHashMap<>();
 	private Mob mob;
 
 	public MobTemporaryStat(Mob mob) {
@@ -537,9 +537,10 @@ public class MobTemporaryStat {
 	}
 
 	public void addStatOptions(MobStat mobStat, Option option) {
-		option.tTerm *= 1000;
-		option.tOption *= 1000;
 		int tAct = option.tOption > 0 ? option.tOption : option.tTerm;
+		if (!option.isInMillis()) {
+			tAct *= 1000;
+		}
 		synchronized (newStatVals) {
 			getNewStatVals().put(mobStat, option);
 		}
@@ -596,9 +597,6 @@ public class MobTemporaryStat {
 	}
 
 	public Map<MobStat, ScheduledFuture> getSchedules() {
-		if (schedules == null) {
-			schedules = new HashMap<>();
-		}
 		return schedules;
 	}
 

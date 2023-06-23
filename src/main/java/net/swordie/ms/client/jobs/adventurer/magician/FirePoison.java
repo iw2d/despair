@@ -156,7 +156,7 @@ public class FirePoison extends Magician {
                 break;
             case TELEPORT_MASTERY_FP:
                 o1.nOption = 1;
-                o1.rOption = skill.getSkillId();
+                o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     if (Util.succeedProp(si.getValue(prop, slv))) {

@@ -33,9 +33,8 @@ public class InGameEventManager {
     }
 
     public InGameEventManager() {
-        events.put(InGameEventType.RussianRoulette, new RussianRouletteEvent());
-        events.put(InGameEventType.PinkZakumBattle, new PinkZakumEvent());
-        // more to come...
+        // events.put(InGameEventType.RussianRoulette, new RussianRouletteEvent());
+        // events.put(InGameEventType.PinkZakumBattle, new PinkZakumEvent());
 
         if (!ServerConfig.DEBUG_MODE)
             schedule = EventManager.addFixedRateEvent(this::doEvent, 5, 40, TimeUnit.MINUTES);

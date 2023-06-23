@@ -330,6 +330,11 @@ public class World {
         for (Channel channel : getChannels()) {
             System.err.println("Shutting down channel " + channel.getChannelId() + "...");
             channel.shutdown();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         System.err.println("Accounts have been saved.");
         for (Alliance ally : getAlliances().values()) {

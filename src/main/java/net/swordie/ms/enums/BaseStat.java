@@ -438,6 +438,9 @@ public enum BaseStat {
                 stats.put(asr, o.nOption * 20);
                 stats.put(ter, o.nOption * 20);
                 break;
+            case BlessEnsenble:
+                stats.put(fd, o.nOption);
+                break;
             default:
                 stats.put(unk, o.nOption);
         }

@@ -105,7 +105,7 @@ public class TemporaryStatManager {
                 option.tOption = getChr().getJobHandler().getBuffedSkillDuration(option.tOption);
             }
         }
-        if(cts == CombatOrders) {
+        if (cts == CombatOrders) {
             chr.setCombatOrders(option.nOption);
         }
         if (cts == IndieMaxDamageOver || cts == IndieMaxDamageOverR) {

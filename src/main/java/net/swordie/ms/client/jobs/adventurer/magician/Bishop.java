@@ -9,11 +9,13 @@ import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.life.mob.Mob;
@@ -27,6 +29,7 @@ import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -37,6 +40,7 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
 public class Bishop extends Magician {
     public static final int MP_EATER_BISH = 2300000;
     public static final int SPELL_MASTERY_BISH = 2300006;
+    public static final int INVINCIBLE = 2300003;
     public static final int HEAL = 2301002;
     public static final int MAGIC_BOOSTER_BISH = 2301008;
     public static final int BLESSED_ENSEMBLE = 2300009;
@@ -73,8 +77,11 @@ public class Bishop extends Magician {
     public static final int ADV_BLESSING_BOSS_RUSH = 2320050;
     public static final int ADV_BLESSING_EXTRA_POINT = 2320051;
 
+    private ScheduledFuture blessedEmsembleTimer;
+
     public Bishop(Char chr) {
         super(chr);
+        blessedEmsembleTimer = EventManager.addFixedRateEvent(this::changeBlessedCount, 2000, 2000);
     }
 
     @Override
@@ -88,49 +95,49 @@ public class Bishop extends Magician {
 
     private void changeBlessedCount() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if(getBlessedSkill() == null) {
+        int skillId = getBlessedSkill();
+        Party party = chr.getParty();
+
+        if (skillId <= 0 || party == null) {
+            tsm.removeStat(BlessEnsenble, true);
+            tsm.sendResetStatPacket();
             return;
         }
-        Skill skill = getBlessedSkill();
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        byte slv = (byte) skill.getCurrentLevel();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        int amount = 0;
 
-        if(chr.getParty() != null) { // Should be increasing by Given Party Buffs
-            for(PartyMember pm : chr.getParty().getOnlineMembers()) {
-                if(chr.getFieldID() == pm.getChr().getFieldID()) {
-                    amount++;
-                }
-            }
-        }
+        SkillInfo si = SkillData.getSkillInfoById(skillId);
+        int slv = chr.getSkillLevel(skillId);
 
-        if(amount > 1) { // amount = 2  ->  1 count on Icon
-            o1.nOption = amount;
-            o1.rOption = BLESSED_ENSEMBLE;
+        List<PartyMember> partyMembers = chr.getParty().getOnlineMembers().stream().filter(pm -> pm.getCharID() != chr.getId() && pm.isOnline()).toList();
+        int count = partyMembers.size();
+        int bishCount = (int) partyMembers.stream().filter(pm -> JobConstants.isBishop(pm.getChr().getJob())).count();
+        if (count > 0) {
+            Option o1 = new Option();
+            o1.nOption = count * si.getValue(x, slv);
+            o1.rOption = skillId;
             tsm.putCharacterStatValue(BlessEnsenble, o1);
 
-            o2.nValue = si.getValue(x, slv) * amount;
-            o2.nReason = BLESSED_ENSEMBLE;
-            o2.tStart = (int) System.currentTimeMillis();
-            tsm.putCharacterStatValue(IndieDamR, o2);
+            if (bishCount > 0) {
+                Option o2 = new Option();
+                o2.nValue = bishCount * 20;
+                o2.nReason = BLESSED_ENSEMBLE;
+                o2.tStart = Util.getCurrentTime();
+                tsm.putCharacterStatValue(IndieEXP, o2);
+            }
             tsm.sendSetStatPacket();
         } else {
-            tsm.removeStatsBySkill(BLESSED_ENSEMBLE);
+            tsm.removeStat(BlessEnsenble, true);
             tsm.sendResetStatPacket();
         }
     }
 
-    private Skill getBlessedSkill() {
-        Skill skill = null;
-        if(chr.hasSkill(BLESSED_ENSEMBLE)) {
-            skill = chr.getSkill(BLESSED_ENSEMBLE);
+    private int getBlessedSkill() {
+        if (chr.hasSkill(BLESSED_HARMONY)) {
+            return BLESSED_HARMONY;
         }
-        if(chr.hasSkill(BLESSED_HARMONY)) {
-            skill = chr.getSkill(BLESSED_HARMONY);
+        if (chr.hasSkill(BLESSED_ENSEMBLE)) {
+            return BLESSED_ENSEMBLE;
         }
-        return skill;
+        return 0;
     }
 
     private int changeBishopHealingBuffs(int skillID) {
@@ -184,7 +191,10 @@ public class Bishop extends Magician {
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
+        Rect rect;
+        List<PartyMember> partyMembers;
         switch (attackInfo.skillId) {
+            case TELEPORT_MASTERY_BISH:
             case SHINING_RAY:
                 o1.nOption = 1;
                 o1.rOption = skillID;
@@ -192,12 +202,11 @@ public class Bishop extends Magician {
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
+                        if (mob == null || mob.isBoss()) {
                             continue;
                         }
-                        if(!mob.isBoss()) {
-                            mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
+                        System.out.println(si.getValue(time, slv));
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
                 }
                 break;
@@ -217,21 +226,27 @@ public class Bishop extends Magician {
                 o1.nOption = 1;
                 o1.rOption = HEAVENS_DOOR;
                 o1.tOption = 0;
-                Party party = chr.getParty();
-                if (party != null) {
-                    for (PartyMember partyMember : party.getOnlineMembers()) {
+                rect = chr.getRectAround(si.getFirstRect());
+                if (!chr.isLeft()) {
+                    rect.horizontalFlipAround(chr.getPosition().getX());
+                }
+                if (chr.getParty() == null) {
+                    tsm.putCharacterStatValue(HeavensDoor, o1);
+                    tsm.sendSetStatPacket();
+                } else {
+                    partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
+                            .filter(pml -> pml.getChr().getHP() > 0)
+                            .toList();
+                    for (PartyMember partyMember : partyMembers) {
                         Char partyChr = partyMember.getChr();
                         TemporaryStatManager partyTSM = partyChr.getTemporaryStatManager();
-                        partyTSM.putCharacterStatValue(ReviveOnce, o1);
+                        partyTSM.putCharacterStatValue(HeavensDoor, o1);
                         partyTSM.sendSetStatPacket();
-                        if(partyChr != chr) {
+                        if (partyChr != chr) {
                             chr.getField().broadcastPacket(UserRemote.effect(partyChr.getId(), Effect.skillAffected(skillID, slv, 0)), partyChr);
                             partyChr.write(UserPacket.effect(Effect.skillAffected(skillID, slv, 0)));
                         }
                     }
-                } else {
-                    tsm.putCharacterStatValue(ReviveOnce, o1);
-                    tsm.sendSetStatPacket();
                 }
                 break;
             case ANGEL_RAY:
@@ -257,7 +272,6 @@ public class Bishop extends Magician {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         SkillInfo si = SkillData.getSkillInfoById(skillID);
-        changeBlessedCount();
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -266,9 +280,11 @@ public class Bishop extends Magician {
         Option o5 = new Option();
         Option o6 = new Option();
         Option o7 = new Option();
+        int count;
         Rect rect;
         Field field;
         Party party;
+        List<PartyMember> partyMembers;
         switch (skillID) {
             case HOLY_FOUNTAIN:
                 AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
@@ -279,7 +295,16 @@ public class Bishop extends Magician {
                 aa.setForce(si.getValue(y, slv));
                 chr.getField().spawnAffectedArea(aa);
                 break;
+            case DIVINE_PROTECTION:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                tsm.putCharacterStatValue(AntiMagicShell, o1);
+                break;
             case HEAL:
+                if (!chr.equals(this.chr)) {
+                    // massSpell, handle everything as caster
+                    break;
+                }
                 // debuff mobs
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
@@ -288,11 +313,15 @@ public class Bishop extends Magician {
                 if (!chr.isLeft()) {
                     rect.horizontalFlipAround(chr.getPosition().getX());
                 }
+                count = si.getValue(u, slv);
                 for (Life life : chr.getField().getLifesInRect(rect)) {
                     if (life instanceof Mob && ((Mob) life).getHp() > 0) {
                         Mob mob = (Mob) life;
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
+                        count--;
+                        if (count <= 0) {
+                            break;
+                        }
                     }
                 }
                 // heal party
@@ -300,40 +329,43 @@ public class Bishop extends Magician {
                 if (chr.getParty() == null) {
                     chr.heal(!tsm.hasStat(CharacterTemporaryStat.Undead) ? healRate : -healRate, true);
                 } else {
-                    field = chr.getField();
-                    List<PartyMember> eligblePartyMemberList = field.getPartyMembersInRect(chr, rect).stream()
+                    partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
                             .filter(pml -> pml.getChr().getHP() > 0)
                             .toList();
-                    for (PartyMember partyMember : eligblePartyMemberList) {
+                    for (PartyMember partyMember : partyMembers) {
                         Char partyChr = partyMember.getChr();
                         partyChr.heal(!partyChr.getTemporaryStatManager().hasStat(CharacterTemporaryStat.Undead)
-                                ? healRate / eligblePartyMemberList.size() : -healRate / eligblePartyMemberList.size(), true);
+                                ? healRate / partyMembers.size() : -healRate / partyMembers.size(), true);
                     }
-                    chr.reduceSkillCoolTime(skillID, si.getValue(y, slv) * 1000L);
+                    count = partyMembers.size() - 1;
+                    if (count > 0) {
+                        chr.reduceSkillCoolTime(skillID, count * si.getValue(y, slv) * 1000L);
+                    }
                 }
                 break;
             case DISPEL:
-                party = chr.getParty();
-                if (party == null) {
+                if (chr.getParty() == null) {
                     tsm.removeAllDebuffs();
                 } else {
                     rect = chr.getRectAround(si.getFirstRect());
                     if (!chr.isLeft()) {
                         rect.horizontalFlipAround(chr.getPosition().getX());
                     }
-                    field = chr.getField();
-                    List<PartyMember> eligblePartyMemberList = field.getPartyMembersInRect(chr, rect).stream()
+                    partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
                             .filter(pml -> pml.getChr().getHP() > 0 &&
                                     pml.getChr().getTemporaryStatManager().hasDebuffs()
                             )
                             .toList();
-                    for (PartyMember partyMember : eligblePartyMemberList) {
+                    for (PartyMember partyMember : partyMembers) {
                         Char partyChr = partyMember.getChr();
                         partyChr.getTemporaryStatManager().removeAllDebuffs();
                     }
-                    int numCured = Math.max(eligblePartyMemberList.size() - 1, 0);
-                    chr.reduceSkillCoolTime(skillID, numCured * si.getValue(y, slv) * 1000L);
-                    chr.reduceSkillCoolTime(DIVINE_PROTECTION, numCured * si.getValue(time, slv) * 1000L);
+                    int numCured = partyMembers.size();
+                    System.out.println(numCured);
+                    if (numCured > 0) {
+                        chr.reduceSkillCoolTime(skillID, numCured * si.getValue(y, slv) * 1000L);
+                        chr.reduceSkillCoolTime(DIVINE_PROTECTION, numCured * si.getValue(time, slv) * 1000L);
+                    }
                 }
                 break;
             case MYSTIC_DOOR:
@@ -342,7 +374,7 @@ public class Bishop extends Magician {
                 int portalY = townField.getPortalByName("tp").getY();
                 Position townPosition = new Position(portalX, portalY); // Grabs the Portal Co-ordinates for the TownPortalPoint
                 int duration = si.getValue(time, slv);
-                if(chr.getTownPortal() != null) {
+                if (chr.getTownPortal() != null) {
                     TownPortal townPortal = chr.getTownPortal();
                     townPortal.despawnTownPortal();
                 }
@@ -491,6 +523,7 @@ public class Bishop extends Magician {
 
     // Hit related methods ---------------------------------------------------------------------------------------------
 
+    @Override
     public void handleMobDebuffSkill(Char chr) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (chr.hasSkill(DIVINE_PROTECTION) && tsm.getOptByCTSAndSkill(AntiMagicShell, DIVINE_PROTECTION) != null) {
@@ -501,10 +534,18 @@ public class Bishop extends Magician {
         super.handleMobDebuffSkill(chr);
     }
 
+    @Override
+    public void handleCancelTimer(Char chr) {
+        if (blessedEmsembleTimer != null && !blessedEmsembleTimer.isDone()) {
+            blessedEmsembleTimer.cancel(true);
+        }
+        super.handleCancelTimer(chr);
+    }
+
     public static void reviveByHeavensDoor(Char chr) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         chr.healHPMP();
-        tsm.removeStatsBySkill(HEAVENS_DOOR);
+        tsm.removeStat(HeavensDoor, true);
         tsm.sendResetStatPacket();
         chr.chatMessage("You have been revived by Heaven's Door.");
     }
