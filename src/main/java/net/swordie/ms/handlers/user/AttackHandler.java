@@ -50,7 +50,7 @@ public class AttackHandler {
         if (chr.applyBulletCon(attackInfo.skillId, attackInfo.slv) && !summonedAttack && !multiAttack && !chr.applyMpCon(attackInfo.skillId, attackInfo.slv)) {
             return;
         }
-        if (summonedAttack || chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass() || multiAttack || (SkillConstants.isKeyDownSkill(skillID))) {
+        if (summonedAttack || multiAttack || chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass() || (SkillConstants.isKeyDownSkill(skillID))) {
             byte slv = attackInfo.slv;
             chr.dbgChatMsg("SkillID: " + skillID);
             Job sourceJobHandler = chr.getJobHandler();

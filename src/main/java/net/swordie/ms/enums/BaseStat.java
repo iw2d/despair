@@ -432,6 +432,12 @@ public enum BaseStat {
             case Infinity:
                 stats.put(fd, o.nOption - 1);
                 break;
+            case IceAura:
+                stats.put(stance, o.nOption * 20);
+                stats.put(dmgReduce, o.nOption * 20);
+                stats.put(asr, o.nOption * 20);
+                stats.put(ter, o.nOption * 20);
+                break;
             default:
                 stats.put(unk, o.nOption);
         }

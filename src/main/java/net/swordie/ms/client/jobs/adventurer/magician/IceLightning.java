@@ -7,9 +7,11 @@ import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.client.party.Party;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
+import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.life.Summon;
@@ -21,6 +23,11 @@ import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
+
+import java.util.List;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -59,6 +66,8 @@ public class IceLightning extends Magician {
     public static final int EPIC_ADVENTURE_IL = 2221053;
     public static final int ABSOLUTE_ZERO_AURA = 2221054;
 
+    private ScheduledFuture absoluteZeroAuraTimer;
+
     public IceLightning(Char chr) {
         super(chr);
     }
@@ -66,6 +75,32 @@ public class IceLightning extends Magician {
     @Override
     public boolean isHandlerOfJob(short id) {
         return JobConstants.isIceLightning(id);
+    }
+
+    private void giveAbsoluteZeroAuraBuff() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (!chr.hasSkill(ABSOLUTE_ZERO_AURA) || !tsm.hasStatBySkillId(ABSOLUTE_ZERO_AURA)) {
+            return;
+        }
+        SkillInfo si = SkillData.getSkillInfoById(ABSOLUTE_ZERO_AURA);
+        Option o1 = new Option();
+
+        Party party = chr.getParty();
+        if (party != null) {
+            Rect rect = chr.getRectAround(si.getFirstRect());
+            List<Char> pChrList = chr.getParty().getPartyMembersInSameField(chr).stream().filter(pc -> rect.hasPositionInside(pc.getPosition())).toList();
+            for (Char pChr : pChrList) {
+                if (pChr.getHP() > 0) {
+                    o1.nOption = 1;
+                    o1.rOption = ABSOLUTE_ZERO_AURA;
+                    o1.tOption = 2;
+                    o1.bOption = 0;
+                    pChr.getTemporaryStatManager().putCharacterStatValue(IceAura, o1);
+                    pChr.getTemporaryStatManager().sendSetStatPacket();
+                }
+            }
+        }
+        absoluteZeroAuraTimer = EventManager.addEvent(this::giveAbsoluteZeroAuraBuff, 1, TimeUnit.SECONDS);
     }
 
 
@@ -97,15 +132,15 @@ public class IceLightning extends Magician {
             case COLD_BEAM:
             case ICE_STRIKE:
             case GLACIER_CHAIN:
+                o1.nOption = 5;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = 5;
-                    o1.rOption = skillID;
-                    o1.tOption = si.getValue(time, slv);
                     mts.addStatOptionsAndBroadcast(MobStat.Freeze, o1);
                 }
                 break;
@@ -135,7 +170,6 @@ public class IceLightning extends Magician {
         if(!SkillConstants.isIceSkill(skillID)){
             return;
         }
-        Option o1 = new Option();
         for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
             Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
             if (mob == null) {
@@ -149,6 +183,7 @@ public class IceLightning extends Magician {
                     counter++;
                 }
             }
+            Option o1 = new Option();
             o1.nOption = 20;
             o1.rOption = skillID;
             o1.tOption = 15; //No Duration given
@@ -193,13 +228,13 @@ public class IceLightning extends Magician {
             case FREEZING_BREATH:
                 o1.nOption = 1;
                 o1.rOption = skillID;
-                o1.tOption = 25;
+                o1.tOption = 1;
                 o2.nOption = si.getValue(x, slv);
                 o2.rOption = skillID;
-                o2.tOption = 5;
+                o2.tOption = 1;
                 o3.nOption = si.getValue(y, slv);
                 o3.rOption = skillID;
-                o3.tOption = 5;
+                o3.tOption = 1;
                 rect = chr.getPosition().getRectAround(si.getRects().get(0));
                 if (!chr.isLeft()) {
                     rect = rect.moveRight();
@@ -215,7 +250,7 @@ public class IceLightning extends Magician {
                 }
                 o4.nOption = 1;
                 o4.rOption = skillID;
-                o4.tOption = 5;
+                o4.tOption = 25;
                 tsm.putCharacterStatValue(NotDamaged, o1);
                 break;
             case Magician.TELEPORT:
@@ -239,6 +274,7 @@ public class IceLightning extends Magician {
                     tsm.removeStatsBySkill(skillID);
                     tsm.sendResetStatPacket();
                 } else {
+                    o1.nOption = 1;
                     o1.rOption = skillID;
                     tsm.putCharacterStatValue(ChillingStep, o1);
                 }
@@ -247,20 +283,12 @@ public class IceLightning extends Magician {
                 o1.nOption = 1;
                 o1.rOption = skillID;
                 o1.tOption = 0;
-                tsm.putCharacterStatValue(FireAura, o1);
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = 0;
-                tsm.putCharacterStatValue(Stance, o2);
-                o3.nOption = si.getValue(y, slv);
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(DamAbsorbShield, o3);
-                o4.nOption = si.getValue(v, slv);
-                o4.rOption = skillID;
-                o4.tOption = 0;
-                tsm.putCharacterStatValue(AsrR, o4);
-                tsm.putCharacterStatValue(TerR, o4);
+                o1.bOption = 1;
+                tsm.putCharacterStatValue(IceAura, o1);
+                if (absoluteZeroAuraTimer != null && !absoluteZeroAuraTimer.isDone()) {
+                    absoluteZeroAuraTimer.cancel(true);
+                }
+                giveAbsoluteZeroAuraBuff();
                 break;
         }
         tsm.sendSetStatPacket();
@@ -291,6 +319,7 @@ public class IceLightning extends Magician {
 
     // Hit related methods ---------------------------------------------------------------------------------------------
 
+    @Override
     public void handleMobDebuffSkill(Char chr) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (chr.hasSkill(ELEMENTAL_ADAPTATION_IL) && tsm.getOptByCTSAndSkill(AntiMagicShell, ELEMENTAL_ADAPTATION_IL) != null) {
@@ -314,6 +343,22 @@ public class IceLightning extends Magician {
             }
         }
         super.handleMobDebuffSkill(chr);
+    }
+
+    @Override
+    public void handleSkillRemove(Char chr, int skillID) {
+        if (skillID == ABSOLUTE_ZERO_AURA && absoluteZeroAuraTimer != null && !absoluteZeroAuraTimer.isDone()) {
+            absoluteZeroAuraTimer.cancel(true);
+        }
+        super.handleSkillRemove(chr, skillID);
+    }
+
+    @Override
+    public void handleCancelTimer(Char chr) {
+        if (absoluteZeroAuraTimer != null && !absoluteZeroAuraTimer.isDone()) {
+            absoluteZeroAuraTimer.cancel(true);
+        }
+        super.handleCancelTimer(chr);
     }
 
     @Override

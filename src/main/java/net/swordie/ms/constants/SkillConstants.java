@@ -219,7 +219,6 @@ public class SkillConstants {
                 skillId == 14111006 || (skillId >= 80001389 && skillId <= 80001392) || skillId == 42121000 ||
                 skillId == 42120003 || skillId == 5700010 || skillId == 5711021 || skillId == 5721001 ||
                 skillId == 5721061 || skillId == 21120018 || skillId == 21120019 || skillId == 24121000 || skillId == 24121005;
-
     }
 
     public static boolean isEvanForceSkill(int skillId) {
@@ -1140,7 +1139,10 @@ public class SkillConstants {
         switch (skillId) {
             case Hero.ADVANCED_COMBO:
             case Hero.ADVANCED_FINAL_ATTACK:
+            case FirePoison.ELEMENTAL_DECREASE_FP:
             case FirePoison.IFRIT:
+            case IceLightning.ELEMENTAL_DECREASE_IL:
+            case IceLightning.ELQUINES:
                 return true;
             default:
                 return false;
@@ -1621,6 +1623,10 @@ public class SkillConstants {
             case IceLightning.SPELL_MASTERY_IL:
             case Bishop.SPELL_MASTERY_BISH:
                 stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
+                break;
+            case FirePoison.ELEMENTAL_DECREASE_FP:
+            case IceLightning.ELEMENTAL_DECREASE_IL:
+                stats.put(BaseStat.fd, si.getValue(SkillStat.mdR, slv));
                 break;
         }
     }

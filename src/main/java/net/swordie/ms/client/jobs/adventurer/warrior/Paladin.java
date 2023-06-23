@@ -108,15 +108,18 @@ public class Paladin extends Warrior {
 
 
     private void giveParashockGuardBuff() {
-        Skill skill = chr.getSkill(PARASHOCK_GUARD);
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (!chr.hasSkill(PARASHOCK_GUARD) || !tsm.hasStatBySkillId(PARASHOCK_GUARD)) {
+            return;
+        }
         SkillInfo si = SkillData.getSkillInfoById(PARASHOCK_GUARD);
-        int slv = skill.getCurrentLevel();
+        int slv = chr.getSkillLevel(PARASHOCK_GUARD);
         Option o1 = new Option();
 
         Party party = chr.getParty();
         if (party != null) {
             Rect rect = chr.getRectAround(si.getFirstRect());
-            List<Char> pChrList = chr.getParty().getPartyMembersInSameField(chr).stream().filter(pc -> rect.hasPositionInside(pc.getPosition())).collect(Collectors.toList());
+            List<Char> pChrList = chr.getParty().getPartyMembersInSameField(chr).stream().filter(pc -> rect.hasPositionInside(pc.getPosition())).toList();
             for (Char pChr : pChrList) {
                 if (pChr.getHP() > 0) {
                     o1.nOption = slv;
@@ -557,6 +560,7 @@ public class Paladin extends Warrior {
         if (skillID == PARASHOCK_GUARD && parashockGuardTimer != null && !parashockGuardTimer.isDone()) {
             parashockGuardTimer.cancel(true);
         }
+        super.handleSkillRemove(chr, skillID);
     }
 
     @Override
@@ -564,6 +568,7 @@ public class Paladin extends Warrior {
         if (parashockGuardTimer != null && !parashockGuardTimer.isDone()) {
             parashockGuardTimer.cancel(true);
         }
+        super.handleCancelTimer(chr);
     }
 
     @Override

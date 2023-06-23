@@ -439,10 +439,10 @@ public class Hero extends Warrior {
 
     @Override
     public void handleCancelTimer(Char chr) {
-        super.handleCancelTimer(chr);
         if (selfRecoveryTimer != null && !selfRecoveryTimer.isDone()) {
             selfRecoveryTimer.cancel(true);
         }
+        super.handleCancelTimer(chr);
     }
 
     @Override

@@ -2,6 +2,7 @@ package net.swordie.ms.handlers.life;
 
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.nova.Kaiser;
 import net.swordie.ms.client.jobs.resistance.BattleMage;
 import net.swordie.ms.connection.InPacket;
@@ -35,14 +36,19 @@ public class SummonedHandler {
 
     @Handler(op = InHeader.SUMMONED_REMOVE)
     public static void handleSummonedRemove(Client c, InPacket inPacket) {
-        int id = inPacket.decodeInt();
-
         Char chr = c.getChr();
+
+        int id = inPacket.decodeInt();
         Summon summon = (Summon) chr.getField().getLifeByObjectID(id);
         if (summon == null || summon.getChr() != c.getChr()) {
             return;
         }
+
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
         int skillId = summon.getSkillID();
+        if (tsm.hasStatBySkillId(skillId)) {
+            tsm.removeStatsBySkill(skillId);
+        }
         if (skillId == BattleMage.CONDEMNATION
                 || skillId == BattleMage.CONDEMNATION_I
                 || skillId == BattleMage.CONDEMNATION_II
