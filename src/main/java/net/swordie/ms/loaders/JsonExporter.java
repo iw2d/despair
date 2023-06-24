@@ -150,6 +150,7 @@ public class JsonExporter {
                     skillObject.put("type", si.getType());
                     skillObject.put("invisible", si.isInvisible());
                     skillObject.put("maxLevel", si.getMaxLevel());
+                    skillObject.put("massSpell", si.isMassSpell());
                     skillObject.put("isPsd", si.isPsd());
 
                     JSONArray psdSkillArray = new JSONArray();
