@@ -40,7 +40,8 @@ import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Tuple;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.Portal;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -51,7 +52,7 @@ import static net.swordie.ms.enums.ChatType.SystemNotice;
 
 public class UserHandler {
 
-    private static final Logger log = Logger.getLogger(UserHandler.class);
+    private static final Logger log = LogManager.getLogger(UserHandler.class);
 
 
     @Handler(op = InHeader.USER_MOVE)

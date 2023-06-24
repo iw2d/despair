@@ -46,7 +46,8 @@ import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,7 +63,7 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 1/2/2018.
  */
 public abstract class Job {
-	private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+	private static final Logger log = LogManager.getRootLogger();
 
     protected Char chr;
 

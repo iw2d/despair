@@ -5,7 +5,8 @@ import net.swordie.ms.connection.db.FileTimeConverter;
 import net.swordie.ms.life.pet.Pet;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.life.pet.PetSkill;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import net.swordie.ms.util.FileTime;
 
 import javax.persistence.*;
@@ -18,7 +19,7 @@ import javax.persistence.*;
 @PrimaryKeyJoinColumn(name = "itemId")
 public class PetItem extends Item {
     @Transient
-    private final Logger log = Logger.getLogger(PetItem.class);
+    private final Logger log = LogManager.getLogger(PetItem.class);
 
     private String name;
     private byte level;

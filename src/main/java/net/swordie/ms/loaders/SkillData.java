@@ -10,7 +10,8 @@ import net.swordie.ms.loaders.containerclasses.MakingSkillRecipe;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.util.*;
 import net.swordie.ms.util.container.Tuple;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Node;
 
 import java.io.*;
@@ -25,7 +26,7 @@ public class SkillData {
     private static Map<Integer, Map<Integer, Integer>> eliteMobSkills = new HashMap<>();
     private static Map<Short, Map<Short, MobSkillInfo>> mobSkillInfos = new HashMap<>();
     private static Map<Integer, MakingSkillRecipe> makingSkillRecipes = new HashMap<>();
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = LogManager.getRootLogger();
     private static final boolean LOG_UNKS = false;
 
     public static void saveSkills(String dir) {

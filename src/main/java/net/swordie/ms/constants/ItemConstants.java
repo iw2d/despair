@@ -11,7 +11,8 @@ import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.containerclasses.EquipDrop;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Util;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,7 +43,7 @@ public class ItemConstants {
     public static final int MIN_FACE = 20000;
     public static final int MAX_FACE = 29999;
 
-    static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    static final Logger log = LogManager.getRootLogger();
 
     public static final int HYPER_TELEPORT_ROCK = 5040004;
 

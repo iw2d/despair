@@ -1,6 +1,7 @@
 package net.swordie.ms.handlers;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledFuture;
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  * http://code.nomad-labs.com/2011/12/09/mother-fk-the-scheduledexecutorservice/
  */
 public class CathingScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor {
-    private static final Logger log = Logger.getLogger(CathingScheduledThreadPoolExecutor.class);
+    private static final Logger log = LogManager.getLogger(CathingScheduledThreadPoolExecutor.class);
 
     public CathingScheduledThreadPoolExecutor(int corePoolSize) {
         super(corePoolSize);

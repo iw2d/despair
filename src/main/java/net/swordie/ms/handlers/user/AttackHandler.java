@@ -29,11 +29,12 @@ import net.swordie.ms.world.event.InGameEventManager;
 import net.swordie.ms.world.event.PinkZakumEvent;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AttackHandler {
 
-    private static final Logger log = Logger.getLogger(AttackHandler.class);
+    private static final Logger log = LogManager.getLogger(AttackHandler.class);
 
 
     // No handler, gets called from other handlers

@@ -11,16 +11,16 @@ import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.scripts.ScriptType;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.event.InGameEventManager;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import static net.swordie.ms.enums.ChatType.Mob;
 
 public class PlayerCommands {
-    static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    static final Logger log = LogManager.getRootLogger();
 
     @Command(names = {"dispose", "fix", "fixme"}, requiredType = AccountType.Player)
     public static class Dispose extends PlayerCommand {

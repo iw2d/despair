@@ -15,7 +15,8 @@ import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.loaders.containerclasses.MakingSkillRecipe;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.Map;
 
 public class UserStatHandler {
 
-    private static final Logger log = Logger.getLogger(UserStatHandler.class);
+    private static final Logger log = LogManager.getLogger(UserStatHandler.class);
 
     @Handler(op = InHeader.USER_SKILL_UP_REQUEST)
     public static void handleUserSkillUpRequest(Client c, InPacket inPacket) {

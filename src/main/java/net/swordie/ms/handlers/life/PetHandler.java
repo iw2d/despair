@@ -23,11 +23,12 @@ import net.swordie.ms.life.pet.PetSkill;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.world.field.Field;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PetHandler {
 
-    private static final Logger log = Logger.getLogger(PetHandler.class);
+    private static final Logger log = LogManager.getLogger(PetHandler.class);
 
 
     @Handler(op = InHeader.USER_ACTIVATE_PET_REQUEST)

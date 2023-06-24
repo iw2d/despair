@@ -46,7 +46,8 @@ import net.swordie.ms.util.container.Tuple;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.Portal;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +58,7 @@ import static net.swordie.ms.client.jobs.legend.Phantom.GHOSTWALK;
 
 public class MobHandler {
 
-    private static final Logger log = Logger.getLogger(MobHandler.class);
+    private static final Logger log = LogManager.getLogger(MobHandler.class);
 
 
     @Handler(op = InHeader.MOB_APPLY_CTRL)

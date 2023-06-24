@@ -4,7 +4,8 @@ import net.swordie.ms.ServerConstants;
 import net.swordie.ms.life.Reactor;
 import net.swordie.ms.life.drop.DropInfo;
 import net.swordie.ms.loaders.containerclasses.ReactorInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Node;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 public class ReactorData {
 
     private static final boolean LOG_UNKS = false;
-    private static final Logger log = Logger.getLogger(ReactorData.class);
+    private static final Logger log = LogManager.getLogger(ReactorData.class);
     private static HashMap<Integer, ReactorInfo> reactorInfo = new HashMap<>();
 
     private static void loadReactorsFromWZ() {

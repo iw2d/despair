@@ -9,7 +9,8 @@ import net.swordie.ms.loaders.containerclasses.MonsterCollectionMobInfo;
 import net.swordie.ms.loaders.containerclasses.MonsterCollectionSessionRewardInfo;
 import net.swordie.ms.util.container.Triple;
 import net.swordie.ms.util.container.Tuple;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -21,7 +22,7 @@ import java.util.*;
  * Created on 7/23/2018.
  */
 public class MonsterCollectionData {
-    private static final Logger log = Logger.getLogger(MonsterCollectionData.class);
+    private static final Logger log = LogManager.getRootLogger();
 
     private static Map<Integer, MonsterCollectionRegion> monsterCollectionInfo = new HashMap<>();
     private static Map<Integer, Triple<Integer, Integer, Integer>> monsterInfo = new HashMap<>();

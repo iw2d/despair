@@ -60,8 +60,8 @@ import net.swordie.ms.world.field.obtacleatom.ObtacleAtomInfo;
 import net.swordie.ms.world.field.obtacleatom.ObtacleInRowInfo;
 import net.swordie.ms.world.field.obtacleatom.ObtacleRadianInfo;
 import net.swordie.ms.world.shop.NpcShopDlg;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.script.*;
 import java.io.File;

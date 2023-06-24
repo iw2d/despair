@@ -22,7 +22,8 @@ import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.QuestData;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Util;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
@@ -33,7 +34,7 @@ import static net.swordie.ms.enums.InvType.*;
 
 public class ItemUpgradeHandler {
 
-    private static final Logger log = Logger.getLogger(ItemUpgradeHandler.class);
+    private static final Logger log = LogManager.getLogger(ItemUpgradeHandler.class);
 
 
     @Handler(op = InHeader.USER_EX_ITEM_UPGRADE_ITEM_USE_REQUEST)

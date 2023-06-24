@@ -12,7 +12,8 @@ import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.world.field.Field;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +23,7 @@ import static net.swordie.ms.enums.ChatType.SystemNotice;
 
 public class PartyHandler {
 
-    private static final Logger log = Logger.getLogger(PartyHandler.class);
+    private static final Logger log = LogManager.getLogger(PartyHandler.class);
 
 
     @Handler(op = InHeader.PARTY_INVITABLE_SET)

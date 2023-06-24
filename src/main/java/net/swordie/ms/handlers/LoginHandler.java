@@ -26,10 +26,11 @@ import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.World;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.LogManager;
 import net.swordie.ms.connection.packet.Login;
 import net.swordie.ms.world.Channel;
 import net.swordie.ms.Server;
+import org.apache.logging.log4j.Logger;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.File;
@@ -45,7 +46,7 @@ import static net.swordie.ms.enums.InvType.EQUIPPED;
  */
 public class LoginHandler {
 
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = LogManager.getRootLogger();
 
     @Handler(op = InHeader.PERMISSION_REQUEST)
     public static void handlePermissionRequest(Client client, InPacket inPacket) {

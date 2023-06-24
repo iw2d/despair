@@ -6,7 +6,8 @@ import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.loaders.EffectData;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
  */
 public class Scene {
 
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = LogManager.getRootLogger();
 
     private Char chr;
     private String xmlPath;

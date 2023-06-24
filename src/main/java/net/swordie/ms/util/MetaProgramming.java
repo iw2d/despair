@@ -1,7 +1,8 @@
 package net.swordie.ms.util;
 
 import net.swordie.ms.ServerConstants;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.*;
 import java.util.Scanner;
@@ -10,7 +11,7 @@ import java.util.Scanner;
  * Created on 1/3/2018.
  */
 public class MetaProgramming {
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = LogManager.getRootLogger();
 
     public static void makeStateless() {
         String dir = ServerConstants.SCRIPT_DIR;

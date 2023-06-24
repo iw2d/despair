@@ -5,6 +5,7 @@ WZ/
 info txts/
 dat/
 json/
+log/
 bin/classes/headerText.txt
 bin/classes/decodeforlocal.txt
 bin/

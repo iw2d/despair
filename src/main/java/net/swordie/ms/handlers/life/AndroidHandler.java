@@ -7,11 +7,12 @@ import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.life.Android;
 import net.swordie.ms.life.movement.MovementInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AndroidHandler {
 
-    private static final Logger log = Logger.getLogger(AndroidHandler.class);
+    private static final Logger log = LogManager.getLogger(AndroidHandler.class);
 
     @Handler(op = InHeader.ANDROID_MOVE)
     public static void handleAndroidMove(Char chr, InPacket inPacket) {

@@ -6,11 +6,12 @@ import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.world.field.Field;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AffectedAreaHandler {
 
-    private static final Logger log = Logger.getLogger(AffectedAreaHandler.class);
+    private static final Logger log = LogManager.getLogger(AffectedAreaHandler.class);
 
 
     @Handler(op = InHeader.USER_AFFECTED_AREA_REMOVE_BY_TIME)

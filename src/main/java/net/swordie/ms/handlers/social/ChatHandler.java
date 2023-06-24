@@ -19,7 +19,8 @@ import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.scripts.ScriptType;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.World;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,7 +31,7 @@ import static net.swordie.ms.enums.ChatType.*;
 
 public class ChatHandler {
 
-    private static final Logger log = Logger.getLogger(ChatHandler.class);
+    private static final Logger log = LogManager.getLogger(ChatHandler.class);
 
     @Handler(op = InHeader.USER_CHAT)
     public static void handleUserChat(Client c, InPacket inPacket) {

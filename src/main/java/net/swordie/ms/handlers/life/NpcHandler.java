@@ -35,11 +35,12 @@ import net.swordie.ms.world.shop.NpcShopItem;
 import net.swordie.ms.world.shop.ShopRequestType;
 import net.swordie.ms.world.shop.result.MsgShopResult;
 import net.swordie.ms.world.shop.result.ShopResultType;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class NpcHandler {
 
-    private static final Logger log = Logger.getLogger(NpcHandler.class);
+    private static final Logger log = LogManager.getLogger(NpcHandler.class);
 
 
     @Handler(op = InHeader.USER_SELECT_NPC)

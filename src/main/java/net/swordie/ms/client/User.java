@@ -8,7 +8,8 @@ import net.swordie.ms.connection.db.FileTimeConverter;
 import net.swordie.ms.enums.AccountType;
 import net.swordie.ms.enums.PicStatus;
 import net.swordie.ms.util.FileTime;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -24,7 +25,7 @@ import java.util.Set;
 @Table(name = "users")
 public class User {
     @Transient
-    private static final Logger log = Logger.getLogger(Account.class);
+    private static final Logger log = LogManager.getLogger(Account.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

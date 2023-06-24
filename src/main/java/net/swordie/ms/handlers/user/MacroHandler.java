@@ -6,13 +6,14 @@ import net.swordie.ms.client.character.Macro;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MacroHandler {
-    private static final Logger log = Logger.getLogger(MacroHandler.class);
+    private static final Logger log = LogManager.getLogger(MacroHandler.class);
 
     @Handler(op = InHeader.USER_MACRO_SYS_DATA_MODIFIED)
     public static void handleUserMacroSysDataModified(Client c, InPacket inPacket) {

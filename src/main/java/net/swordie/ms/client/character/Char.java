@@ -81,7 +81,8 @@ import net.swordie.ms.world.field.*;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
 import net.swordie.ms.world.gach.GachaponManager;
 import net.swordie.ms.world.shop.NpcShopDlg;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -112,7 +113,7 @@ import static net.swordie.ms.world.field.FieldInstanceType.CHANNEL;
 public class Char {
 
 	@Transient
-	private static final Logger log = Logger.getLogger(Char.class);
+	private static final Logger log = LogManager.getLogger(Char.class);
 
 	@Transient
 	private Client client;

@@ -43,7 +43,8 @@ import net.swordie.ms.world.shop.NpcShopItem;
 import net.swordie.ms.world.shop.cashshop.CashItemInfo;
 import net.swordie.ms.world.shop.cashshop.CashShopCategory;
 import net.swordie.ms.world.shop.cashshop.CashShopItem;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -52,16 +53,13 @@ import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.SystemTime;
 import org.hibernate.query.Query;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created on 12/12/2017.
  */
 public class DatabaseManager {
-    private static final Logger log = Logger.getLogger(DatabaseManager.class);
+    private static final Logger log = LogManager.getLogger(DatabaseManager.class);
     private static final int KEEP_ALIVE_MS = 10 * 60 * 1000; // 10 minutes
 
     private static final SessionFactory sessionFactory;
@@ -201,13 +199,13 @@ public class DatabaseManager {
         return o;
     }
 
-    public static Object getObjListFromDB(Class clazz) {
+    public static Object getObjListFromDB(Class<?> clazz) {
         List list;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
             // String.format for query, just to fill in the class
             // Can't set the FROM clause with a parameter it seems
-            javax.persistence.Query query = session.createQuery(String.format("FROM %s", clazz.getName()));
+            javax.persistence.Query query = session.createQuery(String.format("FROM %s", clazz.getName()), clazz);
             list = ((org.hibernate.query.Query) query).list();
             transaction.commit();
         }

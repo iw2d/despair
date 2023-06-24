@@ -10,7 +10,8 @@ import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.util.Util;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +30,7 @@ import static net.swordie.ms.connection.netty.NettyClient.CLIENT_KEY;
  */
 public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
 
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = LogManager.getRootLogger();
     private static final Map<InHeader, Method> handlers = new HashMap<>();
 
     public static void initHandlers(boolean mayOverride) {

@@ -6,7 +6,8 @@ import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.util.Position;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
  * Created on 8/16/2018.
  */
 public class MovementInfo implements Encodable {
-    private static final Logger log = Logger.getLogger(MovementInfo.class);
+    private static final Logger log = LogManager.getLogger(MovementInfo.class);
 
     private int encodedGatherDuration;
     private Position oldPos;

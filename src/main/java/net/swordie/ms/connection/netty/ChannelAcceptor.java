@@ -7,19 +7,17 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import net.swordie.ms.connection.crypto.MapleCrypto;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.LogManager;
 import net.swordie.ms.connection.packet.Login;
 import net.swordie.ms.handlers.EventManager;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.logging.log4j.Logger;
 
 import static net.swordie.ms.connection.netty.NettyClient.CLIENT_KEY;
 
 public class ChannelAcceptor implements Runnable {
 
     public net.swordie.ms.world.Channel channel;
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = LogManager.getRootLogger();
 
     @Override
     public void run() {

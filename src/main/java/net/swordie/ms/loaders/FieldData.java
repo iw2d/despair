@@ -10,7 +10,8 @@ import net.swordie.ms.life.Life;
 import net.swordie.ms.life.npc.Npc;
 import net.swordie.ms.life.Reactor;
 import net.swordie.ms.ServerConstants;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -33,7 +34,7 @@ public class FieldData {
 
     private static List<Field> fields = new ArrayList<>();
     private static List<Integer> worldMapFields = new ArrayList<>();
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = LogManager.getRootLogger();
     private static final boolean LOG_UNKS = false;
 
     public static void main(String[] args) {

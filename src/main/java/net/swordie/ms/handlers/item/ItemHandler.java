@@ -34,7 +34,8 @@ import net.swordie.ms.world.World;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.FieldInstanceType;
 import net.swordie.ms.world.field.Portal;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ import static net.swordie.ms.enums.InventoryOperation.*;
 
 public class ItemHandler {
 
-    private static final Logger log = Logger.getLogger(ItemHandler.class);
+    private static final Logger log = LogManager.getLogger(ItemHandler.class);
 
     @Handler(op = InHeader.USER_PORTAL_SCROLL_USE_REQUEST)
     public static void handleUserPortalScrollUseRequest(Client c, InPacket inPacket) {

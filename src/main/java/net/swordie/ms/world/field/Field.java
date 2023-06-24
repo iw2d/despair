@@ -38,7 +38,8 @@ import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Tuple;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.time.LocalDateTime;
@@ -57,7 +58,7 @@ import static net.swordie.ms.client.character.skills.SkillStat.time;
  * Created on 12/14/2017.
  */
 public class Field {
-    private static final Logger log = Logger.getLogger(Field.class);
+    private static final Logger log = LogManager.getLogger(Field.class);
     private Rect rect;
     private int vrTop, vrLeft, vrBottom, vrRight;
     private double mobRate;

@@ -13,7 +13,8 @@ import net.swordie.ms.enums.WeaponType;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Tuple;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -24,7 +25,7 @@ import java.util.*;
  * Created on 12/20/2017.
  */
 public class SkillInfo {
-    private static final Logger log = Logger.getLogger(SkillInfo.class);
+    private static final Logger log = LogManager.getLogger(SkillInfo.class);
 
     private int skillId;
     private int rootId;

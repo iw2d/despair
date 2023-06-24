@@ -14,11 +14,12 @@ import net.swordie.ms.life.movement.MovementInfo;
 import net.swordie.ms.loaders.EtcData;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.util.FileTime;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FamiliarHandler {
 
-    private static final Logger log = Logger.getLogger(FamiliarHandler.class);
+    private static final Logger log = LogManager.getLogger(FamiliarHandler.class);
 
 
     @Handler(op = InHeader.FAMILIAR_ADD_REQUEST)

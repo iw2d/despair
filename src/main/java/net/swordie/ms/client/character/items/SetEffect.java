@@ -3,14 +3,15 @@ package net.swordie.ms.client.character.items;
 import net.swordie.ms.enums.ScrollStat;
 import net.swordie.ms.loaders.EtcData;
 import net.swordie.ms.util.container.Tuple;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class SetEffect {
-    private static final Logger log = Logger.getLogger(EtcData.class);
+    private static final Logger log = LogManager.getLogger(EtcData.class);
     private HashMap<Integer, List<Object>> effectsByLevel = new HashMap<>();
 
     public void addScrollStat(int level, ScrollStat ss, int amount) {

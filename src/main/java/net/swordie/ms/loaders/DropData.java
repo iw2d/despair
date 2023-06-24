@@ -3,13 +3,11 @@ package net.swordie.ms.loaders;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.life.drop.DropInfo;
 import net.swordie.ms.ServerConstants;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import net.swordie.ms.util.Util;
-import net.swordie.ms.util.XMLApi;
 
 import java.io.*;
 import java.util.*;
@@ -18,7 +16,7 @@ import java.util.*;
  * Created on 2/21/2018.
  */
 public class DropData {
-    private static final Logger log = Logger.getLogger(DropData.class);
+    private static final Logger log = LogManager.getLogger(DropData.class);
 
     private static Map<Integer, Set<DropInfo>> drops = new HashMap<>();
 

@@ -10,10 +10,11 @@ import net.swordie.ms.enums.FieldOption;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.world.field.Field;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class BossMatchmakingHandler {
-    private static final Logger log = Logger.getLogger(BossMatchmakingHandler.class);
+    private static final Logger log = LogManager.getLogger(BossMatchmakingHandler.class);
 
 
     @Handler(op = InHeader.CHECK_BOSS_PARTY_BY_SCRIPT)

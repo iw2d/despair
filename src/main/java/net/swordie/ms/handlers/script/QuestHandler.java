@@ -19,11 +19,12 @@ import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.scripts.ScriptType;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.world.field.Field;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class QuestHandler {
 
-    private static final Logger log = Logger.getLogger(QuestHandler.class);
+    private static final Logger log = LogManager.getLogger(QuestHandler.class);
 
 
     @Handler(op = InHeader.USER_QUEST_REQUEST)

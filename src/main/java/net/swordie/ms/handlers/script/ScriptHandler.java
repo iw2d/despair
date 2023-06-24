@@ -21,13 +21,14 @@ import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.scripts.ScriptType;
 import net.swordie.ms.world.field.Field;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
 public class ScriptHandler {
 
-    private static final Logger log = Logger.getLogger(ScriptHandler.class);
+    private static final Logger log = LogManager.getLogger(ScriptHandler.class);
 
 
     @Handler(op = InHeader.USER_SCRIPT_MESSAGE_ANSWER)

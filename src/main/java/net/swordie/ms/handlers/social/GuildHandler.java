@@ -30,14 +30,15 @@ import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.World;
 import net.swordie.ms.world.field.Field;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class GuildHandler {
 
-    private static final Logger log = Logger.getLogger(GuildHandler.class);
+    private static final Logger log = LogManager.getLogger(GuildHandler.class);
 
 
     @Handler(op = InHeader.GUILD_REQUEST)

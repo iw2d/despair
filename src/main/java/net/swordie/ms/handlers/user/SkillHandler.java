@@ -32,14 +32,15 @@ import net.swordie.ms.loaders.containerclasses.MakingSkillRecipe;
 import net.swordie.ms.util.*;
 import net.swordie.ms.util.container.Tuple;
 import net.swordie.ms.world.field.Field;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SkillHandler {
 
-    private static final Logger log = Logger.getLogger(SkillHandler.class);
+    private static final Logger log = LogManager.getLogger(SkillHandler.class);
 
 
 

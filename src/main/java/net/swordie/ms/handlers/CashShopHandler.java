@@ -19,14 +19,15 @@ import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.world.shop.cashshop.CashItemInfo;
 import net.swordie.ms.world.shop.cashshop.CashShop;
 import net.swordie.ms.world.shop.cashshop.CashShopItem;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Created on 4/23/2018.
  */
 public class CashShopHandler {
 
-    private static final Logger log = Logger.getLogger(CashShopHandler.class);
+    private static final Logger log = LogManager.getLogger(CashShopHandler.class);
 
     @Handler(op = InHeader.CASH_SHOP_QUERY_CASH_REQUEST)
     public static void handleCashShopQueryCashRequest(Client c, InPacket inPacket) {

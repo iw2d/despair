@@ -29,14 +29,15 @@ import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.FieldInstanceType;
 import net.swordie.ms.world.field.Portal;
 import net.swordie.ms.world.shop.cashshop.CashShop;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MigrationHandler {
 
-    private static final Logger log = Logger.getLogger(MigrationHandler.class);
+    private static final Logger log = LogManager.getLogger(MigrationHandler.class);
 
 
     @Handler(op = InHeader.MIGRATE_IN)

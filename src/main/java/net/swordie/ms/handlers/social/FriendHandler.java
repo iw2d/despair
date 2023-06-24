@@ -13,13 +13,14 @@ import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 
 public class FriendHandler {
 
-    private static final Logger log = Logger.getLogger(FriendHandler.class);
+    private static final Logger log = LogManager.getLogger(FriendHandler.class);
 
 
     @Handler(op = InHeader.LOAD_ACCOUNT_ID_OF_CHARACTER_FRIEND_REQUEST)

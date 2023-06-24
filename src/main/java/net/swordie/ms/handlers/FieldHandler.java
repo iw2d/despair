@@ -7,11 +7,12 @@ import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.connection.packet.UserRemote;
 import net.swordie.ms.handlers.header.InHeader;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FieldHandler {
 
-    private static final Logger log = Logger.getLogger(FieldHandler.class);
+    private static final Logger log = LogManager.getLogger(FieldHandler.class);
 
     @Handler(op = InHeader.BROADCAST_EFFECT_TO_SPLIT)
     public static void handleBroadcastEffectToSplit(Char chr, InPacket inPacket) {

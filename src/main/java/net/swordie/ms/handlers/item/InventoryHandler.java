@@ -20,7 +20,8 @@ import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.Foothold;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,7 +34,7 @@ import static net.swordie.ms.enums.InventoryOperation.Move;
 
 public class InventoryHandler {
 
-    private static final Logger log = Logger.getLogger(InventoryHandler.class);
+    private static final Logger log = LogManager.getLogger(InventoryHandler.class);
 
 
     @Handler(op = InHeader.USER_CHANGE_SLOT_POSITION_REQUEST)

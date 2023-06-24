@@ -9,7 +9,8 @@ import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.skill.MobSkill;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.util.container.Tuple;
-import org.apache.log4j.LogManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import net.swordie.ms.util.Util;
@@ -26,7 +27,7 @@ import static net.swordie.ms.life.mob.MobStat.*;
  */
 public class MobData {
     private static final boolean LOG_UNKS = false;
-    private static final org.apache.log4j.Logger log = LogManager.getRootLogger();
+    private static final Logger log = LogManager.getRootLogger();
 
     private static Map<Integer, Mob> mobs = new HashMap<>();
 

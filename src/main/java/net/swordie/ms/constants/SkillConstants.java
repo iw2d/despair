@@ -20,7 +20,8 @@ import net.swordie.ms.client.jobs.resistance.Mechanic;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.BeastTamerBeasts;
 import net.swordie.ms.loaders.SkillData;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -33,7 +34,7 @@ public class SkillConstants {
     public static final short PASSIVE_HYPER_MIN_LEVEL = 140;
     public static final List<Short> ACTIVE_HYPER_LEVELS = Arrays.asList((short) 150, (short) 170, (short) 200);
 
-    private static final Logger log = Logger.getLogger(SkillConstants.class);
+    private static final Logger log = LogManager.getLogger(SkillConstants.class);
 
     public static final short LINK_SKILL_1_LEVEL = 70;
     public static final short LINK_SKILL_2_LEVEL = 120;
