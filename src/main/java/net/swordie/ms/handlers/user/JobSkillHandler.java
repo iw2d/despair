@@ -7,8 +7,8 @@ import net.swordie.ms.client.character.skills.*;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
-import net.swordie.ms.client.jobs.adventurer.archer.Archer;
 import net.swordie.ms.client.jobs.adventurer.BeastTamer;
+import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
 import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.legend.Aran;
@@ -155,7 +155,7 @@ public class JobSkillHandler {
     public static void handleRequestArrowPlatterObj(Char chr, InPacket inPacket) {
         boolean flip = inPacket.decodeByte() != 0;
         Position position = inPacket.decodePositionInt(); // ignoring this, we just take the char's info we know
-        int skillID = Archer.ARROW_PLATTER;
+        int skillID = Bowmaster.ARROW_PLATTER;
         Skill skill = chr.getSkill(skillID);
         if (skill != null && skill.getCurrentLevel() > 0) {
             Field field = chr.getField();

@@ -2,7 +2,7 @@ package net.swordie.ms.client.jobs;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.jobs.adventurer.*;
-import net.swordie.ms.client.jobs.adventurer.archer.Archer;
+import net.swordie.ms.client.jobs.adventurer.archer.*;
 import net.swordie.ms.client.jobs.adventurer.magician.*;
 import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
@@ -33,6 +33,9 @@ public class JobManager {
             Bishop.class,
 
             Archer.class,
+            Bowmaster.class,
+            Marksman.class,
+
             BeastTamer.class,
             Beginner.class,
             Kinesis.class,

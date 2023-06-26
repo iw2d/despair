@@ -120,8 +120,7 @@ public class IceLightning extends Magician {
             skillID = skill.getSkillId();
         }
 
-        if(hasHitMobs) {
-            // Freezing Crush / Frozen Clutch
+        if (hasHitMobs) {
             applyFreezingCrushOnMob(attackInfo, skillID);
         }
 
@@ -164,7 +163,7 @@ public class IceLightning extends Magician {
     }
 
     private void applyFreezingCrushOnMob(AttackInfo attackInfo, int skillID) {
-        if(!SkillConstants.isIceSkill(skillID)){
+        if (!SkillConstants.isIceSkill(skillID)){
             return;
         }
         for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
@@ -191,8 +190,8 @@ public class IceLightning extends Magician {
 
     @Override
     public int getFinalAttackSkill() {
-        SkillInfo si = SkillData.getSkillInfoById(BLIZZARD_FA);
         if (chr.hasSkill(BLIZZARD)) {
+            SkillInfo si = SkillData.getSkillInfoById(BLIZZARD_FA);
             int slv = chr.getSkillLevel(BLIZZARD);
             if (Util.succeedProp(si.getValue(prop, slv))) {
                 return BLIZZARD_FA;

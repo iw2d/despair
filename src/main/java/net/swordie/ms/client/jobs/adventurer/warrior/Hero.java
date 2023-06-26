@@ -323,31 +323,23 @@ public class Hero extends Warrior {
         tsm.sendSetStatPacket();
     }
 
-    private Skill getFinalAtkSkill() {
-        Skill skill = null;
-        if (chr.hasSkill(FINAL_ATTACK_FIGHTER)) {
-            skill = chr.getSkill(FINAL_ATTACK_FIGHTER);
-        }
-        if (chr.hasSkill(ADVANCED_FINAL_ATTACK)) {
-            skill = chr.getSkill(ADVANCED_FINAL_ATTACK); // Hero Adv FA
-        }
-
-        return skill;
-    }
-
     @Override
     public int getFinalAttackSkill() {
-        Skill faSkill = getFinalAtkSkill();
-        if (faSkill != null) {
-            SkillInfo si = SkillData.getSkillInfoById(faSkill.getSkillId());
-            byte slv = (byte) faSkill.getCurrentLevel();
+        int skillId = 0;
+        if (chr.hasSkill(ADVANCED_FINAL_ATTACK)) {
+            skillId = ADVANCED_FINAL_ATTACK;
+        } else if (chr.hasSkill(FINAL_ATTACK_FIGHTER)) {
+            skillId = FINAL_ATTACK_FIGHTER;
+        }
+        if (skillId > 0) {
+            SkillInfo si = SkillData.getSkillInfoById(skillId);
+            int slv = chr.getSkillLevel(skillId);
             int proc = si.getValue(prop, slv);
-
             if (Util.succeedProp(proc)) {
-                return faSkill.getSkillId();
+                return skillId;
             }
         }
-        return 0;
+        return super.getFinalAttackSkill();
     }
 
     public boolean isComboIgnoreSkill(int skillID) {

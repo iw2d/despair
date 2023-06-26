@@ -285,17 +285,15 @@ public class DarkKnight extends Warrior {
 
     @Override
     public int getFinalAttackSkill() {
-        Skill faSkill = getFinalAtkSkill();
-        if (faSkill != null) {
-            SkillInfo si = SkillData.getSkillInfoById(faSkill.getSkillId());
-            int slv = faSkill.getCurrentLevel();
+        if (chr.hasSkill(FINAL_ATTACK_SPEARMAN)) {
+            SkillInfo si = SkillData.getSkillInfoById(FINAL_ATTACK_SPEARMAN);
+            int slv = chr.getSkillLevel(FINAL_ATTACK_SPEARMAN);
             int proc = si.getValue(prop, slv);
-
             if (Util.succeedProp(proc)) {
-                return faSkill.getSkillId();
+                return FINAL_ATTACK_SPEARMAN;
             }
         }
-        return 0;
+        return super.getFinalAttackSkill();
     }
 
 

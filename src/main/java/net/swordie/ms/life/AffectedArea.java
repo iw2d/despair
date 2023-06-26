@@ -8,8 +8,8 @@ import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Zero;
-import net.swordie.ms.client.jobs.adventurer.archer.Archer;
 import net.swordie.ms.client.jobs.adventurer.BeastTamer;
+import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
 import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
@@ -237,7 +237,7 @@ public class AffectedArea extends Life {
                     mts.createAndAddBurnedInfo(chr, skillID, slv, dotDmg, si.getValue(dotInterval, slv), dotTime, 1);
                 }
                 break;
-            case Archer.FLAME_SURGE:
+            case Bowmaster.FLAME_SURGE:
             case Kanna.NIMBUS_CURSE:
                 if (!mts.hasBurnFromSkillAndOwner(skillID, getCharID())) {
                     mts.createAndAddBurnedInfo(chr, skill);

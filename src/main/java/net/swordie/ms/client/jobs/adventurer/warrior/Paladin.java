@@ -315,28 +315,17 @@ public class Paladin extends Warrior {
         tsm.sendResetStatPacket();
     }
 
-    private Skill getFinalAtkSkill() {
-        Skill skill = null;
-        if (chr.hasSkill(FINAL_ATTACK_PAGE)) {
-            skill = chr.getSkill(FINAL_ATTACK_PAGE);
-
-        }
-        return skill;
-    }
-
     @Override
     public int getFinalAttackSkill() {
-        Skill faSkill = getFinalAtkSkill();
-        if (faSkill != null) {
-            SkillInfo si = SkillData.getSkillInfoById(faSkill.getSkillId());
-            byte slv = (byte) faSkill.getCurrentLevel();
+        if (chr.hasSkill(FINAL_ATTACK_PAGE)) {
+            SkillInfo si = SkillData.getSkillInfoById(FINAL_ATTACK_PAGE);
+            int slv = chr.getSkillLevel(FINAL_ATTACK_PAGE);
             int proc = si.getValue(prop, slv);
-
             if (Util.succeedProp(proc)) {
-                return faSkill.getSkillId();
+                return FINAL_ATTACK_PAGE;
             }
         }
-        return 0;
+        return super.getFinalAttackSkill();
     }
 
 

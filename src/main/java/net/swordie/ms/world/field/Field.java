@@ -7,7 +7,7 @@ import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.TownPortal;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
-import net.swordie.ms.client.jobs.adventurer.archer.Archer;
+import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
 import net.swordie.ms.client.jobs.resistance.OpenGate;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
@@ -602,7 +602,7 @@ public class Field {
                 removedList.add(life.getObjectId());
             } else if (life instanceof FieldAttackObj) {
                 FieldAttackObj fao = (FieldAttackObj) life;
-                if (fao.getOwnerID() == chr.getId() && fao.getTemplateId() == Archer.ARROW_PLATTER) {
+                if (fao.getOwnerID() == chr.getId() && fao.getTemplateId() == Bowmaster.ARROW_PLATTER) {
                     removedList.add(life.getObjectId());
                 }
             }

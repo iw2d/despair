@@ -43,69 +43,6 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
 public class Archer extends Beginner {
     public static final int MAPLE_RETURN = 1281;
 
-    public static final int SOUL_ARROW_BOW = 3101004;
-    public static final int SOUL_ARROW_XBOW = 3201004;
-    public static final int ARROW_BOMB = 3101005;
-    public static final int BOW_BOOSTER = 3101002;
-    public static final int XBOW_BOOSTER = 3201002;
-    public static final int QUIVER_CARTRIDGE = 3101009;
-    public static final int QUIVER_CARTRIDGE_ATOM = 3100010; //3100010;
-
-    public static final int PHOENIX = 3111005;
-    public static final int FREEZER = 3211005;
-
-    public static final int FLAME_SURGE = 3111003;
-    public static final int RECKLESS_HUNT_BOW = 3111011;
-    public static final int FOCUSED_FURY = 3110012;
-    public static final int MORTAL_BLOW_BOW = 3110001;
-    public static final int ARROW_PLATTER = 3111013;
-    public static final int EVASION_BOOST = 3110007;
-
-    public static final int SHARP_EYES_BOW = 3121002;
-    public static final int SHARP_EYES_BOW_PERSIST = 3120043;
-    public static final int SHARP_EYES_BOW_IED_H = 3120044;
-    public static final int SHARP_EYES_BOW_CR_H = 3120045;
-    public static final int ILLUSION_STEP_BOW = 3121007;
-    public static final int ENCHANTED_QUIVER = 3121016;
-    public static final int BINDING_SHOT = 3121014;
-    public static final int MAPLE_WARRIOR_BOW = 3121000;
-
-    public static final int NET_TOSS = 3201008;
-
-    public static final int PAIN_KILLER = 3211011;
-    public static final int RECKLESS_HUNT_XBOW = 3211012;
-    public static final int MORTAL_BLOW_XBOW = 3210001;
-    public static final int AGGRESSIVE_RESISTANCE = 3210013;
-    public static final int EVASION_BOOST_XBOW = 3210007;
-
-    public static final int MAPLE_WARRIOR_XBOW = 3221000;
-    public static final int SNIPE = 3221007;
-    public static final int ARROW_ILLUSION = 3221014;
-    public static final int SHARP_EYES_XBOW = 3221002;
-    public static final int SHARP_EYES_XBOW_PERSIST = 3220043;
-    public static final int SHARP_EYES_XBOW_IED_H = 3220044;
-    public static final int SHARP_EYES_XBOW_CR_H = 3220045;
-    public static final int SNIPE_COOLDOWN_CUTTER = 3220051;
-    public static final int ARMOR_BREAK = 3120018;
-    public static final int ILLUSION_STEP_XBOW = 3221006;
-
-    public static final int HEROS_WILL_BM = 3121009;
-    public static final int HEROS_WILL_MM = 3221008;
-
-    public static final int EPIC_ADVENTURE_XBOW = 3221053;
-    public static final int EPIC_ADVENTURE_BOW = 3121053;
-    public static final int CONCENTRATION = 3121054;
-    public static final int BULLSEYE_SHOT = 3221054;
-
-    //Final Attack
-    public static final int FINAL_ATTACK_BOW = 3100001;
-    public static final int ADVANCED_FINAL_ATTACK_BOW = 3120008;
-    public static final int FINAL_ATTACK_XBOW = 3200001;
-
-
-    private QuiverCartridge quiverCartridge;
-    private long lastArmorBreak = Long.MIN_VALUE;
-
     private int[] addedSkills = new int[] {
             MAPLE_RETURN,
     };
@@ -125,160 +62,9 @@ public class Archer extends Beginner {
 
     @Override
     public boolean isHandlerOfJob(short id) {
-        return JobConstants.isAdventurerArcher(id);
+        return id == JobConstants.JobEnum.BOWMAN.getJobId();
     }
 
-    private void quiverCartridge(TemporaryStatManager tsm, AttackInfo attackInfo, int slv) {
-        if (quiverCartridge == null) {
-            return;
-        }
-        Skill skill = chr.hasSkill(ENCHANTED_QUIVER) ? chr.getSkill(ENCHANTED_QUIVER)
-                : chr.getSkill(QUIVER_CARTRIDGE);
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-            Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-            if (mob == null) {
-                continue;
-            }
-            MobTemporaryStat mts = mob.getTemporaryStat();
-            int mobId = mai.mobId;
-            switch (quiverCartridge.getType()) {
-                case 1: // Blood
-                    if(Util.succeedProp(si.getValue(w, slv))) {
-                        quiverCartridge.decrementAmount();
-                        int healrate = si.getValue(w, slv);
-                        chr.heal((int) (chr.getMaxHP() / ((double)100 / healrate)));
-                    }
-                    break;
-                case 2: // Poison
-                    mts.createAndAddBurnedInfo(chr, skill);
-                    quiverCartridge.decrementAmount();
-                    break;
-                case 3: // Magic
-                    int num = new Random().nextInt(130)+50;
-                    if(Util.succeedProp(si.getValue(u, slv))) {
-                        quiverCartridge.decrementAmount();
-                        int inc = ForceAtomEnum.BM_ARROW.getInc();
-                        int type = ForceAtomEnum.BM_ARROW.getForceAtomType();
-                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 13, 12,
-                                num, 0, (int) System.currentTimeMillis(), 1, 0,
-                                new Position());
-                        chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
-                                true, mobId, QUIVER_CARTRIDGE_ATOM, forceAtomInfo, new Rect(), 0, 300,
-                                mob.getPosition(), 0, mob.getPosition()));
-                    }
-                    break;
-            }
-        }
-        tsm.putCharacterStatValue(QuiverCatridge, quiverCartridge.getOption());
-        tsm.sendSetStatPacket();
-    }
-
-    public enum QCType {
-        BLOOD(1),
-        POISON(2),
-        MAGIC(3),
-        ;
-        private byte val;
-
-        QCType(int val) {
-            this.val = (byte) val;
-        }
-
-        public byte getVal() {
-            return val;
-        }
-    }
-
-    public class QuiverCartridge{
-
-        private int blood; // 1
-        private int poison; // 2
-        private int magic; // 3
-        private int type;
-        private Char chr;
-
-        public QuiverCartridge(Char chr) {
-            blood = getMaxNumberOfArrows(QCType.BLOOD.getVal());
-            poison = getMaxNumberOfArrows(QCType.POISON.getVal());
-            magic = getMaxNumberOfArrows(QCType.MAGIC.getVal());
-            type = 1;
-            this.chr = chr;
-        }
-
-        public void decrementAmount() {
-            if(chr.getTemporaryStatManager().hasStat(AdvancedQuiver)) {
-                return;
-            }
-            switch(type) {
-                case 1:
-                    blood--;
-                    if(blood == 0) {
-                        blood = getMaxNumberOfArrows(QCType.BLOOD.getVal());
-                        incType();
-                    }
-                    break;
-                case 2:
-                    poison--;
-                    if(poison == 0) {
-                        poison = getMaxNumberOfArrows(QCType.POISON.getVal());
-                        incType();
-                    }
-                    break;
-                case 3:
-                    magic--;
-                    if(magic == 0) {
-                        magic = getMaxNumberOfArrows(QCType.MAGIC.getVal());
-                        incType();
-                    }
-                    break;
-            }
-        }
-
-        public void incType() {
-            type = (type % 3) + 1;
-        }
-
-        public int getTotal() {
-            return blood * 10000 + poison * 100 + magic;
-        }
-
-        public Option getOption() {
-            Option o = new Option();
-            o.nOption = getTotal();
-            o.rOption = QUIVER_CARTRIDGE;
-            o.xOption = type;
-            return o;
-        }
-
-        public int getType() {
-            return type;
-        }
-    }
-
-    public int getMaxNumberOfArrows(int type) {
-        int num = 0;
-        Skill firstSkill = chr.getSkill(QUIVER_CARTRIDGE);
-        Skill secondSkill = chr.getSkill(ENCHANTED_QUIVER);
-        if(secondSkill != null && secondSkill.getCurrentLevel() > 0) {
-            num = 20;
-
-        } else if(firstSkill != null && firstSkill.getCurrentLevel() > 0) {
-            num = 10;
-        }
-        return type == 3 ? num * 2 : num; // Magic Arrow has 2x as many arrows
-    }
-
-    @Override
-    public int alterCooldownSkill(int skillId) {
-        switch (skillId) {
-            case SNIPE:
-                if (chr.hasSkill(SNIPE_COOLDOWN_CUTTER)) {
-                    return 0;
-                }
-        }
-        return super.alterCooldownSkill(skillId);
-    }
 
     // Attack related methods ------------------------------------------------------------------------------------------
 
@@ -295,306 +81,15 @@ public class Archer extends Beginner {
             slv = skill.getCurrentLevel();
             skillID = skill.getSkillId();
         }
-        if(hasHitMobs) {
-            quiverCartridge(chr.getTemporaryStatManager(), attackInfo, slv);
-            incrementFocusedFury();
-            incrementMortalBlow();
-            giveAggressiveResistanceBuff(attackInfo);
-            procArmorBreak(attackInfo);
-        }
+
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
         switch (attackInfo.skillId) {
-            case ARROW_BOMB:
-                if (Util.succeedProp(si.getValue(prop, slv))) {
-                    for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
-                        if(!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            o1.nOption = 1;
-                            o1.rOption = skillID;
-                            o1.tOption = si.getValue(time, slv);
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
-                    }
-                }
-                break;
-            case PHOENIX:
-                if (Util.succeedProp(si.getValue(prop, slv))) {
-                    for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
-                        if(!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            o1.nOption = 1;
-                            o1.rOption = skillID;
-                            o1.tOption = 3;
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
-                    }
-                }
-                break;
-            case FLAME_SURGE:
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    AffectedArea aa = AffectedArea.getAffectedArea(chr, attackInfo);
-                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if (mob == null) {
-                        continue;
-                    }
-                    aa.setMobOrigin((byte) 0);
-                    int x = mob.getX();
-                    int y = mob.getY();
-                    aa.setPosition(new Position(x, y));
-                    aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
-                    chr.getField().spawnAffectedArea(aa);
-                }
-                break;
-            case BINDING_SHOT:
-                o1.nOption = si.getValue(s, slv); // Already negative in SI
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                o2.nOption = -si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if (mob == null) {
-                        continue;
-                    }
-                    MobTemporaryStat mts = mob.getTemporaryStat();
-                    mts.addStatOptionsAndBroadcast(MobStat.Speed, o1);
-                    mts.addStatOptionsAndBroadcast(MobStat.DebuffHealing, o2);
-                }
-                break;
-            case NET_TOSS:
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    if(Util.succeedProp(si.getValue(prop, slv))) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        if(mob.isBoss()) {
-                            o1.nOption = si.getValue(x, slv);
-                            o1.tOption = si.getValue(time, slv) / 2;
-                        } else {
-                            o1.nOption = si.getValue(y, slv);
-                            o1.tOption = si.getValue(time, slv);
-                        }
-                        o1.rOption = skillID;
-                        mts.addStatOptionsAndBroadcast(MobStat.Speed, o1);
-                    }
-                }
-                break;
-            case ARROW_ILLUSION:
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    if(Util.succeedProp(si.getValue(prop, slv))) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
-                        if(!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            o1.nOption = 1;
-                            o1.rOption = skillID;
-                            o1.tOption = si.getValue(subTime, slv);
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
-                    }
-                }
-                break;
-            case FREEZER:
-                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if (mob == null) {
-                        continue;
-                    }
-                    MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = 1;
-                    o1.rOption = skillID;
-                    o1.tOption = si.getValue(x, slv);
-                    mts.addStatOptionsAndBroadcast(MobStat.Freeze, o1);
-                }
-                break;
         }
 
         super.handleAttack(chr, attackInfo);
     }
-
-    private void procArmorBreak(AttackInfo attackInfo) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o = new Option();
-        Option o1 = new Option();
-        int skillId = attackInfo.skillId;
-        if(!chr.hasSkill(ARMOR_BREAK) || !SkillConstants.isArmorPiercingSkill(skillId)) {
-            tsm.removeStatsBySkill(ARMOR_BREAK);
-            return;
-        }
-
-        Skill skill = chr.getSkill(ARMOR_BREAK);
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        byte slv = (byte) skill.getCurrentLevel();
-
-        int pdr = 0;
-        for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
-            Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-            if (mob == null) {
-                continue;
-            }
-            pdr = mob.getForcedMobStat().getPdr();
-        }
-
-        int finalDmgRate = si.getValue(x, slv);
-        if(lastArmorBreak + (si.getValue(y, slv) * 1000) < System.currentTimeMillis()) {
-            if(pdr > 0) {
-                if (tsm.getOptByCTSAndSkill(IndieIgnoreMobpdpR, ARMOR_BREAK) == null) {
-                    o.nReason = ARMOR_BREAK;
-                    o.nValue = si.getValue(z, slv);
-                    o.tStart = (int) System.currentTimeMillis();
-                    o.tTerm = 2;
-                    tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o);
-                    o1.nReason = ARMOR_BREAK;
-                    o1.nValue = (int) (pdr * ((double) finalDmgRate / 100));
-                    o1.tStart = (int) System.currentTimeMillis();
-                    o1.tTerm = 2;
-                    tsm.putCharacterStatValue(IndieDamR, o1);
-                    tsm.sendSetStatPacket();
-                } else {
-                    tsm.removeStatsBySkill(ARMOR_BREAK);
-                    lastArmorBreak = System.currentTimeMillis();
-                    chr.write(UserPacket.effect(Effect.skillUse(skill.getSkillId(), slv, 0)));
-                    chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skill.getSkillId(), slv, 0)));
-                }
-            }
-        }
-    }
-
-    private void giveAggressiveResistanceBuff(AttackInfo ai) {
-        if(!chr.hasSkill(AGGRESSIVE_RESISTANCE)) {
-            return;
-        }
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(AGGRESSIVE_RESISTANCE);
-        SkillInfo si = SkillData.getSkillInfoById(AGGRESSIVE_RESISTANCE);
-        byte slv = (byte) skill.getCurrentLevel();
-        Option o = tsm.getOptByCTSAndSkill(DamAbsorbShield, AGGRESSIVE_RESISTANCE);
-        Option o1 = new Option();
-        long totalDamage = 0;
-        for(MobAttackInfo mai : ai.mobAttackInfo) {
-            for(int dmg : mai.damages) {
-                totalDamage += dmg;
-            }
-        }
-        if(o == null) {
-            o = new Option();
-            o.nOption = 0;
-            o.rOption = AGGRESSIVE_RESISTANCE;
-        }
-        o.nOption = (int) Math.min((int) totalDamage * (si.getValue(y, slv) / 100D) + o.nOption,
-                chr.getStat(Stat.mhp) / (si.getValue(z, slv) / 100D));
-        o.tOption = si.getValue(time, slv);
-        tsm.putCharacterStatValue(DamAbsorbShield, o);
-        tsm.sendSetStatPacket();
-        showAggressiveResistanceEffect();
-    }
-
-    private void showAggressiveResistanceEffect() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o = new Option();
-        Skill skill = chr.getSkill(AGGRESSIVE_RESISTANCE);
-        SkillInfo si = SkillData.getSkillInfoById(AGGRESSIVE_RESISTANCE);
-        byte slv = (byte) skill.getCurrentLevel();
-        o.nOption = 1;
-        o.rOption = AGGRESSIVE_RESISTANCE;
-        o.tOption = si.getValue(time, slv);
-        tsm.putCharacterStatValue(PowerTransferGauge, o);
-        tsm.sendSetStatPacket();
-    }
-
-    private void incrementMortalBlow() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o = new Option();
-        Option o1 = new Option();
-        Skill skill = chr.getSkill(MORTAL_BLOW_BOW);
-        int amount = 1;
-        if(chr.hasSkill(MORTAL_BLOW_BOW)) {
-            if(tsm.hasStat(BowMasterMortalBlow)) {
-                amount = tsm.getOption(BowMasterMortalBlow).nOption;
-                if (amount < 9) {
-                    amount++;
-                } else {
-                    amount = 1;
-                }
-            }
-            o.nOption = amount;
-            o.rOption = MORTAL_BLOW_BOW;
-            tsm.putCharacterStatValue(BowMasterMortalBlow, o);
-            tsm.sendSetStatPacket();
-        }
-    }
-
-    private void incrementFocusedFury() {
-        if(!chr.hasSkill(FOCUSED_FURY)) {
-            return;
-        }
-        Skill skill = chr.getSkill(FOCUSED_FURY);
-        byte slv = (byte) skill.getCurrentLevel();
-        SkillInfo si = SkillData.getSkillInfoById(FOCUSED_FURY);
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o2 = new Option();
-        int amount = 0;
-
-        if(tsm.hasStat(BowMasterConcentration)) {
-            amount = tsm.getOption(BowMasterConcentration).nOption;
-            if (amount < 20) {
-                amount++;
-            }
-        }
-        o2.nOption = amount;
-        o2.rOption = FOCUSED_FURY;
-        o2.tOption = si.getValue(time, slv);
-        tsm.putCharacterStatValue(BowMasterConcentration, o2);
-        tsm.sendSetStatPacket();
-        if(amount < 20) {
-            chr.write(UserPacket.effect(Effect.skillUse(skill.getSkillId(), slv, 0)));
-            chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skill.getSkillId(), slv, 0)));
-        }
-    }
-
-    @Override
-    public int getFinalAttackSkill() {
-        Skill faSkill = getFinalAtkSkill();
-        if(faSkill != null) {
-            SkillInfo si = SkillData.getSkillInfoById(faSkill.getSkillId());
-            byte slv = (byte) faSkill.getCurrentLevel();
-            int proc = si.getValue(prop, slv);
-            if (Util.succeedProp(proc)) {
-                return faSkill.getSkillId();
-            }
-        }
-        return 0;
-    }
-
-    private Skill getFinalAtkSkill() {
-        Skill skill = null;
-        if(chr.hasSkill(FINAL_ATTACK_BOW)) {
-            skill = chr.getSkill(FINAL_ATTACK_BOW);
-        }
-        if(chr.hasSkill(FINAL_ATTACK_XBOW)) {
-            skill = chr.getSkill(FINAL_ATTACK_XBOW);
-        }
-        if(chr.hasSkill(ADVANCED_FINAL_ATTACK_BOW)) {
-            skill = chr.getSkill(ADVANCED_FINAL_ATTACK_BOW);
-        }
-        return skill;
-    }
-
 
 
     // Skill related methods -------------------------------------------------------------------------------------------
@@ -603,11 +98,7 @@ public class Archer extends Beginner {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -622,13 +113,12 @@ public class Archer extends Beginner {
                 Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
                 chr.warp(toField);
                 break;
-            case HEROS_WILL_BM:
-            case HEROS_WILL_MM:
+            case Bowmaster.HEROS_WILL_BM:
+            case Marksman.HEROS_WILL_MM:
                 tsm.removeAllDebuffs();
                 break;
-
-            case SOUL_ARROW_BOW:
-            case SOUL_ARROW_XBOW:
+            case Bowmaster.SOUL_ARROW_BOW:
+            case Marksman.SOUL_ARROW_XBOW:
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
@@ -642,89 +132,39 @@ public class Archer extends Beginner {
                 o3.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(NoBulletConsume, o3);
                 break;
-            case BOW_BOOSTER:
-            case XBOW_BOOSTER:
+            case Bowmaster.BOW_BOOSTER:
+            case Marksman.XBOW_BOOSTER:
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Booster, o1);
                 break;
-            case QUIVER_CARTRIDGE:
-                if(quiverCartridge == null) {
-                    quiverCartridge = new QuiverCartridge(chr);
-                } else
-                if(tsm.hasStat(QuiverCatridge)) {
-                    quiverCartridge.incType();
-                }
-                o1 = quiverCartridge.getOption();
-                tsm.putCharacterStatValue(QuiverCatridge, o1);
-                break;
-            case PHOENIX:
-            case FREEZER:
+            case Bowmaster.PHOENIX:
+            case Marksman.FREEZER:
                 summon = Summon.getSummonBy(chr, skillID, slv);
                 field = chr.getField();
                 summon.setFlyMob(true);
                 summon.setMoveAbility(MoveAbility.Fly);
                 field.spawnSummon(summon);
                 break;
-            case RECKLESS_HUNT_BOW:
-                if (tsm.hasStatBySkillId(skillID)) {
-                    tsm.removeStatsBySkill(skillID);
-                    tsm.sendResetStatPacket();
-                } else {
-                    o1.nValue = -si.getValue(x, slv);
-                    o1.nReason = skillID;
-                    o1.tStart = (int) System.currentTimeMillis();
-                    tsm.putCharacterStatValue(IndiePADR, o1);
-                    tsm.putCharacterStatValue(IndieMADR, o1);
-                    o2.nValue = si.getValue(indieDamR, slv);
-                    o2.nReason = skillID;
-                    o2.tStart = (int) System.currentTimeMillis();
-                    tsm.putCharacterStatValue(IndieDamR, o2);
-                    o3.nOption = si.getValue(padX, slv);
-                    o3.rOption = skillID;
-                    tsm.putCharacterStatValue(PAD, o3);
-                }
-                break;
-            case PAIN_KILLER:
-                o1.nOption = 100;
+            case Bowmaster.SHARP_EYES_BOW:
+            case Marksman.SHARP_EYES_XBOW:
+                int cr = si.getValue(x, slv) +
+                        this.chr.getSkillStatValue(x, Bowmaster.SHARP_EYES_BOW_CR_H) +
+                        this.chr.getSkillStatValue(x, Marksman.SHARP_EYES_XBOW_CR_H);
+                o1.nOption = (cr << 8) + si.getValue(y, slv); // (cr << 8) + crDmg;
+                o1.nValue = si.getValue(y, slv);
                 o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AsrR, o1);
+                o1.tOption = si.getValue(time, slv) +
+                        this.chr.getSkillStatValue(time, Bowmaster.SHARP_EYES_BOW_PERSIST) +
+                        this.chr.getSkillStatValue(time, Marksman.SHARP_EYES_XBOW_PERSIST);
+                o1.mOption =
+                        this.chr.getSkillStatValue(ignoreMobpdpR, Bowmaster.SHARP_EYES_BOW_IED_H) +
+                        this.chr.getSkillStatValue(ignoreMobpdpR, Marksman.SHARP_EYES_XBOW_IED_H);
+                tsm.putCharacterStatValue(SharpEyes, o1);
                 break;
-            case RECKLESS_HUNT_XBOW:
-                if (tsm.hasStatBySkillId(skillID)) {
-                    tsm.removeStatsBySkill(skillID);
-                    tsm.sendResetStatPacket();
-                } else {
-                    o1.nOption = -si.getValue(x, slv);
-                    o1.rOption = skillID;
-                    o1.tOption = 0;
-                    tsm.putCharacterStatValue(EVAR, o1);
-                    o2.nOption = si.getValue(y, slv);
-                    o2.rOption = skillID;
-                    o2.tOption = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IncCriticalDamMax, o2);
-                    o3.nOption = si.getValue(z, slv);
-                    o3.rOption = skillID;
-                    o3.tOption = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IncCriticalDamMin, o3);
-                }
-                break;
-            case SHARP_EYES_BOW:
-            case SHARP_EYES_XBOW:
-                int cr = si.getValue(x, slv);
-                int crDmg = si.getValue(y, slv);
-                cr += chr.getSkillStatValue(x, SHARP_EYES_BOW_CR_H) + chr.getSkillStatValue(x, SHARP_EYES_XBOW_CR_H);
-                o2.nOption = (cr << 8) + crDmg;
-                o2.nValue = si.getValue(y, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, SHARP_EYES_BOW_PERSIST) + chr.getSkillStatValue(time, SHARP_EYES_XBOW_PERSIST);
-                o2.mOption = chr.getSkillStatValue(ignoreMobpdpR, SHARP_EYES_BOW_IED_H) + chr.getSkillStatValue(ignoreMobpdpR, SHARP_EYES_XBOW_IED_H);
-                tsm.putCharacterStatValue(SharpEyes, o2);
-                break;
-            case ILLUSION_STEP_BOW:
-            case ILLUSION_STEP_XBOW:
+            case Bowmaster.ILLUSION_STEP_BOW:
+            case Marksman.ILLUSION_STEP_XBOW:
                 o1.nOption = si.getValue(dex, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
@@ -734,79 +174,26 @@ public class Archer extends Beginner {
                 o2.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(EVAR, o2);
                 break;
-            case MAPLE_WARRIOR_BOW:
-            case MAPLE_WARRIOR_XBOW:
+            case Bowmaster.MAPLE_WARRIOR_BOW:
+            case Marksman.MAPLE_WARRIOR_XBOW:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
-            case ENCHANTED_QUIVER:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(AdvancedQuiver, o1);
-                break;
-            case ARROW_ILLUSION:
-                summon = Summon.getSummonBy(chr, skillID, slv);
-                summon.setMoveAbility(MoveAbility.Stop);
-                summon.setMaxHP(si.getValue(x, slv));
-                Position position = new Position(chr.isLeft() ? chr.getPosition().getX() - 250 : chr.getPosition().getX() + 250, chr.getPosition().getY());
-                summon.setCurFoothold((short) chr.getField().findFootHoldBelow(position).getId());
-                summon.setPosition(position);
-                summon.setMaxHP(si.getValue(x, slv));
-                summon.setHp(summon.getMaxHP());
-                field = chr.getField();
-                field.spawnSummon(summon);
-                break;
-            case EPIC_ADVENTURE_XBOW:
-            case EPIC_ADVENTURE_BOW:
+            case Bowmaster.EPIC_ADVENTURE_BOW:
+            case Marksman.EPIC_ADVENTURE_XBOW:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case CONCENTRATION:
-                o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePAD, o1);
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Stance, o2);
-                o3.nOption = si.getValue(y, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Preparation, o3); //preparation = BD%
-                break;
-            case BULLSEYE_SHOT:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(BullsEye, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieDamR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o2);
-                o3.nReason = skillID;
-                o3.nValue = si.getValue(indieIgnoreMobpdpR, slv);
-                o3.tStart = (int) System.currentTimeMillis();
-                o3.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o3);
-                o5.nReason = skillID;
-                o5.nValue = si.getValue(x, slv);
-                o5.tStart = (int) System.currentTimeMillis();
-                o5.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieCr, o5);
                 break;
         }
         tsm.sendSetStatPacket();
@@ -818,36 +205,28 @@ public class Archer extends Beginner {
 
     @Override
     public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
-        if(hitInfo.hpDamage == 0 && hitInfo.mpDamage == 0) {
+        if (hitInfo.hpDamage == 0 && hitInfo.mpDamage == 0) {
             // Dodged
-            if(chr.hasSkill(EVASION_BOOST) || chr.hasSkill(EVASION_BOOST_XBOW)) {
-                Skill skill = chr.getSkill(EVASION_BOOST);
-                if(skill == null) {
-                    skill = chr.getSkill(EVASION_BOOST_XBOW);
-                }
-                byte slv = (byte) skill.getCurrentLevel();
-                SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+            int skillId = 0;
+            if (chr.hasSkill(Bowmaster.EVASION_BOOST)) {
+                skillId = Bowmaster.EVASION_BOOST;
+            } else if (chr.hasSkill(Marksman.EVASION_BOOST_XBOW)) {
+                skillId = Marksman.EVASION_BOOST_XBOW;
+            }
+            if (skillId > 0) {
                 TemporaryStatManager tsm = chr.getTemporaryStatManager();
+                SkillInfo si = SkillData.getSkillInfoById(skillId);
+                int slv = chr.getSkillLevel(skillId);
+
                 Option o = new Option();
                 o.nOption = 100;
-                o.rOption = skill.getSkillId();
+                o.rOption = skillId;
                 o.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(CriticalBuff, o);
                 tsm.sendSetStatPacket();
             }
         }
         super.handleHit(chr, inPacket, hitInfo);
-    }
-
-    public void handleMobDebuffSkill(Char chr) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (chr.hasSkill(FOCUSED_FURY) && tsm.hasStat(BowMasterConcentration)) {
-            tsm.removeStatsBySkill(FOCUSED_FURY);
-            tsm.sendResetStatPacket();
-            chr.write(UserPacket.effect(Effect.skillSpecial(FOCUSED_FURY)));
-            chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillSpecial(FOCUSED_FURY)));
-            tsm.removeAllDebuffs();
-        }
     }
 
     @Override

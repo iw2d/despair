@@ -369,8 +369,8 @@ public class FirePoison extends Magician {
 
     @Override
     public int getFinalAttackSkill() {
-        SkillInfo si = SkillData.getSkillInfoById(METEOR_SHOWER_FA);
         if (chr.hasSkill(METEOR_SHOWER)) {
+            SkillInfo si = SkillData.getSkillInfoById(METEOR_SHOWER_FA);
             int slv = chr.getSkillLevel(METEOR_SHOWER);
             if (Util.succeedProp(si.getValue(prop, slv))) {
                 return METEOR_SHOWER_FA;
