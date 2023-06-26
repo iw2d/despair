@@ -1122,7 +1122,7 @@ public class SkillConstants {
 
     public static boolean isPassiveSkill(int skillId) {
         SkillInfo si = SkillData.getSkillInfoById(skillId);
-        if (skillId % 10000 / 10 == 105) {
+        if (skillId % 10000 / 10 == 105 && !isPassiveStatSkill(skillId)) {
             // hyper active skills are type = 50 for some reason
             return false;
         }
@@ -1146,6 +1146,7 @@ public class SkillConstants {
             case IceLightning.ELQUINES:
             case Bishop.INVINCIBLE:
             case Bishop.DIVINE_PROTECTION:
+            case Bishop.RIGHTEOUSLY_INDIGNANT:
                 return true;
             default:
                 return false;
@@ -1633,6 +1634,10 @@ public class SkillConstants {
                 break;
             case Bishop.DIVINE_PROTECTION:
                 stats.put(BaseStat.ter, si.getValue(SkillStat.asrR, slv));
+                break;
+            case Bishop.RIGHTEOUSLY_INDIGNANT:
+                stats.clear();
+                stats.put(BaseStat.damR, si.getValue(SkillStat.z, slv));
                 break;
         }
     }

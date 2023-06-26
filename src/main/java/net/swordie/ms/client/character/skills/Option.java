@@ -35,7 +35,7 @@ public class Option {
     public int tTerm;
     public int pOption;
     public int slv;
-    public long startTime = Util.getCurrentTimeLong();
+    public int startTime = Util.getCurrentTime();
     public Summon summon;
     public List<Option> extraOpts = new ArrayList<>();
     public boolean isInMillis = false;

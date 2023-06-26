@@ -414,10 +414,10 @@ public enum SkillStat {
                 return BaseStat.lukLv;
             case lukR:
                 return BaseStat.lukR;
-            case indiePMdR:
             case damR:
             case indieDamR:
                 return BaseStat.damR;
+            case indiePMdR:
             case pdR: // for physical dmg
             case mdR: // for magical dmg
                 return BaseStat.fd;

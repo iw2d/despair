@@ -113,7 +113,7 @@ public class Bishop extends Magician {
         if (count > 0) {
             Option o1 = new Option();
             o1.nOption = count * si.getValue(x, slv);
-            o1.rOption = skillId;
+            o1.rOption = BLESSED_ENSEMBLE;
             tsm.putCharacterStatValue(BlessEnsenble, o1);
 
             if (bishCount > 0) {
@@ -214,6 +214,7 @@ public class Bishop extends Magician {
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(subTime, slv);
+                // fix in client: PatchNop(0x00E9CE55, 2)
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
@@ -250,7 +251,23 @@ public class Bishop extends Magician {
                 }
                 break;
             case ANGEL_RAY:
-                chr.heal(changeBishopHealingBuffs(ANGEL_RAY));
+                if (chr.getParty() == null) {
+                    chr.heal(chr.getMaxHP() / si.getValue(hp, slv));
+                } else {
+                    rect = chr.getRectAround(si.getFirstRect());
+                    if (!chr.isLeft()) {
+                        rect.horizontalFlipAround(chr.getPosition().getX());
+                    }
+                    partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
+                            .filter(pml -> pml.getChr().getHP() > 0 &&
+                                    pml.getChr().getTemporaryStatManager().hasDebuffs()
+                            )
+                            .toList();
+                    for (PartyMember partyMember : partyMembers) {
+                        Char partyChr = partyMember.getChr();
+                        partyChr.heal(partyChr.getMaxHP() / si.getValue(hp, slv));
+                    }
+                }
                 break;
             case GENESIS:
                 o1.nOption = 1;
@@ -258,6 +275,31 @@ public class Bishop extends Magician {
                 o1.tOption = si.getValue(cooltime, slv);
                 tsm.putCharacterStatValue(KeyDownTimeIgnore, o1);
                 tsm.sendSetStatPacket();
+                break;
+            case BIG_BANG:
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (mob == null) {
+                        continue;
+                    }
+                    MobTemporaryStat mts = mob.getTemporaryStat();
+                    int stack = 1;
+                    if (mts.hasCurrentMobStat(MobStat.PDR)) {
+                        Option mo = mts.getCurrentOptionsByMobStat(MobStat.PDR);
+                        if (mo.rOption == skillID) {
+                            stack = mts.getCurrentOptionsByMobStat(MobStat.PDR).cOption;
+                            if (stack < si.getValue(y, slv)) {
+                                stack++;
+                            }
+                        }
+                    }
+                    o1.nOption = stack * si.getValue(x, slv);
+                    o1.rOption = skillID;
+                    o1.tOption = si.getValue(time, slv);
+                    o1.cOption = stack;
+                    mts.addStatOptionsAndBroadcast(MobStat.PDR, o1);
+                    mts.addStatOptionsAndBroadcast(MobStat.MDR, o1);
+                }
                 break;
         }
 
@@ -325,7 +367,7 @@ public class Bishop extends Magician {
                     }
                 }
                 // heal party
-                int healRate = changeBishopHealingBuffs(HEAL);
+                int healRate = (int) (chr.getDamageCalc().getMaxBaseDamage() * (si.getValue(hp, slv)) / 100D);
                 if (chr.getParty() == null) {
                     chr.heal(!tsm.hasStat(CharacterTemporaryStat.Undead) ? healRate : -healRate, true);
                 } else {
@@ -344,6 +386,10 @@ public class Bishop extends Magician {
                 }
                 break;
             case DISPEL:
+                if (!chr.equals(this.chr)) {
+                    // massSpell, handle everything as caster
+                    break;
+                }
                 if (chr.getParty() == null) {
                     tsm.removeAllDebuffs();
                 } else {
@@ -361,7 +407,6 @@ public class Bishop extends Magician {
                         partyChr.getTemporaryStatManager().removeAllDebuffs();
                     }
                     int numCured = partyMembers.size();
-                    System.out.println(numCured);
                     if (numCured > 0) {
                         chr.reduceSkillCoolTime(skillID, numCured * si.getValue(y, slv) * 1000L);
                         chr.reduceSkillCoolTime(DIVINE_PROTECTION, numCured * si.getValue(time, slv) * 1000L);
@@ -383,49 +428,35 @@ public class Bishop extends Magician {
                 chr.dispose();
                 break;
             case BLESS:
-                o1.nOption = si.getValue(u, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PDD, o1);
-                tsm.putCharacterStatValue(MDD, o1);
-                o2.nOption = si.getValue(v, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EVA, o2);
-                tsm.putCharacterStatValue(ACC, o2);
-                o3.nOption = si.getValue(x, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PAD, o3);
-                tsm.putCharacterStatValue(MAD, o3);
+                if (!tsm.hasStat(AdvancedBless)) {
+                    o1.nOption = slv;
+                    o1.rOption = skillID;
+                    o1.tOption = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(Bless, o1);
+                }
                 break;
             case ADV_BLESSING:
-                o1.nOption = si.getValue(u, slv);
+                if (tsm.hasStat(Bless)) {
+                    tsm.removeStat(Bless, true);
+                    tsm.sendResetStatPacket();
+                }
+                o1.nOption = slv;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PDD, o1);
-                tsm.putCharacterStatValue(MDD, o1);
-                o2.nOption = si.getValue(v, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EVA, o2);
-                tsm.putCharacterStatValue(ACC, o2);
-                o3.nOption = si.getValue(x, slv) + this.chr.getSkillStatValue(x, ADV_BLESSING_FEROCITY);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PAD, o3);
-                tsm.putCharacterStatValue(MAD, o3);
-                o4.nValue = si.getValue(indieMhp, slv) + this.chr.getSkillStatValue(indieMhp, ADV_BLESSING_EXTRA_POINT);
-                o4.nReason = skillID;
-                o4.tStart = Util.getCurrentTime();
-                o4.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMHP, o4);
-                tsm.putCharacterStatValue(IndieMMP, o4);
-                if (this.chr.hasSkill(ADV_BLESSING_BOSS_RUSH)) {
-                    o5.nValue = chr.getSkillStatValue(bdR, ADV_BLESSING_BOSS_RUSH);
-                    o5.nReason = skillID;
-                    o5.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndieBDR, o5);
+                o1.xOption = this.chr.getSkillStatValue(bdR, ADV_BLESSING_BOSS_RUSH);
+                tsm.putCharacterStatValue(AdvancedBless, o1);
+                o2.nValue = si.getValue(indieMhp, slv) + this.chr.getSkillStatValue(indieMhp, ADV_BLESSING_EXTRA_POINT);
+                o2.nReason = skillID;
+                o2.tStart = Util.getCurrentTime();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMHP, o2);
+                tsm.putCharacterStatValue(IndieMMP, o2);
+                if (this.chr.hasSkill(ADV_BLESSING_FEROCITY)) {
+                    o3.nOption = this.chr.getSkillStatValue(x, ADV_BLESSING_FEROCITY);
+                    o3.rOption = skillID;
+                    o3.tOption = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(PAD, o3);
+                    tsm.putCharacterStatValue(MAD, o3);
                 }
                 break;
             case HOLY_SYMBOL: // fix for party buff is inside the wz, gotta add  <int name="massSpell" value="1"/>
@@ -448,12 +479,14 @@ public class Bishop extends Magician {
                 }
                 break;
             case HOLY_MAGIC_SHELL:
-                chr.heal(changeBishopHealingBuffs(HOLY_MAGIC_SHELL));
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv) + this.chr.getSkillStatValue(time, HOLY_MAGIC_SHELL_PERSIST);
-                o1.xOption = si.getValue(x, slv) + this.chr.getSkillStatValue(x, HOLY_MAGIC_SHELL_EXTRA_GUARD);
-                tsm.putCharacterStatValue(HolyMagicShell, o1);
+                if (!tsm.hasStat(HolyMagicShell)) {
+                    chr.heal(chr.getMaxHP());
+                    o1.nOption = si.getValue(x, slv) + this.chr.getSkillStatValue(x, HOLY_MAGIC_SHELL_EXTRA_GUARD);
+                    o1.rOption = skillID;
+                    o1.tOption = si.getValue(time, slv) + this.chr.getSkillStatValue(time, HOLY_MAGIC_SHELL_PERSIST);
+                    o1.xOption = si.getValue(y, slv);
+                    tsm.putCharacterStatValue(HolyMagicShell, o1);
+                }
                 break;
             case RESURRECTION:
                 party = chr.getParty();
@@ -484,35 +517,37 @@ public class Bishop extends Magician {
                 o1.nOption = 1;
                 o1.rOption = skillID;
                 o1.tOption = 0;
-                tsm.putCharacterStatValue(VengeanceOfAngel, o1);
+                tsm.putCharacterStatValue(VengeanceOfAngel, o1); // reduce -40 damR when n != 0
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = 0;
                 tsm.putCharacterStatValue(IndieMAD, o2);
                 o3.nReason = skillID;
                 o3.nValue = si.getValue(indiePMdR, slv);
-                o3.tStart = (int) System.currentTimeMillis();
+                o3.tStart = Util.getCurrentTime();
                 o3.tTerm = 0;
                 tsm.putCharacterStatValue(IndiePMdR, o3);
                 o4.nReason = skillID;
-                o4.nValue = si.getValue(indieMaxDamageOver, slv);
-                o4.tStart = (int) System.currentTimeMillis();
+                o4.nValue = si.getValue(ignoreMobpdpR, slv);
+                o4.tStart = Util.getCurrentTime();
                 o4.tTerm = 0;
-                tsm.putCharacterStatValue(IndieMaxDamageOver, o4);
-                o5.nReason = skillID;
-                o5.nValue = si.getValue(indieBooster, slv);
-                o5.tStart = (int) System.currentTimeMillis();
-                o5.tTerm = 0;
-                tsm.putCharacterStatValue(IndieBooster, o5);
-                o6.nOption = si.getValue(ignoreMobpdpR, slv);
-                o6.rOption = skillID;
-                o6.tOption = 0;
                 tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o6);
-                o7.nOption = si.getValue(w, slv);
-                o7.rOption = skillID;
-                o7.tOption = 0;
-                tsm.putCharacterStatValue(ElementalReset, o7);
+                o5.nReason = skillID;
+                o5.nValue = si.getValue(indieMaxDamageOver, slv);
+                o5.tStart = Util.getCurrentTime();
+                o5.tTerm = 0;
+                tsm.putCharacterStatValue(IndieMaxDamageOver, o4);
+                o6.nReason = skillID;
+                o6.nValue = si.getValue(indieBooster, slv);
+                o6.tStart = Util.getCurrentTime();
+                o6.tTerm = 0;
+                tsm.putCharacterStatValue(IndieBooster, o5);
+                o7.nReason = skillID;
+                o7.nValue = -si.getValue(w, slv);
+                o5.tStart = Util.getCurrentTime();
+                o7.tTerm = 0;
+                tsm.putCharacterStatValue(IndieTerR, o6);
                 break;
 
         }

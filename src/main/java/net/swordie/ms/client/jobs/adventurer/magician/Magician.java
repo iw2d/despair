@@ -38,7 +38,6 @@ public class Magician extends Beginner {
             MAPLE_RETURN,
     };
 
-    private long infinityEnd = Long.MIN_VALUE;
     private ScheduledFuture infinityTimer;
 
     public Magician(Char chr) {
@@ -69,15 +68,17 @@ public class Magician extends Beginner {
         SkillInfo si = SkillData.getSkillInfoById(skillId);
         int slv = chr.getSkillLevel(skillId);
 
-        int remaining = (int) ((infinityEnd - Util.getCurrentTimeLong()) / 1000);
         if (tsm.hasStat(Infinity)) {
-            if (remaining > 0 && chr.hasSkill(skillId)) {
+            int remaining = tsm.getRemainingTime(Infinity, skillId);
+            if (remaining > 0 && chr.hasSkill(skillId) && chr.getHP() > 0) {
                 chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(y, slv))));
                 chr.healMP((int) (chr.getMaxMP() / ((double) 100 / si.getValue(y, slv))));
 
                 Option o1 = new Option();
                 o1.nOption = tsm.getOption(Infinity).nOption + si.getValue(damage, slv);
                 o1.rOption = skillId;
+                o1.tOption = remaining;
+                o1.setInMillis(true);
                 tsm.putCharacterStatValue(Infinity, o1);
                 tsm.sendSetStatPacket();
 
@@ -254,7 +255,6 @@ public class Magician extends Beginner {
                 o2.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Stance, o2);
 
-                infinityEnd = Util.getCurrentTimeLong() + (getBuffedSkillDuration(si.getValue(time, slv)) * 1000L);
                 if(infinityTimer != null && !infinityTimer.isDone()) {
                     infinityTimer.cancel(true);
                 }

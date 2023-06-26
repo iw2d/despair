@@ -266,10 +266,10 @@ public class TemporaryStatManager {
         return new ArrayList<>();
     }
 
-    public long getRemainingTime(CharacterTemporaryStat cts, int skillId) {
+    public int getRemainingTime(CharacterTemporaryStat cts, int skillId) {
         if (getOptByCTSAndSkill(cts, skillId) != null) {
             Option opt = getOptByCTSAndSkill(cts, skillId);
-            return (opt.startTime + ((opt.isInMillis ? 1 : 1000) * (cts.isIndie() ? opt.tTerm : opt.tOption))) - System.currentTimeMillis();
+            return (opt.startTime + ((opt.isInMillis ? 1 : 1000) * (cts.isIndie() ? opt.tTerm : opt.tOption))) - Util.getCurrentTime();
         }
         return 0;
     }

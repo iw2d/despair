@@ -65,7 +65,6 @@ public class DarkKnight extends Warrior {
     private Summon evilEye;
     private long evilEyeEnd = Long.MIN_VALUE;
     private long evilEyeRevenge = Long.MIN_VALUE;
-    private long finalPactEnd = Long.MIN_VALUE;
 
     public DarkKnight(Char chr) {
         super(chr);
@@ -258,20 +257,16 @@ public class DarkKnight extends Warrior {
     }
 
     private void darkThirst(TemporaryStatManager tsm) {
-        if (tsm.getOptByCTSAndSkill(IndiePAD, DARK_THIRST) != null) {
-            Skill skill = chr.getSkill(DARK_THIRST);
-            int slv = skill.getCurrentLevel();
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            int heal = si.getValue(x, slv);
+        if (tsm.hasStatBySkillId(DARK_THIRST) && chr.getHP() > 0) {
+            int heal = chr.getSkillStatValue(x, DARK_THIRST);
             chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)));
         }
     }
 
     public void lordOfDarkness() {
         if (chr.hasSkill(LORD_OF_DARKNESS) && chr.getHP() > 0) {
-            Skill skill = chr.getSkill(LORD_OF_DARKNESS);
-            int slv = skill.getCurrentLevel();
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+            SkillInfo si = SkillData.getSkillInfoById(LORD_OF_DARKNESS);
+            int slv = chr.getSkillLevel(LORD_OF_DARKNESS);
             int proc = si.getValue(prop, slv);
             if (Util.succeedProp(proc)) {
                 int heal = si.getValue(x, slv);
@@ -455,7 +450,7 @@ public class DarkKnight extends Warrior {
             int proc = si.getValue(prop, slv);
             int cd = 1000 * si.getValue(cooltime, slv);
             int heal = si.getValue(x, slv);
-            if (chr.hasSkill(EVIL_EYE) && tsm.hasStatBySkillId(EVIL_EYE)) {
+            if (chr.hasSkill(EVIL_EYE) && tsm.hasStatBySkillId(EVIL_EYE) && chr.getHP() > 0) {
                 if (cd + evilEyeRevenge < Util.getCurrentTimeLong()) {
                     if (Util.succeedProp(proc)) {
                         chr.write(Summoned.summonBeholderRevengeAttack(evilEye, hitInfo.mobID));
@@ -484,10 +479,9 @@ public class DarkKnight extends Warrior {
         chr.heal(chr.getMaxHP());
         chr.healMP(chr.getMaxMP());
 
-        o1.setInMillis(true);
         o1.nOption = 1;
         o1.rOption = FINAL_PACT;
-        o1.tOption = si.getValue(time, slv) * 1000;
+        o1.tOption = si.getValue(time, slv);
         o1.xOption = si.getValue(z, slv);
         tsm.putCharacterStatValue(Reincarnation, o1);
         o2.nOption = 1;
@@ -496,7 +490,6 @@ public class DarkKnight extends Warrior {
         tsm.putCharacterStatValue(NotDamaged, o2);
         tsm.sendSetStatPacket();
 
-        finalPactEnd = Util.getCurrentTimeLong() + (getBuffedSkillDuration(si.getValue(time, slv)) * 1000L);
         int finalPactCooltime = getBuffedSkillCooldown(si.getValue(cooltime, slv));
         if (chr.hasSkill(FINAL_PACT_COOLDOWN)) {
             finalPactCooltime *= 0.9;
@@ -514,18 +507,18 @@ public class DarkKnight extends Warrior {
         if (skill == null || !tsm.hasStat(Reincarnation)) {
             return;
         }
-        int duration = (int) (finalPactEnd - Util.getCurrentTimeLong());
-
+        int duration = tsm.getRemainingTime(Reincarnation, FINAL_PACT);
         int killCount = tsm.getOption(Reincarnation).xOption;
+
         if (killCount > 0) {
             killCount--;
 
             if (duration > 0) {
-                o.setInMillis(true);
                 o.nOption = 1;
                 o.rOption = FINAL_PACT;
                 o.tOption = duration;
                 o.xOption = killCount;
+                o.setInMillis(true);
                 tsm.putCharacterStatValue(Reincarnation, o);
                 tsm.sendSetStatPacket();
             } else {

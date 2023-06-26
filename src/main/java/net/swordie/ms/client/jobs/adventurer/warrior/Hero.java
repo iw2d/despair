@@ -52,7 +52,6 @@ public class Hero extends Warrior {
     public static final int EPIC_ADVENTURE_HERO = 1121053; //Lv200
     public static final int CRY_VALHALLA = 1121054; //Lv150
 
-    private long lastPanicHit = Long.MIN_VALUE;
     private ScheduledFuture selfRecoveryTimer;
 
     public Hero(Char chr) {
@@ -147,7 +146,7 @@ public class Hero extends Warrior {
     }
 
     public void selfRecovery() {
-        if (chr.hasSkill(SELF_RECOVERY)) {
+        if (chr.hasSkill(SELF_RECOVERY) && chr.getHP() > 0) {
             chr.heal(chr.getSkillStatValue(hp, SELF_RECOVERY));
             chr.healMP(chr.getSkillStatValue(mp, SELF_RECOVERY));
         }

@@ -2,9 +2,14 @@ package net.swordie.ms.enums;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.Option;
+import net.swordie.ms.client.character.skills.SkillStat;
+import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.info.ToBaseStat;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
+import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
 import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
+import net.swordie.ms.client.jobs.adventurer.magician.IceLightning;
+import net.swordie.ms.loaders.SkillData;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -156,6 +161,7 @@ public enum BaseStat {
     public static Map<BaseStat, Integer> getFromCTS(Char chr, CharacterTemporaryStat ctsArg, Option o) {
         Map<BaseStat, Integer> stats = new HashMap<>();
         // TODO: Left at "Albatross" in CTS
+        SkillInfo si;
         switch (ctsArg) {
             case IndiePAD:
                 stats.put(pad, o.nValue);
@@ -369,9 +375,6 @@ public enum BaseStat {
             case ItemCritical:
                 stats.put(cr, o.nOption);
                 break;
-            case AdvancedBless:
-                // TODO
-                break;
             case IllusionStep:
                 // TODO
                 break;
@@ -398,9 +401,6 @@ public enum BaseStat {
             case EMMP:
                 stats.put(mmp, o.nOption);
                 break;
-            case Bless:
-                // TODO
-                break;
             case BlessOfDarkness:
                 // TODO
                 break;
@@ -423,23 +423,44 @@ public enum BaseStat {
                 stats.put(fd, o.nOption);
                 break;
             case DotBasedBuff:
-                if (o.nReason == FirePoison.FERVENT_DRAIN) {
-                    stats.put(fd, o.nOption * 5);
-                } else if (o.nReason == FirePoison.ELEMENTAL_DRAIN) {
-                    stats.put(fd, o.nOption * 3);
-                }
+                si = SkillData.getSkillInfoById(o.nReason);
+                stats.put(fd, o.nOption * si.getValue(SkillStat.x, 1));
                 break;
             case Infinity:
                 stats.put(fd, o.nOption - 1);
                 break;
             case IceAura:
-                stats.put(stance, o.nOption * 20);
-                stats.put(dmgReduce, o.nOption * 20);
-                stats.put(asr, o.nOption * 20);
-                stats.put(ter, o.nOption * 20);
+                si = SkillData.getSkillInfoById(o.rOption);
+                stats.put(stance, o.nOption * si.getValue(SkillStat.x, 1));
+                stats.put(dmgReduce, o.nOption * si.getValue(SkillStat.y, 1));
+                stats.put(asr, o.nOption * si.getValue(SkillStat.v, 1));
+                stats.put(ter, o.nOption * si.getValue(SkillStat.v, 1));
                 break;
             case BlessEnsenble:
                 stats.put(fd, o.nOption);
+                break;
+            case Bless:
+                si = SkillData.getSkillInfoById(o.rOption);
+                stats.put(pad, si.getValue(SkillStat.x, o.nOption));
+                stats.put(mad, si.getValue(SkillStat.y, o.nOption));
+                stats.put(pdd, si.getValue(SkillStat.z, o.nOption));
+                stats.put(mdd, si.getValue(SkillStat.u, o.nOption));
+                stats.put(acc, si.getValue(SkillStat.v, o.nOption));
+                stats.put(eva, si.getValue(SkillStat.w, o.nOption));
+                break;
+            case AdvancedBless:
+                si = SkillData.getSkillInfoById(o.rOption);
+                stats.put(pad, si.getValue(SkillStat.x, o.nOption));
+                stats.put(mad, si.getValue(SkillStat.y, o.nOption));
+                stats.put(pdd, si.getValue(SkillStat.z, o.nOption));
+                stats.put(mdd, si.getValue(SkillStat.u, o.nOption));
+                stats.put(acc, si.getValue(SkillStat.v, o.nOption));
+                stats.put(mpconReduce, si.getValue(SkillStat.mpConReduce, o.nOption));
+                stats.put(bd, o.xOption);
+                break;
+            case VengeanceOfAngel:
+                stats.put(damR, o.nOption == 0 ? 0 : -40);
+                stats.put(fd, o.nOption == 0 ? 0 : 25);
                 break;
             default:
                 stats.put(unk, o.nOption);

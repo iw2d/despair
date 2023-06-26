@@ -41,6 +41,7 @@ import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
+import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.SkillData;
@@ -172,6 +173,17 @@ public abstract class Job {
 			int healrate = recoveryRuneInfo.getValue(dotHealHPPerSecondR, recoveryRuneSLV);
 			int healing = chr.getMaxHP() / (100 / healrate);
 			chr.heal(healing);
+		}
+
+		for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+			Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+			if (mob == null) {
+				continue;
+			}
+			MobTemporaryStat mts = mob.getTemporaryStat();
+			if (attackInfo.skillId != Bishop.BAHAMUT && mts.hasCurrentMobStat(MobStat.BahamutLightElemAddDam)) {
+				mts.removeMobStat(MobStat.BahamutLightElemAddDam, true);
+			}
 		}
 
 
@@ -531,17 +543,25 @@ public abstract class Job {
 
 		// Bishop - Holy Magic Shell
 		if (tsm.hasStat(HolyMagicShell)) {
-			if (tsm.getOption(HolyMagicShell).xOption > 0) {
+			Option oldOption = tsm.getOption(HolyMagicShell);
+			if (oldOption.nOption > 1) {
 				Option o = new Option();
-				o.nOption = tsm.getOption(HolyMagicShell).nOption;
-				o.rOption = tsm.getOption(HolyMagicShell).rOption;
-				o.tOption = (int) tsm.getRemainingTime(HolyMagicShell, o.rOption);
-				o.xOption = tsm.getOption(HolyMagicShell).xOption - 1;
+				o.nOption = oldOption.nOption - 1;
+				o.rOption = oldOption.rOption;
+				o.tOption = tsm.getRemainingTime(HolyMagicShell, o.rOption);
+				o.xOption = oldOption.xOption;
 				o.setInMillis(true);
 				tsm.putCharacterStatValue(HolyMagicShell, o);
 				tsm.sendSetStatPacket();
 			} else {
-				tsm.removeStatsBySkill(Bishop.HOLY_MAGIC_SHELL);
+				// apply cooldown
+				Option o = new Option();
+				o.nOption = 0;
+				o.rOption = oldOption.rOption;
+				o.tOption = (o.startTime + (oldOption.xOption * 1000)) - Util.getCurrentTime();
+				o.setInMillis(true);
+				tsm.putCharacterStatValue(HolyMagicShell, o);
+				tsm.sendSetStatPacket();
 			}
 		}
 

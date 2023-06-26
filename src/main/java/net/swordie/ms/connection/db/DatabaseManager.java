@@ -153,10 +153,12 @@ public class DatabaseManager {
     }
 
     public static void saveToDB(Object obj) {
-        try (Session session = getSession()) {
-            Transaction t = session.beginTransaction();
-            session.saveOrUpdate(obj);
-            t.commit();
+        synchronized (obj) {
+            try (Session session = getSession()) {
+                Transaction t = session.beginTransaction();
+                session.saveOrUpdate(obj);
+                t.commit();
+            }
         }
     }
 
