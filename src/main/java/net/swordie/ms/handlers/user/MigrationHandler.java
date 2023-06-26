@@ -104,7 +104,6 @@ public class MigrationHandler {
         } else {
             c.write(FieldPacket.funcKeyMappedManInit(chr.getFuncKeyMap()));
         }
-        chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
         c.write(WvsContext.friendResult(new LoadFriendResult(chr.getAllFriends())));
         c.write(WvsContext.macroSysDataInit(chr.getMacros()));
         c.write(UserLocal.damageSkinSaveResult(DamageSkinType.Req_SendInfo, null, chr));
@@ -113,6 +112,7 @@ public class MigrationHandler {
         chr.checkAndRemoveExpiredItems();
         chr.initBaseStats();
         chr.initBlessingSkills();
+        chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
         chr.setOnline(true); // v195+: respect 'invisible login' setting
         chr.getOffenseManager().setChr(chr);
         c.write(WvsContext.setMaplePoint(acc.getNxCredit()));

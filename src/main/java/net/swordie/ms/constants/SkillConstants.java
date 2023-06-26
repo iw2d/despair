@@ -4,6 +4,7 @@ import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.jobs.Zero;
 import net.swordie.ms.client.jobs.adventurer.*;
+import net.swordie.ms.client.jobs.adventurer.archer.Archer;
 import net.swordie.ms.client.jobs.adventurer.magician.*;
 import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
@@ -1638,6 +1639,9 @@ public class SkillConstants {
             case Bishop.RIGHTEOUSLY_INDIGNANT:
                 stats.clear();
                 stats.put(BaseStat.damR, si.getValue(SkillStat.z, slv));
+                break;
+            case Archer.CRITICAL_SHOT:
+                stats.put(BaseStat.cr, si.getValue(SkillStat.prop, slv));
                 break;
         }
     }

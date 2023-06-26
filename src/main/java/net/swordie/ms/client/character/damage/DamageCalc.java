@@ -16,6 +16,7 @@ import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.Stat;
 import net.swordie.ms.enums.WeaponType;
 import net.swordie.ms.life.mob.Mob;
+import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.SkillData;
 
 import java.util.*;

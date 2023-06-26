@@ -8,17 +8,16 @@ import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.adventurer.Beginner;
 import net.swordie.ms.connection.InPacket;
-import net.swordie.ms.connection.packet.Effect;
-import net.swordie.ms.connection.packet.FieldPacket;
-import net.swordie.ms.connection.packet.UserPacket;
-import net.swordie.ms.connection.packet.UserRemote;
+import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.ForceAtomEnum;
 import net.swordie.ms.enums.MoveAbility;
+import net.swordie.ms.enums.ReviveType;
 import net.swordie.ms.enums.Stat;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Summon;
@@ -42,6 +41,7 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  */
 public class Archer extends Beginner {
     public static final int MAPLE_RETURN = 1281;
+    public static final int CRITICAL_SHOT = 3000001;
 
     private int[] addedSkills = new int[] {
             MAPLE_RETURN,
@@ -91,6 +91,15 @@ public class Archer extends Beginner {
         super.handleAttack(chr, attackInfo);
     }
 
+    @Override
+    public void handleRemoveCTS(CharacterTemporaryStat cts) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (cts == NoBulletConsume) {
+            chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
+        }
+        super.handleRemoveCTS(cts);
+    }
+
 
     // Skill related methods -------------------------------------------------------------------------------------------
 
@@ -131,6 +140,7 @@ public class Archer extends Beginner {
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(NoBulletConsume, o3);
+                chr.setBulletIDForAttack(0);
                 break;
             case Bowmaster.BOW_BOOSTER:
             case Marksman.XBOW_BOOSTER:

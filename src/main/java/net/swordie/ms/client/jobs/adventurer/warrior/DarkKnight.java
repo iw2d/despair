@@ -394,7 +394,6 @@ public class DarkKnight extends Warrior {
 
     @Override
     public void handleRemoveCTS(CharacterTemporaryStat cts) {
-        super.handleRemoveCTS(cts);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (cts == Reincarnation) {
             if (tsm.getOption(Reincarnation).xOption > 0) {
@@ -404,6 +403,7 @@ public class DarkKnight extends Warrior {
                         ReviveType.NORMAL.getVal(), 0));
             }
         }
+        super.handleRemoveCTS(cts);
     }
 
     @Override

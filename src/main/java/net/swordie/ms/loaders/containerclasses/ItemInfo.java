@@ -1,6 +1,7 @@
 package net.swordie.ms.loaders.containerclasses;
 
 import net.swordie.ms.client.character.items.Item;
+import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.InvType;
 import net.swordie.ms.enums.ScrollStat;
 import net.swordie.ms.enums.SpecStat;
@@ -372,5 +373,15 @@ public class ItemInfo {
 
     public int getExpMaxLev() {
         return expMaxLev;
+    }
+
+    public int getBaseStat(BaseStat baseStat) {
+        // for bullets, etc.
+        for (ScrollStat scrollStat : getScrollStats().keySet()) {
+            if (scrollStat.getBaseStat() == baseStat) {
+                return getScrollStats().get(scrollStat);
+            }
+        }
+        return 0;
     }
 }

@@ -246,19 +246,16 @@ public class Bowmaster extends Archer {
         Option o3 = new Option();
         switch (attackInfo.skillId) {
             case ARROW_BOMB:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
                 if (Util.succeedProp(si.getValue(prop, slv))) {
                     for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
+                        if (mob == null || mob.isBoss()) {
                             continue;
                         }
-                        if(!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            o1.nOption = 1;
-                            o1.rOption = skillID;
-                            o1.tOption = si.getValue(time, slv);
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
                 }
                 break;

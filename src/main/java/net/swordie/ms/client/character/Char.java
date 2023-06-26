@@ -3662,7 +3662,17 @@ public class Char {
 	}
 
 	public void setBulletIDForAttack(int bulletIDForAttack) {
+		// Stat gained by arrow/bullet
+		if (this.bulletIDForAttack > 0) {
+			ItemInfo ii = ItemData.getItemInfoByID(this.bulletIDForAttack);
+			removeBaseStat(BaseStat.pad, ii.getBaseStat(BaseStat.pad));
+		}
+		if (bulletIDForAttack > 0) {
+			ItemInfo ii = ItemData.getItemInfoByID(bulletIDForAttack);
+			addBaseStat(BaseStat.pad, ii.getBaseStat(BaseStat.pad));
+		}
 		this.bulletIDForAttack = bulletIDForAttack;
+
 	}
 
 	public void setShop(NpcShopDlg shop) {
