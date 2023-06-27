@@ -9,6 +9,7 @@ import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
+import net.swordie.ms.client.jobs.adventurer.archer.Marksman;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
 import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
 import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
@@ -22,6 +23,7 @@ import net.swordie.ms.connection.packet.UserRemote;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.EventManager;
+import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Util;
@@ -326,7 +328,7 @@ public class Summon extends Life {
         chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffected(skillId, (byte) 1, getObjectId())));
     }
 
-    public void onHit(int damage, int mobTemplateId) {
+    public void onHit(int damage, int mobId) {
         Char chr = getChr();
         Skill skill = chr.getSkill(getSkillID());
 
@@ -338,26 +340,27 @@ public class Summon extends Life {
         int newSummonHP = summonHP - damage;
 
         switch (getSkillID()) {
+            case Marksman.ARROW_ILLUSION:
+                break;
             case Thief.MIRRORED_TARGET:
                 ((Thief) chr.getJobHandler()).giveShadowMeld();
                 break;
 
             case WindArcher.EMERALD_DUST:
-                ((WindArcher) chr.getJobHandler()).applyEmeraldDustDebuffToMob(this, mobTemplateId);
+                ((WindArcher) chr.getJobHandler()).applyEmeraldDustDebuffToMob(this, mobId);
                 // Fallthrough intended
             case WindArcher.EMERALD_FLOWER:
-                ((WindArcher) chr.getJobHandler()).applyEmeraldFlowerDebuffToMob(this, mobTemplateId);
+                ((WindArcher) chr.getJobHandler()).applyEmeraldFlowerDebuffToMob(this, mobId);
                 break;
-
             default:
                 log.error(String.format("Unhandled HP Summon, id = %d", getSkillID()));
                 break;
         }
 
-        if(newSummonHP <= 0) {
+        if (newSummonHP <= 0) {
             TemporaryStatManager tsm = chr.getTemporaryStatManager();
             chr.getField().broadcastPacket(Summoned.summonedRemoved(this, LeaveType.ANIMATION));
-            tsm.removeStatsBySkill(skill.getSkillId());
+            tsm.removeStatsBySkill(getSkillID());
         } else {
             setHp(newSummonHP);
         }

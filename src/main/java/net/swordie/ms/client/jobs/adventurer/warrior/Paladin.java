@@ -46,6 +46,7 @@ public class Paladin extends Warrior {
     public static final int FLAME_CHARGE = 1201011;
     public static final int BLIZZARD_CHARGE = 1201012;
     public static final int SHIELD_MASTERY = 1210001;
+    public static final int ACHILLES = 1210015;
     public static final int LIGHTNING_CHARGE = 1211008;
     public static final int HP_RECOVERY = 1211010;
     public static final int COMBAT_ORDERS = 1211011;

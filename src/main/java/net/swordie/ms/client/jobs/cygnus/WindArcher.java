@@ -336,27 +336,22 @@ public class WindArcher extends Noblesse {
         }
     }
 
-    public void applyEmeraldDustDebuffToMob(Summon summon, int mobTemplateId) {
+    public void applyEmeraldDustDebuffToMob(Summon summon, int mobId) {
         Skill skill = getEmeraldFlowerSkill(chr);
         if(skill == null) {
             return;
         }
         SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
         byte slv = (byte) skill.getCurrentLevel();
-
-        List<Mob> mobListWithTemplateId = chr.getField()
-                .getMobsInRect(summon.getPosition().getRectAround(si.getRects().get(0)))
-                .stream()
-                .filter(mob -> mob.getTemplateId() == mobTemplateId)
-                .collect(Collectors.toList());
-        for(Mob mob : mobListWithTemplateId) {
-            MobTemporaryStat mts = mob.getTemporaryStat();
-            Option o = new Option();
-            o.nOption = si.getValue(w, slv);
-            o.rOption = skill.getSkillId();
-            o.tOption = si.getValue(time, slv);
-            mts.addStatOptionsAndBroadcast(MobStat.PDR, o);
+        Mob mob = (Mob) chr.getField().getLifeByObjectID(mobId);
+        if (mob == null) {
+            return;
         }
+        Option o = new Option();
+        o.nOption = si.getValue(w, slv);
+        o.rOption = skill.getSkillId();
+        o.tOption = si.getValue(time, slv);
+        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.PDR, o);
     }
 
     @Override

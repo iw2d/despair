@@ -297,9 +297,18 @@ public enum BaseStat {
                 stats.put(booster, o.nOption);
                 break;
             case STR:
-            case ZeroAuraStr:
                 stats.put(str, o.nOption);
                 break;
+            case DEX:
+                stats.put(dex, o.nOption);
+                break;
+            case INT:
+                stats.put(inte, o.nOption);
+                break;
+            case LUK:
+                stats.put(luk, o.nOption);
+                break;
+            case ZeroAuraStr:
             case IndieSTR:
                 stats.put(str, o.nValue);
                 break;
@@ -477,6 +486,10 @@ public enum BaseStat {
                 break;
             case BowMasterConcentration:
                 stats.put(asr, o.xOption);
+                break;
+            case BullsEye:
+                stats.put(cr, o.nOption >> 8);
+                stats.put(maxCd, o.nOption & 0xFF);
                 break;
             default:
                 stats.put(unk, o.nOption);

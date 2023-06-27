@@ -44,6 +44,7 @@ public class DarkKnight extends Warrior {
     public static final int CROSS_SURGE = 1311015;
     public static final int HEX_OF_THE_EVIL_EYE = 1310016;
     public static final int LORD_OF_DARKNESS = 1310009;
+    public static final int ENDURE = 1310010;
     public static final int MAPLE_WARRIOR_DARK_KNIGHT = 1321000;
     public static final int REVENGE_OF_THE_EVIL_EYE = 1320011;
     public static final int BARRICADE_MASTERY = 1320018;

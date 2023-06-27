@@ -53,6 +53,7 @@ public class Bishop extends Magician {
     public static final int DIVINE_PROTECTION = 2311012;
     public static final int MYSTIC_DOOR = 2311002;
     public static final int HOLY_SYMBOL = 2311003;
+    public static final int BUFF_MASTERY_BISH = 2320012;
     public static final int ADV_BLESSING = 2321005;
     public static final int BAHAMUT = 2321003;
     public static final int INFINITY_BISH = 2321004;

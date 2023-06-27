@@ -1123,7 +1123,14 @@ public class SkillConstants {
 
     public static boolean isPassiveSkill(int skillId) {
         SkillInfo si = SkillData.getSkillInfoById(skillId);
-        if (si.getHyper() != 0 && !isPassiveStatSkill(skillId)) {
+        if (isPassiveStatSkill(skillId)) {
+            return true;
+        }
+        if (si != null && si.isPsd() && si.getSkillStatInfo().containsKey(SkillStat.coolTimeR)) {
+            // cooltime reduce skills
+            return true;
+        }
+        if (si != null && si.getHyper() != 0) {
             // hyper skills are type = 50 for some reason
             return false;
         }
@@ -1131,27 +1138,42 @@ public class SkillConstants {
             // special handling for blessing skills in Char::initBlessingSkills
             return false;
         }
-        return (si != null && si.getType() == 50) ||
-                (si != null && si.isPsd() && (si.getSkillStatInfo().containsKey(SkillStat.coolTimeR))) ||
-                isPassiveStatSkill(skillId);
+        return si != null && si.getType() == 50 && si.isPsd();
     }
 
     public static boolean isPassiveStatSkill(int skillId) {
         // for non-passive skills that give passive stats
         switch (skillId) {
+            case Hero.ENDURE:
             case Hero.ADVANCED_COMBO:
             case Hero.ADVANCED_FINAL_ATTACK:
+            case Hero.ADVANCED_FINAL_ATTACK_ACCURACY:
+            case Hero.ADVANCED_FINAL_ATTACK_FEROCITY:
+            case Paladin.WEAPON_MASTERY_PAGE:
+            case Paladin.ACHILLES:
+            case Paladin.HIGH_PALADIN:
+            case DarkKnight.ENDURE:
+            case FirePoison.SPELL_MASTERY_FP:
             case FirePoison.ELEMENTAL_DECREASE_FP:
             case FirePoison.IFRIT:
+            case IceLightning.SPELL_MASTERY_IL:
             case IceLightning.ELEMENTAL_DECREASE_IL:
             case IceLightning.ELQUINES:
+            case Bishop.SPELL_MASTERY_BISH:
             case Bishop.INVINCIBLE:
             case Bishop.DIVINE_PROTECTION:
+            case Bishop.BUFF_MASTERY_BISH:
             case Bishop.RIGHTEOUSLY_INDIGNANT:
+            case Archer.CRITICAL_SHOT:
+            case Bowmaster.BOW_MASTERY:
             case Bowmaster.PHOENIX:
             case Bowmaster.HOOKSHOT:
             case Bowmaster.ADVANCED_FINAL_ATTACK_BOW:
             case Bowmaster.ILLUSION_STEP_BOW:
+            case Marksman.CROSSBOW_MASTERY:
+            case Marksman.FREEZER:
+            case Marksman.HOOKSHOT:
+            case Marksman.PAIN_KILLER:
                 return true;
             default:
                 return false;
@@ -1619,10 +1641,11 @@ public class SkillConstants {
             stats.put(BaseStat.eva, si.getValue(SkillStat.z, slv));
         }
         switch (skillId) {
-            case Hero.COMBO_SYNERGY:
             case Hero.ADVANCED_COMBO:
-            case Hero.ADVANCED_COMBO_REINFORCE:
-                stats.put(BaseStat.damR, 0);
+                stats.remove(BaseStat.damR);
+                break;
+            case Paladin.ACHILLES:
+                stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.y, slv));
                 break;
             case DarkKnight.FINAL_PACT:
             case DarkKnight.FINAL_PACT_INFO:
@@ -1633,28 +1656,20 @@ public class SkillConstants {
             case Bishop.SPELL_MASTERY_BISH:
                 stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
                 break;
-            case FirePoison.ELEMENTAL_DECREASE_FP:
-            case IceLightning.ELEMENTAL_DECREASE_IL:
-                stats.put(BaseStat.fd, si.getValue(SkillStat.mdR, slv));
-                break;
-            case Bishop.DIVINE_PROTECTION:
-                stats.put(BaseStat.ter, si.getValue(SkillStat.asrR, slv));
-                break;
             case Bishop.RIGHTEOUSLY_INDIGNANT:
-                stats.clear();
+                stats.clear(); // only passive effect
                 stats.put(BaseStat.damR, si.getValue(SkillStat.z, slv));
                 break;
             case Archer.CRITICAL_SHOT:
                 stats.put(BaseStat.cr, si.getValue(SkillStat.prop, slv));
                 break;
-            case Bowmaster.FOCUSED_FURY:
-                stats.put(BaseStat.ter, si.getValue(SkillStat.asrR, slv));
-                break;
             case Bowmaster.BOW_EXPERT:
+            case Marksman.CROSSBOW_EXPERT:
                 stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
                 break;
             case Bowmaster.ILLUSION_STEP_BOW:
-                stats.remove(BaseStat.dex);
+            case Marksman.ILLUSION_STEP_XBOW:
+                stats.remove(BaseStat.dex); // active effect
                 break;
         }
     }

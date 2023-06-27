@@ -32,6 +32,7 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Bowmaster extends Archer {
+    public static final int BOW_MASTERY = 3100000;
     public static final int FINAL_ATTACK_BOW = 3100001;
     public static final int SOUL_ARROW_BOW = 3101004;
     public static final int ARROW_BOMB = 3101005;
@@ -269,11 +270,7 @@ public class Bowmaster extends Archer {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
         Option o2 = new Option();

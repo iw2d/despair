@@ -71,13 +71,14 @@ public class SummonedHandler {
         int damage = inPacket.decodeInt();
         int mobTemplateId = inPacket.decodeInt();
         boolean isLeft = inPacket.decodeByte() != 0;
+        int mobId = inPacket.decodeInt();
 
         Life life = field.getLifeByObjectID(summonObjId);
         if (!(life instanceof Summon)) {
             return;
         }
 
-        ((Summon) life).onHit(damage, mobTemplateId);
+        ((Summon) life).onHit(damage, mobId);
     }
 
     @Handler(op = InHeader.SUMMONED_SKILL)

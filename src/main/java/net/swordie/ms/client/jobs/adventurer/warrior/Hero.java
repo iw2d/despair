@@ -31,6 +31,7 @@ public class Hero extends Warrior {
     public static final int WEAPON_BOOSTER_FIGHTER = 1101004;
     public static final int COMBO_ATTACK = 1101013;
     public static final int RAGE = 1101006;
+    public static final int ENDURE = 1110011;
     public static final int FINAL_ATTACK_FIGHTER = 1100002;
     public static final int MAPLE_WARRIOR_HERO = 1121000;
     public static final int COMBO_FURY = 1101012;
@@ -42,15 +43,18 @@ public class Hero extends Warrior {
     public static final int SHOUT_DOWN = 1111014;
     public static final int ADVANCED_FINAL_ATTACK = 1120013;
     public static final int ENRAGE = 1121010;
-    public static final int ADVANCED_COMBO_REINFORCE = 1120043;
-    public static final int ADVANCED_COMBO_BOSS_RUSH = 1120045;
     public static final int PUNCTURE = 1121015;
     public static final int MAGIC_CRASH_HERO = 1121016;
     public static final int HEROS_WILL_HERO = 1121011;
     public static final int ADVANCED_COMBO = 1120003;
 
-    public static final int EPIC_ADVENTURE_HERO = 1121053; //Lv200
-    public static final int CRY_VALHALLA = 1121054; //Lv150
+    public static final int ADVANCED_COMBO_REINFORCE = 1120043;
+    public static final int ADVANCED_COMBO_BOSS_RUSH = 1120045;
+    public static final int ADVANCED_FINAL_ATTACK_ACCURACY = 1120046;
+    public static final int ADVANCED_FINAL_ATTACK_FEROCITY = 1120047;
+    public static final int EPIC_ADVENTURE_HERO = 1121053;
+    public static final int CRY_VALHALLA = 1121054;
+
 
     private ScheduledFuture selfRecoveryTimer;
 
