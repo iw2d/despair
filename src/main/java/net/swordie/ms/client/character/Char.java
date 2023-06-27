@@ -1794,6 +1794,7 @@ public class Char {
 				removeFromBaseStatCache(skill);
 			}
 			getSkills().remove(skill);
+			getTemporaryStatManager().removeStatsBySkill(skillID);
 		}
 	}
 

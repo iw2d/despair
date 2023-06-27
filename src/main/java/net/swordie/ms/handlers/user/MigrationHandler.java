@@ -35,6 +35,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.NoBulletConsume;
+
 public class MigrationHandler {
 
     private static final Logger log = LogManager.getLogger(MigrationHandler.class);
@@ -112,7 +114,9 @@ public class MigrationHandler {
         chr.checkAndRemoveExpiredItems();
         chr.initBaseStats();
         chr.initBlessingSkills();
-        chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
+        if (!chr.getTemporaryStatManager().hasStat(NoBulletConsume)) {
+            chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
+        }
         chr.setOnline(true); // v195+: respect 'invisible login' setting
         chr.getOffenseManager().setChr(chr);
         c.write(WvsContext.setMaplePoint(acc.getNxCredit()));

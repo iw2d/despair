@@ -16,8 +16,7 @@ import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.adventurer.Beginner;
 import net.swordie.ms.client.jobs.adventurer.BeastTamer;
-import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
-import net.swordie.ms.client.jobs.adventurer.magician.Magician;
+import net.swordie.ms.client.jobs.adventurer.magician.*;
 import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.Mihile;
@@ -347,6 +346,17 @@ public abstract class Job {
 	 */
 
 	public void handleMobDebuffSkill(Char chr) {
+
+	}
+
+	/**
+	 * Gets called when Character resists a debuff from a Mob Skill with their asr stat
+	 *
+	 * @param chr
+	 * 		The Character
+	 */
+
+	public void handleMobDebuffResist(Char chr) {
 
 	}
 

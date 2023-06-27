@@ -36,8 +36,8 @@ public class InGameEventManager {
         // events.put(InGameEventType.RussianRoulette, new RussianRouletteEvent());
         // events.put(InGameEventType.PinkZakumBattle, new PinkZakumEvent());
 
-        if (!ServerConfig.DEBUG_MODE)
-            schedule = EventManager.addFixedRateEvent(this::doEvent, 5, 40, TimeUnit.MINUTES);
+        //if (!ServerConfig.DEBUG_MODE)
+        //    schedule = EventManager.addFixedRateEvent(this::doEvent, 5, 40, TimeUnit.MINUTES);
     }
 
     public void forceNextEvent() { // for testing only, this should not be used in prod

@@ -510,8 +510,17 @@ public class MobSkill {
         o.slv = level;
         o.tOption = msi.getSkillStatIntValue(time);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        boolean appliedDisease = Util.succeedProp(msi.getSkillStatIntValue(prop))
-                && Util.succeedProp(100 - chr.getTotalStat(BaseStat.asr));
+        // disease succeed prop
+        boolean appliedDisease = Util.succeedProp(msi.getSkillStatIntValue(prop));
+        if (!appliedDisease) {
+            return;
+        }
+        // character status resistance
+        appliedDisease = Util.succeedProp(100 - chr.getTotalStat(BaseStat.asr));
+        if (!appliedDisease) {
+            chr.getJobHandler().handleMobDebuffResist(chr);
+            return;
+        }
         switch (msID) {
             case Seal:
             case Darkness:
@@ -520,30 +529,24 @@ public class MobSkill {
             case Curse:
             case Slow:
             case Fear:
-                if (appliedDisease) {
-                    o.nOption = 1;
-                    tsm.putCharacterStatValueFromMobSkill(msID.getAffectedCTS(), o);
-                    tsm.sendSetStatPacket();
-                }
+                o.nOption = 1;
+                tsm.putCharacterStatValueFromMobSkill(msID.getAffectedCTS(), o);
+                tsm.sendSetStatPacket();
                 break;
             case PainMark:
             case Poison:
-                if (appliedDisease) {
-                    o.nOption = msi.getSkillStatIntValue(x);
-                    tsm.putCharacterStatValueFromMobSkill(msID.getAffectedCTS(), o);
-                    tsm.sendSetStatPacket();
-                }
+                o.nOption = msi.getSkillStatIntValue(x);
+                tsm.putCharacterStatValueFromMobSkill(msID.getAffectedCTS(), o);
+                tsm.sendSetStatPacket();
                 break;
             case Undead:
-                if (appliedDisease) {
-                    o.nOption = 1;
-                    tsm.putCharacterStatValueFromMobSkill(CharacterTemporaryStat.Undead, o);
-                    TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.Undead);
-                    tsb.setNOption(o.nOption);
-                    tsb.setROption(skill << level | 16);
-                    tsb.setExpireTerm(o.tOption);
-                    tsm.sendSetStatPacket();
-                }
+                o.nOption = 1;
+                tsm.putCharacterStatValueFromMobSkill(CharacterTemporaryStat.Undead, o);
+                TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.Undead);
+                tsb.setNOption(o.nOption);
+                tsb.setROption(skill << level | 16);
+                tsb.setExpireTerm(o.tOption);
+                tsm.sendSetStatPacket();
                 break;
             case Unk:
                 log.warn(String.format("[MobSkill::applyEffect(Char)] Unknown mob skillID %d, slv = %d", skill, level));

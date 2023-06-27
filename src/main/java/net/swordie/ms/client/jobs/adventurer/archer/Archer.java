@@ -227,7 +227,6 @@ public class Archer extends Beginner {
                 TemporaryStatManager tsm = chr.getTemporaryStatManager();
                 SkillInfo si = SkillData.getSkillInfoById(skillId);
                 int slv = chr.getSkillLevel(skillId);
-
                 Option o = new Option();
                 o.nOption = 100;
                 o.rOption = skillId;

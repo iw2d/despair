@@ -6,6 +6,8 @@ import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.info.ToBaseStat;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
+import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
+import net.swordie.ms.client.jobs.adventurer.archer.Marksman;
 import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
 import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 import net.swordie.ms.client.jobs.adventurer.magician.IceLightning;
@@ -461,6 +463,20 @@ public enum BaseStat {
             case VengeanceOfAngel:
                 stats.put(damR, o.nOption == 0 ? 0 : -40);
                 stats.put(fd, o.nOption == 0 ? 0 : 25);
+                break;
+            case ExtremeArchery:
+                if (o.rOption == Bowmaster.RECKLESS_HUNT_BOW) {
+                    stats.put(pad, o.nOption);
+                    stats.put(pddR, -o.bOption);
+                    stats.put(mddR, -o.bOption);
+                } else if (o.rOption == Marksman.RECKLESS_HUNT_XBOW) {
+                    stats.put(minCd, o.xOption);
+                    stats.put(maxCd, o.nOption);
+                    stats.put(evaR, -o.bOption);
+                }
+                break;
+            case BowMasterConcentration:
+                stats.put(asr, o.xOption);
                 break;
             default:
                 stats.put(unk, o.nOption);

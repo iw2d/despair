@@ -173,6 +173,7 @@ public class JobSkillHandler {
                     si.getValue(SkillStat.u, slv), TimeUnit.SECONDS);
             field.addLifeSchedule(fao, sf);
             field.broadcastPacket(FieldAttackObjPool.setAttack(fao.getObjectId(), 0));
+            chr.setSkillCooldown(skillID, slv); // install cooldown
         }
         chr.dispose();
     }

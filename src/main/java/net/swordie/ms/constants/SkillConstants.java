@@ -4,7 +4,7 @@ import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.jobs.Zero;
 import net.swordie.ms.client.jobs.adventurer.*;
-import net.swordie.ms.client.jobs.adventurer.archer.Archer;
+import net.swordie.ms.client.jobs.adventurer.archer.*;
 import net.swordie.ms.client.jobs.adventurer.magician.*;
 import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
 import net.swordie.ms.client.jobs.adventurer.thief.Thief;
@@ -1123,8 +1123,8 @@ public class SkillConstants {
 
     public static boolean isPassiveSkill(int skillId) {
         SkillInfo si = SkillData.getSkillInfoById(skillId);
-        if (skillId % 10000 / 10 == 105 && !isPassiveStatSkill(skillId)) {
-            // hyper active skills are type = 50 for some reason
+        if (si.getHyper() != 0 && !isPassiveStatSkill(skillId)) {
+            // hyper skills are type = 50 for some reason
             return false;
         }
         if (SkillConstants.isBlessingSkill(skillId)) {
@@ -1148,6 +1148,10 @@ public class SkillConstants {
             case Bishop.INVINCIBLE:
             case Bishop.DIVINE_PROTECTION:
             case Bishop.RIGHTEOUSLY_INDIGNANT:
+            case Bowmaster.PHOENIX:
+            case Bowmaster.HOOKSHOT:
+            case Bowmaster.ADVANCED_FINAL_ATTACK_BOW:
+            case Bowmaster.ILLUSION_STEP_BOW:
                 return true;
             default:
                 return false;
@@ -1274,13 +1278,12 @@ public class SkillConstants {
 
     public static boolean isArmorPiercingSkill(int skillId) {
         switch (skillId) {
-            case 3120017:
-            case 95001000:
-            case 3120008:
-            case 3100001:
-            case 3100010:
+            case 95001000: // Arrow Blaster
+            case Bowmaster.FINAL_ATTACK_BOW:
+            case Bowmaster.ADVANCED_FINAL_ATTACK_BOW:
+            case Bowmaster.QUIVER_CARTRIDGE_ATOM:
+            case Bowmaster.ENCHANTED_QUIVER_ATOM:
                 return false;
-
             default:
                 return true;
         }
@@ -1326,6 +1329,7 @@ public class SkillConstants {
             case 22141012:
             case IceLightning.THUNDER_STORM:
             case IceLightning.FROZEN_ORB:
+            case Bowmaster.ARROW_PLATTER:
             case Thief.SHADOW_VEIL:
             case BlazeWizard.CATACLYSM:
             case ThunderBreaker.GALE:
@@ -1642,6 +1646,15 @@ public class SkillConstants {
                 break;
             case Archer.CRITICAL_SHOT:
                 stats.put(BaseStat.cr, si.getValue(SkillStat.prop, slv));
+                break;
+            case Bowmaster.FOCUSED_FURY:
+                stats.put(BaseStat.ter, si.getValue(SkillStat.asrR, slv));
+                break;
+            case Bowmaster.BOW_EXPERT:
+                stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
+                break;
+            case Bowmaster.ILLUSION_STEP_BOW:
+                stats.remove(BaseStat.dex);
                 break;
         }
     }

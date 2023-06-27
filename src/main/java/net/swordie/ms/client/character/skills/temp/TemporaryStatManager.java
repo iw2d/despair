@@ -998,8 +998,7 @@ public class TemporaryStatManager {
     public void putCharacterStatValueFromMobSkill(CharacterTemporaryStat cts, Option o) {
         o.rOption |= o.slv << 16; // mob skills are encoded differently: not an int, but short (skill ID), then short (slv).
         putCharacterStatValue(cts, o);
-        Job sourceJobHandler = chr.getJobHandler();
-        sourceJobHandler.handleMobDebuffSkill(chr);
+        chr.getJobHandler().handleMobDebuffSkill(chr);
     }
 
     public void removeAllStats() {
