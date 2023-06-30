@@ -5,7 +5,7 @@ import net.swordie.ms.client.jobs.adventurer.*;
 import net.swordie.ms.client.jobs.adventurer.archer.*;
 import net.swordie.ms.client.jobs.adventurer.magician.*;
 import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
-import net.swordie.ms.client.jobs.adventurer.thief.Thief;
+import net.swordie.ms.client.jobs.adventurer.thief.*;
 import net.swordie.ms.client.jobs.adventurer.warrior.*;
 import net.swordie.ms.client.jobs.cygnus.*;
 import net.swordie.ms.client.jobs.legend.*;
@@ -22,26 +22,26 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class JobManager {
     private static final Class<Job>[] jobClasses = new Class[] {
+            Beginner.class,
             Warrior.class,
             Hero.class,
             Paladin.class,
             DarkKnight.class,
-
             Magician.class,
             FirePoison.class,
             IceLightning.class,
             Bishop.class,
-
             Archer.class,
             Bowmaster.class,
             Marksman.class,
-
+            Thief.class,
+            NightLord.class,
+            Shadower.class,
+            DualBlade.class,
+            Pirate.class,
             BeastTamer.class,
-            Beginner.class,
             Kinesis.class,
             PinkBean.class,
-            Pirate.class,
-            Thief.class,
 
             BlazeWizard.class,
             DawnWarrior.class,

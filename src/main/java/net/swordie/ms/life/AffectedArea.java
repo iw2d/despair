@@ -11,7 +11,8 @@ import net.swordie.ms.client.jobs.Zero;
 import net.swordie.ms.client.jobs.adventurer.BeastTamer;
 import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
 import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
-import net.swordie.ms.client.jobs.adventurer.thief.Thief;
+import net.swordie.ms.client.jobs.adventurer.thief.NightLord;
+import net.swordie.ms.client.jobs.adventurer.thief.Shadower;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.legend.Aran;
 import net.swordie.ms.client.jobs.legend.Shade;
@@ -249,13 +250,13 @@ public class AffectedArea extends Life {
                 o.tOption = si.getValue(time, slv);
                 mts.addStatOptionsAndBroadcast(MobStat.Freeze, o);
                 break;
-            case Thief.FRAILTY_CURSE:
-                if (!mob.isBoss() || chr.hasSkill(Thief.FRAILTY_CURSE_BOSS_RUSH)) {
-                    o.nOption = si.getValue(SkillStat.y, slv) - chr.getSkillStatValue(s, Thief.FRAILTY_CURSE_SLOW); // already negative in SI
+            case NightLord.FRAILTY_CURSE:
+                if (!mob.isBoss() || chr.hasSkill(NightLord.FRAILTY_CURSE_BOSS_RUSH)) {
+                    o.nOption = si.getValue(SkillStat.y, slv) - chr.getSkillStatValue(s, NightLord.FRAILTY_CURSE_SLOW); // already negative in SI
                     o.rOption = skillID;
                     o.tOption = si.getValue(time, slv);
                     mts.addStatOptionsAndBroadcast(MobStat.Speed, o);
-                    o1.nOption = -si.getValue(SkillStat.w, slv) - chr.getSkillStatValue(v, Thief.FRAILTY_CURSE_ENHANCE);
+                    o1.nOption = -si.getValue(SkillStat.w, slv) - chr.getSkillStatValue(v, NightLord.FRAILTY_CURSE_ENHANCE);
                     o1.rOption = skillID;
                     o1.tOption = si.getValue(time, slv);
                     mts.addStatOptionsAndBroadcast(MobStat.PAD, o1);
@@ -332,7 +333,7 @@ public class AffectedArea extends Life {
                 chr.healMP((int) (chr.getMaxHP() / ((double) 100 / si.getValue(w, slv))));
                 tsm.removeAllDebuffs();
                 break;
-            case Thief.SMOKE_SCREEN:
+            case Shadower.SMOKE_SCREEN:
                 o1.nOption = 1;
                 tsm.putCharacterStatValue(Invincible, o1);
                 o2.nOption = si.getValue(SkillStat.x, slv);

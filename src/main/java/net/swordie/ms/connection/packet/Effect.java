@@ -2,9 +2,8 @@ package net.swordie.ms.connection.packet;
 
 
 import net.swordie.ms.client.character.Char;
-import net.swordie.ms.client.jobs.adventurer.thief.Thief;
+import net.swordie.ms.client.jobs.adventurer.thief.DualBlade;
 import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
-import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
 import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.legend.Luminous;
 import net.swordie.ms.client.jobs.legend.Shade;
@@ -206,7 +205,7 @@ public class Effect {
             outPacket.encodeByte(getArg5()); // bCreate
         } else if (skillID == DarkKnight.FINAL_PACT) {
             outPacket.encodeByte(getArg5()); // bLoadReincarnationEffect
-        } else if (skillID == Thief.CHAINS_OF_HELL) {
+        } else if (skillID == DualBlade.CHAINS_OF_HELL) {
             outPacket.encodeByte(getArg5()); // bLeft
             outPacket.encodeInt(getArg6()); // dwMobID
         } else if (skillID == 3211010 || skillID == 3111010 || skillID == 1100012) { // Hooks (Warrior combo fury/archer skills)

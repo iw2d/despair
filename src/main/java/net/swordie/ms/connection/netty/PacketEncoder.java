@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import net.swordie.ms.connection.Packet;
+import net.swordie.ms.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -63,7 +64,7 @@ public final class PacketEncoder extends MessageToByteEncoder<Packet> {
             bb.writeBytes(data);
             
         } else {
-            log.debug("[PacketEncoder] | Plain sending " + outPacket);
+            log.debug("[PacketEncoder] | Plain sending " + Util.readableByteArray(outPacket.getData()));
             bb.writeBytes(data);
         }
         outPacket.release();

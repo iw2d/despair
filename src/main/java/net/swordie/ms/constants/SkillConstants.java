@@ -7,7 +7,7 @@ import net.swordie.ms.client.jobs.adventurer.*;
 import net.swordie.ms.client.jobs.adventurer.archer.*;
 import net.swordie.ms.client.jobs.adventurer.magician.*;
 import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
-import net.swordie.ms.client.jobs.adventurer.thief.Thief;
+import net.swordie.ms.client.jobs.adventurer.thief.*;
 import net.swordie.ms.client.jobs.adventurer.warrior.*;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.cygnus.DawnWarrior;
@@ -1352,7 +1352,7 @@ public class SkillConstants {
             case IceLightning.THUNDER_STORM:
             case IceLightning.FROZEN_ORB:
             case Bowmaster.ARROW_PLATTER:
-            case Thief.SHADOW_VEIL:
+            case Shadower.SHADOW_VEIL:
             case BlazeWizard.CATACLYSM:
             case ThunderBreaker.GALE:
             case ThunderBreaker.TYPHOON:
