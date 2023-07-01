@@ -35,6 +35,7 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class NightLord extends Thief {
+    public static final int CLAW_MASTERY = 4100000;
     public static final int CRITICAL_THROW = 4100001;
     public static final int ASSASSINS_MARK = 4101011; //Buff (ON/OFF)
     public static final int ASSASSINS_MARK_ATOM = 4100012;
@@ -46,6 +47,7 @@ public class NightLord extends Thief {
     public static final int DARK_FLARE_NL = 4111007; //Summon
     public static final int SHADOW_WEB = 4111003; //Special Attack (Dot + Bind)
     public static final int VENOM_NL = 4110011; //Passive DoT
+    public static final int CLAW_EXPERT = 4120012;
     public static final int MAPLE_WARRIOR_NL = 4121000; //Buff
     public static final int SHOWDOWN = 4121017; //Special Attack
     public static final int SUDDEN_RAID_NL = 4121016; //Special Attack

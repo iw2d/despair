@@ -320,7 +320,7 @@ public class Bowmaster extends Archer {
                 o3.nReason = skillID;
                 o3.tStart = Util.getCurrentTime();
                 o3.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o3);
+                tsm.putCharacterStatValue(IndieBDR, o3);
                 break;
         }
         tsm.sendSetStatPacket();

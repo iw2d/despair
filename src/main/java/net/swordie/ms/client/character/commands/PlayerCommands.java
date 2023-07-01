@@ -83,9 +83,11 @@ public class PlayerCommands {
             } else {
                 chr.chatMessage(Mob, String.format("    Att: %d", chr.getTotalStat(BaseStat.pad)));
             }
-            chr.chatMessage(Mob, String.format("    Dam: %d", chr.getTotalStat(BaseStat.damR)));
-            chr.chatMessage(Mob, String.format("    IED: %.2f", chr.getTotalStatAsDouble(BaseStat.ied)));
-            chr.chatMessage(Mob, String.format("    FD: %.2f", chr.getTotalStatAsDouble(BaseStat.fd)));
+            chr.chatMessage(Mob, String.format("    damR: %d    fd: %.2f", chr.getTotalStat(BaseStat.damR), chr.getTotalStatAsDouble(BaseStat.fd)));
+            chr.chatMessage(Mob, String.format("    cr: %d    minCd: %d    maxCd: %d", chr.getTotalStat(BaseStat.cr), chr.getTotalStat(BaseStat.minCd), chr.getTotalStat(BaseStat.maxCd)));
+            chr.chatMessage(Mob, String.format("    bd: %d    ied: %.2f", chr.getTotalStat(BaseStat.bd), chr.getTotalStatAsDouble(BaseStat.ied)));
+            chr.chatMessage(Mob, String.format("    asr: %d    ter: %.2f", chr.getTotalStat(BaseStat.asr), chr.getTotalStatAsDouble(BaseStat.ter)));
+            chr.chatMessage(Mob, String.format("    stance: %d    dmgReduce: %.2f", chr.getTotalStat(BaseStat.stance), chr.getTotalStatAsDouble(BaseStat.dmgReduce)));
         }
     }
 

@@ -110,12 +110,9 @@ public class MigrationHandler {
         c.write(WvsContext.mapTransferResult(MapTransferType.RegisterListSend, (byte) 5, chr.getHyperRockFields()));
         acc.getMonsterCollection().init(chr);
         chr.checkAndRemoveExpiredItems();
-        chr.setBulletIDForAttack(0);
+        chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
         chr.initBaseStats();
         chr.initBlessingSkills();
-        if (!chr.getTemporaryStatManager().hasStat(CharacterTemporaryStat.SoulArrow)) {
-            chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
-        }
         chr.setOnline(true); // v195+: respect 'invisible login' setting
         chr.getOffenseManager().setChr(chr);
         c.write(WvsContext.setMaplePoint(acc.getNxCredit()));

@@ -77,10 +77,6 @@ public class Archer extends Beginner {
 
     @Override
     public void handleRemoveCTS(CharacterTemporaryStat cts) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (cts == SoulArrow) {
-            chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
-        }
         super.handleRemoveCTS(cts);
     }
 
@@ -124,7 +120,6 @@ public class Archer extends Beginner {
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(NoBulletConsume, o3);
-                chr.setBulletIDForAttack(0);
                 break;
             case Bowmaster.BOW_BOOSTER:
             case Marksman.XBOW_BOOSTER:

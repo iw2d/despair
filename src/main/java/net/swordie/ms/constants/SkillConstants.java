@@ -1122,65 +1122,37 @@ public class SkillConstants {
     }
 
     public static boolean isPassiveSkill(int skillId) {
-        SkillInfo si = SkillData.getSkillInfoById(skillId);
         if (isPassiveStatSkill(skillId)) {
             return true;
-        }
-        if (si != null && si.isPsd() && si.getSkillStatInfo().containsKey(SkillStat.coolTimeR)) {
-            // cooltime reduce skills
-            return true;
-        }
-        if (si != null && si.getHyper() != 0) {
-            // hyper skills are type = 50 for some reason
-            return false;
         }
         if (SkillConstants.isBlessingSkill(skillId)) {
             // special handling for blessing skills in Char::initBlessingSkills
             return false;
         }
-        return si != null && si.getType() == 50 && si.isPsd();
+        SkillInfo si = SkillData.getSkillInfoById(skillId);
+        return si != null && si.isPsd() && (si.getPsdSkills().isEmpty() || si.getSkillStatInfo().containsKey(SkillStat.coolTimeR));
     }
 
     public static boolean isPassiveStatSkill(int skillId) {
-        // for non-passive skills that give passive stats
+        // overrides
         switch (skillId) {
-            case Hero.ENDURE:
-            case Hero.CHANCE_ATTACK:
             case Hero.ADVANCED_COMBO:
-            case Hero.ADVANCED_FINAL_ATTACK:
-            case Hero.ADVANCED_FINAL_ATTACK_ACCURACY:
-            case Hero.ADVANCED_FINAL_ATTACK_FEROCITY:
             case Paladin.WEAPON_MASTERY_PAGE:
             case Paladin.ACHILLES:
-            case Paladin.HIGH_PALADIN:
-            case DarkKnight.ENDURE:
+            case NightLord.CLAW_MASTERY:
             case FirePoison.SPELL_MASTERY_FP:
-            case FirePoison.ELEMENTAL_DECREASE_FP:
             case FirePoison.IFRIT:
             case IceLightning.SPELL_MASTERY_IL:
-            case IceLightning.ELEMENTAL_DECREASE_IL:
             case IceLightning.ELQUINES:
             case Bishop.SPELL_MASTERY_BISH:
-            case Bishop.INVINCIBLE:
-            case Bishop.DIVINE_PROTECTION:
-            case Bishop.BUFF_MASTERY_BISH:
+            case Bishop.HOLY_SYMBOL_PREPARATION:
             case Bishop.RIGHTEOUSLY_INDIGNANT:
             case Archer.CRITICAL_SHOT:
             case Bowmaster.BOW_MASTERY:
-            case Bowmaster.PHOENIX:
-            case Bowmaster.HOOKSHOT:
-            case Bowmaster.ADVANCED_FINAL_ATTACK_BOW:
-            case Bowmaster.ILLUSION_STEP_BOW:
             case Marksman.CROSSBOW_MASTERY:
-            case Marksman.FREEZER:
-            case Marksman.HOOKSHOT:
-            case Marksman.PAIN_KILLER:
-            case NightLord.ENVELOPING_DARKNESS:
-            case NightLord.EXPERT_THROWING_STAR_HANDLING:
                 return true;
-            default:
-                return false;
         }
+        return false;
     }
 
     public static boolean isPsdWTSkill(int skillId) {
@@ -1189,7 +1161,6 @@ public class SkillConstants {
     }
 
     public static boolean isShieldMasterySkill(int skillId) {
-        // handle shield mastery too
         switch (skillId) {
             case Paladin.SHIELD_MASTERY:
                 return true;
@@ -1650,9 +1621,14 @@ public class SkillConstants {
             case Paladin.ACHILLES:
                 stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.y, slv));
                 break;
-            case DarkKnight.FINAL_PACT:
             case DarkKnight.FINAL_PACT_INFO:
-                stats.clear(); // handled as a buff
+                stats.remove(BaseStat.damR); // damR handled as a buff
+                break;
+            case DarkKnight.FINAL_PACT_COOLDOWN:
+                stats.remove(BaseStat.minCd);
+                break;
+            case DarkKnight.SACRIFICE:
+                stats.remove(BaseStat.bd);
                 break;
             case FirePoison.SPELL_MASTERY_FP:
             case IceLightning.SPELL_MASTERY_IL:
@@ -1676,6 +1652,9 @@ public class SkillConstants {
                 break;
             case NightLord.CRITICAL_THROW:
                 stats.put(BaseStat.cr, si.getValue(SkillStat.prop, slv));
+                break;
+            case NightLord.CLAW_EXPERT:
+                stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
                 break;
         }
     }

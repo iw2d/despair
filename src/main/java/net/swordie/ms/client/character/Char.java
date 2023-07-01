@@ -27,6 +27,7 @@ import net.swordie.ms.client.character.quest.QuestManager;
 import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.*;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.friend.Friend;
 import net.swordie.ms.client.friend.FriendFlag;
@@ -3663,15 +3664,6 @@ public class Char {
 	}
 
 	public void setBulletIDForAttack(int bulletIDForAttack) {
-		// Stat gained by arrow/bullet
-		if (this.bulletIDForAttack > 0) {
-			ItemInfo ii = ItemData.getItemInfoByID(this.bulletIDForAttack);
-			removeBaseStat(BaseStat.pad, ii.getBaseStat(BaseStat.pad));
-		}
-		if (bulletIDForAttack > 0) {
-			ItemInfo ii = ItemData.getItemInfoByID(bulletIDForAttack);
-			addBaseStat(BaseStat.pad, ii.getBaseStat(BaseStat.pad));
-		}
 		this.bulletIDForAttack = bulletIDForAttack;
 
 	}
@@ -4002,6 +3994,13 @@ public class Char {
 					continue;
 				}
 				stat += equip.getBaseStat(baseStat);
+			}
+			// Stat gained by bullet
+			if (getBulletIDForAttack() > 0 && !getTemporaryStatManager().hasStat(CharacterTemporaryStat.SoulArrow)) {
+				ItemInfo ii = ItemData.getItemInfoByID(bulletIDForAttack);
+				if (ii != null) {
+					stat += ii.getBaseStat(baseStat);
+				}
 			}
 			// Stat gained by set effects
 			stat += getSetBaseStats().getOrDefault(baseStat, 0);

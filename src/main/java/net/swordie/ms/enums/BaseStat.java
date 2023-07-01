@@ -274,8 +274,12 @@ public enum BaseStat {
             case EnrageCrDamMin:
                 stats.put(minCd, o.nOption);
                 break;
+            case IncCriticalDamMin:
+                stats.put(minCd, o.nValue);
+                break;
             case IndieCrMax:
             case IndieCrMaxR:
+            case IncCriticalDamMax:
                 stats.put(maxCd, o.nValue);
                 break;
             case IndieEXP:
@@ -381,7 +385,10 @@ public enum BaseStat {
                 stats.put(magicGuard, o.nOption);
                 break;
             case SharpEyes:
+                stats.put(cr, o.nOption >> 8);
+                stats.put(maxCd, o.nOption & 0xFF);
                 stats.put(ied, o.mOption);
+                break;
             case CriticalBuff:
             case ItemCritical:
                 stats.put(cr, o.nOption);

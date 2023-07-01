@@ -62,6 +62,7 @@ public class DarkKnight extends Warrior {
     public static final int HYPER_BODY_VITALITY = 1320045;
     public static final int FINAL_PACT_DAMAGE = 1320046;
     public static final int FINAL_PACT_COOLDOWN = 1320047;
+    public static final int FINAL_PACT_CRITICAL = 1320048;
 
     private Summon evilEye;
     private long evilEyeEnd = Long.MIN_VALUE;
@@ -276,14 +277,6 @@ public class DarkKnight extends Warrior {
         }
     }
 
-    private Skill getFinalAtkSkill() {
-        Skill skill = null;
-        if (chr.hasSkill(FINAL_ATTACK_SPEARMAN)) {
-            skill = chr.getSkill(FINAL_ATTACK_SPEARMAN);
-        }
-        return skill;
-    }
-
     @Override
     public int getFinalAttackSkill() {
         if (chr.hasSkill(FINAL_ATTACK_SPEARMAN)) {
@@ -410,7 +403,7 @@ public class DarkKnight extends Warrior {
     @Override
     public void handleCalcDamageStatSet() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (chr.hasSkill(FINAL_PACT_INFO) || tsm.hasStatBySkillId(FINAL_PACT_INFO)) {
+        if (chr.hasSkill(FINAL_PACT_INFO)) {
             SkillInfo si = SkillData.getSkillInfoById(FINAL_PACT_INFO);
             int slv = chr.getSkillLevel(FINAL_PACT_INFO);
 
@@ -432,8 +425,10 @@ public class DarkKnight extends Warrior {
                 o1.nReason = FINAL_PACT_INFO;
                 o1.tStart = Util.getCurrentTime();
                 tsm.putCharacterStatValue(IndieDamR, o1);
-                tsm.sendSetStatPacket();
             }
+        } else if (tsm.hasStatBySkillId(FINAL_PACT_INFO)) {
+            tsm.removeStatsBySkill(FINAL_PACT_INFO);
+            tsm.sendResetStatPacket();
         }
     }
 

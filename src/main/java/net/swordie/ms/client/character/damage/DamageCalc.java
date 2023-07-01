@@ -31,8 +31,6 @@ import static net.swordie.ms.enums.BaseStat.*;
 public class DamageCalc {
 
     private final static int RAND_NUM = 11;
-    public final static int MAX_CRIT_DMG = 50;
-    public final static int MIN_CRIT_DMG = 20;
 
     private Rand32 rand;
     private Char chr;
@@ -402,12 +400,12 @@ public class DamageCalc {
         }
     }
 
-    private int getMinCritDamage() {
-        return chr.getTotalStat(minCd) + MIN_CRIT_DMG;
+    public int getMinCritDamage() {
+        return chr.getTotalStat(minCd);
     }
 
-    private int getMaxCritDamage() {
-        return chr.getTotalStat(maxCd) + MAX_CRIT_DMG;
+    public int getMaxCritDamage() {
+        return chr.getTotalStat(maxCd);
     }
 
     public double randomInRange(long randomNum, long min, long max) {
