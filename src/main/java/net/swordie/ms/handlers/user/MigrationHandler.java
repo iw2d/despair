@@ -8,6 +8,7 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.HyperTPRock;
 import net.swordie.ms.client.character.damage.DamageSkinType;
 import net.swordie.ms.client.character.skills.TownPortal;
+import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.friend.result.LoadFriendResult;
 import net.swordie.ms.client.jobs.JobManager;
 import net.swordie.ms.client.party.Party;
@@ -33,9 +34,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-
-import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.NoBulletConsume;
 
 public class MigrationHandler {
 
@@ -112,9 +110,10 @@ public class MigrationHandler {
         c.write(WvsContext.mapTransferResult(MapTransferType.RegisterListSend, (byte) 5, chr.getHyperRockFields()));
         acc.getMonsterCollection().init(chr);
         chr.checkAndRemoveExpiredItems();
+        chr.setBulletIDForAttack(0);
         chr.initBaseStats();
         chr.initBlessingSkills();
-        if (!chr.getTemporaryStatManager().hasStat(NoBulletConsume)) {
+        if (!chr.getTemporaryStatManager().hasStat(CharacterTemporaryStat.SoulArrow)) {
             chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
         }
         chr.setOnline(true); // v195+: respect 'invisible login' setting

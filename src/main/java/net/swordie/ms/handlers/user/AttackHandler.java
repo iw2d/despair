@@ -48,8 +48,13 @@ public class AttackHandler {
         }
         boolean summonedAttack = attackInfo.attackHeader == OutHeader.SUMMONED_ATTACK;
         boolean multiAttack = SkillConstants.isMultiAttackCooldownSkill(skillID);
-        if (chr.applyBulletCon(attackInfo.skillId, attackInfo.slv) && !summonedAttack && !multiAttack && !chr.applyMpCon(attackInfo.skillId, attackInfo.slv)) {
-            return;
+        if (!summonedAttack && !multiAttack) {
+            if (!chr.applyBulletCon(attackInfo.skillId, attackInfo.slv, attackInfo.isExJablin)) {
+                return;
+            }
+            if (!attackInfo.isExJablin && !chr.applyMpCon(attackInfo.skillId, attackInfo.slv)) {
+                return;
+            }
         }
         if (summonedAttack || multiAttack || chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass() || SkillConstants.isKeyDownSkill(skillID)) {
             byte slv = attackInfo.slv;
@@ -384,7 +389,7 @@ public class AttackHandler {
         ai.someMask = inPacket.decodeByte();
         if (header == InHeader.USER_SHOOT_ATTACK) {
             int idk3 = inPacket.decodeInt();
-            ai.isJablin = inPacket.decodeByte() != 0;
+            ai.isExJablin = inPacket.decodeByte() != 0;
             if (ai.boxAttack) {
                 int boxIdk1 = inPacket.decodeInt();
                 short boxIdk2 = inPacket.decodeShort();

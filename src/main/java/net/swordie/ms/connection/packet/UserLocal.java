@@ -586,4 +586,9 @@ public class UserLocal {
         outPacket.encodeInt(success ? 11 : 0);
         return outPacket;
     }
+
+    public static OutPacket setNextShootExJablin() {
+        OutPacket outPacket = new OutPacket(OutHeader.SET_NEXT_SHOOT_EX_JABLIN);
+        return outPacket;
+    }
 }

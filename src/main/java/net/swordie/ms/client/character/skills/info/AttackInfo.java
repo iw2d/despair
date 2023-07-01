@@ -65,7 +65,7 @@ public class AttackInfo {
     public int updateTime;
     public int bulletID;
     public short mobMove;
-    public boolean isJablin;
+    public boolean isExJablin;
     public int bulletCount;
     public Position bodyRelMove;
     public Position keyDownRectMoveXY;

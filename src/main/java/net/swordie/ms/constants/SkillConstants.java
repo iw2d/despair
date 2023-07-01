@@ -1145,6 +1145,7 @@ public class SkillConstants {
         // for non-passive skills that give passive stats
         switch (skillId) {
             case Hero.ENDURE:
+            case Hero.CHANCE_ATTACK:
             case Hero.ADVANCED_COMBO:
             case Hero.ADVANCED_FINAL_ATTACK:
             case Hero.ADVANCED_FINAL_ATTACK_ACCURACY:
@@ -1174,6 +1175,8 @@ public class SkillConstants {
             case Marksman.FREEZER:
             case Marksman.HOOKSHOT:
             case Marksman.PAIN_KILLER:
+            case NightLord.ENVELOPING_DARKNESS:
+            case NightLord.EXPERT_THROWING_STAR_HANDLING:
                 return true;
             default:
                 return false;
@@ -1670,6 +1673,9 @@ public class SkillConstants {
             case Bowmaster.ILLUSION_STEP_BOW:
             case Marksman.ILLUSION_STEP_XBOW:
                 stats.remove(BaseStat.dex); // active effect
+                break;
+            case NightLord.CRITICAL_THROW:
+                stats.put(BaseStat.cr, si.getValue(SkillStat.prop, slv));
                 break;
         }
     }

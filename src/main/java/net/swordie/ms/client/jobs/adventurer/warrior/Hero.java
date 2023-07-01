@@ -37,6 +37,7 @@ public class Hero extends Warrior {
     public static final int COMBO_FURY = 1101012;
     public static final int COMBO_FURY_DOWN = 1100012;
     public static final int SELF_RECOVERY = 1110000;
+    public static final int CHANCE_ATTACK = 1110009;
     public static final int COMBO_SYNERGY = 1110013;
     public static final int PANIC = 1111003;
     public static final int SHOUT = 1111008;

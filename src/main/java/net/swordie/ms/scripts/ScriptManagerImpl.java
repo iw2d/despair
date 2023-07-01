@@ -90,8 +90,6 @@ public class ScriptManagerImpl implements ScriptManager {
 	public static final String SCRIPT_ENGINE_NAME = "python";
 	public static final String QUEST_START_SCRIPT_END_TAG = "s";
 	public static final String QUEST_COMPLETE_SCRIPT_END_TAG = "e";
-
-	private static final ExecutorService SCRIPT_EXECUTOR_SERVICE = Executors.newCachedThreadPool();
 	private static final String SCRIPT_ENGINE_EXTENSION = ".py";
 	private static final String DEFAULT_SCRIPT = "undefined";
 	private static final String INTENDED_NPE_MSG = "Intended NPE by forceful script stop.";
@@ -216,7 +214,7 @@ public class ScriptManagerImpl implements ScriptManager {
 		}
 		scriptInfo.setObjectID(objID);
 		getScripts().put(scriptType, scriptInfo);
-		SCRIPT_EXECUTOR_SERVICE.execute(() -> startScript(scriptName, scriptType)); // makes the script execute async
+		EventManager.addEvent(() -> startScript(scriptName, scriptType), 0); // makes the script execute async
 	}
 
 	private boolean isQuestScriptAllowed() {

@@ -205,7 +205,7 @@ public class Thief extends Beginner {
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DarkSight, o1);
+                tsm.putCharacterStatValue(DarkSight, o1); // TODO: test/implement cooldown increase on dodging hp% attack
                 break;
             case NightLord.CLAW_BOOSTER:
             case Shadower.DAGGER_BOOSTER:

@@ -78,7 +78,7 @@ public class Archer extends Beginner {
     @Override
     public void handleRemoveCTS(CharacterTemporaryStat cts) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (cts == NoBulletConsume) {
+        if (cts == SoulArrow) {
             chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
         }
         super.handleRemoveCTS(cts);

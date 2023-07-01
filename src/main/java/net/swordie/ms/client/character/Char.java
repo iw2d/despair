@@ -1845,7 +1845,7 @@ public class Char {
 	 */
 	public void addToBaseStatCache(Skill skill) {
 		SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-		if (SkillConstants.isPassiveSkill(skill.getSkillId()) && si.getPsdSkills().isEmpty()) {
+		if (SkillConstants.isPassiveSkill(skill.getSkillId())) {
 			Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel());
 			stats.forEach(this::addBaseStat);
 		}
@@ -1863,7 +1863,7 @@ public class Char {
 	 */
 	public void removeFromBaseStatCache(Skill skill) {
 		SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-		if (SkillConstants.isPassiveSkill(skill.getSkillId()) && si.getPsdSkills().isEmpty()) {
+		if (SkillConstants.isPassiveSkill(skill.getSkillId())) {
 			Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel());
 			stats.forEach(this::removeBaseStat);
 		}
@@ -4740,7 +4740,7 @@ public class Char {
 		return hasEnough;
 	}
 
-	public boolean applyBulletCon(int skillID, byte slv) {
+	public boolean applyBulletCon(int skillID, byte slv, boolean isExJablin) {
 		if (getTemporaryStatManager().hasStat(NoBulletConsume) || JobConstants.isPhantom(getJob())) {
 			return true;
 		}
@@ -4755,6 +4755,9 @@ public class Char {
 		if (bulletCon <= 0) {
 			return true;
 		}
+		if (getTemporaryStatManager().hasStat(ShadowPartner)) {
+			bulletCon *= 2;
+		}
 		int bulletItemId = getBulletIDForAttack();
 		if (bulletItemId == 0) {
 			return false;
@@ -4764,7 +4767,7 @@ public class Char {
 		}
 		boolean hasEnough = hasItemCount(bulletItemId, bulletCon);
 		if (hasEnough) {
-			consumeItem(bulletItemId, bulletCon);
+			consumeItem(bulletItemId, bulletCon - (isExJablin ? 1 : 0));
 		}
 		return hasEnough;
 	}

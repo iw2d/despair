@@ -743,7 +743,7 @@ public class Pirate extends Beginner {
                 tsm.putCharacterStatValue(PartyBooster, pb.getOption());
                 break;
             case INFINITY_BLAST:
-                o1.nOption = si.getValue(x, slv);
+                o1.nOption = chr.getBulletIDForAttack() - 2329999;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(NoBulletConsume, o1);
