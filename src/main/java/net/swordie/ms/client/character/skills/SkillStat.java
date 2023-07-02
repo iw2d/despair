@@ -375,6 +375,9 @@ public enum SkillStat {
             case indieEva:
             case eva:
                 return BaseStat.eva;
+            case er:
+            case evaR:
+                return BaseStat.evaR;
             case indieBooster:
                 return BaseStat.booster;
             case mastery:

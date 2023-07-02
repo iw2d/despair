@@ -10,7 +10,6 @@ import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
-import net.swordie.ms.client.jobs.adventurer.Beginner;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.GameConstants;
@@ -43,8 +42,10 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Shadower extends Thief {
+    public static final int DAGGER_MASTERY = 4200000;
     public static final int STEAL = 4201004; //Special Attack (Steal Debuff)?
     public static final int DAGGER_BOOSTER = 4201002; //Buff
+    public static final int SHIELD_MASTERY = 4200010;
     public static final int MESOGUARD = 4201011; //Buff
     public static final int CRITICAL_GROWTH = 4200013; //Passive Crit increasing buff
     public static final int SHADOW_PARTNER_SHAD = 4211008; //Buff
@@ -54,6 +55,7 @@ public class Shadower extends Thief {
     public static final int MESO_EXPLOSION_ATOM = 4210014;
     public static final int ADVANCED_DARK_SIGHT_SHAD = 4210015;
     public static final int VENOM_SHAD = 4210010; //Passive DoT
+    public static final int DAGGER_EXPERT = 4220012;
     public static final int BOOMERANG_STAB = 4221007; //Special Attack (Stun Debuff)
     public static final int MAPLE_WARRIOR_SHAD = 4221000; //Buff
     public static final int SHADOWER_INSTINCT = 4221013; //Buff //Stacks (Body Count)
@@ -94,9 +96,9 @@ public class Shadower extends Thief {
         Option o3 = new Option();
         SkillInfo FlipTheCoinInfo = SkillData.getSkillInfoById(FLIP_THE_COIN);
         int amount = 1;
-        if(tsm.hasStat(FlipTheCoin)) {
+        if (tsm.hasStat(FlipTheCoin)) {
             amount = tsm.getOption(FlipTheCoin).nOption;
-            if(amount < FlipTheCoinInfo.getValue(y, 1)) {
+            if (amount < FlipTheCoinInfo.getValue(y, 1)) {
                 amount++;
             }
         }

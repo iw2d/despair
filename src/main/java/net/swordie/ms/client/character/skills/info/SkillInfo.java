@@ -4,6 +4,7 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.BodyPart;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.skills.SkillStat;
+import net.swordie.ms.client.jobs.adventurer.thief.Shadower;
 import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.SkillConstants;
@@ -210,14 +211,20 @@ public class SkillInfo {
                 stats.put(ss.getBaseStat(), value + stats.getOrDefault(ss.getBaseStat(), 0))
         );
         // handle shield mastery
-        Item shield = chr.getEquippedItemByBodyPart(BodyPart.Shield);
-        if (shield != null && ItemConstants.isShield(shield.getItemId())) {
-            switch (getSkillId()) {
-                case Paladin.SHIELD_MASTERY:
-                    stats.put(BaseStat.pddR, getValue(SkillStat.x, slv));
-                    stats.put(BaseStat.mddR, getValue(SkillStat.x, slv));
-                    stats.put(BaseStat.pad, getValue(SkillStat.y, slv));
-                    break;
+        if (SkillConstants.isShieldMasterySkill(skillId)) {
+            Item shield = chr.getEquippedItemByBodyPart(BodyPart.Shield);
+            if (shield != null && ItemConstants.isShield(shield.getItemId())) {
+                getBaseStatValues(chr, slv).forEach((bs, value) -> {
+                    stats.put(bs, value);
+                });
+                switch (getSkillId()) {
+                    case Paladin.SHIELD_MASTERY:
+                    case Shadower.SHIELD_MASTERY:
+                        stats.put(BaseStat.pddR, getValue(SkillStat.x, slv));
+                        stats.put(BaseStat.mddR, getValue(SkillStat.x, slv));
+                        stats.put(BaseStat.pad, getValue(SkillStat.y, slv));
+                        break;
+                }
             }
         }
         return stats;

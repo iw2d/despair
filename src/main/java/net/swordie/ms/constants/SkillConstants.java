@@ -1122,6 +1122,9 @@ public class SkillConstants {
     }
 
     public static boolean isPassiveSkill(int skillId) {
+        if (isSkipPassiveSkill(skillId)) {
+            return false;
+        }
         if (isPassiveStatSkill(skillId)) {
             return true;
         }
@@ -1133,7 +1136,7 @@ public class SkillConstants {
         return si != null && si.isPsd() && (si.getPsdSkills().isEmpty() || si.getSkillStatInfo().containsKey(SkillStat.coolTimeR));
     }
 
-    public static boolean isPassiveStatSkill(int skillId) {
+    private static boolean isPassiveStatSkill(int skillId) {
         // overrides
         switch (skillId) {
             case Hero.ADVANCED_COMBO:
@@ -1150,6 +1153,16 @@ public class SkillConstants {
             case Archer.CRITICAL_SHOT:
             case Bowmaster.BOW_MASTERY:
             case Marksman.CROSSBOW_MASTERY:
+            case Shadower.DAGGER_MASTERY:
+                return true;
+        }
+        return false;
+    }
+
+    private static boolean isSkipPassiveSkill(int skillId) {
+        // for passive skills handled elsewhere
+        switch (skillId) {
+            case Paladin.SHIELD_MASTERY:
                 return true;
         }
         return false;
@@ -1163,6 +1176,7 @@ public class SkillConstants {
     public static boolean isShieldMasterySkill(int skillId) {
         switch (skillId) {
             case Paladin.SHIELD_MASTERY:
+            case Shadower.SHIELD_MASTERY:
                 return true;
             default:
                 return false;
@@ -1615,6 +1629,23 @@ public class SkillConstants {
             stats.put(BaseStat.eva, si.getValue(SkillStat.z, slv));
         }
         switch (skillId) {
+            // common
+            case Archer.CRITICAL_SHOT:
+            case NightLord.CRITICAL_THROW:
+                stats.put(BaseStat.cr, si.getValue(SkillStat.prop, slv));
+                break;
+            case Bowmaster.BOW_EXPERT:
+            case Marksman.CROSSBOW_EXPERT:
+            case NightLord.CLAW_EXPERT:
+            case Shadower.DAGGER_EXPERT:
+                stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
+                break;
+            case FirePoison.SPELL_MASTERY_FP:
+            case IceLightning.SPELL_MASTERY_IL:
+            case Bishop.SPELL_MASTERY_BISH:
+                stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
+                break;
+            // class specific
             case Hero.ADVANCED_COMBO:
                 stats.remove(BaseStat.damR);
                 break;
@@ -1625,36 +1656,18 @@ public class SkillConstants {
                 stats.remove(BaseStat.damR); // damR handled as a buff
                 break;
             case DarkKnight.FINAL_PACT_COOLDOWN:
-                stats.remove(BaseStat.minCd);
+                stats.remove(BaseStat.minCd); // ??
                 break;
             case DarkKnight.SACRIFICE:
                 stats.remove(BaseStat.bd);
                 break;
-            case FirePoison.SPELL_MASTERY_FP:
-            case IceLightning.SPELL_MASTERY_IL:
-            case Bishop.SPELL_MASTERY_BISH:
-                stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
-                break;
             case Bishop.RIGHTEOUSLY_INDIGNANT:
-                stats.clear(); // only passive effect
+                stats.clear(); // only want passive damR effect
                 stats.put(BaseStat.damR, si.getValue(SkillStat.z, slv));
-                break;
-            case Archer.CRITICAL_SHOT:
-                stats.put(BaseStat.cr, si.getValue(SkillStat.prop, slv));
-                break;
-            case Bowmaster.BOW_EXPERT:
-            case Marksman.CROSSBOW_EXPERT:
-                stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
                 break;
             case Bowmaster.ILLUSION_STEP_BOW:
             case Marksman.ILLUSION_STEP_XBOW:
                 stats.remove(BaseStat.dex); // active effect
-                break;
-            case NightLord.CRITICAL_THROW:
-                stats.put(BaseStat.cr, si.getValue(SkillStat.prop, slv));
-                break;
-            case NightLord.CLAW_EXPERT:
-                stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
                 break;
         }
     }

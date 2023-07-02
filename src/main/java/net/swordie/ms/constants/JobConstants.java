@@ -4,9 +4,9 @@ import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.enums.WeaponType;
 import net.swordie.ms.util.Util;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+
+import static net.swordie.ms.constants.JobConstants.JobEnum.*;
 
 /**
  * @author Itzik
@@ -15,6 +15,53 @@ public class JobConstants {
 
     public static final boolean enableJobs = true;
     public static final int jobOrder = 8;
+
+    public static final Map<String, List<JobEnum>> JOB_TYPES = Map.ofEntries(
+            Map.entry("Hero", List.of(BEGINNER, WARRIOR, FIGHTER, CRUSADER, HERO)),
+            Map.entry("Paladin", List.of(BEGINNER, WARRIOR, PAGE, WHITEKNIGHT, PALADIN)),
+            Map.entry("Dark Knight", List.of(BEGINNER, WARRIOR, SPEARMAN, DRAGONKNIGHT, DARKKNIGHT)),
+            Map.entry("Arch Mage (F/P)", List.of(BEGINNER, MAGICIAN, FP_WIZARD, FP_MAGE, FP_ARCHMAGE)),
+            Map.entry("Arch Mage (I/L)", List.of(BEGINNER, MAGICIAN, IL_WIZARD, IL_MAGE, IL_ARCHMAGE)),
+            Map.entry("Bishop", List.of(BEGINNER, MAGICIAN, CLERIC, PRIEST, BISHOP)),
+            Map.entry("Bowmaster", List.of(BEGINNER, BOWMAN, HUNTER, RANGER, BOWMASTER)),
+            Map.entry("Marksman", List.of(BEGINNER, BOWMAN, CROSSBOWMAN, SNIPER, MARKSMAN)),
+            Map.entry("Night Lord", List.of(BEGINNER, THIEF, ASSASSIN, HERMIT, NIGHTLORD)),
+            Map.entry("Shadower", List.of(BEGINNER, THIEF, BANDIT, CHIEFBANDIT, SHADOWER)),
+            Map.entry("Dual Blade", List.of(BEGINNER, BLADE_RECRUIT, BLADE_ACOLYTE, BLADE_SPECIALIST, BLADE_LORD, BLADE_MASTER)),
+            Map.entry("Buccaneer", List.of(BEGINNER, PIRATE, BRAWLER, MARAUDER, BUCCANEER)),
+            Map.entry("Corsair", List.of(BEGINNER, PIRATE, GUNSLINGER, OUTLAW, CORSAIR)),
+            Map.entry("Cannoneer", List.of(BEGINNER, PIRATE_CANNONEER, CANNONEER, CANNON_BLASTER, CANNON_MASTER)),
+            Map.entry("Jett", List.of(BEGINNER, JETT1, JETT2, JETT3, JETT4)),
+
+            Map.entry("Dawn Warrior", List.of(NOBLESSE, DAWNWARRIOR1, DAWNWARRIOR2, DAWNWARRIOR3, DAWNWARRIOR4)),
+            Map.entry("Blaze Wizard", List.of(NOBLESSE, BLAZEWIZARD1, BLAZEWIZARD2, BLAZEWIZARD3, BLAZEWIZARD4)),
+            Map.entry("Wind Archer", List.of(NOBLESSE, WINDARCHER1, WINDARCHER2, WINDARCHER3, WINDARCHER4)),
+            Map.entry("Night Walker", List.of(NOBLESSE, NIGHTWALKER1, NIGHTWALKER2, NIGHTWALKER3, NIGHTWALKER4)),
+            Map.entry("Thunder Breaker", List.of(NOBLESSE, THUNDERBREAKER1, THUNDERBREAKER2, THUNDERBREAKER3 ,THUNDERBREAKER4)),
+            Map.entry("Mihile", List.of(NAMELESS_WARDEN, MIHILE1, MIHILE2, MIHILE3, MIHILE4)),
+
+            Map.entry("Aran", List.of(LEGEND, ARAN1, ARAN2, ARAN3, ARAN4)),
+            Map.entry("Evan", List.of(EVAN, EVAN1, EVAN2, EVAN3, EVAN4)),
+            Map.entry("Mercedes", List.of(MERCEDES, MERCEDES1, MERCEDES2, MERCEDES3, MERCEDES4)),
+            Map.entry("Phantom", List.of(PHANTOM, PHANTOM1, PHANTOM2, PHANTOM3, PHANTOM4)),
+            Map.entry("Luminious", List.of(LUMINOUS, LUMINOUS1, LUMINOUS2, LUMINOUS3, LUMINOUS4)),
+            Map.entry("Shade", List.of(SHADE, SHADE1, SHADE2, SHADE3, SHADE4)),
+
+            Map.entry("Demon Slayer", List.of(DEMON_SLAYER, DEMON_SLAYER1, DEMON_SLAYER2, DEMON_SLAYER3, DEMON_SLAYER4)),
+            Map.entry("Demon Avenger", List.of(DEMON_SLAYER, DEMON_AVENGER1, DEMON_AVENGER2, DEMON_AVENGER3, DEMON_AVENGER4)),
+            Map.entry("Battle Mage", List.of(CITIZEN, BATTLE_MAGE_1, BATTLE_MAGE_2, BATTLE_MAGE_3, BATTLE_MAGE_4)),
+            Map.entry("Wild Hunter", List.of(CITIZEN, WILD_HUNTER_1, WILD_HUNTER_2, WILD_HUNTER_3, WILD_HUNTER_4)),
+            Map.entry("Mechanic", List.of(CITIZEN, MECHANIC_1, MECHANIC_2, MECHANIC_3, MECHANIC_4)),
+            Map.entry("Xenon", List.of(XENON, XENON1, XENON2, XENON3, XENON4)),
+            Map.entry("Blaster", List.of(CITIZEN, BLASTER_1, BLASTER_2, BLASTER_3, BLASTER_4)),
+
+            Map.entry("Hayato", List.of(HAYATO, HAYATO1, HAYATO2, HAYATO3, HAYATO4)),
+            Map.entry("Kanna", List.of(KANNA, KANNA1, KANNA2, KANNA3, KANNA4)),
+
+            Map.entry("Zero", List.of(ZERO, ZERO1, ZERO2, ZERO3, ZERO4)),
+            Map.entry("Beast Tamer", List.of(BEAST_TAMER, BEAST_TAMER_1, BEAST_TAMER_2, BEAST_TAMER_3, BEAST_TAMER_4)),
+            Map.entry("Kinesis", List.of(KINESIS, KINESIS_1, KINESIS_2, KINESIS_3, KINESIS_4))
+    );
 
     public static boolean isPinkBean(short job) {
         return job == JobEnum.PINK_BEAN_0.getJobId() || job == JobEnum.PINK_BEAN_1.getJobId();

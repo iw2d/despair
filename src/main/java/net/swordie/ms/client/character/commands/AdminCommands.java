@@ -51,6 +51,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.RideVehicle;
 import static net.swordie.ms.enums.AccountType.*;
@@ -1130,64 +1131,15 @@ public class AdminCommands {
     @Command(names = {"maxskills"}, requiredType = Tester)
     public static class MaxSkills extends AdminCommand {
         public static void execute(Char chr, String[] args) {
-            List<Skill> list = new ArrayList<>();
-            Set<Short> jobs = new HashSet<>();
-            short job = chr.getJob();
-            // giant hack, but it's for a command, so it's k
-            if (JobConstants.isEvan(job)) {
-                jobs.add((short) 2000);
-                jobs.add((short) 2200);
-                while (job >= 2210) {
-                    jobs.add(job--);
-                }
-            } else {
-                if (job % 100 == 12) {
-                    jobs.add(job);
-                    jobs.add((short) (job - 1));
-                    jobs.add((short) (job - 2));
-                    jobs.add((short) (job - 3));
-                    jobs.add((short) (job - 4));
-                    jobs.add((short) (job - 5));
-                    jobs.add((short) (job - 6));
-                    jobs.add((short) (job - 7));
-                    jobs.add((short) (job - 8));
-                    jobs.add((short) (job - 9));
-                    jobs.add((short) (job - 10));
-                    jobs.add((short) (job - 11));
-                    jobs.add((short) (job - 12));
-                } else if (job % 100 == 11) {
-                    jobs.add(job);
-                    jobs.add((short) (job - 1));
-                    jobs.add((short) (job - 2));
-                    jobs.add((short) (job - 3));
-                    jobs.add((short) (job - 4));
-                    jobs.add((short) (job - 5));
-                    jobs.add((short) (job - 6));
-                    jobs.add((short) (job - 7));
-                    jobs.add((short) (job - 8));
-                    jobs.add((short) (job - 9));
-                    jobs.add((short) (job - 10));
-                    jobs.add((short) (job - 11));
-                    jobs.add((short) (job - 12));
-                } else if (job % 100 == 10) {
-                    jobs.add(job);
-                    jobs.add((short) (job - 1));
-                    jobs.add((short) (job - 2));
-                    jobs.add((short) (job - 3));
-                    jobs.add((short) (job - 4));
-                    jobs.add((short) (job - 5));
-                    jobs.add((short) (job - 6));
-                    jobs.add((short) (job - 7));
-                    jobs.add((short) (job - 8));
-                    jobs.add((short) (job - 9));
-                    jobs.add((short) (job - 10));
-                    jobs.add((short) (job - 11));
-                    jobs.add((short) (job - 12));
-                } else {
-                    jobs.add(job);
-                }
-            }
-            for (short j : jobs) {
+            short jobId = chr.getJob();
+            Set<Short> targetJobs = JobConstants.JOB_TYPES.values().stream()
+                    .filter(jobs -> jobs.stream().anyMatch(jobEnum -> jobEnum.getJobId() == jobId))
+                    .findFirst().orElse(List.of(JobConstants.JobEnum.getJobById(jobId)))
+                    .stream().map(jobEnum -> jobEnum.getJobId())
+                    .filter(id -> id <= jobId)
+                    .collect(Collectors.toSet());
+            for (short j : targetJobs) {
+                List<Skill> list = new ArrayList<>();
                 for (Skill skill : SkillData.getSkillsByJob(j)) {
                     byte maxLevel = (byte) skill.getMaxLevel();
                     skill.setCurrentLevel(maxLevel);
