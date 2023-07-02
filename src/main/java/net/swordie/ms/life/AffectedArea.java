@@ -254,11 +254,11 @@ public class AffectedArea extends Life {
                 if (!mob.isBoss() || chr.hasSkill(NightLord.FRAILTY_CURSE_BOSS_RUSH)) {
                     o.nOption = si.getValue(SkillStat.y, slv) - chr.getSkillStatValue(s, NightLord.FRAILTY_CURSE_SLOW); // already negative in SI
                     o.rOption = skillID;
-                    o.tOption = si.getValue(time, slv);
+                    o.tOption = 5;
                     mts.addStatOptionsAndBroadcast(MobStat.Speed, o);
                     o1.nOption = -si.getValue(SkillStat.w, slv) - chr.getSkillStatValue(v, NightLord.FRAILTY_CURSE_ENHANCE);
                     o1.rOption = skillID;
-                    o1.tOption = si.getValue(time, slv);
+                    o1.tOption = 5;
                     mts.addStatOptionsAndBroadcast(MobStat.PAD, o1);
                     mts.addStatOptionsAndBroadcast(MobStat.PDR, o1);
                     mts.addStatOptionsAndBroadcast(MobStat.MAD, o1);

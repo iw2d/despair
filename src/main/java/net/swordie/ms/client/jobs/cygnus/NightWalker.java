@@ -626,7 +626,7 @@ public class NightWalker extends Noblesse {
                 applyDarkServant();
                 break;
             case SPIRIT_PROJECTION:
-                o1.nOption = si.getValue(x, slv);
+                o1.nOption = chr.getBulletIDForAttack() - 2069999;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(NoBulletConsume, o1);

@@ -20,6 +20,7 @@ import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
+import net.swordie.ms.life.mob.skill.BurnedInfo;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
@@ -92,8 +93,7 @@ public class NightLord extends Thief {
         }
         if (hasHitMobs) {
             handleExpertThrowingStar(attackInfo);
-            procMark(attackInfo);
-            applyMark(attackInfo);
+            handleMark(attackInfo);
             applyBleedDart(attackInfo);
         }
         Option o1 = new Option();
@@ -118,25 +118,34 @@ public class NightLord extends Thief {
                 }
                 break;
             case SHOWDOWN:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skill.getSkillId();
+                // boss effect
+                int bonus = si.getValue(x, slv) + this.chr.getSkillStatValue(x, SHOWDOWN_ENHANCE);
+                o1.nOption = 1;
+                o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
+                o1.xOption = bonus / 2; // exp %
+                o1.yOption = bonus / 2; // drop %
+                // non-boss effect
                 o2.nOption = 1;
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
+                o3.nOption = 1;
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                o3.xOption = bonus;
+                o3.yOption = bonus;
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    if (!mob.isBoss()) {
-                        mts.addStatOptionsAndBroadcast(MobStat.Showdown, o1);
+                    if (mob.isBoss()) {
+                        mts.addStatOptionsAndBroadcast(MobStat.Treasure, o1);
+                    } else {
+                        mts.addStatOptionsAndBroadcast(MobStat.Showdown, o2);
+                        mts.addStatOptionsAndBroadcast(MobStat.Treasure, o3);
                     }
-                    int bonus = si.getValue(x, slv) + chr.getSkillStatValue(x, SHOWDOWN_ENHANCE);
-                    o2.xOption = mob.isBoss() ? bonus / 2 : bonus; // Exp
-                    o2.yOption = mob.isBoss() ? bonus / 2 : bonus; // Item Drop
-                    mts.addStatOptionsAndBroadcast(MobStat.Treasure, o2);
                 }
                 break;
         }
@@ -171,81 +180,74 @@ public class NightLord extends Thief {
         return skillId;
     }
 
-    private void procMark(AttackInfo attackInfo) {
+    private void handleMark(AttackInfo attackInfo) {
         if (attackInfo.skillId == NIGHT_LORDS_MARK_ATOM || attackInfo.skillId == ASSASSINS_MARK_ATOM) {
             return;
         }
         int skillId = getMarkSkill();
         if (skillId == 0) {
-            return;
-        }
-        int atomSkillId = skillId == NIGHT_LORDS_MARK ? NIGHT_LORDS_MARK_ATOM : ASSASSINS_MARK_ATOM;
-        ForceAtomEnum atomEnum = skillId == NIGHT_LORDS_MARK ? ForceAtomEnum.NIGHTLORD_MARK : ForceAtomEnum.ASSASSIN_MARK;
-        SkillInfo si = SkillData.getSkillInfoById(skillId);
-        int slv = chr.getSkillLevel(skillId);
-        int starCount = si.getValue(bulletCount, slv);
-        for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-            Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-            if (mob == null) {
-                continue;
-            }
-            if (!mob.getTemporaryStat().hasBurnFromSkillAndOwner(skillId, chr.getId())) {
-                continue;
-            }
-            Rect rect = new Rect(
-                    new Position(
-                            mob.getPosition().getX() - 800,
-                            mob.getPosition().getY() - 800),
-                    new Position(
-                            mob.getPosition().getX() + 800,
-                            mob.getPosition().getY() + 800)
-            );
-            List<Mob> targets = chr.getField().getMobsInRect(rect);
-            if (targets.size() <= 0) {
-                return;
-            }
-            int angleStart = Util.getRandom((360 / starCount)-1);
-            for (int i = 0; i < starCount; i++) {
-                Mob target = Util.getRandomFromCollection(targets);
-                int angle = (360 / starCount) * i;
-                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), atomEnum.getInc(), 45, 4,
-                        angleStart + angle, 170, Util.getCurrentTime(), 1, 0,
-                        new Position());
-                chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), target.getObjectId(), atomEnum.getForceAtomType(),
-                        true, target.getObjectId(), atomSkillId, forceAtomInfo, rect, 0, 300,
-                        target.getPosition(), chr.getBulletIDForAttack(), target.getPosition()));
-            }
-        }
-    }
-
-    private void applyMark(AttackInfo attackInfo) {
-        if (attackInfo.skillId == NIGHT_LORDS_MARK_ATOM || attackInfo.skillId == ASSASSINS_MARK_ATOM) {
             return;
         }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (!tsm.hasStat(NightLordMark)) {
-            return;
-        }
-        int skillId = getMarkSkill();
-        if (skillId == 0) {
-            return;
-        }
+        boolean hasMarkStat = tsm.hasStat(NightLordMark);
+
         SkillInfo si = SkillData.getSkillInfoById(skillId);
         int slv = chr.getSkillLevel(skillId);
         int proc = si.getValue(SkillStat.prop, slv);
 
-        Option o1 = new Option();
-        o1.nOption = 0;
-        o1.rOption = skillId;
-        o1.tOption = si.getValue(dotTime, slv);
+        int atomSkillId = skillId == NIGHT_LORDS_MARK ? NIGHT_LORDS_MARK_ATOM : ASSASSINS_MARK_ATOM;
+        ForceAtomEnum atomEnum = skillId == NIGHT_LORDS_MARK ? ForceAtomEnum.NIGHTLORD_MARK : ForceAtomEnum.ASSASSIN_MARK;
+        int starCount = si.getValue(bulletCount, slv);
+
         for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
             Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
             if (mob == null) {
                 continue;
             }
-            if (Util.succeedProp(proc)) {
-                mob.getTemporaryStat().createAndAddBurnedInfo(chr, skillId, slv, 0, si.getValue(dotInterval, slv), si.getValue(dotTime, slv), 1);
+            /*
+             * mark gets triggered when:
+             *     - mob has the BurnedInfo
+             *     - mob dies and hasMarkStat && succeedProc(proc)
+             * apply BurnedInfo if hasMarkStat && succeedProc(proc)
+             */
+            MobTemporaryStat mts = mob.getTemporaryStat();
+            BurnedInfo bi = mob.getTemporaryStat().getBurnBySkillAndOwner(skillId, chr.getId());
+            if (bi != null) {
+                mts.removeBurnedInfo(bi, true);
+                procMark(mob, atomSkillId, atomEnum, starCount);
+            } else if (hasMarkStat && Util.succeedProp(proc)) {
+                if (Arrays.stream(mai.damages).sum() >= mob.getHp()) {
+                    procMark(mob, atomSkillId, atomEnum, starCount);
+                } else {
+                    mob.getTemporaryStat().createAndAddBurnedInfo(chr, skillId, slv, 0, si.getValue(dotInterval, slv), si.getValue(dotTime, slv), 1);
+                }
             }
+        }
+    }
+
+    private void procMark(Mob mob, int skillId, ForceAtomEnum atomEnum, int starCount) {
+        Rect rect = new Rect(
+                new Position(
+                        mob.getPosition().getX() - 800,
+                        mob.getPosition().getY() - 800),
+                new Position(
+                        mob.getPosition().getX() + 800,
+                        mob.getPosition().getY() + 800)
+        );
+        List<Mob> targets = chr.getField().getMobsInRect(rect);
+        if (targets.size() <= 0) {
+            return;
+        }
+        int angleStart = Util.getRandom((360 / starCount)-1);
+        for (int i = 0; i < starCount; i++) {
+            Mob target = Util.getRandomFromCollection(targets);
+            int angle = (360 / starCount) * i;
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), atomEnum.getInc(), 45, 4,
+                    angleStart + angle, 170, Util.getCurrentTime(), 1, 0,
+                    new Position());
+            chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), target.getObjectId(), atomEnum.getForceAtomType(),
+                    true, target.getObjectId(), skillId, forceAtomInfo, rect, 0, 300,
+                    target.getPosition(), chr.getBulletIDForAttack(), target.getPosition()));
         }
     }
 
@@ -280,16 +282,13 @@ public class NightLord extends Thief {
         Field field;
         switch (skillID) {
             case FRAILTY_CURSE:
-                SkillInfo fci = SkillData.getSkillInfoById(skillID);
-                int lt1 = si.getValue(lt, slv);
-                int rb1 = si.getValue(rb, slv);
-                AffectedArea aa2 = AffectedArea.getPassiveAA(chr, skillID, slv);
-                aa2.setMobOrigin((byte) 0);
-                aa2.setPosition(chr.getPosition());
-                aa2.setRect(aa2.getPosition().getRectAround(fci.getRects().get(0)));
-                aa2.setFlip(!chr.isLeft());
-                aa2.setDelay((short) 9);
-                chr.getField().spawnAffectedArea(aa2);
+                AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
+                aa.setMobOrigin((byte) 0);
+                aa.setPosition(chr.getPosition());
+                aa.setRect(aa.getPosition().getRectAround(si.getFirstRect()));
+                aa.setFlip(!chr.isLeft());
+                aa.setDelay((short) 9);
+                chr.getField().spawnAffectedArea(aa);
                 break;
             case ASSASSINS_MARK:
                 if (tsm.hasStat(NightLordMark)) {
@@ -308,7 +307,17 @@ public class NightLord extends Thief {
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(NoBulletConsume, o1);
                 break;
-
+            case BLEED_DART:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(BleedingToxin, o1);
+                o2.nValue = si.getValue(indiePad, slv);
+                o2.nReason = skillID;
+                o2.tStart = Util.getCurrentTime();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o2);
+                break;
         }
         tsm.sendSetStatPacket();
     }
