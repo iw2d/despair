@@ -10,6 +10,7 @@ import net.swordie.ms.enums.WeatherEffNoticeType;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.life.mob.Mob;
+import net.swordie.ms.util.Util;
 import net.swordie.ms.world.Channel;
 import net.swordie.ms.world.field.ClockPacket;
 import net.swordie.ms.world.field.Field;
@@ -54,7 +55,7 @@ public class PinkZakumEvent implements InGameEvent {
         winners.clear();
         channelInstance = Server.getInstance().getWorlds().get(0).getChannels().get(0);
         startTimer = EventManager.addEvent(this::start, InGameEventManager.REGISTRATION_DURATION_MINS, TimeUnit.MINUTES);
-        startTimeMillis = System.currentTimeMillis() + InGameEventManager.REGISTRATION_DURATION_MINS * 60* 1000;
+        startTimeMillis = Util.getCurrentTimeLong() + InGameEventManager.REGISTRATION_DURATION_MINS * 60* 1000;
         channelInstance.getField(LOBBY_MAP).setDropsDisabled(true); // to reduce lag
         sendNotice(LOBBY_MAP, "Get ready for an epic Pink Zakum showdown!", InGameEventManager.REGISTRATION_DURATION_MINS * 60);
     }
@@ -65,7 +66,7 @@ public class PinkZakumEvent implements InGameEvent {
                 .broadcastPacket(WvsContext.broadcastMsg(BroadcastMsg.notice("Event registration has ended!")));
 
         if (channelInstance.getField(LOBBY_MAP).getChars().size() > 0) {
-            startTimeMillis = System.currentTimeMillis() + TIME_LIMIT_SECONDS * 1000;
+            startTimeMillis = Util.getCurrentTimeLong() + TIME_LIMIT_SECONDS * 1000;
             warpMap(LOBBY_MAP, BATTLE_MAP);
             broadcastClock(BATTLE_MAP, TIME_LIMIT_SECONDS);
             sendNotice(BATTLE_MAP, "The Zakum will spawn in five seconds!", 5);
@@ -144,7 +145,7 @@ public class PinkZakumEvent implements InGameEvent {
 
     @Override
     public void joinEvent(Char c) {
-        long timeLeftToStart = (startTimeMillis - System.currentTimeMillis()) / 1000;
+        long timeLeftToStart = (startTimeMillis - Util.getCurrentTimeLong()) / 1000;
         c.chatMessage("Time left:" + timeLeftToStart);
         c.changeChannelAndWarp((byte) channelInstance.getChannelId(), LOBBY_MAP);
     }
@@ -185,7 +186,7 @@ public class PinkZakumEvent implements InGameEvent {
     }
 
     private int getTimeLeft() {
-        return (int)(startTimeMillis - System.currentTimeMillis()) / 1000;
+        return (int)(startTimeMillis - Util.getCurrentTimeLong()) / 1000;
     }
 
     @Override

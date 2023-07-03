@@ -672,7 +672,7 @@ public class MobTemporaryStat {
 		bi.setDotAnimation(bi.getAttackDelay() + bi.getInterval() + time);
 		bi.setStartTime(Util.getCurrentTime());
 		bi.setLastUpdate(Util.getCurrentTime());
-		bi.setEnd((int) (System.currentTimeMillis() + time));
+		bi.setEnd(Util.getCurrentTime() + time);
 		long damage = bi.getDamage();
 		if (bis != null && bis.size() >= maxDotStacks) {
 			BurnedInfo toRemove = bis.get(0);

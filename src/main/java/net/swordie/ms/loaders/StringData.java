@@ -42,7 +42,7 @@ public class StringData {
 
     public static void loadItemStringsFromWz() {
         log.info("Started loading item strings from wz.");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         String wzDir = ServerConstants.WZ_DIR + "/String.wz/";
         String[] files = new String[]{"Cash", "Consume", "Eqp", "Ins", "Pet", "Etc"};
         for(String fileDir : files) {
@@ -81,12 +81,12 @@ public class StringData {
                 }
             }
         }
-        log.info(String.format("Loaded item strings from wz in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Loaded item strings from wz in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     public static void loadSkillStringsFromWz() {
         log.info("Started loading skill strings from wz.");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         String wzDir = ServerConstants.WZ_DIR + "/String.wz/Skill.img.xml";
         File file = new File(wzDir);
         Document doc = XMLApi.getRoot(file);
@@ -119,12 +119,12 @@ public class StringData {
                 skillString.put(Integer.parseInt(XMLApi.getNamedAttribute(mainNode, "name")), ssi);
             }
         }
-        log.info(String.format("Loaded skill strings in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Loaded skill strings in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     public static void loadMobStringsFromWz() {
         log.info("Started loading mob strings from wz.");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         String wzDir = ServerConstants.WZ_DIR + "/String.wz/Mob.img.xml";
         File file = new File(wzDir);
         Document doc = XMLApi.getRoot(file);
@@ -143,12 +143,12 @@ public class StringData {
                 }
             }
         }
-        log.info(String.format("Loaded mob strings in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Loaded mob strings in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     public static void loadNpcStringsFromWz() {
         log.info("Started loading npc strings from wz.");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         String wzDir = ServerConstants.WZ_DIR + "/String.wz/Npc.img.xml";
         File file = new File(wzDir);
         Document doc = XMLApi.getRoot(file);
@@ -167,12 +167,12 @@ public class StringData {
                 }
             }
         }
-        log.info(String.format("Loaded npc strings in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Loaded npc strings in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     public static void loadMapStringsFromWz() {
         log.info("Started loading map strings from wz.");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         String wzDir = ServerConstants.WZ_DIR + "/String.wz/Map.img.xml";
         File file = new File(wzDir);
         Document doc = XMLApi.getRoot(file);
@@ -199,7 +199,7 @@ public class StringData {
                 }
             }
         }
-        log.info(String.format("Loaded map strings in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Loaded map strings in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     public static Map<Integer, SkillStringInfo> getSkillString() {
@@ -208,7 +208,7 @@ public class StringData {
 
     public static void generateDatFiles() {
         log.info("Started generating string data.");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         loadSkillStringsFromWz();
         loadItemStringsFromWz();
         loadMobStringsFromWz();
@@ -219,7 +219,7 @@ public class StringData {
         saveMobStrings(ServerConstants.DAT_DIR + "/strings");
         saveNpcStrings(ServerConstants.DAT_DIR + "/strings");
         saveMapStrings(ServerConstants.DAT_DIR + "/strings");
-        log.info(String.format("Completed generating string data in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Completed generating string data in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     private static void saveSkillStrings(String dir) {
@@ -243,7 +243,7 @@ public class StringData {
     }
 
     public static void loadSkillStrings() {
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         File file = new File(ServerConstants.DAT_DIR + "/strings/skills.dat");
         try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(file))) {
             int size = dataInputStream.readInt();
@@ -258,7 +258,7 @@ public class StringData {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        log.info(String.format("Loaded skill strings from data file in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Loaded skill strings from data file in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     private static void saveItemStrings(String dir) {
@@ -278,7 +278,7 @@ public class StringData {
     }
 
     public static void loadItemStrings() {
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         File file = new File(ServerConstants.DAT_DIR + "/strings/items.dat");
         try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(file))) {
             int size = dataInputStream.readInt();
@@ -290,7 +290,7 @@ public class StringData {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        log.info(String.format("Loaded item strings from data file in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Loaded item strings from data file in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     private static void saveMobStrings(String dir) {
@@ -310,7 +310,7 @@ public class StringData {
     }
 
     public static void loadMobStrings() {
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         File file = new File(ServerConstants.DAT_DIR + "/strings/mobs.dat");
         try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(file))) {
             int size = dataInputStream.readInt();
@@ -322,7 +322,7 @@ public class StringData {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        log.info(String.format("Loaded mob strings from data file in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Loaded mob strings from data file in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     private static void saveNpcStrings(String dir) {
@@ -342,7 +342,7 @@ public class StringData {
     }
 
     public static void loadNpcStrings() {
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         File file = new File(ServerConstants.DAT_DIR + "/strings/npcs.dat");
         try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(file))) {
             int size = dataInputStream.readInt();
@@ -354,7 +354,7 @@ public class StringData {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        log.info(String.format("Loaded npc strings from data file in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Loaded npc strings from data file in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     private static void saveMapStrings(String dir) {
@@ -374,7 +374,7 @@ public class StringData {
     }
 
     public static void loadMapStrings() {
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         File file = new File(ServerConstants.DAT_DIR + "/strings/maps.dat");
         try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(file))) {
             int size = dataInputStream.readInt();
@@ -386,7 +386,7 @@ public class StringData {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        log.info(String.format("Loaded item strings from data file in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Loaded item strings from data file in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     public static void main(String[] args) {

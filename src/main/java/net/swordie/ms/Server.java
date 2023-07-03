@@ -63,7 +63,7 @@ public class Server extends Properties {
 
 	private void init(String[] args) {
 		log.info("Starting server.");
-		long startNow = System.currentTimeMillis();
+		long startNow = Util.getCurrentTimeLong();
 
 		try {
 			checkAndCreateDat();
@@ -80,15 +80,15 @@ public class Server extends Properties {
 		ShutDownTask shutDownTask = new ShutDownTask();
 		shutDownTask.start();
 
-		log.info("Finished loading custom NPCs in " + (System.currentTimeMillis() - startNow) + "ms");
+		log.info("Finished loading custom NPCs in " + (Util.getCurrentTimeLong() - startNow) + "ms");
 
 		MapleCrypto.initialize(ServerConstants.VERSION);
 		new Thread(new LoginAcceptor()).start();
 		new Thread(new ChatAcceptor()).start();
 		worldList.add(new World(ServerConfig.WORLD_ID, ServerConfig.SERVER_NAME, GameConstants.CHANNELS_PER_WORLD, ServerConfig.EVENT_MSG));
-		long startCashShop = System.currentTimeMillis();
+		long startCashShop = Util.getCurrentTimeLong();
 		initCashShop();
-		log.info("Loaded Cash Shop in " + (System.currentTimeMillis() - startCashShop) + "ms");
+		log.info("Loaded Cash Shop in " + (Util.getCurrentTimeLong() - startCashShop) + "ms");
 
 		MonsterCollectionData.loadFromSQL();
 
@@ -99,7 +99,7 @@ public class Server extends Properties {
 				new Thread(ca).start();
 			}
 		}
-		log.info(String.format("Finished loading server in %dms", System.currentTimeMillis() - startNow));
+		log.info(String.format("Finished loading server in %dms", Util.getCurrentTimeLong() - startNow));
 		new Thread(() -> {
 			// inits the script engine
 			log.info(String.format("Starting script engine for %s", ScriptManagerImpl.SCRIPT_ENGINE_NAME));
@@ -135,9 +135,9 @@ public class Server extends Properties {
 					name = annotation.varName();
 					File file = new File(datFolder, name + ".dat");
 					boolean exists = file.exists();
-					long start = System.currentTimeMillis();
+					long start = Util.getCurrentTimeLong();
 					method.invoke(c, file, exists);
-					long total = System.currentTimeMillis() - start;
+					long total = Util.getCurrentTimeLong() - start;
 					if (exists) {
 						log.info(String.format("Took %dms to load from %s", total, file.getName()));
 					} else {

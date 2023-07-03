@@ -220,10 +220,10 @@ public class ReactorData {
 
     public static void generateDatFiles() {
         log.info("Started generating reactor data.");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         loadReactorsFromWZ();
         saveReactors(String.format("%s/reactors", ServerConstants.DAT_DIR));
-        log.info(String.format("Completed generating reactor data in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Completed generating reactor data in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     public static void main(String[] args) {

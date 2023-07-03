@@ -1081,9 +1081,9 @@ public class AdminCommands {
     public static class Atom extends AdminCommand {
         public static void execute(Char chr, String[] args) {
             int charID = chr.getId();
-            ForceAtomInfo forceAtomInfo1 = new ForceAtomInfo(chr.getNewForceAtomKey(), ForceAtomEnum.KINESIS_ORB_REAL.getInc(), 3, 3, 0, 0, (int) System.currentTimeMillis(), 1,
+            ForceAtomInfo forceAtomInfo1 = new ForceAtomInfo(chr.getNewForceAtomKey(), ForceAtomEnum.KINESIS_ORB_REAL.getInc(), 3, 3, 0, 0, Util.getCurrentTime(), 1,
                     142110011, new Position());
-            ForceAtomInfo forceAtomInfo2 = new ForceAtomInfo(chr.getNewForceAtomKey(), ForceAtomEnum.KINESIS_ORB_REAL.getInc(), 3, 3, 0, 0, (int) System.currentTimeMillis(), 1,
+            ForceAtomInfo forceAtomInfo2 = new ForceAtomInfo(chr.getNewForceAtomKey(), ForceAtomEnum.KINESIS_ORB_REAL.getInc(), 3, 3, 0, 0, Util.getCurrentTime(), 1,
                     142110011, new Position());
             List<ForceAtomInfo> fais = new ArrayList<>();
             fais.add(forceAtomInfo1);

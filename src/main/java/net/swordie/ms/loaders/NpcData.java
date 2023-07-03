@@ -158,10 +158,10 @@ public class NpcData {
 
 	public static void generateDatFiles() {
 		log.info("Started generating npc data.");
-		long start = System.currentTimeMillis();
+		long start = Util.getCurrentTimeLong();
 		loadNpcsFromWz();
 		saveNpcsToDat(ServerConstants.DAT_DIR + "/npc");
-		log.info(String.format("Completed generating npc data in %dms.", System.currentTimeMillis() - start));
+		log.info(String.format("Completed generating npc data in %dms.", Util.getCurrentTimeLong() - start));
 	}
 
 	public static Set<Npc> getBaseNpcs() {

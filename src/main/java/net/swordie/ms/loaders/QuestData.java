@@ -563,12 +563,12 @@ public class QuestData {
 
     public static void generateDatFiles() {
         log.info("Started generating quest data.");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         if (getBaseQuests().size() == 0) {
             loadQuestsFromWZ();
         }
         saveAllQuestInfos(String.format("%s/quests", ServerConstants.DAT_DIR));
-        log.info(String.format("Completed generating quest data in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Completed generating quest data in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     private static void saveAllQuestInfos(String dir) {

@@ -310,7 +310,7 @@ public class UserHandler {
         int minLevel = chr.getField().getMobs().stream().mapToInt(m -> m.getForcedMobStat().getLevel()).min().orElse(0);
 
         // User is on RuneStone Cooldown
-        if ((c.getChr().getRuneCooldown() + (GameConstants.RUNE_COOLDOWN_TIME * 60000)) < System.currentTimeMillis()) {
+        if ((c.getChr().getRuneCooldown() + (GameConstants.RUNE_COOLDOWN_TIME * 60000)) < Util.getCurrentTimeLong()) {
 
             // Rune is too strong for user
             if (minLevel > c.getChr().getStat(Stat.level)) {
@@ -321,8 +321,8 @@ public class UserHandler {
             // Send Arrow Message
             c.write(FieldPacket.runeStoneUseAck(5));
         } else {
-            long minutes = (((c.getChr().getRuneCooldown() + (GameConstants.RUNE_COOLDOWN_TIME * 60000)) - System.currentTimeMillis()) / 60000);
-            long seconds = (((c.getChr().getRuneCooldown() + (GameConstants.RUNE_COOLDOWN_TIME * 60000)) - System.currentTimeMillis()) / 1000);
+            long minutes = (((c.getChr().getRuneCooldown() + (GameConstants.RUNE_COOLDOWN_TIME * 60000)) - Util.getCurrentTimeLong()) / 60000);
+            long seconds = (((c.getChr().getRuneCooldown() + (GameConstants.RUNE_COOLDOWN_TIME * 60000)) - Util.getCurrentTimeLong()) / 1000);
             chr.chatScriptMessage("You cannot use another Rune for " +
                     (minutes > 0 ?
                             minutes + " minute" + (minutes > 1 ? "s" : "") + " and " + (seconds - (minutes * 60)) + " second" + ((seconds - (minutes * 60)) > 1 ? "s" : "") + "" :
@@ -342,7 +342,7 @@ public class UserHandler {
             c.getChr().getField().useRuneStone(c, runeStone);
             //c.write(FieldPacket.runeStoneSkillAck(runeStone.getRuneType()));
             runeStone.activateRuneStoneEffect(c.getChr());
-            c.getChr().setRuneCooldown(System.currentTimeMillis());
+            c.getChr().setRuneCooldown(Util.getCurrentTimeLong());
         }
         c.getChr().dispose();
     }

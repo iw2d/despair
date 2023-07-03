@@ -235,12 +235,12 @@ public class Xenon extends Job {
                 }
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(y, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(y, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 tsm.sendSetStatPacket();
@@ -306,7 +306,7 @@ public class Xenon extends Job {
             int inc = ForceAtomEnum.XENON_ROCKET_3.getInc();
             int type = ForceAtomEnum.XENON_ROCKET_3.getForceAtomType();
             ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
-                    anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
+                    anglenum, 0, Util.getCurrentTime(), 1, 0,
                     new Position());
             chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                     true, mobID, getPinPointSkill(), forceAtomInfo, new Rect(), 0, 300,
@@ -372,7 +372,7 @@ public class Xenon extends Job {
             case CIRCUIT_SURGE:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1);
                 break;
@@ -385,12 +385,12 @@ public class Xenon extends Job {
             case EFFICIENCY_STREAMLINE:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieMhpR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMHPR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMmpR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMMPR, o2);
                 break;
@@ -424,7 +424,7 @@ public class Xenon extends Job {
             case OOPARTS_CODE:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nOption = si.getValue(x, slv);
@@ -435,7 +435,7 @@ public class Xenon extends Job {
             case MAPLE_WARRIOR_XENON:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;

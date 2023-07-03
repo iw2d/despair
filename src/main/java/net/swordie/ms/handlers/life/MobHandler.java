@@ -126,7 +126,7 @@ public class MobHandler {
                     skillID = mobSkill.getSkillID();
                     slv = mobSkill.getLevel();
                     MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(skillID, slv);
-                    long curTime = System.currentTimeMillis();
+                    long curTime = Util.getCurrentTimeLong();
                     long interval = msi.getSkillStatIntValue(MobSkillStat.interval) * 1000;
                     long nextUseableTime = curTime + interval;
                     c.getChr().dbgChatMsg(String.format("Mob" + mob + " did skill with ID %d (%s), level = %d",

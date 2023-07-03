@@ -6,6 +6,7 @@ import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.loaders.FieldData;
+import net.swordie.ms.util.Util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -312,7 +313,7 @@ public class Instance {
             warpOutTimer.cancel(true);
         }
         warpOutTimer = EventManager.addEvent(this::clear, seconds, TimeUnit.SECONDS);
-        warpOutTimeout = System.currentTimeMillis() + seconds * 1000;
+        warpOutTimeout = Util.getCurrentTimeLong() + seconds * 1000;
         broadcast(FieldPacket.clock(ClockPacket.secondsClock(seconds)));
     }
     /**
@@ -320,7 +321,7 @@ public class Instance {
      * @return the remaining time
      */
     public int getRemainingTime() {
-        return (int) ((warpOutTimeout - System.currentTimeMillis()) / 1000);
+        return (int) ((warpOutTimeout - Util.getCurrentTimeLong()) / 1000);
     }
 
     /**

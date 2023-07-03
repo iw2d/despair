@@ -198,7 +198,7 @@ public class DawnWarrior extends Noblesse {
 
                     o2.nReason = RISING_SUN;
                     o2.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(v, slvRS) : siRS.getValue(indieDamR, slvRS);
-                    o2.tStart = (int) System.currentTimeMillis();
+                    o2.tStart = Util.getCurrentTime();
                     o2.tTerm = 0;
                     tsm.putCharacterStatValue(IndieDamR, o2); //Indie
 
@@ -239,7 +239,7 @@ public class DawnWarrior extends Noblesse {
                 //Invisible Sun Buffs
                 o4.nReason = EQUINOX_CYCLE_SUN;
                 o4.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(v, slvRS) : siRS.getValue(indieDamR, slvRS);
-                o4.tStart = (int) System.currentTimeMillis();
+                o4.tStart = Util.getCurrentTime();
                 o4.tTerm = 0;
                 tsm.putCharacterStatValue(IndieDamR, o4);
 
@@ -377,7 +377,7 @@ public class DawnWarrior extends Noblesse {
                 tsm.putCharacterStatValue(PoseType, o1);
                 o2.nReason = skillID;
                 o2.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(v, slv) : si.getValue(indieDamR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = 0;
                 tsm.putCharacterStatValue(IndieDamR, o2); //Indie
                 o3.nOption = chr.hasSkill(MASTER_OF_THE_SWORD) ? -2 : si.getValue(indieBooster, slv);
@@ -394,19 +394,19 @@ public class DawnWarrior extends Noblesse {
             case CALL_OF_CYGNUS_DW:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1); //Indie
                 break;
             case SOUL_FORGE:    //IndieMaxDamageOver is still causing some problems
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1);
                 o2.nReason = skillID;
                 o2.nValue = 1;//   si.getValue(indieMaxDamageOver, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 o3.nOption = 1;
@@ -417,12 +417,12 @@ public class DawnWarrior extends Noblesse {
             case GLORY_OF_THE_GUARDIANS_DW:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;

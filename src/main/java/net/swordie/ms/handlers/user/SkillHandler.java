@@ -304,7 +304,7 @@ public class SkillHandler {
                 crafted.setQuantity(1);// equipment shouldn't be more than one
             }
             if (msr.getExpiredPeriod() > 0) {
-                crafted.setDateExpire(FileTime.fromLong(System.currentTimeMillis() + ((long) msr.getExpiredPeriod() * 60 * 1000)));
+                crafted.setDateExpire(FileTime.fromLong(Util.getCurrentTimeLong() + ((long) msr.getExpiredPeriod() * 60 * 1000)));
             }
             if (msr.isNeedOpenItem()) {
                 chr.removeSkillAndSendPacket(recipeID);

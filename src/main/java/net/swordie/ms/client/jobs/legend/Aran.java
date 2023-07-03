@@ -356,7 +356,7 @@ public class Aran extends Job {
                 int swCDInSec = si.getValue(SkillStat.cooltime, slv);
                 int swCDInMillis = swCDInSec > 0 ? swCDInSec * 1000 : si.getValue(SkillStat.cooltimeMS, slv);
 
-                chr.addSkillCoolTime(SMASH_WAVE, System.currentTimeMillis() + swCDInMillis);
+                chr.addSkillCoolTime(SMASH_WAVE, Util.getCurrentTimeLong() + swCDInMillis);
                 chr.write(UserLocal.skillCooltimeSetM(skillID, swCDInMillis));
                 break;
             case GATHERING_HOOK_COMBO:
@@ -370,7 +370,7 @@ public class Aran extends Job {
                 int ghCDInSec = si.getValue(SkillStat.cooltime, slv);
                 int ghCDInMillis = ghCDInSec > 0 ? ghCDInSec * 1000 : si.getValue(SkillStat.cooltimeMS, slv);
 
-                chr.addSkillCoolTime(GATHERING_HOOK, System.currentTimeMillis() + ghCDInMillis);
+                chr.addSkillCoolTime(GATHERING_HOOK, Util.getCurrentTimeLong() + ghCDInMillis);
                 chr.write(UserLocal.skillCooltimeSetM(skillID, ghCDInMillis));
                 break;
         }
@@ -571,19 +571,19 @@ public class Aran extends Job {
             case MAHA_BLESSING:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieMad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMAD, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indiePad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o2);
                 break;
             case MAPLE_WARRIOR_ARAN:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
@@ -591,12 +591,12 @@ public class Aran extends Job {
             case HEROIC_MEMORIES_ARAN:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;

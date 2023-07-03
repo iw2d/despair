@@ -477,7 +477,7 @@ public class Kaiser extends Job {
         tsm.putCharacterStatValue(Speed, o3);
         o4.nReason = 0;
         o4.nValue = (stage * gaugeInfo.getValue(actionSpeed, 1));
-        o4.tStart = (int) System.currentTimeMillis();
+        o4.tStart = Util.getCurrentTime();
         o4.tTerm = 0;
         tsm.putCharacterStatValue(IndieBooster, o4); //Indie
         tsm.sendSetStatPacket();
@@ -579,7 +579,7 @@ public class Kaiser extends Job {
             case NOVA_WARRIOR_KAISER:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
@@ -658,7 +658,7 @@ public class Kaiser extends Job {
                 tsm.putCharacterStatValue(CriticalBuff, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indiePMdR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePMdR, o2);
                 o3.nOption = si.getValue(jump, slv);
@@ -691,7 +691,7 @@ public class Kaiser extends Job {
                 tsm.putCharacterStatValue(CriticalBuff, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indiePMdR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePMdR, o2);
                 o3.nOption = si.getValue(jump, slv);
@@ -711,12 +711,12 @@ public class Kaiser extends Job {
             case KAISERS_MAJESTY:
                 o1.nReason = skillID;
                 o1.nValue = -1;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBooster, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indiePad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o2);
                 for (int skillId : chr.getSkillCoolTimes().keySet()) {

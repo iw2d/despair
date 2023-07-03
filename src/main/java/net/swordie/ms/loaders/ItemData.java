@@ -1946,7 +1946,7 @@ public class ItemData {
     @SuppressWarnings("unused") // Reflection
     public static void generateDatFiles() {
         log.info("Started generating item data.");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         loadEquipsFromWz();
         loadMountItemsFromFile();
         loadItemsFromWZ();
@@ -1957,7 +1957,7 @@ public class ItemData {
         saveItems(ServerConstants.DAT_DIR + "/items");
         savePets(ServerConstants.DAT_DIR + "/pets");
         saveItemOptions(ServerConstants.DAT_DIR);
-        log.info(String.format("Completed generating item data in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Completed generating item data in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     public static void main(String[] args) {

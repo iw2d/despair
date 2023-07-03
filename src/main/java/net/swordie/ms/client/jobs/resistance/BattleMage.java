@@ -121,7 +121,7 @@ public class BattleMage extends Citizen {
         o1.nReason = skillID;
         o1.nValue = 1;
         o1.summon = death;
-        o1.tStart = (int) System.currentTimeMillis();
+        o1.tStart = Util.getCurrentTime();
         o1.tTerm = 0; // #time is used for something else
         tsm.putCharacterStatValue(IndieEmpty, o1);
         tsm.sendSetStatPacket();
@@ -267,13 +267,13 @@ public class BattleMage extends Citizen {
 
     private int doCondemnationAttack(int killCount) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if(lastCondemnationAttack + (getCondemnationCooldown() * 1000) < System.currentTimeMillis()) {
+        if(lastCondemnationAttack + (getCondemnationCooldown() * 1000) < Util.getCurrentTimeLong()) {
             spawnDeath(getCondemnationSkill().getSkillId(), (byte)1);
             death = tsm.getOption(IndieEmpty).summon;
             chr.write(Summoned.summonedAssistAttackRequest(death));
             killCount = 0;
 
-            lastCondemnationAttack = System.currentTimeMillis();
+            lastCondemnationAttack = Util.getCurrentTimeLong();
         }
         return killCount;
     }
@@ -332,9 +332,9 @@ public class BattleMage extends Citizen {
         byte slv = (byte) skill.getCurrentLevel();
         SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
         int duration = 1000 * si.getValue(subTime, slv);
-        if ((tsm.getOptByCTSAndSkill(BMageAura, DRAINING_AURA) != null) && (drainAuraCD + duration < System.currentTimeMillis())) {
+        if ((tsm.getOptByCTSAndSkill(BMageAura, DRAINING_AURA) != null) && (drainAuraCD + duration < Util.getCurrentTimeLong())) {
             for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                drainAuraCD = System.currentTimeMillis();
+                drainAuraCD = Util.getCurrentTimeLong();
                 int totaldmg = Arrays.stream(mai.damages).sum();
                 int healingrate = si.getValue(x, slv);
                 int restoration = (int) (totaldmg / ((double) 100 / healingrate));
@@ -461,12 +461,12 @@ public class BattleMage extends Citizen {
 
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieSpeed, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = 0;
                 tsm.putCharacterStatValue(IndieSpeed, o1);
                 o2.nReason = skillID;
                 o2.nValue = -1;//   si.getValue(indieBooster, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = 0;
                 tsm.putCharacterStatValue(IndieBooster, o2);
                 o3.nOption = 1;
@@ -514,7 +514,7 @@ public class BattleMage extends Citizen {
 
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o3.nOption = 1;
@@ -563,19 +563,19 @@ public class BattleMage extends Citizen {
             case MAPLE_WARRIOR_BAM:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case FOR_LIBERTY_BAM:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;

@@ -8,6 +8,7 @@ import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.connection.packet.MiniroomPacket;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.life.Life;
+import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class Merchant extends Life {
     }
 
     public int getTimeLeft() {
-        return (int) ((System.currentTimeMillis() - startTime) / 1000);
+        return (int) ((Util.getCurrentTimeLong() - startTime) / 1000);
     }
 
     public void addVisitor(Char visitor) {

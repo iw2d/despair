@@ -166,7 +166,7 @@ public class BlazeWizard extends Noblesse {
             o2.nReason = getFlameElement();
             o2.nValue = 1;
             o2.summon = summon;
-            o2.tStart = (int) System.currentTimeMillis();
+            o2.tStart = Util.getCurrentTime();
             o2.tTerm = si.getValue(time, slv);
             tsm.putCharacterStatValue(IndieEmpty, o2);
 
@@ -358,7 +358,7 @@ public class BlazeWizard extends Noblesse {
             case CALL_OF_CYGNUS_BW:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1); //Indie
                 break;
@@ -408,7 +408,7 @@ public class BlazeWizard extends Noblesse {
 
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(y, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o1);
                 o2.nOption = si.getValue(z, slv);
@@ -432,12 +432,12 @@ public class BlazeWizard extends Noblesse {
             case GLORY_OF_THE_GUARDIANS_BW:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;

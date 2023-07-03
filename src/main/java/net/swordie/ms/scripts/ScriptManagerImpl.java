@@ -1140,7 +1140,7 @@ public class ScriptManagerImpl implements ScriptManager {
 			if (forcedReturnFieldId != 0) {
 				instance.setForcedReturn(forcedReturnFieldId);
 			}
-			if (instance.getRemainingTime() < System.currentTimeMillis()) {
+			if (instance.getRemainingTime() < Util.getCurrentTimeLong()) {
 				// don't override old timeout value
 				instance.setTimeout(seconds);
 			}
@@ -1156,7 +1156,7 @@ public class ScriptManagerImpl implements ScriptManager {
 			if (portalId != 0) {
 				instance.setForcedReturnPortalId(portalId);
 			}
-			if (instance.getRemainingTime() < System.currentTimeMillis()) {
+			if (instance.getRemainingTime() < Util.getCurrentTimeLong()) {
 				// don't override old timeout value
 				instance.setTimeout(seconds);
 			}
@@ -2150,7 +2150,7 @@ public class ScriptManagerImpl implements ScriptManager {
 	}
 
 	public String getDay() {
-		return new SimpleDateFormat("EEEE", Locale.ENGLISH).format(System.currentTimeMillis());
+		return new SimpleDateFormat("EEEE", Locale.ENGLISH).format(Util.getCurrentTimeLong());
 	}
 
 	public int getMPExpByMobId(int templateId) {

@@ -26,6 +26,7 @@ import net.swordie.ms.life.Merchant.Merchant;
 import net.swordie.ms.life.Merchant.MerchantItem;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.util.FileTime;
+import net.swordie.ms.util.Util;
 import net.swordie.ms.world.World;
 import net.swordie.ms.world.field.Field;
 import org.apache.logging.log4j.LogManager;
@@ -240,7 +241,7 @@ public class RoomHandler {
                 inPacket.decodeInt();  //tock
                 int itemid = chr.getCashInventory().getItemBySlot(slot).getItemId();
                 Merchant merchant = new Merchant(0);
-                merchant.setStartTime(System.currentTimeMillis());
+                merchant.setStartTime(Util.getCurrentTimeLong());
                 merchant.setPosition(chr.getPosition());
                 merchant.setOwnerID(chr.getId());
                 merchant.setOwnerName(chr.getName());

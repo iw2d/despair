@@ -420,7 +420,7 @@ public class JobSkillHandler {
                 }
 
                 ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 25, 30,
-                        0, 10 * i, (int) System.currentTimeMillis(), 1, 0,
+                        0, 10 * i, Util.getCurrentTime(), 1, 0,
                         new Position());
                 chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                         true, mob.getObjectId(), Kaiser.TEMPEST_BLADES_FIVE_FF, forceAtomInfo, new Rect(), 0, 300,
@@ -452,7 +452,7 @@ public class JobSkillHandler {
                 }
 
                 ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 25, 30,
-                        0, 12 * i, (int) System.currentTimeMillis(), 1, 0,
+                        0, 12 * i, Util.getCurrentTime(), 1, 0,
                         new Position());
                 chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                         true, mob.getObjectId(), Kaiser.TEMPEST_BLADES_FIVE_FF, forceAtomInfo, new Rect(), 0, 300,

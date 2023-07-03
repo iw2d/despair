@@ -211,7 +211,7 @@ public abstract class Job {
 				slv = (byte) skill.getCurrentLevel();
 				o1.nReason = RuneStone.LIBERATE_THE_DESTRUCTIVE_RUNE_BUFF;
 				o1.nValue = si.getValue(indieDamR, slv); //50% DamR
-				o1.tStart = (int) System.currentTimeMillis();
+				o1.tStart = Util.getCurrentTime();
 				o1.tTerm = si.getValue(time, slv);
 				tsm.putCharacterStatValue(IndieDamR, o1);
 
@@ -380,7 +380,7 @@ public abstract class Job {
 		Option o5 = new Option();
 		Summon summon;
 		Field field;
-		int curTime = (int) System.currentTimeMillis();
+		int curTime = Util.getCurrentTime();
 		boolean sendStat = true;
 		switch (skillID) {
 			case BOSS_SLAYERS:

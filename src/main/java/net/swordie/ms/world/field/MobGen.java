@@ -6,6 +6,7 @@ import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.util.Position;
+import net.swordie.ms.util.Util;
 
 /**
  * @author Sjonnie
@@ -51,7 +52,7 @@ public class MobGen extends Life {
             field.broadcastPacket(MobPool.forceChase(mob.getObjectId(),false));
         }
 
-        setNextPossibleSpawnTime(System.currentTimeMillis() + (getMob().getMobTime() * 1000));
+        setNextPossibleSpawnTime(Util.getCurrentTimeLong() + (getMob().getMobTime() * 1000));
         setHasSpawned(true);
     }
 
@@ -68,7 +69,7 @@ public class MobGen extends Life {
         // not over max mobs, delay of spawn ended, if mobtime == -1 (not respawnable) must not have yet spawned
         // no mob in area around this, unless kishin is active
         return currentMobs < field.getMobCapacity() &&
-                getNextPossibleSpawnTime() < System.currentTimeMillis() &&
+                getNextPossibleSpawnTime() < Util.getCurrentTimeLong() &&
                 (getMob().getMobTime() != -1 || !hasSpawned()) &&
                 (field.hasKishin() ||
                         field.getMobsInRect(getPosition().getRectAround(GameConstants.MOB_CHECK_RECT)).size() == 0 ||

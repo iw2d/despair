@@ -107,12 +107,12 @@ public class FileTime implements Serializable {
 	}
 
 	/**
-	 * Creates a new FileTime from the current time (System.currentTimeMillis()). Ensures the date is correctly c
+	 * Creates a new FileTime from the current time (Util.getCurrentTimeLong()). Ensures the date is correctly c
 	 * alculated for the client.
 	 * @return FileTime corresponding to the current time
 	 */
 	public static FileTime currentTime() {
-		return fromEpochMillis(System.currentTimeMillis());
+		return fromEpochMillis(Util.getCurrentTimeLong());
 	}
 
 	/**
@@ -206,7 +206,7 @@ public class FileTime implements Serializable {
 	 * @return expiredness
 	 */
 	public boolean isExpired() {
-		return !isPermanent() && toMillis() < System.currentTimeMillis();
+		return !isPermanent() && toMillis() < Util.getCurrentTimeLong();
 	}
 
 	private boolean isPermanent() {

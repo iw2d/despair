@@ -3,6 +3,7 @@ package net.swordie.ms.client.character.skills.temp;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.util.FileTime;
+import net.swordie.ms.util.Util;
 
 /**
  * Created on 2/3/2018.
@@ -79,7 +80,7 @@ public class TemporaryStatBase {
     public void reset() {
         getOption().nOption = 0;
         getOption().rOption = 0;
-        setLastUpdated(System.currentTimeMillis());
+        setLastUpdated(Util.getCurrentTimeLong());
     }
 
     private void setLastUpdated(long epochMillis) {

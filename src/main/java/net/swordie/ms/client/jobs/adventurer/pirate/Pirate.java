@@ -723,10 +723,10 @@ public class Pirate extends Beginner {
                 tsm.putCharacterStatValue(Booster, o1);
                 break;
             case TIME_LEAP:
-                long nextAvailableTime = System.currentTimeMillis() + (si.getValue(time, slv)*1000);
+                long nextAvailableTime = Util.getCurrentTimeLong() + (si.getValue(time, slv)*1000);
                 chr.getScriptManager().createQuestWithQRValue(chr, GameConstants.TIME_LEAP_QR_KEY, String.valueOf(nextAvailableTime), false);
                 if (chr.getQuestManager().getQuestById(GameConstants.TIME_LEAP_QR_KEY).getQRValue() == null
-                        || Long.parseLong(chr.getQuestManager().getQuestById(GameConstants.TIME_LEAP_QR_KEY).getQRValue()) < System.currentTimeMillis()) {
+                        || Long.parseLong(chr.getQuestManager().getQuestById(GameConstants.TIME_LEAP_QR_KEY).getQRValue()) < Util.getCurrentTimeLong()) {
                     for (int skillId : chr.getSkillCoolTimes().keySet()) {
                         if (!SkillData.getSkillInfoById(skillId).isNotCooltimeReset() && SkillData.getSkillInfoById(skillId).getHyper() == 0) {
                             chr.resetSkillCoolTime(skillId);
@@ -738,7 +738,7 @@ public class Pirate extends Beginner {
                 PartyBooster pb = (PartyBooster) tsm.getTSBByTSIndex(TSIndex.PartyBooster);
                 pb.setNOption(-1);
                 pb.setROption(skillID);
-                pb.setCurrentTime((int) System.currentTimeMillis());
+                pb.setCurrentTime(Util.getCurrentTime());
                 pb.setExpireTerm(1);
                 tsm.putCharacterStatValue(PartyBooster, pb.getOption());
                 break;
@@ -754,7 +754,7 @@ public class Pirate extends Beginner {
             case MAPLE_WARRIOR_SAIR:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
@@ -832,37 +832,37 @@ public class Pirate extends Beginner {
             case MEGA_MONKEY_MAGIC:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieAcc, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieACC, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieAllStat, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieAllStat, o2);
                 o3.nReason = skillID;
                 o3.nValue = si.getValue(indieEva, slv);
-                o3.tStart = (int) System.currentTimeMillis();
+                o3.tStart = Util.getCurrentTime();
                 o3.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieEVA, o3);
                 o4.nReason = skillID;
                 o4.nValue = si.getValue(indieJump, slv);
-                o4.tStart = (int) System.currentTimeMillis();
+                o4.tStart = Util.getCurrentTime();
                 o4.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieJump, o4);
                 o5.nReason = skillID;
                 o5.nValue = si.getValue(indieMhp, slv);
-                o5.tStart = (int) System.currentTimeMillis();
+                o5.tStart = Util.getCurrentTime();
                 o5.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMHP, o5);
                 o6.nReason = skillID;
                 o6.nValue = si.getValue(indieMmp, slv);
-                o6.tStart = (int) System.currentTimeMillis();
+                o6.tStart = Util.getCurrentTime();
                 o6.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMMP, o6);
                 o7.nReason = skillID;
                 o7.nValue = si.getValue(indieSpeed, slv);
-                o7.tStart = (int) System.currentTimeMillis();
+                o7.tStart = Util.getCurrentTime();
                 o7.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieSpeed, o7);
                 break;
@@ -886,12 +886,12 @@ public class Pirate extends Beginner {
                 tsm.putCharacterStatValue(STR, o2);
                 o3.nReason = skillID;
                 o3.nValue = si.getValue(indieCr, slv);
-                o3.tStart = (int) System.currentTimeMillis();
+                o3.tStart = Util.getCurrentTime();
                 o3.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieCr, o3);
                 o4.nReason = skillID;
                 o4.nValue = si.getValue(indieDamR, slv);
-                o4.tStart = (int) System.currentTimeMillis();
+                o4.tStart = Util.getCurrentTime();
                 o4.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o4);
                 break;
@@ -926,12 +926,12 @@ public class Pirate extends Beginner {
                 tsm.putCharacterStatValue(Stance, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieAllStat, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieAllStat, o2);
                 o3.nReason = skillID;
                 o3.nValue = si.getValue(indieCr, slv);
-                o3.tStart = (int) System.currentTimeMillis();
+                o3.tStart = Util.getCurrentTime();
                 o3.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieCr, o3);
                 break;
@@ -948,7 +948,7 @@ public class Pirate extends Beginner {
                 tsm.putCharacterStatValue(EVA, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indiePadR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePADR, o2);
                 o3.nOption = si.getValue(z, slv);
@@ -967,7 +967,7 @@ public class Pirate extends Beginner {
             case CROSSBONES:
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indiePadR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePADR, o2);
                 break;
@@ -979,12 +979,12 @@ public class Pirate extends Beginner {
             case EPIC_ADVENTURER_SAIR:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
@@ -1006,7 +1006,7 @@ public class Pirate extends Beginner {
             case WHALERS_POTION:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieMhpR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMHPR, o1);
                 o2.nOption = si.getValue(y, slv);
@@ -1118,7 +1118,7 @@ public class Pirate extends Beginner {
             tsm.putCharacterStatValue(DamageReduce, o1);
             o2.nReason = getPirateRevenge().getSkillId();
             o2.nValue = si.getValue(indieDamR, slv);
-            o2.tStart = (int) System.currentTimeMillis();
+            o2.tStart = Util.getCurrentTime();
             o2.tTerm = si.getValue(time, slv);
             tsm.putCharacterStatValue(IndieDamR, o2);
             tsm.sendSetStatPacket();

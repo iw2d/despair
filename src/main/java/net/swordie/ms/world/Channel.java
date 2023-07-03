@@ -198,7 +198,7 @@ public class Channel {
         if (canSpawn) {
             c.chatMessage("Dark forces bring something out of the shadows.");
             areaBossSpawns.putIfAbsent(curChannelId, new HashMap<>());
-            areaBossSpawns.get(curChannelId).putIfAbsent(targetFieldId, System.currentTimeMillis() + bossInfo.getRespawnTimeMin() * 60 * 1000);
+            areaBossSpawns.get(curChannelId).putIfAbsent(targetFieldId, Util.getCurrentTimeLong() + bossInfo.getRespawnTimeMin() * 60 * 1000);
 
             // -1 means its handled elsewhere (scripted) so we don't need to spawn it
             if (bossInfo.getBossID() <= 0) {
@@ -220,13 +220,13 @@ public class Channel {
         }
 
         areaBossSpawns.putIfAbsent(curChannelId, new HashMap<>());
-        areaBossSpawns.get(curChannelId).putIfAbsent(targetFieldId, System.currentTimeMillis() + bossInfo.getRespawnTimeMin() * 60 * 1000);
+        areaBossSpawns.get(curChannelId).putIfAbsent(targetFieldId, Util.getCurrentTimeLong() + bossInfo.getRespawnTimeMin() * 60 * 1000);
     }
 
     public boolean canWarpAreaBoss(Char c, int targetFieldId, int curChannelId) {
         try {
             long lastSpawnTime = areaBossSpawns.get(curChannelId).get(targetFieldId);
-            if (lastSpawnTime - System.currentTimeMillis() > 0) {
+            if (lastSpawnTime - Util.getCurrentTimeLong() > 0) {
                 return false;
             }
         } catch (NullPointerException ex) {
@@ -243,7 +243,7 @@ public class Channel {
 
         try {
             long lastSpawnTime = areaBossSpawns.get(curChannelId).get(targetFieldId);
-            if (lastSpawnTime - System.currentTimeMillis() > 0) {
+            if (lastSpawnTime - Util.getCurrentTimeLong() > 0) {
                 return false;
             }
         } catch (NullPointerException ex) {
@@ -252,7 +252,7 @@ public class Channel {
 
         // add timer
         areaBossSpawns.putIfAbsent(curChannelId, new HashMap<>());
-        areaBossSpawns.get(curChannelId).putIfAbsent(targetFieldId, System.currentTimeMillis() + GameConstants.SILENT_CRUSADE_BOSS_COOLDOWN * 60 * 1000);
+        areaBossSpawns.get(curChannelId).putIfAbsent(targetFieldId, Util.getCurrentTimeLong() + GameConstants.SILENT_CRUSADE_BOSS_COOLDOWN * 60 * 1000);
 
         return true;
     }

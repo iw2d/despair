@@ -34,7 +34,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
     private static final Map<InHeader, Method> handlers = new HashMap<>();
 
     public static void initHandlers(boolean mayOverride) {
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         String handlersDir = ServerConstants.HANDLERS_DIR;
         Set<File> files = new HashSet<>();
         Util.findAllFilesInDirectory(files, new File(handlersDir));
@@ -67,7 +67,7 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
                 e.printStackTrace();
             }
         }
-        log.info("Initialized " + handlers.size() + " handlers in " + (System.currentTimeMillis() - start) + "ms.");
+        log.info("Initialized " + handlers.size() + " handlers in " + (Util.getCurrentTimeLong() - start) + "ms.");
     }
 
     public ChannelHandler(boolean autoRelease) {

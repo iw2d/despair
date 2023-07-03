@@ -376,7 +376,7 @@ public class Mercedes extends Job {
                 tsm.putCharacterStatValue(IgnisRore, o1);
                 o2.nValue = si.getValue(indiePad, slv);
                 o2.nReason = skillID;
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o2);
                 break;
@@ -401,33 +401,33 @@ public class Mercedes extends Job {
                 tsm.putCharacterStatValue(EMHP, o1);
                 o2.nValue = si.getValue(indiePadR, slv);
                 o2.nReason = skillID;
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePADR, o2);
                 break;
             case MAPLE_WARRIOR_MERC:
                 o1.nValue = si.getValue(x, slv);
                 o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case HEROIC_MEMORIES_MERC:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case ELVISH_BLESSING:
                 o1.nValue = si.getValue(indiePad, slv);
                 o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1);
                 o2.nOption = si.getValue(x, slv);

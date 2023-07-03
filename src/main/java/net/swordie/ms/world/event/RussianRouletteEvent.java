@@ -58,7 +58,7 @@ public class RussianRouletteEvent implements InGameEvent {
         active = true;
         channelInstance = Server.getInstance().getWorlds().get(0).getChannels().get(0);
         startTimer = EventManager.addEvent(this::start, InGameEventManager.REGISTRATION_DURATION_MINS, TimeUnit.MINUTES);
-        startTimeMillis = System.currentTimeMillis() + InGameEventManager.REGISTRATION_DURATION_MINS * 60 * 1000;
+        startTimeMillis = Util.getCurrentTimeLong() + InGameEventManager.REGISTRATION_DURATION_MINS * 60 * 1000;
         channelInstance.getField(EVENT_MAP).setDropsDisabled(true); // lag reduction, look at old extalia events and youll see trolls dropping items to cause major lag
         channelInstance.getField(EVENT_MAP).getNpcs().clear(); // remove the standard npcs
         channelInstance.getField(EVENT_MAP).spawnNpc(eventNpc, npcPos[0], npcPos[1]); // add our custom npc to the map
@@ -192,7 +192,7 @@ public class RussianRouletteEvent implements InGameEvent {
 
     @Override
     public void sendLobbyClock(Char c) {
-        long timeLeft = (startTimeMillis - System.currentTimeMillis()) / 1000;
+        long timeLeft = (startTimeMillis - Util.getCurrentTimeLong()) / 1000;
         if (timeLeft >= 2) {
             c.write(FieldPacket.clock(ClockPacket.secondsClock((int) timeLeft)));
             sendNotice("Get ready for some Russian Roulette, MapleStory style!", (int) timeLeft);

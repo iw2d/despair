@@ -112,11 +112,11 @@ public class SkillData {
     }
 
     public static void loadAllSkills() {
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         String dir = ServerConstants.DAT_DIR + "/skills";
         File folder = new File(dir);
         Arrays.stream(folder.listFiles()).parallel().forEach(SkillData::loadSkill);
-        log.info(String.format("Loaded %s skills from data files in %dms.", getSkillInfos().size(), System.currentTimeMillis() - start));
+        log.info(String.format("Loaded %s skills from data files in %dms.", getSkillInfos().size(), Util.getCurrentTimeLong() - start));
     }
 
     public static void loadSkill(File file) {
@@ -1194,20 +1194,20 @@ public class SkillData {
 
     public static void generateDatFiles() {
         log.info("Started generating skill data.");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         loadSkillsFromWz();
         saveSkills(ServerConstants.DAT_DIR + "/skills");
-        log.info(String.format("Completed generating skill data in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Completed generating skill data in %dms.", Util.getCurrentTimeLong() - start));
         log.info("Started generating mob skill data.");
-        start = System.currentTimeMillis();
+        start = Util.getCurrentTimeLong();
         loadMobSkillsFromWz();
         saveMobSkillsToDat(ServerConstants.DAT_DIR + "/mobSkills");
-        log.info(String.format("Completed generating mob skill data in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Completed generating mob skill data in %dms.", Util.getCurrentTimeLong() - start));
         log.info("Started generating recipe skill data.");
-        start = System.currentTimeMillis();
+        start = Util.getCurrentTimeLong();
         loadMakingRecipeSkillsFromWz();
         saveMakingRecipeSkillsToDat(ServerConstants.DAT_DIR + "/recipes");
-        log.info(String.format("Completed generating recipe skill data in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Completed generating recipe skill data in %dms.", Util.getCurrentTimeLong() - start));
 
     }
 

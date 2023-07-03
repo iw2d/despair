@@ -195,7 +195,7 @@ public class Mihile extends Job {
                         if(chr.getSkill(ROYAL_GUARD) != null && tsm.hasStatBySkillId(ROYAL_GUARD) && !partyTSM.hasStatBySkillId(ROYAL_GUARD)) {
                             o2.nReason = ROYAL_GUARD;
                             o2.nValue = (int) (getRoyalGuardAttPower(chr) * ((double) si.getValue(x, slv) / 100));
-                            o2.tStart = (int) System.currentTimeMillis();
+                            o2.tStart = Util.getCurrentTime();
                             o2.tTerm = 12;
                             partyTSM.putCharacterStatValue(IndiePAD, o2);
                             partyTSM.putCharacterStatValue(IndieMAD, o2);
@@ -208,7 +208,7 @@ public class Mihile extends Job {
                             // Enduring Spirit - DEF
                             o3.nReason = ENDURING_SPIRIT;
                             o3.nValue = (int) (esInfo.getValue(x, esLevel) * ((double) si.getValue(w, slv) / 100));
-                            o3.tStart = (int) System.currentTimeMillis();
+                            o3.tStart = Util.getCurrentTime();
                             o3.tTerm = esInfo.getValue(time, esLevel);
                             partyTSM.putCharacterStatValue(IndiePDDR, o3);
                             partyTSM.putCharacterStatValue(IndieMDDR, o3);
@@ -216,7 +216,7 @@ public class Mihile extends Job {
                             // Enduring Spirit - AsrR
                             o4.nReason = ENDURING_SPIRIT;
                             o4.nValue = (int) (esInfo.getValue(y, esLevel) * ((double) si.getValue(y, slv) / 100));
-                            o4.tStart = (int) System.currentTimeMillis();
+                            o4.tStart = Util.getCurrentTime();
                             o4.tTerm = esInfo.getValue(time, esLevel);
                             partyTSM.putCharacterStatValue(IndieAsrR, o4);
                         }
@@ -236,7 +236,7 @@ public class Mihile extends Job {
             Option o5 = new Option();
             o5.nReason = SOUL_LINK + 100; // for invisible Icon
             o5.nValue = si.getValue(indieDamR, slv) * partySize;
-            o5.tStart = (int) System.currentTimeMillis();
+            o5.tStart = Util.getCurrentTime();
             tsm.putCharacterStatValue(IndieDamR, o5);
             tsm.sendSetStatPacket();
 
@@ -443,14 +443,14 @@ public class Mihile extends Job {
             case RALLY:
                 o1.nValue = si.getValue(indiePad, slv);
                 o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1);
                 break;
             case ENDURING_SPIRIT: // PDDR(DEF%) = x  |  AsrR & TerR = y & z
                 o1.nValue = si.getValue(indiePddR, slv);
                 o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePDDR, o1);
                 o2.nOption = si.getValue(y, slv);
@@ -496,31 +496,31 @@ public class Mihile extends Job {
             case CALL_OF_CYGNUS_MIHILE:
                 o1.nValue = si.getValue(x, slv);
                 o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case QUEEN_OF_TOMORROW:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case SACRED_CUBE:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMhpR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMHPR, o2);
                 o3.nOption = si.getValue(x, slv);

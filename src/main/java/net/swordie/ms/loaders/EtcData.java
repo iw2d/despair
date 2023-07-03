@@ -354,7 +354,7 @@ public class EtcData {
     public static void generateDatFiles() {
         log.info("Started generating etc data.");
         Util.makeDirIfAbsent(ServerConstants.DAT_DIR + "/etc");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         loadAndroidsFromWz();
         saveAndroidInfo(ServerConstants.DAT_DIR + "/etc/android");
         loadSetEffectsFromWz();
@@ -363,7 +363,7 @@ public class EtcData {
         saveCharacterCards(ServerConstants.DAT_DIR + "/etc");
         loadSoulCollectionFromWz();
         saveSoulCollection(ServerConstants.DAT_DIR);
-        log.info(String.format("Completed generating etc data in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Completed generating etc data in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     public static void clear() {

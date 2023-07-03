@@ -87,7 +87,7 @@ public class DualBlade extends Thief {
                 byte slv = (byte) skill.getCurrentLevel();
                 SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
 
-                if (lastShadowMeld + 5000 < System.currentTimeMillis()) {
+                if (lastShadowMeld + 5000 < Util.getCurrentTimeLong()) {
                     Option o1 = new Option();
                     Option o2 = new Option();
                     o1.nOption = 100;
@@ -96,11 +96,11 @@ public class DualBlade extends Thief {
                     tsm.putCharacterStatValue(CriticalBuff, o1);
                     o2.nReason = skill.getSkillId();
                     o2.nValue = si.getValue(indiePad, slv);
-                    o2.tStart = (int) System.currentTimeMillis();
+                    o2.tStart = Util.getCurrentTime();
                     o2.tTerm = si.getValue(time, slv);
                     tsm.putCharacterStatValue(IndiePAD, o2); //Indie
                     tsm.sendSetStatPacket();
-                    lastShadowMeld = System.currentTimeMillis();
+                    lastShadowMeld = Util.getCurrentTimeLong();
                 }
             }
         }

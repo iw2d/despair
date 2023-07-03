@@ -131,7 +131,7 @@ public class ThunderBreaker extends Noblesse {
                 if((tsm.getOptByCTSAndSkill(IndieDamR, GALE) == null) || (tsm.getOptByCTSAndSkill(IndieDamR, TYPHOON) == null)) {
                     o1.nReason = skillID;
                     o1.nValue = chargeStack * si.getValue(y, slv);
-                    o1.tStart = (int) System.currentTimeMillis();
+                    o1.tStart = Util.getCurrentTime();
                     o1.tTerm = si.getValue(time, slv);
                     tsm.putCharacterStatValue(IndieDamR, o1); //Indie
                     tsm.sendSetStatPacket();
@@ -282,7 +282,7 @@ public class ThunderBreaker extends Noblesse {
             case CALL_OF_CYGNUS_TB:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1); //Indie
                 break;
@@ -295,12 +295,12 @@ public class ThunderBreaker extends Noblesse {
             case GLORY_OF_THE_GUARDIANS_TB:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
@@ -311,7 +311,7 @@ public class ThunderBreaker extends Noblesse {
                 tsm.putCharacterStatValue(StrikerHyperElectric, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieDamR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o2);
                 chr.resetSkillCoolTime(TYPHOON);

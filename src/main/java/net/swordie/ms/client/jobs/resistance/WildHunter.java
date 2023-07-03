@@ -462,7 +462,7 @@ public class WildHunter extends Citizen {
                 tsm.putCharacterStatValue(SoulArrow, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indiePad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o2);
                 break;
@@ -475,7 +475,7 @@ public class WildHunter extends Citizen {
             case CALL_OF_THE_WILD:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(z, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePADR, o1);
                 tsm.putCharacterStatValue(IndieMADR, o1);
@@ -487,14 +487,14 @@ public class WildHunter extends Citizen {
                 tsm.putCharacterStatValue(EVAR, o2);
                 o3.nReason = skillID;
                 o3.nValue = si.getValue(x, slv);
-                o3.tStart = (int) System.currentTimeMillis();
+                o3.tStart = Util.getCurrentTime();
                 o3.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMMPR, o3);
                 break;
             case FELINE_BERSERK:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieBooster, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBooster, o1);
                 o2.nOption = si.getValue(z, slv);
@@ -521,7 +521,7 @@ public class WildHunter extends Citizen {
             case MAPLE_WARRIOR_WH:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
@@ -529,12 +529,12 @@ public class WildHunter extends Citizen {
             case FOR_LIBERTY_WH:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
@@ -542,7 +542,7 @@ public class WildHunter extends Citizen {
             case SILENT_RAMPAGE:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 break;

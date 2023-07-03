@@ -195,7 +195,7 @@ public class Mechanic extends Citizen {
             int inc = getHomingBeaconForceAtomEnum().getInc();
             int type = getHomingBeaconForceAtomEnum().getForceAtomType();
             ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 30, 25,
-                    0, 200 + (i * 2), (int) System.currentTimeMillis(), 1, 0,
+                    0, 200 + (i * 2), Util.getCurrentTime(), 1, 0,
                     new Position());
             field.broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                     true, mob.getObjectId(), HOMING_BEACON, forceAtomInfo, rect, 90, 30,
@@ -225,7 +225,7 @@ public class Mechanic extends Citizen {
             int inc = getHomingBeaconForceAtomEnum().getInc();
             int type = getHomingBeaconForceAtomEnum().getForceAtomType();
             ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 30, 25,
-                    0, 200, (int) System.currentTimeMillis(), 1, 0,
+                    0, 200, Util.getCurrentTime(), 1, 0,
                     new Position());
             field.broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                     true, mob.getObjectId(), HOMING_BEACON, forceAtomInfo, rect, 90, 30,
@@ -474,14 +474,14 @@ public class Mechanic extends Citizen {
             case MAPLE_WARRIOR_MECH:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case ENHANCED_SUPPORT_UNIT:
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(z, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = 80;
                 tsm.putCharacterStatValue(IndieDamR, o2);
                 // Fallthrough intended
@@ -524,12 +524,12 @@ public class Mechanic extends Citizen {
             case FOR_LIBERTY_MECH:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;

@@ -468,7 +468,7 @@ public class Demon extends Job {
         int inc = ForceAtomEnum.NETHER_SHIELD.getInc();
         int type = ForceAtomEnum.NETHER_SHIELD.getForceAtomType();
             ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
-                    0, 500, (int) System.currentTimeMillis(), 1, 0,
+                    0, 500, Util.getCurrentTime(), 1, 0,
                     new Position(0, -100));
             chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                     true, mobID, NETHER_SHIELD_ATOM, forceAtomInfo, new Rect(), 0, 300,
@@ -491,7 +491,7 @@ public class Demon extends Job {
                 int inc = ForceAtomEnum.NETHER_SHIELD_RECREATION.getInc();
                 int type = ForceAtomEnum.NETHER_SHIELD_RECREATION.getForceAtomType();
                 ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 35, 4,
-                        anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
+                        anglenum, 0, Util.getCurrentTime(), 1, 0,
                         new Position());
                 chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
                         true, mobID, NETHER_SHIELD_ATOM, forceAtomInfo, new Rect(), 0, 300,
@@ -576,14 +576,14 @@ public class Demon extends Job {
                 byte slv = (byte) skill.getCurrentLevel();
                 SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
                 int cd = si.getValue(y, slv) * 1000;
-                if(cd + leechAuraCD < System.currentTimeMillis()) {
+                if(cd + leechAuraCD < Util.getCurrentTimeLong()) {
                     for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                         int totaldmg = Arrays.stream(mai.damages).sum();
                         int hpheal = (int) (totaldmg * ((double) 100 / si.getValue(x, slv)));
                         if (hpheal >= (chr.getMaxHP() / 4)) {
                             hpheal = (chr.getMaxHP() / 4);
                         }
-                        leechAuraCD = System.currentTimeMillis();
+                        leechAuraCD = Util.getCurrentTimeLong();
                         chr.heal(hpheal);
                     }
                 }
@@ -619,7 +619,7 @@ public class Demon extends Job {
                     }
                 }
                 ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, speed, 5,
-                        angle, 50, (int) System.currentTimeMillis(), 1, 0,
+                        angle, 50, Util.getCurrentTime(), 1, 0,
                         new Position(0, 0));
                 chr.write(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
                         true, mobID, 0, forceAtomInfo, new Rect(), 0, 300,
@@ -644,7 +644,7 @@ public class Demon extends Job {
                         }
                     }
                     ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, speed, 5,
-                            angle, 50, (int) System.currentTimeMillis(), 1, 0,
+                            angle, 50, Util.getCurrentTime(), 1, 0,
                             new Position(0, 0));
                     chr.write(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
                             true, mobID, 0, forceAtomInfo, new Rect(), 0, 300,
@@ -667,7 +667,7 @@ public class Demon extends Job {
                 type = ForceAtomEnum.DEMON_SLAYER_FURY_2.getForceAtomType();
             }
             ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, speed, 4,
-                    angle, 50, (int) System.currentTimeMillis(), 1, 0,
+                    angle, 50, Util.getCurrentTime(), 1, 0,
                     new Position(0, 0));
             chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
                     true, mobID, 0, forceAtomInfo, new Rect(), 0, 300,
@@ -746,7 +746,7 @@ public class Demon extends Job {
                 tsm.putCharacterStatValue(DamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMhpR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMHPR, o2);
                 o3.nOption = si.getValue(damage, slv); //?
@@ -784,7 +784,7 @@ public class Demon extends Job {
             case DIABOLIC_RECOVERY: // x = HP restored at interval
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieMhpR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMHPR, o1);
                 o2.nOption = 1;
@@ -800,7 +800,7 @@ public class Demon extends Job {
             case MAPLE_WARRIOR_DS:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
@@ -808,19 +808,19 @@ public class Demon extends Job {
             case DEMONIC_FORTITUDE_DA:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case FORBIDDEN_CONTRACT:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 //HP consumption from Skills = 0;

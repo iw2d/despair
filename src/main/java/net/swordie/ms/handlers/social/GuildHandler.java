@@ -254,7 +254,7 @@ public class GuildHandler {
                 skillID = inPacket.decodeInt();
                 // TODO Remove igp
                 long usabletime = chr.getSkillCoolTimes().getOrDefault(skillID, Long.MIN_VALUE);
-                if (usabletime > System.currentTimeMillis() && !chr.hasSkillCDBypass()) {
+                if (usabletime > Util.getCurrentTimeLong() && !chr.hasSkillCDBypass()) {
                     chr.chatMessage("That skill is still on cooldown.");
                     return;
                 }
@@ -266,7 +266,7 @@ public class GuildHandler {
                     return;
                 }
                 SkillInfo si = SkillData.getSkillInfoById(skillID);
-                chr.getSkillCoolTimes().put(skillID, System.currentTimeMillis() + 1000 * si.getValue(SkillStat.cooltime, gs.getLevel()));
+                chr.getSkillCoolTimes().put(skillID, Util.getCurrentTimeLong() + 1000 * si.getValue(SkillStat.cooltime, gs.getLevel()));
                 chr.getJobHandler().handleJoblessBuff(chr, inPacket, skillID, (byte) gs.getLevel());
                 break;
             case Req_Search:

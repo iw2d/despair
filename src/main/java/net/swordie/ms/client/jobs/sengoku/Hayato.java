@@ -294,7 +294,7 @@ public class Hayato extends Job {
                 if((tsm.getOptByCTSAndSkill(IndieDamR, SUMMER_RAIN) == null) || (tsm.getOptByCTSAndSkill(IndieDamR, HITOKIRI_HUNDRED_STRIKE) == null)) {
                     o1.nReason = skillID;
                     o1.nValue = 15;
-                    o1.tStart = (int) System.currentTimeMillis();
+                    o1.tStart = Util.getCurrentTime();
                     o1.tTerm = 120;
                     tsm.putCharacterStatValue(IndieDamR, o1); //Indie
                     tsm.sendSetStatPacket();
@@ -306,7 +306,7 @@ public class Hayato extends Job {
                 if(tsm.getOptByCTSAndSkill(IndieCr, HITOKIRI_STRIKE) == null) {
                     o1.nReason = skillID;
                     o1.nValue = si.getValue(prop, slv);
-                    o1.tStart = (int) System.currentTimeMillis();
+                    o1.tStart = Util.getCurrentTime();
                     o1.tTerm = si.getValue(time, slv);
                     tsm.putCharacterStatValue(IndieCr, o1);
                     tsm.sendSetStatPacket();
@@ -500,12 +500,12 @@ public class Hayato extends Job {
             case MILITARY_MIGHT:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMHPR, o1); //Indie
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(y, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMMPR, o1); //Indie
                 o3.nOption = si.getValue(speed, slv);
@@ -534,7 +534,7 @@ public class Hayato extends Job {
             case AKATSUKI_HERO_HAYATO:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1); //Indie
                 break;
@@ -550,19 +550,19 @@ public class Hayato extends Job {
             case PRINCESS_VOW_HAYATO:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOver, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOver, o2);
                 break;
             case GOD_OF_BLADES:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1); //Indie
                 o2.nOption = si.getValue(x, slv);

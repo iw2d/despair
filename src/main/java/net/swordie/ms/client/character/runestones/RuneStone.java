@@ -154,7 +154,7 @@ public class RuneStone {
         Option o1 = new Option();
         o1.nReason = skillID;
         o1.nValue = si.getValue(indieExp, slv); //200% EXP
-        o1.tStart = (int) System.currentTimeMillis();
+        o1.tStart = Util.getCurrentTime();
         o1.tTerm = si.getValue(time, slv);
         tsm.putCharacterStatValue(IndieEXP, o1);
         tsm.sendSetStatPacket();
@@ -174,19 +174,19 @@ public class RuneStone {
 
         o1.nReason = skillID;
         o1.nValue = si.getValue(indieBooster, slv);
-        o1.tStart = (int) System.currentTimeMillis();
+        o1.tStart = Util.getCurrentTime();
         o1.tTerm = si.getValue(time, slv);
         tsm.putCharacterStatValue(IndieBooster, o1);
 
         o3.nReason = skillID;
         o3.nValue = si.getValue(indieJump, slv);
-        o3.tStart = (int) System.currentTimeMillis();
+        o3.tStart = Util.getCurrentTime();
         o3.tTerm = si.getValue(time, slv);
         tsm.putCharacterStatValue(IndieJump, o3);
 
         o4.nReason = skillID;
         o4.nValue = si.getValue(indieSpeed, slv);
-        o4.tStart = (int) System.currentTimeMillis();
+        o4.tStart = Util.getCurrentTime();
         o4.tTerm = si.getValue(time, slv);
         tsm.putCharacterStatValue(IndieSpeed, o4);
 
@@ -214,7 +214,7 @@ public class RuneStone {
 
         o4.nReason = skillID;
         o4.nValue = si.getValue(indieAsrR, slv);
-        o4.tStart = (int) System.currentTimeMillis();
+        o4.tStart = Util.getCurrentTime();
         o4.tTerm = si.getValue(time, slv);
         tsm.putCharacterStatValue(IndieAsrR, o4);
         tsm.putCharacterStatValue(IndieTerR, o4);
@@ -282,7 +282,7 @@ public class RuneStone {
         tsm.putCharacterStatValue(Inflation, o1);
         o2.nReason = skillID;
         o2.nValue = si.getValue(indieSpeed, slv);
-        o2.tStart = (int) System.currentTimeMillis();
+        o2.tStart = Util.getCurrentTime();
         o2.tTerm = si.getValue(time, slv);
         tsm.putCharacterStatValue(IndieSpeed, o2);
         tsm.putCharacterStatValue(IndieJump, o2);

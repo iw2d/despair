@@ -18,6 +18,7 @@ import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
+import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
 import java.util.Arrays;
@@ -352,7 +353,7 @@ public class Blaster extends Citizen {
             Option o1 = new Option();
             o1.nValue = -1;
             o1.rOption = COMBO_TRAINING;
-            o1.tStart = (int) System.currentTimeMillis();
+            o1.tStart = Util.getCurrentTime();
             o1.tTerm = 10;
             tsm.putCharacterStatValue(IndieBooster, o1);
         }
@@ -426,19 +427,19 @@ public class Blaster extends Citizen {
             case MAPLE_WARRIOR_BLASTER:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case FOR_LIBERTY_BLASTER:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;

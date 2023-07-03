@@ -248,7 +248,7 @@ public class NightWalker extends Noblesse {
                 tsm.putCharacterStatValue(Stance, o3);
                 o4.nReason = skillID;
                 o4.nValue = 20;
-                o4.tStart = (int) System.currentTimeMillis();
+                o4.tStart = Util.getCurrentTime();
                 o4.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o4);
                 tsm.sendSetStatPacket();
@@ -329,7 +329,7 @@ public class NightWalker extends Noblesse {
         }
 
         ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 2, 1,
-                ((chr.getPosition().getX() > mob.getPosition().getX()) ? 90 : 270), 0, (int) System.currentTimeMillis(), 1, 0,
+                ((chr.getPosition().getX() > mob.getPosition().getX()) ? 90 : 270), 0, Util.getCurrentTime(), 1, 0,
                 new Position());
 
         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
@@ -367,7 +367,7 @@ public class NightWalker extends Noblesse {
             }
 
             ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 2, 1,
-                    ((chr.getPosition().getX() > mob.getPosition().getX()) ? 90 : 270), 0, (int) System.currentTimeMillis(), 1, 0,
+                    ((chr.getPosition().getX() > mob.getPosition().getX()) ? 90 : 270), 0, Util.getCurrentTime(), 1, 0,
                     new Position());
 
             chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, mobId, 0, type,
@@ -640,7 +640,7 @@ public class NightWalker extends Noblesse {
             case CALL_OF_CYGNUS_NW:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1); //Indie
                 break;
@@ -658,12 +658,12 @@ public class NightWalker extends Noblesse {
             case GLORY_OF_THE_GUARDIANS_NW:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;

@@ -29,6 +29,7 @@ import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
+import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
 import java.util.List;
@@ -300,23 +301,23 @@ public class AffectedArea extends Life {
                 tsm.removeAllDebuffs();
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieBooster, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 tsm.putCharacterStatValue(IndieBooster, o2); // Indie
                 break;
             case BlazeWizard.BURNING_CONDUIT:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 tsm.putCharacterStatValue(IndieDamR, o1); // Indie
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieBooster, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 tsm.putCharacterStatValue(IndieBooster, o2); // Indie
                 break;
             case Kanna.BELLFLOWER_BARRIER:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(bdR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 tsm.putCharacterStatValue(IndieBDR, o1); // Indie
                 break;
             case Kanna.BLOSSOM_BARRIER:

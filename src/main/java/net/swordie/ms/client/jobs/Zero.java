@@ -425,32 +425,32 @@ public class Zero extends Job {
                 } else {
                     o1.nReason = skillID;
                     o1.nValue = si.getValue(indieAsrR, slv);
-                    o1.tStart = (int) System.currentTimeMillis();
+                    o1.tStart = Util.getCurrentTime();
                     o1.tTerm = 0;
                     tsm.putCharacterStatValue(IndieAsrR, o1); //Indie
                     o2.nReason = skillID;
                     o2.nValue = si.getValue(indieMad, slv);
-                    o2.tStart = (int) System.currentTimeMillis();
+                    o2.tStart = Util.getCurrentTime();
                     o2.tTerm = 0;
                     tsm.putCharacterStatValue(IndieMAD, o2); //Indie
                     o3.nReason = skillID;
                     o3.nValue = si.getValue(indiePad, slv);
-                    o3.tStart = (int) System.currentTimeMillis();
+                    o3.tStart = Util.getCurrentTime();
                     o3.tTerm = 0;
                     tsm.putCharacterStatValue(IndiePAD, o3); //Indie
                     o4.nReason = skillID;
                     o4.nValue = si.getValue(indieMdd, slv);
-                    o4.tStart = (int) System.currentTimeMillis();
+                    o4.tStart = Util.getCurrentTime();
                     o4.tTerm = 0;
                     tsm.putCharacterStatValue(IndieMDD, o4); //Indie
                     o5.nReason = skillID;
                     o5.nValue = si.getValue(indiePdd, slv);
-                    o5.tStart = (int) System.currentTimeMillis();
+                    o5.tStart = Util.getCurrentTime();
                     o5.tTerm = 0;
                     tsm.putCharacterStatValue(IndiePDD, o5); //Indie
                     o6.nReason = skillID;
                     o6.nValue = si.getValue(indieTerR, slv);
-                    o6.tStart = (int) System.currentTimeMillis();
+                    o6.tStart = Util.getCurrentTime();
                     o6.tTerm = 0;
                     tsm.putCharacterStatValue(IndieTerR, o6); //Indie
                     o7.nOption = 1;
@@ -465,27 +465,27 @@ public class Zero extends Job {
                 } else {
                     o1.nReason = skillID;
                     o1.nValue = si.getValue(indieAcc, slv);
-                    o1.tStart = (int) System.currentTimeMillis();
+                    o1.tStart = Util.getCurrentTime();
                     o1.tTerm = si.getValue(time, slv);
                     tsm.putCharacterStatValue(IndieACC, o1); //Indie
                     o2.nReason = skillID;
                     o2.nValue = si.getValue(indieBooster, slv);
-                    o2.tStart = (int) System.currentTimeMillis();
+                    o2.tStart = Util.getCurrentTime();
                     o2.tTerm = si.getValue(time, slv);
                     tsm.putCharacterStatValue(IndieBooster, o2); //Indie
                     o3.nReason = skillID;
                     o3.nValue = si.getValue(indieEva, slv);
-                    o3.tStart = (int) System.currentTimeMillis();
+                    o3.tStart = Util.getCurrentTime();
                     o3.tTerm = si.getValue(time, slv);
                     tsm.putCharacterStatValue(IndieEVA, o3); //Indie
                     o4.nReason = skillID;
                     o4.nValue = si.getValue(indieJump, slv);
-                    o4.tStart = (int) System.currentTimeMillis();
+                    o4.tStart = Util.getCurrentTime();
                     o4.tTerm = si.getValue(time, slv);
                     tsm.putCharacterStatValue(IndieJump, o4); //Indie
                     o5.nReason = skillID;
                     o5.nValue = si.getValue(indieSpeed, slv);
-                    o5.tStart = (int) System.currentTimeMillis();
+                    o5.tStart = Util.getCurrentTime();
                     o5.tTerm = si.getValue(time, slv);
                     tsm.putCharacterStatValue(IndieSpeed, o5); //Indie
                     o6.nOption = 1;
@@ -497,7 +497,7 @@ public class Zero extends Job {
             case RHINNES_PROTECTION:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1); //Indie
                 break;
@@ -515,7 +515,7 @@ public class Zero extends Job {
                     tsm.putCharacterStatValue(DamR, o2);
                     o3.nReason = TIME_HOLDING_2;
                     o3.nValue = si.getValue(z, slv);
-                    o3.tStart = (int) System.currentTimeMillis();
+                    o3.tStart = Util.getCurrentTime();
                     o3.tTerm = si.getValue(x, slv);
                     tsm.putCharacterStatValue(IndieMaxDamageOverR, o3);
                 }
@@ -535,12 +535,12 @@ public class Zero extends Job {
             case FOCUSED_TIME:
                 o1.nReason = skillID;
                 o1.nValue = 4;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = 2400;
                 tsm.putCharacterStatValue(IndiePADR, o1); //Indie
                 o2.nReason = skillID;
                 o2.nValue = 4;
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = 2400;
                 tsm.putCharacterStatValue(IndieMADR, o2); //Indie
                 break;

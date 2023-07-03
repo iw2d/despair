@@ -4,6 +4,7 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.enums.ClockType;
 import net.swordie.ms.handlers.EventManager;
+import net.swordie.ms.util.Util;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -23,7 +24,7 @@ public class Clock {
         this.clockType = clockType;
         this.field = field;
         this.seconds = seconds;
-        this.timeInMillis = (seconds*1000) + System.currentTimeMillis();
+        this.timeInMillis = (seconds*1000) + Util.getCurrentTimeLong();
 
         createClock();
     }
@@ -64,7 +65,7 @@ public class Clock {
     }
 
     public int getRemainingTime() {
-        return (int) ((timeInMillis - System.currentTimeMillis()) / 1000);
+        return (int) ((timeInMillis - Util.getCurrentTimeLong()) / 1000);
     }
 
     public void removeClock() {

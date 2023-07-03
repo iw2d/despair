@@ -1555,11 +1555,11 @@ public class Mob extends Life {
     }
 
     public boolean hasSkillOffCooldown(int skillID, int slv) {
-        return System.currentTimeMillis() >= getSkillCooldowns().getOrDefault(skillID | (slv << 16), Long.MIN_VALUE);
+        return Util.getCurrentTimeLong() >= getSkillCooldowns().getOrDefault(skillID | (slv << 16), Long.MIN_VALUE);
     }
 
     public boolean hasAttackOffCooldown(int attackID) {
-        return System.currentTimeMillis() >= getSkillCooldowns().getOrDefault(-attackID, Long.MIN_VALUE);
+        return Util.getCurrentTimeLong() >= getSkillCooldowns().getOrDefault(-attackID, Long.MIN_VALUE);
     }
 
     public void putSkillCooldown(int skillID, int slv, long nextUseableTime) {
@@ -1567,11 +1567,11 @@ public class Mob extends Life {
     }
 
     public void putAttackOnCooldown(int skillID, int delayForNextAttack) {
-        getSkillCooldowns().put(-skillID, System.currentTimeMillis() + delayForNextAttack);
+        getSkillCooldowns().put(-skillID, Util.getCurrentTimeLong() + delayForNextAttack);
     }
 
     public boolean hasSkillDelayExpired() {
-        return System.currentTimeMillis() > getNextPossibleSkillTime();
+        return Util.getCurrentTimeLong() > getNextPossibleSkillTime();
     }
 
     /**
@@ -1580,7 +1580,7 @@ public class Mob extends Life {
      * @param delay The delay until the next skill can be used
      */
     public void setSkillDelay(long delay) {
-        setNextPossibleSkillTime(System.currentTimeMillis() + delay);
+        setNextPossibleSkillTime(Util.getCurrentTimeLong() + delay);
     }
 
     private long getNextPossibleSkillTime() {
@@ -1648,7 +1648,7 @@ public class Mob extends Life {
         elite.setMaxHp(newHp);
         elite.setHp(newHp);
         elite.getForcedMobStat().setExp(newExp);
-        getField().setNextEliteSpawnTime(System.currentTimeMillis() + GameConstants.ELITE_MOB_RESPAWN_TIME * 1000);
+        getField().setNextEliteSpawnTime(Util.getCurrentTimeLong() + GameConstants.ELITE_MOB_RESPAWN_TIME * 1000);
         getField().spawnLife(elite, null);
     }
 
@@ -1740,11 +1740,11 @@ public class Mob extends Life {
 
         // Random portal spawn: is channel field, is not on cd, has min mob level, and field has no portal already
         // TODO: Fix Inferno Wolf Scripts
-        if (getField().isChannelField() && chr.getNextRandomPortalTime() <= System.currentTimeMillis()
+        if (getField().isChannelField() && chr.getNextRandomPortalTime() <= Util.getCurrentTimeLong()
                 && getField().getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURENCES
                 && Util.succeedProp(GameConstants.RANDOM_PORTAL_SPAWN_CHANCE, 1000)
                 && field.getLifes().values().stream().noneMatch(l -> l instanceof RandomPortal)) {
-            chr.setNextRandomPortalTime(System.currentTimeMillis() + GameConstants.RANDOM_PORTAL_COOLTIME);
+            chr.setNextRandomPortalTime(Util.getCurrentTimeLong() + GameConstants.RANDOM_PORTAL_COOLTIME);
             // 50% chance for inferno/yellow portal
             List<Foothold> listOfFootHolds = new ArrayList<>(field.getNonWallFootholds());
             Foothold foothold = Util.getRandomFromCollection(listOfFootHolds);

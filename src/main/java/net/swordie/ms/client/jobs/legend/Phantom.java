@@ -215,7 +215,7 @@ public class Phantom extends Job {
                         int inc = ForceAtomEnum.PHANTOM_CARD_2.getInc();
                         int type = ForceAtomEnum.PHANTOM_CARD_2.getForceAtomType();
                         ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 35,
-                                anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
+                                anglenum, 0, Util.getCurrentTime(), 1, 0,
                                 new Position()); //Slightly behind the player
                         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                                 true, mobID, CARTE_NOIR, forceAtomInfo, new Rect(), 0, 300,
@@ -225,7 +225,7 @@ public class Phantom extends Job {
                         int inc = ForceAtomEnum.PHANTOM_CARD_1.getInc();
                         int type = ForceAtomEnum.PHANTOM_CARD_1.getForceAtomType();
                         ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
-                                anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
+                                anglenum, 0, Util.getCurrentTime(), 1, 0,
                                 new Position()); //Slightly behind the player
                         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                                 true, mobID, CARTE_BLANCHE, forceAtomInfo, new Rect(), 0, 300,
@@ -260,7 +260,7 @@ public class Phantom extends Job {
                     int inc = ForceAtomEnum.PHANTOM_CARD_2.getInc();
                     int type = ForceAtomEnum.PHANTOM_CARD_2.getForceAtomType();
                     ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 35,
-                            350 - (2 * i), i * 5, (int) System.currentTimeMillis(), 1, 0,
+                            350 - (2 * i), i * 5, Util.getCurrentTime(), 1, 0,
                             new Position()); //Slightly behind the player
                     chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                             true, mobID, CARTE_NOIR, forceAtomInfo, new Rect(), 0, 300,
@@ -270,7 +270,7 @@ public class Phantom extends Job {
                     int inc = ForceAtomEnum.PHANTOM_CARD_1.getInc();
                     int type = ForceAtomEnum.PHANTOM_CARD_1.getForceAtomType();
                     ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
-                            350 - (2 * i), i * 5, (int) System.currentTimeMillis(), 1, 0,
+                            350 - (2 * i), i * 5, Util.getCurrentTime(), 1, 0,
                             new Position()); //Slightly behind the player
                     chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                             true, mobID, CARTE_BLANCHE, forceAtomInfo, new Rect(), 0, 300,
@@ -386,12 +386,12 @@ public class Phantom extends Job {
             case BAD_LUCK_WARD:
                 o1.nValue = si.getValue(indieMhpR, slv);
                 o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMHPR, o1);
                 o2.nValue = si.getValue(indieMmpR, slv);
                 o2.nReason = skillID;
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMMPR, o2);
                 o3.nOption = si.getValue(x, slv);
@@ -406,12 +406,12 @@ public class Phantom extends Job {
             case CLAIR_DE_LUNE:
                 o1.nValue = si.getValue(indiePad, slv);
                 o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1);
                 o2.nValue = si.getValue(indieAcc, slv);
                 o2.nReason = skillID;
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieACC, o2);
                 break;
@@ -428,19 +428,19 @@ public class Phantom extends Job {
             case MAPLE_WARRIOR_PH:
                 o1.nValue = si.getValue(x, slv);
                 o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case HEROIC_MEMORIES_PH:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;

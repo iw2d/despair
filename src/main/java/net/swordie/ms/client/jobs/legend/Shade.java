@@ -216,7 +216,7 @@ public class Shade extends Job {
                 type = ForceAtomEnum.FLAMING_RABBIT_ORB.getForceAtomType();
             }
             ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 15, 7,
-                    305, 400, (int) System.currentTimeMillis(), 1, 0,
+                    305, 400, Util.getCurrentTime(), 1, 0,
                     new Position(chr.isLeft() ? 0 : -50, -50));
             field.broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                     true, mobID, atomid, forceAtomInfo, new Rect(), 0, 300,
@@ -240,7 +240,7 @@ public class Shade extends Job {
                     int inc = ForceAtomEnum.FLAMING_RABBIT_ORB_RECREATION.getInc(); //4th Job
                     int type = ForceAtomEnum.FLAMING_RABBIT_ORB_RECREATION.getForceAtomType(); //4th Job
                     ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 25, 4,
-                            anglenum, 100, (int) System.currentTimeMillis(), 1, 0,
+                            anglenum, 100, Util.getCurrentTime(), 1, 0,
                             new Position());
                     chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
                             true, mobID, FOX_SPIRITS_ATOM_2, forceAtomInfo, new Rect(), 0, 300,
@@ -249,7 +249,7 @@ public class Shade extends Job {
                     int inc = ForceAtomEnum.RABBIT_ORB_RECREATION.getInc();
                     int type = ForceAtomEnum.RABBIT_ORB_RECREATION.getForceAtomType();
                     ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 25, 4,
-                            anglenum, 100, (int) System.currentTimeMillis(), 1, 0,
+                            anglenum, 100, Util.getCurrentTime(), 1, 0,
                             new Position());
                     chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
                             true, mobID, FOX_SPIRITS_ATOM, forceAtomInfo, new Rect(), 0, 300,
@@ -364,51 +364,51 @@ public class Shade extends Job {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(SpiritGuard, o1);
-                spiritWardTimer = System.currentTimeMillis() + (si.getValue(time, slv) * 1000);
+                spiritWardTimer = Util.getCurrentTimeLong() + (si.getValue(time, slv) * 1000);
                 break;
             case MAPLE_WARRIOR_SH:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case HEROIC_MEMORIES_SH:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case SPIRIT_BOND_MAX:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indiePad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o2);
                 o3.nReason = skillID;
                 o3.nValue = si.getValue(indieBDR, slv);
-                o3.tStart = (int) System.currentTimeMillis();
+                o3.tStart = Util.getCurrentTime();
                 o3.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBDR, o3);
                 o4.nReason = skillID;
                 o4.nValue = -1; //Booster
-                o4.tStart = (int) System.currentTimeMillis();
+                o4.tStart = Util.getCurrentTime();
                 o4.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBooster, o4);
                 o5.nReason = skillID;
                 o5.nValue = si.getValue(indieIgnoreMobpdpR, slv);
-                o5.tStart = (int) System.currentTimeMillis();
+                o5.tStart = Util.getCurrentTime();
                 o5.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o5);
                 break;
@@ -452,7 +452,7 @@ public class Shade extends Job {
                 o.setInMillis(true);
                 o.nOption = spiritWardCount;
                 o.rOption = skill.getSkillId();
-                o.tOption = (int) (spiritWardTimer - System.currentTimeMillis());
+                o.tOption = (int) (spiritWardTimer - Util.getCurrentTimeLong());
                 tsm.putCharacterStatValue(SpiritGuard, o);
                 tsm.sendSetStatPacket();
             }

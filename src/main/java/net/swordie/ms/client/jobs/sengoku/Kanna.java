@@ -108,7 +108,7 @@ public class Kanna extends Job {
 
         o1.nReason = HAKUS_BLESSING;
         o1.nValue = si.getValue(indiePdd, slv);
-        o1.tStart = (int) System.currentTimeMillis();
+        o1.tStart = Util.getCurrentTime();
         o1.tTerm = si.getValue(time, slv);
         tsm.putCharacterStatValue(IndiePDD, o1);
         tsm.sendSetStatPacket();
@@ -253,7 +253,7 @@ public class Kanna extends Job {
             case NINE_TAILED_FURY:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1); //Indie
                 tsm.sendSetStatPacket();
@@ -281,19 +281,19 @@ public class Kanna extends Job {
             case AKATUSKI_HERO_KANNA:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1); //Indie
                 break;
             case PRINCESS_VOW_KANNA:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOver, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOver, o2);
                 break;

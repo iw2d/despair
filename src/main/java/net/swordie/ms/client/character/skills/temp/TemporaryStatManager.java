@@ -654,7 +654,7 @@ public class TemporaryStatManager {
 
         TreeMap<CharacterTemporaryStat, List<Option>> sortedStats = new TreeMap<>(stats);
         for (Map.Entry<CharacterTemporaryStat, List<Option>> stat : sortedStats.entrySet()) {
-            int curTime = (int) System.currentTimeMillis();
+            int curTime = Util.getCurrentTime();
             List<Option> options = stat.getValue();
             if(options == null) {
                 outPacket.encodeInt(0);

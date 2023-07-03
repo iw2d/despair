@@ -219,48 +219,48 @@ public class BeastTamer extends Job {
             case MEOW_CARD_RED:
                 o1.nReason = randomMeowCard;
                 o1.nValue = mc.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = mc.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 break;
             case MEOW_CARD_GREEN:
                 o1.nReason = randomMeowCard;
                 o1.nValue = mc.getValue(indieBooster, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = mc.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBooster, o1);
                 o2.nReason = randomMeowCard;
                 o2.nValue = mc.getValue(indieSpeed, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = mc.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieSpeed, o1);
                 break;
             case MEOW_CARD_BLUE:
                 o1.nReason = randomMeowCard;
                 o1.nValue = mc.getValue(pdd, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = mc.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePDD, o1);
                 break;
             case MEOW_CARD_GOLD:
                 o1.nReason = randomMeowCard;
                 o1.nValue = mc.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = mc.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = randomMeowCard;
                 o2.nValue = mc.getValue(indieBooster, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = mc.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBooster, o2);
                 o3.nReason = randomMeowCard;
                 o3.nValue = mc.getValue(indieSpeed, slv);
-                o3.tStart = (int) System.currentTimeMillis();
+                o3.tStart = Util.getCurrentTime();
                 o3.tTerm = mc.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieSpeed, o3);
                 o4.nReason = randomMeowCard;
                 o4.nValue = mc.getValue(pdd, slv);
-                o4.tStart = (int) System.currentTimeMillis();
+                o4.tStart = Util.getCurrentTime();
                 o4.tTerm = mc.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePDD, o4);
                 break;
@@ -291,7 +291,7 @@ public class BeastTamer extends Job {
         int slv = si.getCurrentLevel();
         o1.nReason = KITTY_BATTLE_SQUAD;
         o1.nValue = si.getValue(indiePad, slv);
-        o1.tStart = (int) System.currentTimeMillis();
+        o1.tStart = Util.getCurrentTime();
         tsm.putCharacterStatValue(IndiePAD, o1);
         tsm.putCharacterStatValue(IndieMAD, o1);
         tsm.sendSetStatPacket();
@@ -305,11 +305,11 @@ public class BeastTamer extends Job {
         int slv = si.getCurrentLevel();
         o1.nReason = KITTY_TREATS;
         o1.nValue = si.getValue(indieMhp, slv);
-        o1.tStart = (int) System.currentTimeMillis();
+        o1.tStart = Util.getCurrentTime();
         tsm.putCharacterStatValue(IndieMHP, o1);
         o2.nReason = KITTY_TREATS;
         o2.nValue = si.getValue(indieMmp, slv);
-        o2.tStart = (int) System.currentTimeMillis();
+        o2.tStart = Util.getCurrentTime();
         tsm.putCharacterStatValue(IndieMMP, o2);
         tsm.sendSetStatPacket();
     }
@@ -634,7 +634,7 @@ public class BeastTamer extends Job {
             case MAPLE_GUARDIAN:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
@@ -697,14 +697,14 @@ public class BeastTamer extends Job {
             case RAPTOR_TALONS:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieMad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMAD, o1);
                 break;
             case BIRDS_EYE_VIEW:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieCr, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieCr, o1);
                 o2.nOption = si.getValue(emdd, slv);
@@ -727,12 +727,12 @@ public class BeastTamer extends Job {
             case RAZOR_BEAK:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieMad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMAD, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indiePad, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o2);
                 break;
@@ -747,7 +747,7 @@ public class BeastTamer extends Job {
             case TEAM_ROAR:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nOption = 1;

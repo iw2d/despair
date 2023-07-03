@@ -1057,7 +1057,7 @@ public class Char {
 		}
 
 		if (mask.isInMask(DBChar.SkillCooltime)) {
-			long curTime = System.currentTimeMillis();
+			long curTime = Util.getCurrentTimeLong();
 			Map<Integer, Long> cooltimes = new HashMap<>();
 			getSkillCoolTimes().forEach((key, value) -> {
 				if (value - curTime > 0) {
@@ -4199,13 +4199,13 @@ public class Char {
 		if (hasSkillOnCooldown(skillId)) {
 			long nextUsableTime = getSkillCoolTimes().get(skillId);
 			addSkillCoolTime(skillId, nextUsableTime - amountInMS);
-			write(UserLocal.skillCooltimeSetM(skillId, (int) ((nextUsableTime - amountInMS) - System.currentTimeMillis() < 0 ? 0 : (nextUsableTime - amountInMS) - System.currentTimeMillis())));
+			write(UserLocal.skillCooltimeSetM(skillId, (int) ((nextUsableTime - amountInMS) - Util.getCurrentTimeLong() < 0 ? 0 : (nextUsableTime - amountInMS) - Util.getCurrentTimeLong())));
 		}
 	}
 
 	public long getRemainingCoolTime(int skillId) {
 		if (hasSkillOnCooldown(skillId)) {
-			return getSkillCoolTimes().getOrDefault(skillId, System.currentTimeMillis()) - System.currentTimeMillis();
+			return getSkillCoolTimes().getOrDefault(skillId, Util.getCurrentTimeLong()) - Util.getCurrentTimeLong();
 		}
 		return 0L;
 	}
@@ -4217,7 +4217,7 @@ public class Char {
 	 * @return whether or not a skill is currently on cooldown
 	 */
 	public boolean hasSkillOnCooldown(int skillID) {
-		return System.currentTimeMillis() < getSkillCoolTimes().getOrDefault(skillID, 0L);
+		return Util.getCurrentTimeLong() < getSkillCoolTimes().getOrDefault(skillID, 0L);
 	}
 
 	/**
@@ -4239,7 +4239,7 @@ public class Char {
 		}
 	}
 	public void addSkillCooldown(int skillId, int time) {
-		addSkillCoolTime(skillId, System.currentTimeMillis() + time);
+		addSkillCoolTime(skillId, Util.getCurrentTimeLong() + time);
 		write(UserLocal.skillCooltimeSetM(skillId, time));
 	}
 
@@ -4272,7 +4272,7 @@ public class Char {
 			}
 
 			if (!hasSkillCDBypass() && cdInMillis > 0) {
-				addSkillCoolTime(skillID, System.currentTimeMillis() + cdInMillis);
+				addSkillCoolTime(skillID, Util.getCurrentTimeLong() + cdInMillis);
 				write(UserLocal.skillCooltimeSetM(skillID, cdInMillis));
 			}
 		}
@@ -4679,7 +4679,7 @@ public class Char {
 
 	public boolean sendLieDetector(boolean force) {
 		// LD ran too recently (15 min)
-		if (!force && lastLieDetector != 0 && System.currentTimeMillis() - lastLieDetector < 900_000L) {
+		if (!force && lastLieDetector != 0 && Util.getCurrentTimeLong() - lastLieDetector < 900_000L) {
 			return false;
 		}
 
@@ -4702,7 +4702,7 @@ public class Char {
 
 		try {
 			AntiMacro am = new AntiMacro(font, lieDetectorAnswer);
-			lastLieDetector = System.currentTimeMillis();
+			lastLieDetector = Util.getCurrentTimeLong();
 
 			byte[] image = am.generateImage(196, 44, Color.BLACK, AntiMacro.getRandomColor());
 			getClient().write(WvsContext.antiMacroResult(image, AntiMacro.AntiMacroResultType.AntiMacroRes.getVal(), AntiMacro.AntiMacroType.AntiMacroFieldRequest.getVal()));

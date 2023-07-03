@@ -83,7 +83,7 @@ public class Field {
     private RuneStone runeStone;
     private ScheduledFuture runeStoneHordesTimer;
     private int burningFieldLevel;
-    private long nextEliteSpawnTime = System.currentTimeMillis();
+    private long nextEliteSpawnTime = Util.getCurrentTimeLong();
     private int killedElites;
     private EliteState eliteState;
     private int bossMobID;
@@ -1414,7 +1414,7 @@ public class Field {
         return isChannelField()
                 && getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURENCES
                 && (getEliteState() == null || getEliteState() == EliteState.None)
-                && getNextEliteSpawnTime() < System.currentTimeMillis();
+                && getNextEliteSpawnTime() < Util.getCurrentTimeLong();
     }
 
     public int getKilledElites() {

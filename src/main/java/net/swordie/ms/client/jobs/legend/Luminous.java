@@ -308,7 +308,7 @@ public class Luminous extends Job {
         o.setInMillis(true);
         o.nOption = (amount * crescendoInfo.getValue(damR, slv));
         o.rOption = DARK_CRESCENDO;
-        o.tOption = (int) (darkCrescendoTimer - System.currentTimeMillis());
+        o.tOption = (int) (darkCrescendoTimer - Util.getCurrentTimeLong());
         o.mOption = amount;
         tsm.putCharacterStatValue(StackBuff, o);
         tsm.sendSetStatPacket();
@@ -381,12 +381,12 @@ public class Luminous extends Job {
             case DUSK_GUARD:
                 o1.nValue = si.getValue(indieMdd, slv);
                 o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMDD, o1);
                 o2.nValue = si.getValue(indiePdd, slv);
                 o2.nReason = skillID;
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePDD, o2);
                 break;
@@ -402,7 +402,7 @@ public class Luminous extends Job {
                 o1.tOption = si.getValue(time, slv);
                 o1.mOption = 1;
                 tsm.putCharacterStatValue(StackBuff, o1);
-                darkCrescendoTimer = System.currentTimeMillis() + (si.getValue(time, slv) * 1000);
+                darkCrescendoTimer = Util.getCurrentTimeLong() + (si.getValue(time, slv) * 1000);
                 break;
             case ARCANE_PITCH:
                 o1.nOption = si.getValue(y, slv);
@@ -413,7 +413,7 @@ public class Luminous extends Job {
             case MAPLE_WARRIOR_LUMI:
                 o1.nValue = si.getValue(x, slv);
                 o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
@@ -429,12 +429,12 @@ public class Luminous extends Job {
             case HEROIC_MEMORIES_LUMI:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;

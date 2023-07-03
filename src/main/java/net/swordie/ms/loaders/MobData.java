@@ -41,11 +41,11 @@ public class MobData {
 
     public static void generateDatFiles() {
         log.info("Started generating mob data.");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         loadMobsFromWz();
         QuestData.linkMobData();
         saveToFile(ServerConstants.DAT_DIR + "/mobs");
-        log.info(String.format("Completed generating mob data in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Completed generating mob data in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     public static Mob getMobById(int id) {

@@ -206,7 +206,7 @@ public class WindArcher extends Noblesse {
                         int inc = ForceAtomEnum.WA_ARROW_2.getInc();
                         int type = ForceAtomEnum.WA_ARROW_2.getForceAtomType();
                         ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, firstImpact, secondImpact,
-                                anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
+                                anglenum, 0, Util.getCurrentTime(), 1, 0,
                                 new Position(0, 0)); //Slightly behind the player
                         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                                 true, mobID, TRIFLING_WIND_ATOM, forceAtomInfo, new Rect(), 0, 300,
@@ -216,7 +216,7 @@ public class WindArcher extends Noblesse {
                         int inc = ForceAtomEnum.WA_ARROW_1.getInc();
                         int type = ForceAtomEnum.WA_ARROW_1.getForceAtomType();
                         ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, firstImpact, secondImpact,
-                                anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
+                                anglenum, 0, Util.getCurrentTime(), 1, 0,
                                 new Position(0, 0)); //Slightly behind the player
                         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                                 true, mobID, TRIFLING_WIND_ATOM, forceAtomInfo, new Rect(), 0, 300,
@@ -243,7 +243,7 @@ public class WindArcher extends Noblesse {
                     int inc = ForceAtomEnum.WA_ARROW_HYPER.getInc();
                     int type = ForceAtomEnum.WA_ARROW_HYPER.getForceAtomType();
                     ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 5, 5,
-                            270, 0, (int) System.currentTimeMillis(), 1, 0,
+                            270, 0, Util.getCurrentTime(), 1, 0,
                             new Position(35, ranY)); //Slightly behind the player
                     chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                             true, mobID, STORM_BRINGER, forceAtomInfo, new Rect(), 0, 300,
@@ -391,7 +391,7 @@ public class WindArcher extends Noblesse {
             case STORM_ELEMENTAL:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1); //Indie
                 break;
@@ -404,7 +404,7 @@ public class WindArcher extends Noblesse {
             case SYLVAN_AID:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1); //Indie
                 o2.nOption = si.getValue(x, slv);
@@ -419,54 +419,54 @@ public class WindArcher extends Noblesse {
             case ALBATROSS:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieBooster, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBooster, o1); //Indie
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieCr, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieCr, o2); //Indie
                 o3.nReason = skillID;
                 o3.nValue = si.getValue(indieMhp, slv);
-                o3.tStart = (int) System.currentTimeMillis();
+                o3.tStart = Util.getCurrentTime();
                 o3.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMHP, o3); //Indie
                 o4.nReason = skillID;
                 o4.nValue = si.getValue(indiePad, slv);
-                o4.tStart = (int) System.currentTimeMillis();
+                o4.tStart = Util.getCurrentTime();
                 o4.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o4); //Indie
                 break;
             case ALBATROSS_MAX:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indiePad, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1); //Indie
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieDamR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o2); //Indie
                 o3.nReason = skillID;
                 o3.nValue = si.getValue(indieCr, slv);
-                o3.tStart = (int) System.currentTimeMillis();
+                o3.tStart = Util.getCurrentTime();
                 o3.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieCr, o3); //Indie
                 o4.nReason = skillID;
                 o4.nValue = si.getValue(indieAsrR, slv);
-                o4.tStart = (int) System.currentTimeMillis();
+                o4.tStart = Util.getCurrentTime();
                 o4.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieAsrR, o4); //Indie
                 o5.nReason = skillID;
                 o5.nValue = si.getValue(indieAsrR, slv);
-                o5.tStart = (int) System.currentTimeMillis();
+                o5.tStart = Util.getCurrentTime();
                 o5.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieTerR, o5); //Indie
                 o6.nReason = skillID;
                 o6.nValue = -2; //si.getValue(indieBooster, slv);
-                o6.tStart = (int) System.currentTimeMillis();
+                o6.tStart = Util.getCurrentTime();
                 o6.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBooster, o6); //Indie
                 o7.nOption = si.getValue(ignoreMobpdpR, slv);
@@ -487,12 +487,12 @@ public class WindArcher extends Noblesse {
             case TOUCH_OF_THE_WIND: // x = Dex%   avoid/acc = y
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indiePadR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePADR, o1); //Indie
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMhpR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMHPR, o2); //Indie
                 o3.nOption = si.getValue(x, slv);
@@ -511,7 +511,7 @@ public class WindArcher extends Noblesse {
             case CALL_OF_CYGNUS_WA:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1); //Indie
                 break;
@@ -540,12 +540,12 @@ public class WindArcher extends Noblesse {
             case GLORY_OF_THE_GUARDIANS_WA:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
@@ -585,7 +585,7 @@ public class WindArcher extends Noblesse {
                 tsm.putCharacterStatValue(MDD, o2);
                 o3.nReason = skill.getSkillId();
                 o3.nValue = si.getValue(indiePad, slv);
-                o3.tStart = (int) System.currentTimeMillis();
+                o3.tStart = Util.getCurrentTime();
                 o3.tTerm = 5; // time isn't a variable in the skill Info
                 tsm.putCharacterStatValue(IndiePAD, o3);
                 tsm.sendSetStatPacket();

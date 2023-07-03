@@ -287,7 +287,7 @@ public class AngelicBuster extends Job {
                     int inc = ForceAtomEnum.AB_ORB.getInc();
                     int type = ForceAtomEnum.AB_ORB.getForceAtomType();
                     ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
-                            anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
+                            anglenum, 0, Util.getCurrentTime(), 1, 0,
                             new Position(5, 0)); //Slightly behind the player
                     chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                             true, mobID, SOUL_SEEKER_ATOM, forceAtomInfo, new Rect(), 0, 300,
@@ -318,7 +318,7 @@ public class AngelicBuster extends Job {
         int inc = ForceAtomEnum.AB_ORB.getInc();
         int type = ForceAtomEnum.AB_ORB.getForceAtomType();
         ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
-                anglenum, 250, (int) System.currentTimeMillis(), 1, 0,
+                anglenum, 250, Util.getCurrentTime(), 1, 0,
                 new Position(0, -100));
         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                 true, mobID, SOUL_SEEKER_ATOM, forceAtomInfo, new Rect(), 0, 300,
@@ -342,7 +342,7 @@ public class AngelicBuster extends Job {
                 int inc = ForceAtomEnum.AB_ORB_RECREATION.getInc();
                 int type = ForceAtomEnum.AB_ORB_RECREATION.getForceAtomType();
                 ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, firstimpact, 2,
-                        anglenum, 0, (int) System.currentTimeMillis(), 1, 0,
+                        anglenum, 0, Util.getCurrentTime(), 1, 0,
                         new Position());
                 chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
                         true, mobID, SOUL_SEEKER_ATOM, forceAtomInfo, new Rect(), 0, 300,
@@ -403,7 +403,7 @@ public class AngelicBuster extends Job {
             Option o = new Option();
             o.nValue = si.getValue(y, slv);
             o.nReason = skill.getSkillId();
-            o.tStart = (int) System.currentTimeMillis();
+            o.tStart = Util.getCurrentTime();
             o.tTerm = 5;
             tsm.putCharacterStatValue(IndieDamR, o);
             tsm.sendSetStatPacket();
@@ -427,7 +427,7 @@ public class AngelicBuster extends Job {
         tsm.putCharacterStatValue(Trinity, o1);
         o2.nValue = (5 * amount);
         o2.nReason = TRINITY;
-        o2.tStart = (int) System.currentTimeMillis();
+        o2.tStart = Util.getCurrentTime();
         o2.tTerm = 5;
         tsm.putCharacterStatValue(IndieDamR, o2);
         tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o2);
@@ -475,7 +475,7 @@ public class AngelicBuster extends Job {
             case MELODY_CROSS:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieBooster, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBooster, o1);
                 o2.nOption = si.getValue(mhpX, slv);
@@ -508,7 +508,7 @@ public class AngelicBuster extends Job {
             case NOVA_WARRIOR_AB:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(x, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
@@ -521,12 +521,12 @@ public class AngelicBuster extends Job {
             case PRETTY_EXALTATION:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieIgnoreMobpdpR, slv);
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieBDR, slv);
-                o2.tStart = (int) System.currentTimeMillis();
+                o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBDR, o2);
                 break;

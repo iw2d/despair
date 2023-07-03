@@ -7,6 +7,7 @@ import net.swordie.ms.constants.MonsterCollectionSession;
 import net.swordie.ms.loaders.containerclasses.MonsterCollectionGroupRewardInfo;
 import net.swordie.ms.loaders.containerclasses.MonsterCollectionMobInfo;
 import net.swordie.ms.loaders.containerclasses.MonsterCollectionSessionRewardInfo;
+import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Triple;
 import net.swordie.ms.util.container.Tuple;
 import org.apache.logging.log4j.LogManager;
@@ -41,7 +42,7 @@ public class MonsterCollectionData {
     }
 
     public static void loadFromSQL() {
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         Session session = DatabaseManager.getSession();
         Transaction t = session.beginTransaction();
         Query q = session.createQuery("from MonsterCollectionSessionRewardInfo");
@@ -69,7 +70,7 @@ public class MonsterCollectionData {
                     .getMonsterCollectionGroups().get(mcgri.getGroupID())
                     .setRewardQuantity(mcgri.getQuantity());
         }
-        log.info("Loaded MonsterCollectionData in " + (System.currentTimeMillis() - start) + "ms.");
+        log.info("Loaded MonsterCollectionData in " + (Util.getCurrentTimeLong() - start) + "ms.");
     }
 
     public static void put(MonsterCollectionMobInfo mcmi) {

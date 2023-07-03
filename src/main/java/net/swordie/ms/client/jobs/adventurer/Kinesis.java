@@ -181,7 +181,7 @@ public class Kinesis extends Job {
                 count = count > si.getValue(w, slv) ? si.getValue(w, slv) : count;
                 o1.nValue = count * si.getValue(indiePMdR, slv);
                 o1.nReason = skillID;
-                o1.tStart = (int) System.currentTimeMillis();
+                o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePMdR, o1);
                 tsm.sendSetStatPacket();
@@ -256,7 +256,7 @@ public class Kinesis extends Job {
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
-        int curTime = (int) System.currentTimeMillis();
+        int curTime = Util.getCurrentTime();
         switch(skillID) {
             case PSYCHIC_CHARGER:
                 int add = (MAX_PP - getPp()) / 2;

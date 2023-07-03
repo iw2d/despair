@@ -733,7 +733,7 @@ public class FieldData {
     }
 
     public static void loadWorldMap() {
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(ServerConstants.DAT_DIR + "/worldMap.dat"))) {
             int size = dataInputStream.readInt();
             for (int i = 0; i < size; i++) {
@@ -742,17 +742,17 @@ public class FieldData {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        log.info(String.format("Loaded world map fields from data file in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Loaded world map fields from data file in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     public static void generateDatFiles() {
         log.info("Started generating field data.");
-        long start = System.currentTimeMillis();
+        long start = Util.getCurrentTimeLong();
         loadFieldInfoFromWz();
         saveFields(ServerConstants.DAT_DIR + "/fields");
         loadWorldMapFromWz();
         saveWorldMap(ServerConstants.DAT_DIR + "/worldMap.dat");
-        log.info(String.format("Completed generating field data in %dms.", System.currentTimeMillis() - start));
+        log.info(String.format("Completed generating field data in %dms.", Util.getCurrentTimeLong() - start));
     }
 
     public static Field getFieldCopyById(int id) {
