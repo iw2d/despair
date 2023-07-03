@@ -17,6 +17,7 @@ import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.connection.packet.UserRemote;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.MoveAbility;
 import net.swordie.ms.enums.TSIndex;
 import net.swordie.ms.handlers.EventManager;
@@ -327,16 +328,10 @@ public class Pirate extends Beginner {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -397,7 +392,7 @@ public class Pirate extends Beginner {
                         }
                         MobTemporaryStat mts = mob.getTemporaryStat();
                         o1.nOption = si.getValue(z, slv);
-                        o1.rOption = skill.getSkillId();
+                        o1.rOption = skillID;
                         o1.tOption = si.getValue(time, slv);
                         mts.addStatOptionsAndBroadcast(MobStat.Speed, o1);
                     }
@@ -413,7 +408,7 @@ public class Pirate extends Beginner {
                         if(!mob.isBoss()) {
                             MobTemporaryStat mts = mob.getTemporaryStat();
                             o1.nOption = 1;
-                            o1.rOption = skill.getSkillId();
+                            o1.rOption = skillID;
                             o1.tOption = si.getValue(time, slv);
                             mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                         }
@@ -440,7 +435,7 @@ public class Pirate extends Beginner {
                         if(!mob.isBoss()) {
                             MobTemporaryStat mts = mob.getTemporaryStat();
                             o1.nOption = 1;
-                            o1.rOption = skill.getSkillId();
+                            o1.rOption = skillID;
                             o1.tOption = si.getValue(hcTime, slv);
                             mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                         }
@@ -676,11 +671,7 @@ public class Pirate extends Beginner {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -1093,11 +1084,11 @@ public class Pirate extends Beginner {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
         if(chr.hasSkill(PIRATE_REVENGE_BUCC) || chr.hasSkill(PIRATE_REVENGE_SAIR)) {
             applyPirateRevenge();
         }
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     private void applyPirateRevenge() {

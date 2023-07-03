@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.nova;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.info.HitInfo;
@@ -20,9 +19,7 @@ import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.connection.packet.UserLocal;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
-import net.swordie.ms.enums.ChatType;
 import net.swordie.ms.enums.ForceAtomEnum;
-import net.swordie.ms.enums.Stat;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
@@ -134,18 +131,11 @@ public class AngelicBuster extends Job {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
-
-        if(hasHitMobs) {
+        if (hasHitMobs) {
             //Soul Seeker Recreation
             if (attackInfo.skillId == SOUL_SEEKER_ATOM) {
                 recreateSoulSeekerForceAtom(attackInfo);
@@ -209,7 +199,7 @@ public class AngelicBuster extends Job {
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
                     o1.nOption = 1;
-                    o1.rOption = skill.getSkillId();
+                    o1.rOption = skillID;
                     o1.wOption = chr.getId();
                     mts.addStatOptionsAndBroadcast(MobStat.Explosion, o1);
                 }
@@ -222,7 +212,7 @@ public class AngelicBuster extends Job {
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
                     o1.nOption = 1;
-                    o1.rOption = skill.getSkillId();
+                    o1.rOption = skillID;
                     o1.tOption = si.getValue(time, slv);
                     mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o1); //TODO Check if this is the Correct MobStat
                 }
@@ -237,7 +227,7 @@ public class AngelicBuster extends Job {
                         if(!mob.isBoss()) {
                             MobTemporaryStat mts = mob.getTemporaryStat();
                             o1.nOption = 1;
-                            o1.rOption = skill.getSkillId();
+                            o1.rOption = skillID;
                             o1.tOption = si.getValue(time, slv);
                             mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                         }
@@ -260,7 +250,7 @@ public class AngelicBuster extends Job {
         super.handleAttack(chr, attackInfo);
     }
 
-    private void soulSeekerExpert(int skillID, byte slv, AttackInfo attackInfo) {
+    private void soulSeekerExpert(int skillID, int slv, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (tsm.hasStat(AngelicBursterSoulSeeker)) {
             SkillInfo si = SkillData.getSkillInfoById(SOUL_SEEKER_EXPERT);
@@ -453,7 +443,6 @@ public class AngelicBuster extends Job {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
         SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
@@ -554,9 +543,9 @@ public class AngelicBuster extends Job {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
 
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     // Character creation related methods ------------------------------------------------------------------------------

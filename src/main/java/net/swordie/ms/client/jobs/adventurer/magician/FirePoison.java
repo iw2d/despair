@@ -11,6 +11,7 @@ import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
@@ -119,23 +120,17 @@ public class FirePoison extends Magician {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
 
         // Ignite
         applyIgniteOnMob(attackInfo);
         if (hasHitMobs) {
             // Megiddo Flame Recreation
             if (attackInfo.skillId == MEGIDDO_FLAME_ATOM) {
-                recreateMegiddoFlameForceAtom(skillID, slv, attackInfo);
+                recreateMegiddoFlameForceAtom(attackInfo);
             }
         }
 
@@ -178,10 +173,10 @@ public class FirePoison extends Magician {
                 aa = AffectedArea.getPassiveAA(chr, POISON_MIST, pmSlv > 0 ? pmSlv : 1);
                 aa.setPosition(chr.getPosition());
                 o1.nOption = 1;
-                o1.rOption = skill.getSkillId();
+                o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 o2.nOption = si.getValue(x, slv); // already negative in si
-                o2.rOption = skill.getSkillId();
+                o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
@@ -273,7 +268,7 @@ public class FirePoison extends Magician {
         }
     }
 
-    private void recreateMegiddoFlameForceAtom(int skillID, byte slv, AttackInfo attackInfo) {
+    private void recreateMegiddoFlameForceAtom(AttackInfo attackInfo) {
         SkillInfo si = SkillData.getSkillInfoById(MEGIDDO_FLAME);
         int anglenum = new Random().nextInt(360);
         for (MobAttackInfo mai : attackInfo.mobAttackInfo) {

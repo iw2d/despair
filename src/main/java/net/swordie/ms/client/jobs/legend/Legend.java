@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.legend;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
@@ -18,7 +17,6 @@ public class Legend extends Job {
 
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
-
         super.handleAttack(chr, attackInfo);
     }
 
@@ -29,9 +27,9 @@ public class Legend extends Job {
     }
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
 
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     @Override

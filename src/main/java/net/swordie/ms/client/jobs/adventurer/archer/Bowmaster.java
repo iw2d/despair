@@ -83,16 +83,10 @@ public class Bowmaster extends Archer {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        int slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
         if (hasHitMobs && SkillConstants.isArmorPiercingSkill(skillID)) {
             handleQuiverCartridge(tsm, attackInfo);
             incrementMortalBlow();

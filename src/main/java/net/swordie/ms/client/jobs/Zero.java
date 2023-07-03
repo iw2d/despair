@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.ExtendSP;
@@ -23,7 +22,6 @@ import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.QuestConstants;
 import net.swordie.ms.constants.SkillConstants;
-import net.swordie.ms.enums.ChatType;
 import net.swordie.ms.enums.MoveAbility;
 import net.swordie.ms.enums.Stat;
 import net.swordie.ms.life.AffectedArea;
@@ -36,7 +34,6 @@ import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -186,16 +183,10 @@ public class Zero extends Job {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
 
         if(getAlphaOrBetaSkill(skillID) == 1) {
             if(hasHitMobs) {
@@ -388,7 +379,6 @@ public class Zero extends Job {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
         SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
@@ -553,7 +543,7 @@ public class Zero extends Job {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Skill immuneBarrier = chr.getSkill(IMMUNE_BARRIER);
         if(immuneBarrier == null) {
@@ -578,7 +568,7 @@ public class Zero extends Job {
             tsm.putCharacterStatValue(ImmuneBarrier, o);
             tsm.sendSetStatPacket();
         }
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     public void reviveByRewind() {

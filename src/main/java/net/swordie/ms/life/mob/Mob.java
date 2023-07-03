@@ -1488,7 +1488,7 @@ public class Mob extends Life {
         getQuests().add(questID);
     }
 
-    public void soulSplitMob(Char chr, Mob origin, int duration, Skill skill) {
+    public void soulSplitMob(Char chr, Mob origin, int duration, int skillID) {
         Field field = chr.getField();
         Position position = origin.getPosition();
 
@@ -1511,11 +1511,11 @@ public class Mob extends Life {
         Option o1 = new Option();
         Option o2 = new Option();
         o2.nOption = 1;
-        o2.rOption = skill.getSkillId();
+        o2.rOption = skillID;
         o2.tOption = duration;
         mtsCopy.addStatOptions(MobStat.Freeze, o2);
         o1.nOption = 1;
-        o1.rOption = skill.getSkillId();
+        o1.rOption = skillID;
         o1.tOption = duration;
         mtsCopy.addStatOptionsAndBroadcast(MobStat.TrueSight, o1);
         EventManager.addEvent(() -> removeSoulSplitLife(chr, origin, copy), duration, TimeUnit.SECONDS);

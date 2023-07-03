@@ -4526,7 +4526,7 @@ public class Char {
 	public void damage(int damage) {
 		HitInfo hi = new HitInfo();
 		hi.hpDamage = damage;
-		getJobHandler().handleHit(this, hi);
+		getJobHandler().processHit(this, hi);
 	}
 
 	public void changeChannel(byte channelId) {

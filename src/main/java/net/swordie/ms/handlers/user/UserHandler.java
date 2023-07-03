@@ -6,6 +6,7 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.MonsterCollection;
 import net.swordie.ms.client.character.MonsterCollectionExploration;
 import net.swordie.ms.client.character.PortableChair;
+import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.keys.FuncKeyMap;
 import net.swordie.ms.client.character.potential.CharacterPotential;
@@ -14,7 +15,6 @@ import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
-import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
 import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.legend.Shade;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
@@ -88,7 +88,74 @@ public class UserHandler {
 
     @Handler(op = InHeader.USER_HIT)
     public static void handleUserHit(Char chr, InPacket inPacket) {
-        chr.getJobHandler().handleHit(inPacket);
+        if (chr.isInvincible()) {
+            return;
+        }
+
+        HitInfo hitInfo = new HitInfo();
+        inPacket.decodeInt();
+        hitInfo.damagedTime = inPacket.decodeInt();
+        hitInfo.type = inPacket.decodeByte();
+        hitInfo.elemAttr = inPacket.decodeByte();
+        hitInfo.hpDamage = inPacket.decodeInt();
+        hitInfo.isCrit = inPacket.decodeByte() != 0;
+        inPacket.decodeByte();
+
+        switch (hitInfo.type) {
+            case -4: // tick damage
+                inPacket.decodeShort(); 	// 0
+                inPacket.decodeByte(); 		// type?
+                // 1: poison
+                // 3: Shadow of Darkness
+                // 4: Dark Tornado
+                // 8: %hp damage poison
+                break;
+            case -5: // obstacle atom
+                inPacket.decodeInt(); 		// nSN
+                inPacket.decodeByte(); 		// 0
+                break;
+            case -6: // full true damaged (one hit kill)
+                break;
+            case -8: // mob skill, used for BounceAttack 217
+                hitInfo.mobSkillID = inPacket.decodeInt(); // nSkillID
+                inPacket.decodeInt(); 					   // nSLV
+                hitInfo.userID = inPacket.decodeInt(); 	   // dwBounceObjectSN
+                break;
+            case -9: // hekaton field skill
+                inPacket.decodeInt();
+                inPacket.decodeShort(); 	// damage type
+                break;
+            case -10: // field etc, used for demian sword?
+                inPacket.decodeByte(); 		// type
+                inPacket.decodePosition();
+                break;
+            default: // touch
+                if (inPacket.getUnreadAmount() >= 13) {
+                    hitInfo.templateID = inPacket.decodeInt();
+                    hitInfo.mobID = inPacket.decodeInt();
+                    hitInfo.isLeft = inPacket.decodeByte() != 0;
+                    hitInfo.blockSkillID = inPacket.decodeInt();
+                    hitInfo.blockSkillDamage = inPacket.decodeInt();
+                    hitInfo.reflect = inPacket.decodeByte();
+                    hitInfo.guard = inPacket.decodeByte();
+                    if (hitInfo.guard == 2 || hitInfo.blockSkillDamage > 0) {
+                        hitInfo.powerGuard = inPacket.decodeByte();
+                        hitInfo.reflectMobID = inPacket.decodeInt();
+                        hitInfo.hitAction = inPacket.decodeByte();
+                        hitInfo.hitPos = inPacket.decodePosition();
+                        hitInfo.userHitPos = inPacket.decodePosition();
+                    }
+                    hitInfo.stance = inPacket.decodeByte();
+                    hitInfo.stanceSkillID = inPacket.decodeInt();
+                    hitInfo.cancelSkillID = inPacket.decodeInt();
+                    hitInfo.mpDamage = inPacket.decodeInt();
+                    inPacket.decodeByte(); // 0
+                } else {
+                    log.warn(String.format("Unhandled hit info type %d : %s", hitInfo.type, Util.readableByteArray(inPacket.decodeArr(inPacket.getUnreadAmount()))));
+                }
+        }
+        chr.getJobHandler().handleHit(chr, hitInfo);
+        chr.getJobHandler().processHit(chr, hitInfo);
     }
 
     @Handler(op = InHeader.USER_GROWTH_HELPER_REQUEST)

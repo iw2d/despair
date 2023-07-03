@@ -789,6 +789,10 @@ public class SkillConstants {
             case Blaster.REVOLVING_CANNON_2:
             case Blaster.REVOLVING_CANNON_3:
                 return Blaster.REVOLVING_CANNON;
+            case Kinesis.PSYCHIC_ASSAULT_DOWN:
+                return Kinesis.PSYCHIC_ASSAULT_FWD;
+            case Kinesis.PSYCHIC_BLAST_DOWN:
+                return Kinesis.PSYCHIC_BLAST_FWD;
             default:
                 return skillID;
         }

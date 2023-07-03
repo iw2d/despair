@@ -19,6 +19,7 @@ import net.swordie.ms.client.jobs.adventurer.warrior.Warrior;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.ForceAtomEnum;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.mob.Mob;
@@ -158,16 +159,10 @@ public class Phantom extends Job {
             jobHandler.handleAttack(chr, attackInfo);
         }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
         if (hasHitMobs && attackInfo.skillId != CARTE_NOIR && attackInfo.skillId != CARTE_BLANCHE) {
             for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                 cartDeck();
@@ -336,11 +331,10 @@ public class Phantom extends Job {
     @Override
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
-        for(Job jobHandler : stealJobHandlers) {
+        for (Job jobHandler : stealJobHandlers) {
             jobHandler.handleSkill(chr, skillID, slv, inPacket);
         }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
         SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
@@ -529,9 +523,9 @@ public class Phantom extends Job {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
-        for(Job jobHandler : stealJobHandlers) {
-            jobHandler.handleHit(chr, inPacket, hitInfo);
+    public void handleHit(Char chr, HitInfo hitInfo) {
+        for (Job jobHandler : stealJobHandlers) {
+            jobHandler.handleHit(chr, hitInfo);
         }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (!chr.hasSkill(VOL_DAME)) {
@@ -545,7 +539,7 @@ public class Phantom extends Job {
             hitInfo.hpDamage = dmg - (dmg * (dmgPerc / 100));
         }
 
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     public void reviveByFinalFeint() {

@@ -12,6 +12,7 @@ import net.swordie.ms.client.jobs.adventurer.Beginner;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.Summon;
@@ -110,28 +111,19 @@ public class Magician extends Beginner {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
-
         if (hasHitMobs) {
             incrementArcaneAim();
             mpEaterEffect(attackInfo);
         }
-
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
         switch (attackInfo.skillId) {
         }
-
         super.handleAttack(chr, attackInfo);
     }
 

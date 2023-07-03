@@ -82,21 +82,14 @@ public class Thief extends Beginner {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = SkillConstants.getActualSkillIDfromSkillID(skill.getSkillId());
-        }
         if(hasHitMobs) {
             applyPassiveDoTSkillsOnMob(attackInfo);
             procAdvDarkSight();
         }
-
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -112,7 +105,7 @@ public class Thief extends Beginner {
                     if (mob == null) {
                         continue;
                     }
-                    mob.getTemporaryStat().createAndAddBurnedInfo(chr, skill);
+                    mob.getTemporaryStat().createAndAddBurnedInfo(chr, skillID, slv);
                 }
                 break;
         }
@@ -159,7 +152,7 @@ public class Thief extends Beginner {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        SkillInfo si = si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -251,8 +244,8 @@ public class Thief extends Beginner {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
-        super.handleHit(chr, inPacket, hitInfo);
+    public void handleHit(Char chr, HitInfo hitInfo) {
+        super.handleHit(chr, hitInfo);
     }
 
     @Override

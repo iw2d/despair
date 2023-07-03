@@ -12,6 +12,7 @@ import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.packet.FieldPacket;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.client.jobs.Job;
@@ -123,26 +124,11 @@ public class Kinesis extends Job {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        if(skill == null) {
-            switch(attackInfo.skillId) {
-                case PSYCHIC_ASSAULT_DOWN:
-                    skill = chr.getSkill(PSYCHIC_ASSAULT_FWD);
-                    break;
-                case PSYCHIC_BLAST_DOWN:
-                    skill = chr.getSkill(PSYCHIC_BLAST_FWD);
-                    break;
-            }
-        }
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
+
         if (hasHitMobs && chr.hasSkill(KINETIC_COMBO)) {
             createKineticOrbForceAtom(skillID, slv, attackInfo);
         }
@@ -162,7 +148,7 @@ public class Kinesis extends Job {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    mts.createAndAddBurnedInfo(chr, skill);
+                    mts.createAndAddBurnedInfo(chr, skillID, slv);
                 }
                 break;
             case MIND_BREAK:
@@ -206,7 +192,7 @@ public class Kinesis extends Job {
         super.handleAttack(chr, attackInfo);
     }
 
-    private void createKineticOrbForceAtom(int skillID, byte slv, AttackInfo attackInfo) {
+    private void createKineticOrbForceAtom(int skillID, int slv, AttackInfo attackInfo) {
         if(Arrays.asList(nonOrbSkills).contains(skillID)) {
             return;
         }
@@ -224,7 +210,7 @@ public class Kinesis extends Job {
         }
     }
 
-    private void kinesisPPAttack(int skillID, byte slv, SkillInfo si) {
+    private void kinesisPPAttack(int skillID, int slv, SkillInfo si) {
         if(si == null) {
             return;
         }
@@ -247,11 +233,7 @@ public class Kinesis extends Job {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -345,7 +327,7 @@ public class Kinesis extends Job {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if(tsm.hasStat(KinesisPsychicShield)) {
             hitInfo.hpDamage = (int) (hitInfo.hpDamage * (tsm.getOption(KinesisPsychicEnergeShield).nOption / 100D));
@@ -354,7 +336,7 @@ public class Kinesis extends Job {
         if(getPp() <= 0) {
             tsm.removeStat(KinesisPsychicShield, false);
         }
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     // Character creation related methods ------------------------------------------------------------------------------

@@ -54,8 +54,8 @@ public class Citizen extends Job {
     @Override
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -75,8 +75,8 @@ public class Citizen extends Job {
     }
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
-        super.handleHit(chr, inPacket, hitInfo);
+    public void handleHit(Char chr, HitInfo hitInfo) {
+        super.handleHit(chr, hitInfo);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.legend;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.LarknessManager;
@@ -17,7 +16,6 @@ import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.connection.packet.UserRemote;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
-import net.swordie.ms.enums.ChatType;
 import net.swordie.ms.enums.Stat;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.mob.Mob;
@@ -26,7 +24,6 @@ import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
 
-import java.util.Arrays;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -236,16 +233,10 @@ public class Luminous extends Job {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
         if(chr.getJob() != 2004) { // Beginner Luminous
             changeLarknessState(skillID);
         }
@@ -261,7 +252,7 @@ public class Luminous extends Job {
             }
             // Dark Crescendo
             if (tsm.hasStat(StackBuff)) {
-                if (skill != null && Util.succeedProp(crescendoProp)) {
+                if (Util.succeedProp(crescendoProp)) {
                     incrementDarkCrescendo(tsm);
                 }
             }
@@ -279,7 +270,7 @@ public class Luminous extends Job {
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
                     o1.nOption = 1;
-                    o1.rOption = skill.getSkillId();
+                    o1.rOption = skillID;
                     o1.tOption = si.getValue(time, slv);
                     mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                 }
@@ -343,7 +334,7 @@ public class Luminous extends Job {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        LarknessManager lm = tsm.getLarknessManager();        Skill skill = chr.getSkill(skillID);
+        LarknessManager lm = tsm.getLarknessManager();
         SkillInfo si = SkillData.getSkillInfoById(skillID);
         Option o1 = new Option();
         Option o2 = new Option();
@@ -458,7 +449,7 @@ public class Luminous extends Job {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o = new Option();
         if(tsm.getOption(Larkness).rOption == EQUILIBRIUM) {
@@ -473,7 +464,7 @@ public class Luminous extends Job {
                 hitInfo.hpDamage = (int) (hitInfo.hpDamage * ((double) dmgAbsorbed / 100));
             }
         }
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     @Override

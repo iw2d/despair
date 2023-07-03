@@ -5,7 +5,6 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
@@ -99,10 +98,9 @@ public class Shadower extends Thief {
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
-        boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
         SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
         int slv = chr.getSkillLevel(skillID);
-
+        boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
         if (hasHitMobs) {
             if (chr.hasSkill(CRITICAL_GROWTH)) {
                 incrementCritGrowing();
@@ -415,7 +413,7 @@ public class Shadower extends Thief {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (hitInfo.hpDamage > 2 && tsm.hasStat(MesoGuard)) {
             int guardRate = 50 + chr.getSkillStatValue(v, MESO_MASTERY);
@@ -429,7 +427,7 @@ public class Shadower extends Thief {
             }
             hitInfo.hpDamage = hitInfo.hpDamage - dmgGuarded;
         }
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
         System.out.println(hitInfo);
     }
 

@@ -15,6 +15,7 @@ import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Life;
@@ -178,16 +179,10 @@ public class Bishop extends Magician {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -245,8 +240,8 @@ public class Bishop extends Magician {
                         partyTSM.putCharacterStatValue(HeavensDoor, o1);
                         partyTSM.sendSetStatPacket();
                         if (partyChr != chr) {
-                            chr.getField().broadcastPacket(UserRemote.effect(partyChr.getId(), Effect.skillAffected(skillID, slv, 0)), partyChr);
-                            partyChr.write(UserPacket.effect(Effect.skillAffected(skillID, slv, 0)));
+                            chr.getField().broadcastPacket(UserRemote.effect(partyChr.getId(), Effect.skillAffected(skillID, (byte) slv, 0)), partyChr);
+                            partyChr.write(UserPacket.effect(Effect.skillAffected(skillID, (byte) slv, 0)));
                         }
                     }
                 }

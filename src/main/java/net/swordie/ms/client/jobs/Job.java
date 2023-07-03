@@ -154,17 +154,10 @@ public abstract class Job {
 
 	public void handleAttack(Char chr, AttackInfo attackInfo) {
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
-		Skill skill = SkillData.getSkillDeepCopyById(attackInfo.skillId);
-		int skillID = 0;
-		SkillInfo si = null;
+		int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+		SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+		int slv = chr.getSkillLevel(skillID);
 		boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-		byte slv = 0;
-		if (skill != null) {
-			si = SkillData.getSkillInfoById(skill.getSkillId());
-			slv = (byte) skill.getCurrentLevel();
-			skillID = skill.getSkillId();
-		}
-
 		// Recovery Rune  HP Recovery
 		if(tsm.getOptByCTSAndSkill(IgnoreMobDamR, RuneStone.LIBERATE_THE_RECOVERY_RUNE) != null) {
 			SkillInfo recoveryRuneInfo = SkillData.getSkillInfoById(RuneStone.LIBERATE_THE_RECOVERY_RUNE);
@@ -198,21 +191,18 @@ public abstract class Job {
 				aa.setPosition(chr.getPosition());
 				aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
 				chr.getField().spawnAffectedArea(aa);
-
-				skill.setCurrentLevel(1);
-				for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
+				for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
 					Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
 					MobTemporaryStat mts = mob.getTemporaryStat();
-					mts.createAndAddBurnedInfo(chr, skill);
+					mts.createAndAddBurnedInfo(chr, skillID, 1);
 				}
 
 				// Buff of the Rune
 				si = SkillData.getSkillInfoById(RuneStone.LIBERATE_THE_DESTRUCTIVE_RUNE_BUFF); //Buff Info
-				slv = (byte) skill.getCurrentLevel();
 				o1.nReason = RuneStone.LIBERATE_THE_DESTRUCTIVE_RUNE_BUFF;
-				o1.nValue = si.getValue(indieDamR, slv); //50% DamR
+				o1.nValue = si.getValue(indieDamR, 1); //50% DamR
 				o1.tStart = Util.getCurrentTime();
-				o1.tTerm = si.getValue(time, slv);
+				o1.tTerm = si.getValue(time, 1);
 				tsm.putCharacterStatValue(IndieDamR, o1);
 
 				tsm.sendSetStatPacket();
@@ -222,15 +212,12 @@ public abstract class Job {
 
 	public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
-		Skill skill = SkillData.getSkillDeepCopyById(skillID);
-		SkillInfo si = null;
-		if(skill != null) {
-			si = SkillData.getSkillInfoById(skillID);
-		}
+		SkillInfo si = SkillData.getSkillInfoById(skillID);
+
 		Summon summon;
 		Field field;
-		if (inPacket != null && isBuff(skillID)) {
-			handleJoblessBuff(chr, inPacket, skillID, slv);
+		if (isBuff(skillID)) {
+			handleJoblessBuff(chr, skillID, slv);
 		} else {
 			if(chr.hasSkill(skillID) && si.getVehicleId() > 0) {
 				TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
@@ -370,7 +357,7 @@ public abstract class Job {
 
 	}
 
-	public void handleJoblessBuff(Char chr, InPacket inPacket, int skillID, int slv) {
+	public void handleJoblessBuff(Char chr, int skillID, int slv) {
 		SkillInfo si = SkillData.getSkillInfoById(skillID);
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
 		Option o1 = new Option();
@@ -451,94 +438,13 @@ public abstract class Job {
 	}
 
 	/**
-	 * Handles the initial part of a hit, the initial packet processing.
-	 *
-	 * @param inPacket
-	 * 		The packet to be processed
-	 */
-	public void handleHit(InPacket inPacket) {
-		if (chr.isInvincible()) {
-			return;
-		}
-
-		HitInfo hitInfo = new HitInfo();
-		inPacket.decodeInt();
-		hitInfo.damagedTime = inPacket.decodeInt();
-		hitInfo.type = inPacket.decodeByte();
-		hitInfo.elemAttr = inPacket.decodeByte();
-		hitInfo.hpDamage = inPacket.decodeInt();
-		hitInfo.isCrit = inPacket.decodeByte() != 0;
-		inPacket.decodeByte();
-
-		switch (hitInfo.type) {
-			case -4: // tick damage
-				inPacket.decodeShort(); 	// 0
-				inPacket.decodeByte(); 		// type?
-											// 1: poison
-											// 3: Shadow of Darkness
-											// 4: Dark Tornado
-											// 8: %hp damage poison
-				break;
-			case -5: // obstacle atom
-				inPacket.decodeInt(); 		// nSN
-				inPacket.decodeByte(); 		// 0
-				break;
-			case -6: // full true damaged (one hit kill)
-				break;
-			case -8: // mob skill, used for BounceAttack 217
-				hitInfo.mobSkillID = inPacket.decodeInt(); // nSkillID
-				inPacket.decodeInt(); 					   // nSLV
-				hitInfo.userID = inPacket.decodeInt(); 	   // dwBounceObjectSN
-				break;
-			case -9: // hekaton field skill
-				inPacket.decodeInt();
-				inPacket.decodeShort(); 	// damage type
-				break;
-			case -10: // field etc, used for demian sword?
-				inPacket.decodeByte(); 		// type
-				inPacket.decodePosition();
-				break;
-			default: // touch
-				if (inPacket.getUnreadAmount() >= 13) {
-					hitInfo.templateID = inPacket.decodeInt();
-					hitInfo.mobID = inPacket.decodeInt();
-					hitInfo.isLeft = inPacket.decodeByte() != 0;
-					hitInfo.blockSkillID = inPacket.decodeInt();
-					hitInfo.blockSkillDamage = inPacket.decodeInt();
-					hitInfo.reflect = inPacket.decodeByte();
-					hitInfo.guard = inPacket.decodeByte();
-					if (hitInfo.guard == 2 || hitInfo.blockSkillDamage > 0) {
-						hitInfo.powerGuard = inPacket.decodeByte();
-						hitInfo.reflectMobID = inPacket.decodeInt();
-						hitInfo.hitAction = inPacket.decodeByte();
-						hitInfo.hitPos = inPacket.decodePosition();
-						hitInfo.userHitPos = inPacket.decodePosition();
-					}
-					hitInfo.stance = inPacket.decodeByte();
-					hitInfo.stanceSkillID = inPacket.decodeInt();
-					hitInfo.cancelSkillID = inPacket.decodeInt();
-					hitInfo.mpDamage = inPacket.decodeInt();
-					inPacket.decodeByte(); // 0
-				} else {
-					log.warn(String.format("Unhandled hit info type %d : %s", hitInfo.type, Util.readableByteArray(inPacket.decodeArr(inPacket.getUnreadAmount()))));
-				}
-		}
-		handleHit(chr, inPacket, hitInfo);
-		handleHit(chr, hitInfo);
-	}
-
-	/**
 	 * Handles the 'middle' part of hit processing, namely the job-specific stuff like Magic Guard,
 	 * and puts this info in <code>hitInfo</code>.
 	 *
-	 * @param chr
-	 * 		The character
-	 * @param inPacket
-	 * 		packet to be processed
-	 * @param hitInfo
-	 * 		The hit info that should be altered if necessary
+	 * @param chr     The character
+	 * @param hitInfo The hit info that should be altered if necessary
 	 */
-	public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+	public void handleHit(Char chr, HitInfo hitInfo) {
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
 		Field field = chr.getField();
 
@@ -648,7 +554,7 @@ public abstract class Job {
 	 * @param hitInfo
 	 * 		The completed hitInfo
 	 */
-	public void handleHit(Char chr, HitInfo hitInfo) {
+	public void processHit(Char chr, HitInfo hitInfo) {
 		hitInfo.hpDamage = Math.max(0, hitInfo.hpDamage); // to prevent -1 (dodges) healing the player.
 
 		if (chr.getStat(Stat.hp) <= hitInfo.hpDamage) {

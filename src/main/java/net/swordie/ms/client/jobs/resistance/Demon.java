@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.resistance;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
@@ -16,7 +15,6 @@ import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.BaseStat;
-import net.swordie.ms.enums.ChatType;
 import net.swordie.ms.enums.ForceAtomEnum;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.Life;
@@ -212,17 +210,11 @@ public class Demon extends Job {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        int slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
-        if(JobConstants.isDemonSlayer(chr.getJob())) {
+        if (JobConstants.isDemonSlayer(chr.getJob())) {
             if(hasHitMobs) {
                 //Demon Slayer Fury Atoms
                 createDemonFuryForceAtom(attackInfo);
@@ -275,7 +267,7 @@ public class Demon extends Job {
                         if(!mob.isBoss()) {
                             MobTemporaryStat mts = mob.getTemporaryStat();
                             o1.nOption = 1;
-                            o1.rOption = skill.getSkillId();
+                            o1.rOption = skillID;
                             o1.tOption = si.getValue(time, slv);
                             mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                         }
@@ -291,7 +283,7 @@ public class Demon extends Job {
                     if(!mob.isBoss()) {
                         MobTemporaryStat mts = mob.getTemporaryStat();
                         o1.nOption = 1;
-                        o1.rOption = skill.getSkillId();
+                        o1.rOption = skillID;
                         o1.tOption = si.getValue(time, slv);
                         mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
@@ -319,7 +311,7 @@ public class Demon extends Job {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    mts.createAndAddBurnedInfo(chr, skill);
+                    mts.createAndAddBurnedInfo(chr, skillID, slv);
                 }
                 break;
             case BINDING_DARKNESS: //stun + DoT
@@ -336,7 +328,7 @@ public class Demon extends Job {
                         mts.addStatOptions(MobStat.Stun, o1);
                     }
                     if(Util.succeedProp(si.getValue(prop, slv))) {
-                        mts.createAndAddBurnedInfo(chr, skill);
+                        mts.createAndAddBurnedInfo(chr, skillID, slv);
                     }
                 }
                 break;
@@ -348,14 +340,14 @@ public class Demon extends Job {
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
                     o1.nOption = -si.getValue(y, slv);
-                    o1.rOption = skill.getSkillId();
+                    o1.rOption = skillID;
                     o1.tOption = si.getValue(time, slv);
                     mts.addStatOptions(MobStat.PAD, o1);
                     mts.addStatOptions(MobStat.PDR, o1);
                     mts.addStatOptions(MobStat.MAD, o1);
                     mts.addStatOptions(MobStat.MDR, o1);
                     o2.nOption = -si.getValue(z, slv);
-                    o2.rOption = skill.getSkillId();
+                    o2.rOption = skillID;
                     o2.tOption = si.getValue(time, slv);
                     mts.addStatOptionsAndBroadcast(MobStat.ACC, o2);
                     o3.nOption = 1;
@@ -374,7 +366,7 @@ public class Demon extends Job {
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
                     o1.nOption = -20;
-                    o1.rOption = skill.getSkillId();
+                    o1.rOption = skillID;
                     o1.tOption = si.getValue(time, slv);
                     mts.addStatOptionsAndBroadcast(MobStat.Speed, o1);
                 }
@@ -387,7 +379,7 @@ public class Demon extends Job {
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
                     o1.nOption = si.getValue(x, slv);
-                    o1.rOption = skill.getSkillId();
+                    o1.rOption = skillID;
                     o1.tOption = 30;
                     mts.addStatOptions(MobStat.PDR, o1);
                     mts.addStatOptionsAndBroadcast(MobStat.MDR, o1);
@@ -697,7 +689,6 @@ public class Demon extends Job {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
         SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
@@ -874,7 +865,7 @@ public class Demon extends Job {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o1 = new Option();
 
@@ -915,7 +906,7 @@ public class Demon extends Job {
                 }
             }
         }
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     // Character creation related methods ------------------------------------------------------------------------------

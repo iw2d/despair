@@ -52,8 +52,8 @@ public class Beginner extends Job {
     }
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
-        super.handleHit(chr, inPacket, hitInfo);
+    public void handleHit(Char chr, HitInfo hitInfo) {
+        super.handleHit(chr, hitInfo);
     }
 
     @Override

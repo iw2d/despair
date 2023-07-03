@@ -3,7 +3,6 @@ package net.swordie.ms.client.jobs.adventurer.thief;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
@@ -81,16 +80,10 @@ public class NightLord extends Thief {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = SkillConstants.getActualSkillIDfromSkillID(skill.getSkillId());
-        }
         if (hasHitMobs) {
             handleExpertThrowingStar(attackInfo);
             handleMark(attackInfo);
@@ -113,7 +106,7 @@ public class NightLord extends Thief {
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         MobTemporaryStat mts = mob.getTemporaryStat();
                         mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        mts.createAndAddBurnedInfo(chr, skill);
+                        mts.createAndAddBurnedInfo(chr, skillID, slv);
                     }
                 }
                 break;
@@ -280,7 +273,7 @@ public class NightLord extends Thief {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        SkillInfo si = si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -334,8 +327,8 @@ public class NightLord extends Thief {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
-        super.handleHit(chr, inPacket, hitInfo);
+    public void handleHit(Char chr, HitInfo hitInfo) {
+        super.handleHit(chr, hitInfo);
     }
 
     @Override

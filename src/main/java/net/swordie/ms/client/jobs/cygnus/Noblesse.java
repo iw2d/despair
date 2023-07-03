@@ -1,19 +1,13 @@
 package net.swordie.ms.client.jobs.cygnus;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.connection.InPacket;
-import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.JobConstants;
-import net.swordie.ms.enums.Stat;
 import net.swordie.ms.loaders.SkillData;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created on 12/14/2017.
@@ -49,7 +43,6 @@ public class Noblesse extends Job {
 
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
-
         super.handleAttack(chr, attackInfo);
     }
 
@@ -60,9 +53,9 @@ public class Noblesse extends Job {
     }
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
 
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     @Override

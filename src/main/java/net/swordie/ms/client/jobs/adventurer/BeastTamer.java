@@ -21,6 +21,7 @@ import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.connection.packet.UserRemote;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.MoveAbility;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Summon;
@@ -384,16 +385,10 @@ public class BeastTamer extends Job {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
 
         if (isLeopardMode()) { // Leopard
             if (hasHitMobs) {
@@ -458,7 +453,7 @@ public class BeastTamer extends Job {
                 aa3.setSkillID(skillID);
                 aa3.setPosition(chr.getPosition());
                 aa3.setRect(aa3.getPosition().getRectAround(pz.getRects().get(0)));
-                aa3.setSlv((byte) skill.getCurrentLevel());
+                aa3.setSlv((byte) slv);
                 chr.getField().spawnAffectedArea(aa3);
                 break;
             case FIRE_KITTY:
@@ -549,11 +544,7 @@ public class BeastTamer extends Job {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -782,9 +773,9 @@ public class BeastTamer extends Job {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
 
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     public void reviveByBearReborn() { // TODO

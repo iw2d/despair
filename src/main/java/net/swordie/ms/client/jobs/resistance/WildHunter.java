@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.resistance;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.quest.Quest;
@@ -18,6 +17,7 @@ import net.swordie.ms.connection.packet.UserLocal;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.QuestConstants;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Life;
@@ -26,12 +26,9 @@ import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
-import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
-
-import java.util.Arrays;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -152,21 +149,15 @@ public class WildHunter extends Citizen {
 
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if(attackInfo.skillId >= SUMMON_JAGUAR_GREY && attackInfo.skillId <= SUMMON_JAGUAR_CRIMSON) {
             attackInfo.skillId = lastUsedSkill;
             lastUsedSkill = 0;
         }
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        int slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -186,12 +177,12 @@ public class WildHunter extends Citizen {
                         }
                         amount = amount + 1 > 3 ? 3 : amount + 1;
                         o1.nOption = amount;
-                        o1.rOption = skill.getSkillId();
+                        o1.rOption = skillID;
                         o1.tOption = jaguarBleedingTime;
                         mts.addStatOptionsAndBroadcast(MobStat.JaguarBleeding, o1);
                         if(!mob.isBoss()) {
                             o2.nOption = 1;
-                            o2.rOption = skill.getSkillId();
+                            o2.rOption = skillID;
                             o2.tOption = si.getValue(time, slv);
                             mts.addStatOptionsAndBroadcast(MobStat.Stun, o2);
                         }
@@ -203,7 +194,7 @@ public class WildHunter extends Citizen {
                         if(!mob.isBoss()) {
                             MobTemporaryStat mts = mob.getTemporaryStat();
                             o1.nOption = 1;
-                            o1.rOption = skill.getSkillId();
+                            o1.rOption = skillID;
                             o1.tOption = si.getValue(time, slv);
                             mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                         }
@@ -220,7 +211,7 @@ public class WildHunter extends Citizen {
                         if(!mob.isBoss()) {
                             MobTemporaryStat mts = mob.getTemporaryStat();
                             o1.nOption = 1;
-                            o1.rOption = skill.getSkillId();
+                            o1.rOption = skillID;
                             o1.tOption = si.getValue(time, slv);
                             mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                         }
@@ -265,7 +256,7 @@ public class WildHunter extends Citizen {
                         o1.tOption = jaguarBleedingTime;
                         mts.addStatOptionsAndBroadcast(MobStat.JaguarBleeding, o1);
                         o2.nOption = 1;
-                        o2.rOption = skill.getSkillId();
+                        o2.rOption = skillID;
                         o2.tOption = si.getValue(time, slv);
                         mts.addStatOptionsAndBroadcast(MobStat.Stun, o2);
                     }
@@ -328,7 +319,6 @@ public class WildHunter extends Citizen {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
         SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
@@ -568,7 +558,7 @@ public class WildHunter extends Citizen {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
         if(hitInfo.hpDamage == 0 && hitInfo.mpDamage == 0) {
             // Dodged
             if(chr.hasSkill(FLURRY)) {
@@ -584,6 +574,6 @@ public class WildHunter extends Citizen {
                 tsm.sendSetStatPacket();
             }
         }
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 }

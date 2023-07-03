@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.resistance;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
@@ -11,7 +10,7 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
-import net.swordie.ms.enums.ChatType;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.mob.Mob;
@@ -20,8 +19,6 @@ import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
-
-import java.util.Arrays;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -125,16 +122,10 @@ public class Blaster extends Citizen {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        int slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -150,10 +141,10 @@ public class Blaster extends Citizen {
                 }
                 int realSkillId = skillID == BOBBING_CHARGED ? BOBBING : WEAVING;
                 si = SkillData.getSkillInfoById(realSkillId);
-                skill = chr.getSkill(realSkillId);
-                o1.nOption = si.getValue(w, skill.getCurrentLevel());
+                slv = chr.getSkillLevel(realSkillId);
+                o1.nOption = si.getValue(w, slv);
                 o1.rOption = realSkillId;
-                o1.tOption = si.getValue(subTime, skill.getCurrentLevel());
+                o1.tOption = si.getValue(subTime, slv);
                 o1.setInMillis(true);
                 tsm.putCharacterStatValue(RWMovingEvar, o1);
                 tsm.sendSetStatPacket();
@@ -169,8 +160,7 @@ public class Blaster extends Citizen {
                 hmci.setDelay((short) 5);
                 chr.getField().spawnAffectedArea(hmci);
                 //mobs deBuff
-                skill = chr.getSkill(HAMMER_SMASH);
-                o1.nOption = hmc.getValue(x, skill.getCurrentLevel());
+                o1.nOption = hmc.getValue(x, chr.getSkillLevel(HAMMER_SMASH));
                 o1.rOption = HAMMER_SMASH;
                 o1.tOption = 10;
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
@@ -388,7 +378,6 @@ public class Blaster extends Citizen {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
         SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
@@ -458,7 +447,7 @@ public class Blaster extends Citizen {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (chr.hasSkill(BLAST_SHIELD) && hitInfo.hpDamage > 0 && !tsm.hasStat(RWBarrier)) {
             Skill shieldSkill = getBlastShieldSkill();
@@ -466,7 +455,7 @@ public class Blaster extends Citizen {
             int amount = Math.min(hitInfo.hpDamage * shieldInfo.getValue(x, shieldSkill.getCurrentLevel()) / 100 + 1, chr.getMaxHP());
             putOnShield(amount);
         }
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     public Skill getBlastShieldSkill() {

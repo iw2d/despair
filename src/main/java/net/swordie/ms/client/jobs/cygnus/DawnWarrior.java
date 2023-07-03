@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.cygnus;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
@@ -11,7 +10,7 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
-import net.swordie.ms.enums.ChatType;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.life.Summon;
@@ -23,7 +22,6 @@ import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
-import java.util.Arrays;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -122,21 +120,14 @@ public class DawnWarrior extends Noblesse {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
-        if(tsm.hasStat(SoulMasterFinal)) {
+        if (tsm.hasStat(SoulMasterFinal)) {
             applySoulElementOnMob(attackInfo, slv);
         }
-        if(chr.hasSkill(RISING_SUN) && chr.hasSkill(FALLING_MOON))
-        {
+        if (chr.hasSkill(RISING_SUN) && chr.hasSkill(FALLING_MOON)) {
             equinox(tsm);
         }
         Option o1 = new Option();
@@ -152,11 +143,11 @@ public class DawnWarrior extends Noblesse {
                         }
                         MobTemporaryStat mts = mob.getTemporaryStat();
                         o1.nOption = 1;
-                        o1.rOption = skill.getSkillId();
+                        o1.rOption = skillID;
                         o1.tOption = si.getValue(time, slv);
                         mts.addStatOptionsAndBroadcast(MobStat.Freeze, o1);
                         o2.nOption = 1;
-                        o2.rOption = skill.getSkillId();
+                        o2.rOption = skillID;
                         o2.wOption = chr.getId();
                         mts.addStatOptionsAndBroadcast(MobStat.SoulExplosion, o2);
                     }
@@ -259,7 +250,7 @@ public class DawnWarrior extends Noblesse {
         }
     }
 
-    private void applySoulElementOnMob(AttackInfo attackInfo, byte slv) {
+    private void applySoulElementOnMob(AttackInfo attackInfo, int slv) {
         Option o1 = new Option();
         SkillInfo si = SkillData.getSkillInfoById(SOUL_ELEMENT);
         for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
@@ -292,11 +283,7 @@ public class DawnWarrior extends Noblesse {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
-        SkillInfo si = null;
-        if(skill != null) {
-            si = SkillData.getSkillInfoById(skillID);
-        }
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -435,8 +422,8 @@ public class DawnWarrior extends Noblesse {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
 
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 }

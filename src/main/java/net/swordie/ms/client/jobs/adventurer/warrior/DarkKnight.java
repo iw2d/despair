@@ -14,6 +14,7 @@ import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.Summon;
@@ -192,27 +193,15 @@ public class DarkKnight extends Warrior {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        int slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
-
         if (hasHitMobs) {
-            //Lord of Darkness
             lordOfDarkness();
-
             killCountFinalPactOnMob(attackInfo);
-
-            //Dark Thirst
             darkThirst(tsm);
         }
-
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -220,7 +209,7 @@ public class DarkKnight extends Warrior {
         switch (attackInfo.skillId) {
             case SPEAR_SWEEP:
                 o1.nOption = 1;
-                o1.rOption = skill.getSkillId();
+                o1.rOption = skillID;
                 o1.tOption = GameConstants.DEFAULT_STUN_DURATION;
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
@@ -435,7 +424,7 @@ public class DarkKnight extends Warrior {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (chr.hasSkill(REVENGE_OF_THE_EVIL_EYE)) {
             Skill skill = chr.getSkill(REVENGE_OF_THE_EVIL_EYE);
@@ -454,7 +443,7 @@ public class DarkKnight extends Warrior {
                 }
             }
         }
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     public void reviveByFinalPact() {

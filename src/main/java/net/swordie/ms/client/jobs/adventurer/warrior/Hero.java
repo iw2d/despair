@@ -10,13 +10,13 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
-import net.swordie.ms.world.field.Field;
 
 import java.util.concurrent.ScheduledFuture;
 
@@ -163,25 +163,16 @@ public class Hero extends Warrior {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        int slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
-
         if (hasHitMobs && !isComboIgnoreSkill(attackInfo.skillId)) {
-            //Combo
             int comboProp = getComboProp();
             if (Util.succeedProp(comboProp)) {
                 addCombo();
             }
         }
-
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -197,11 +188,11 @@ public class Hero extends Warrior {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    if (Util.succeedProp(si.getValue(prop, skill.getCurrentLevel()))) {
+                    if (Util.succeedProp(si.getValue(prop, slv))) {
                         if (!mob.isBoss()) {
                             o1.nOption = 1;
-                            o1.rOption = skill.getSkillId();
-                            o1.tOption = si.getValue(time, skill.getCurrentLevel());
+                            o1.rOption = skillID;
+                            o1.tOption = si.getValue(time, slv);
                             mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                         }
                         addCombo();
@@ -218,24 +209,24 @@ public class Hero extends Warrior {
                     int dur = si.getValue(time, slv);
 
                     o1.nOption = -si.getValue(w, slv);
-                    o1.rOption = skill.getSkillId();
+                    o1.rOption = skillID;
                     o1.tOption = dur;
                     o2.nOption = -si.getValue(w, slv);
-                    o2.rOption = skill.getSkillId();
+                    o2.rOption = skillID;
                     o2.tOption = dur / 2;
 
                     o3.nOption = -si.getValue(x, slv);
-                    o3.rOption = skill.getSkillId();
+                    o3.rOption = skillID;
                     o3.tOption = dur;
                     o4.nOption = -si.getValue(x, slv);
-                    o4.rOption = skill.getSkillId();
+                    o4.rOption = skillID;
                     o4.tOption = dur / 2;
 
                     o5.nOption = 1;
-                    o5.rOption = skill.getSkillId();
+                    o5.rOption = skillID;
                     o5.tOption = dur;
                     o6.nOption = 1;
-                    o6.rOption = skill.getSkillId();
+                    o6.rOption = skillID;
                     o6.tOption = dur / 2;
                     for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
@@ -296,7 +287,7 @@ public class Hero extends Warrior {
                     MobTemporaryStat mts = mob.getTemporaryStat();
                     mts.addStatOptions(MobStat.HitCriDamR, o1);
                     if (Util.succeedProp(si.getValue(prop, slv))) {
-                        mts.createAndAddBurnedInfo(chr, skill);
+                        mts.createAndAddBurnedInfo(chr, skillID, slv);
                     }
                 }
                 break;
@@ -422,7 +413,7 @@ public class Hero extends Warrior {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (chr.hasSkill(COMBO_SYNERGY)) {
             int comboProp = chr.getSkillStatValue(subProp, COMBO_SYNERGY);
@@ -430,7 +421,7 @@ public class Hero extends Warrior {
                 addCombo();
             }
         }
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     @Override

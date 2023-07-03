@@ -143,23 +143,17 @@ public class Evan extends Job {
 
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
-        if(chr.getField() != oldField) {
+        if (chr.getField() != oldField) {
             debrisCount = 0;
             chr.write(FieldPacket.delWreckage(chr));
         }
         oldField = chr.getField();
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        int slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
-        if(hasHitMobs) {
+        if (hasHitMobs) {
             // Partners
             if (getEvanSkill(skillID) != 1) {
                 givePartnersBuff(skillID);
@@ -318,7 +312,6 @@ public class Evan extends Job {
         oldField = chr.getField();
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
-        Skill skill = chr.getSkill(skillID);
         SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
@@ -456,7 +449,7 @@ public class Evan extends Job {
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
-    public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
+    public void handleHit(Char chr, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (tsm.hasStat(MagicGuard)) {
             Skill skill = chr.getSkill(MAGIC_GUARD);
@@ -468,7 +461,7 @@ public class Evan extends Job {
             hitInfo.hpDamage = dmg - mpDmg;
             hitInfo.mpDamage = mpDmg;
         }
-        super.handleHit(chr, inPacket, hitInfo);
+        super.handleHit(chr, hitInfo);
     }
 
     // Character creation related methods ------------------------------------------------------------------------------
