@@ -47,10 +47,11 @@ public class Shadower extends Thief {
     public static final int STEAL = 4201004; //Special Attack (Steal Debuff)?
     public static final int DAGGER_BOOSTER = 4201002; //Buff
     public static final int SHIELD_MASTERY = 4200010;
-    public static final int MESOGUARD = 4201011; //Buff
+    public static final int MESO_GUARD = 4201011; //Buff
     public static final int CRITICAL_GROWTH = 4200013; //Passive Crit increasing buff
     public static final int SHADOW_PARTNER_SHAD = 4211008; //Buff
     public static final int DARK_FLARE_SHAD = 4211007; //Summon
+    public static final int MESO_MASTERY = 4210012;
     public static final int PICK_POCKET = 4211003; //Buff
     public static final int MESO_EXPLOSION = 4211006; //CreateForceAtom Attack
     public static final int MESO_EXPLOSION_ATOM = 4210014;
@@ -63,6 +64,7 @@ public class Shadower extends Thief {
     public static final int SUDDEN_RAID_SHAD = 4221010; //Special Attack
     public static final int SMOKE_SCREEN = 4221006; //Affected Area
     public static final int PRIME_CRITICAL = 4220015; //Passive Buff
+    public static final int ASSASSINATE = 4221014;
     public static final int TOXIC_VENOM_SHAD = 4220011; //Passive DoT
     public static final int HEROS_WILL_SHAD = 4221008;
 
@@ -81,7 +83,7 @@ public class Shadower extends Thief {
         if (critGrowthTimer != null && !critGrowthTimer.isDone()) {
             critGrowthTimer.cancel(true);
         }
-        critGrowthTimer = EventManager.addFixedRateEvent(this::incrementCritGrowing, 2000, 2000);
+        critGrowthTimer = EventManager.addFixedRateEvent(this::incrementCritGrowing, 2000, 2000); // 4200013 subTime
     }
 
     @Override
@@ -90,39 +92,161 @@ public class Shadower extends Thief {
     }
 
 
-    private void incrementFlipTheCoinStack(TemporaryStatManager tsm) {
-        Option o = new Option();
+
+    // Attack related methods ------------------------------------------------------------------------------------------
+
+    @Override
+    public void handleAttack(Char chr, AttackInfo attackInfo) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
+
+        if (hasHitMobs) {
+            if (chr.hasSkill(CRITICAL_GROWTH)) {
+                incrementCritGrowing();
+            }
+            if (skillID != MESO_EXPLOSION_ATOM) {
+                handlePickPocket(attackInfo);
+            }
+            if (chr.hasSkill(SHADOWER_INSTINCT)) {
+                handleBodyCount(skillID);
+            }
+            if (chr.hasSkill(FLIP_THE_COIN)) {
+                activateFlipTheCoin(attackInfo);
+            }
+        }
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
-        SkillInfo FlipTheCoinInfo = SkillData.getSkillInfoById(FLIP_THE_COIN);
-        int amount = 1;
-        if (tsm.hasStat(FlipTheCoin)) {
-            amount = tsm.getOption(FlipTheCoin).nOption;
-            if (amount < FlipTheCoinInfo.getValue(y, 1)) {
-                amount++;
+        Option o4 = new Option();
+        switch (attackInfo.skillId) {
+            case STEAL:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                Field field = chr.getField();
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (mob == null) {
+                        continue;
+                    }
+                    MobTemporaryStat mts = mob.getTemporaryStat();
+                    if (Util.succeedProp(si.getValue(prop, slv))) {
+                        int itemId = 2431835; // si.getValue(x, slv);
+                        if (mob.isBoss()) {
+                            itemId = 2431850; // si.getValue(y, slv);
+                            if (tsm.hasStatBySkillId(-itemId)) {
+                                // do not drop boss potion while item buff in effect
+                                continue;
+                            }
+                        } else {
+                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
+                        }
+                        Item item = ItemData.getItemDeepCopy(itemId);
+                        Drop drop = new Drop(item.getItemId(), item);
+                        field.drop(drop, mob.getPosition());
+                    }
+                }
+                break;
+            case BOOMERANG_STAB:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (mob == null || mob.isBoss()) {
+                        continue;
+                    }
+                    if (Util.succeedProp(si.getValue(prop, slv))) {
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
+                    }
+                }
+                break;
+        }
+
+        super.handleAttack(chr, attackInfo);
+    }
+
+    private void incrementCritGrowing() {
+        int skillId = 0;
+        if (chr.hasSkill(PRIME_CRITICAL)) {
+            skillId = PRIME_CRITICAL;
+        } else if (chr.hasSkill(CRITICAL_GROWTH)) {
+            skillId = CRITICAL_GROWTH;
+        }
+        if (skillId == 0) {
+            return;
+        }
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        int cr = 0;
+        if (tsm.hasStat(CriticalGrowing)) {
+            cr = tsm.getOption(CriticalGrowing).nOption;
+            if (cr >= 100) {
+                cr = 0;
             }
         }
-        o.nOption = amount;
-        o.rOption = FLIP_THE_COIN;
-        o.tOption = FlipTheCoinInfo.getValue(time, 1);
-        tsm.putCharacterStatValue(FlipTheCoin, o);
+        SkillInfo si = SkillData.getSkillInfoById(skillId);
+        int slv = chr.getSkillLevel(skillId);
+        Option o1 = new Option();
+        o1.nOption = cr + si.getValue(x, slv);
+        o1.rOption = skillId;
+        tsm.putCharacterStatValue(CriticalGrowing, o1);
+        tsm.sendSetStatPacket();
+    }
 
-        //Stats
-        o1.nOption = (amount * FlipTheCoinInfo.getValue(x, 1));
-        o1.rOption = FLIP_THE_COIN;
-        o1.tOption = FlipTheCoinInfo.getValue(time, 1);
-        tsm.putCharacterStatValue(CriticalBuff, o1);
-        o2.nReason = FLIP_THE_COIN;
-        o2.nValue = (amount * FlipTheCoinInfo.getValue(indieDamR, 1));
-        o2.tStart = Util.getCurrentTime();
-        o2.tTerm = FlipTheCoinInfo.getValue(time, 1);
-        tsm.putCharacterStatValue(IndieDamR, o2);
-        o3.nReason = FLIP_THE_COIN;
-        o3.nValue = (amount * FlipTheCoinInfo.getValue(indieMaxDamageOver, 1));
-        o3.tStart = Util.getCurrentTime();
-        o3.tTerm = FlipTheCoinInfo.getValue(time, 1);
-        tsm.putCharacterStatValue(IndieMaxDamageOver, o3);
+    private void handlePickPocket(AttackInfo attackInfo) {
+        if (!chr.hasSkill(PICK_POCKET)) {
+            return;
+        }
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (tsm.hasStat(PickPocket)) {
+            SkillInfo si = SkillData.getSkillInfoById(PICK_POCKET);
+            int slv = chr.getSkillLevel(PICK_POCKET);
+            int proc = si.getValue(prop, slv) + chr.getSkillStatValue(u, MESO_MASTERY) + chr.getSkillStatValue(prop, MESO_EXPLOSION_ENHANCE);
+            int meso = si.getValue(x, slv);
+            Field field = chr.getField();
+            Set<DropInfo> dropInfoSet = new HashSet<>();
+            for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                Mob mob = (Mob) field.getLifeByObjectID(mai.mobId);
+                if (mob == null) {
+                    continue;
+                }
+                for (int i = 0; i < mai.damages.length; i++) {
+                    if (mai.damages[i] > 0 && dropInfoSet.size() < GameConstants.PICK_POCKET_MAX_MESOS && Util.succeedProp(proc)) {
+                        dropInfoSet.add(new DropInfo(GameConstants.MAX_DROP_CHANCE, meso, meso));
+                    }
+                }
+            }
+            if (dropInfoSet.size() > 0) {
+                field.drop(dropInfoSet, chr.getPosition(), chr.getId());
+            }
+        }
+    }
+
+    private void handleBodyCount(int skillId) {
+        if (!chr.hasSkill(SHADOWER_INSTINCT)) {
+            return;
+        }
+        int stacks = 0;
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (tsm.hasStat(KillingPoint)) {
+            stacks = tsm.getOption(KillingPoint).nOption;
+            // consume 3+ killing point stacks with assassinate
+            if (stacks >= 3 && skillId == ASSASSINATE) {
+                tsm.removeStat(KillingPoint, true);
+                tsm.sendResetStatPacket();
+                return;
+            }
+        }
+        if (stacks < 5) {
+            stacks++;
+        }
+        Option o1 = new Option();
+        o1.nOption = stacks;
+        o1.rOption = SHADOWER_INSTINCT;
+        tsm.putCharacterStatValue(KillingPoint, o1);
         tsm.sendSetStatPacket();
     }
 
@@ -150,215 +274,6 @@ public class Shadower extends Thief {
         }
     }
 
-    private void updatecrit() {
-        if (chr.hasSkill(PRIME_CRITICAL)) {
-            supposedCrit = supposedCrit + chr.getSkillStatValue(x, PRIME_CRITICAL);
-        } else if (chr.hasSkill(CRITICAL_GROWTH)) {
-            supposedCrit = supposedCrit + chr.getSkillStatValue(x, CRITICAL_GROWTH);
-        } else {
-            return;
-        }
-        Option o = new Option();
-        int critGrowth = critAmount;
-        o.nOption = (getPrimeCritMulti() * critGrowth);
-        o.rOption = getCritGrowIcon();
-        chr.getTemporaryStatManager().putCharacterStatValue(CriticalGrowing, o);
-        chr.getTemporaryStatManager().sendSetStatPacket();
-    }
-
-    private void incrementCritGrowth(int stackIncrease) {
-        if(supposedCrit > 100) {
-            critAmount = 1; //TODO returns to starting crit% even if another crit buff is active
-            supposedCrit = 0;
-        } else {
-            critAmount += stackIncrease;
-        }
-        critAmount = Math.min(MAX_CRIT, critAmount);
-        updatecrit();
-    }
-
-    public void incrementCritGrowing() {
-        incrementCritGrowth(1);   //Crit Growing
-    }
-
-    private int getCritGrowIcon() {
-        if(chr.hasSkill(PRIME_CRITICAL)) {
-            return PRIME_CRITICAL;
-        } else {
-            return CRITICAL_GROWTH;
-        }
-    }
-
-    private int getPrimeCritMulti() {
-        int multiplier = 2;
-        if(chr.hasSkill(PRIME_CRITICAL)) {
-            multiplier = 4;
-        }
-        return multiplier;
-    }
-
-    @Override
-    public void handleCancelTimer(Char chr) {
-        if (critGrowthTimer != null) {
-            critGrowthTimer.cancel(true);
-        }
-    }
-
-    private void incrementShadowInstinct(int skillId, TemporaryStatManager tsm) {
-        Option o = new Option();
-        SkillInfo InstinctInfo = SkillData.getSkillInfoById(SHADOWER_INSTINCT);
-        Skill skill = chr.getSkill(SHADOWER_INSTINCT);
-        byte slv = (byte) skill.getCurrentLevel();
-        int amount = 1;
-        if (tsm.hasStat(KillingPoint)) {
-            if (chr.hasSkill(SHADOWER_INSTINCT)) {
-                amount = tsm.getOption(KillingPoint).nOption;
-                if (amount < 5) {
-                    amount++;
-                }
-            }
-        }
-        o.nOption = amount;
-        tsm.putCharacterStatValue(KillingPoint, o);
-        tsm.sendSetStatPacket();
-    }
-
-
-
-    // Attack related methods ------------------------------------------------------------------------------------------
-
-    @Override
-    public void handleAttack(Char chr, AttackInfo attackInfo) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
-        boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        byte slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = (byte) skill.getCurrentLevel();
-            skillID = SkillConstants.getActualSkillIDfromSkillID(skill.getSkillId());
-        }
-        if (hasHitMobs) {
-            if (chr.hasSkill(CRITICAL_GROWTH)) {
-                incrementCritGrowing();
-            }
-            if (attackInfo.skillId != MESO_EXPLOSION_ATOM) {
-                dropFromPickPocket(attackInfo);
-            }
-            if (chr.hasSkill(SHADOWER_INSTINCT) && tsm.hasStat(IgnoreMobpdpR)) {
-                incrementShadowInstinct(skillID, tsm);
-            }
-            if (chr.hasSkill(FLIP_THE_COIN)) {
-                activateFlipTheCoin(attackInfo);
-            }
-        }
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        Option o4 = new Option();
-        switch (attackInfo.skillId) {
-            case STEAL:
-                o1.nOption = 1;
-                o1.rOption = skill.getSkillId();
-                o1.tOption = si.getValue(time, slv);
-                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    if (Util.succeedProp(si.getValue(prop, slv))) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        Field field = chr.getField();
-                        int itemId = 2431835;
-                        if (mob.isBoss()) {
-                            itemId = 2431850;
-                        }
-                        Item item = ItemData.getItemDeepCopy(itemId);
-                        Drop drop = new Drop(item.getItemId(), item);
-                        field.drop(drop, mob.getPosition());
-
-                        if (!mob.isBoss()) {
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
-                    }
-                }
-                break;
-            case BOOMERANG_STAB:
-                o1.nOption = 1;
-                o1.rOption = skill.getSkillId();
-                o1.tOption = si.getValue(time, slv);
-                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    if (Util.succeedProp(si.getValue(prop, slv))) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null || mob.isBoss()) {
-                            continue;
-                        }
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                    }
-                }
-                break;
-        }
-
-        super.handleAttack(chr, attackInfo);
-    }
-
-    private void createMesoExplosionForceAtom(List<Drop> droplist) {
-        if (!chr.hasSkill(MESO_EXPLOSION)) {
-            return;
-        }
-        Field field = chr.getField();
-        ForceAtomEnum fae = ForceAtomEnum.FLYING_MESO;
-        List<Integer> targetList = new ArrayList<>();
-        List<ForceAtomInfo> faiList = new ArrayList<>();
-        for (Drop drop : droplist) {
-            Mob mob = Util.getRandomFromCollection(field.getMobs());
-            if (mob != null) {
-                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), fae.getInc(), 2, 3,
-                        0, 0, Util.getCurrentTime(), 1, 0,
-                        drop.getPosition());
-                targetList.add(mob.getObjectId());
-                faiList.add(forceAtomInfo);
-                field.removeDrop(drop.getObjectId(), 0, true, -1);
-            }
-        }
-        chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), fae.getForceAtomType(),
-                true, targetList, MESO_EXPLOSION_ATOM, faiList, new Rect(), 0, 300,
-                new Position(), MESO_EXPLOSION_ATOM, new Position()));
-    }
-
-    private void dropFromPickPocket(AttackInfo attackInfo) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Field field = chr.getField();
-        if(!chr.hasSkill(PICK_POCKET)) {
-            return;
-        }
-        if(tsm.getOptByCTSAndSkill(PickPocket, PICK_POCKET) != null) {
-            for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                Mob mob = (Mob) field.getLifeByObjectID(mai.mobId);
-                if(mob == null) {
-                    continue;
-                }
-                Skill skill = chr.getSkill(PICK_POCKET);
-                SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-                byte slv = (byte) skill.getCurrentLevel();
-                Set<DropInfo> dropInfoSet = new HashSet<>();
-                int proc = si.getValue(prop, slv) + chr.getSkillStatValue(prop, MESO_EXPLOSION_ENHANCE);
-                for (int i = 0; i < slv; i++) {
-                    if (Util.succeedProp(proc)) {
-                        dropInfoSet.add(new DropInfo(GameConstants.MAX_DROP_CHANCE, 50, 150)); // min 50; max 150;
-                    }
-                }
-                if (dropInfoSet.size() > 0) {
-                    field.drop(dropInfoSet, mob.getPosition(), chr.getId());
-                }
-            }
-        }
-    }
-
-
 
     // Skill related methods -------------------------------------------------------------------------------------------
 
@@ -366,8 +281,7 @@ public class Shadower extends Thief {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
-        SkillInfo si = si = SkillData.getSkillInfoById(skillID);
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
         Option o2 = new Option();
@@ -395,17 +309,17 @@ public class Shadower extends Thief {
                                 chr.getPosition().getY() + rectRange)
                 );
                 List<Drop> dropList = field.getDropsInRect(rect).stream()
-                        .filter(d -> d.getOwnerID() == chr.getId()
-                                && d.isMoney())
-                        .limit(si.getValue(bulletCount, slv) + chr.getSkillStatValue(bulletCount, MESO_EXPLOSION_ENHANCE))
+                        .filter(d -> d.isMoney() &&
+                                (d.getOwnerID() == 0 || d.getOwnerID() == chr.getId()))
+                        .limit(si.getValue(bulletCount, slv) + this.chr.getSkillStatValue(bulletCount, MESO_EXPLOSION_ENHANCE))
                         .collect(Collectors.toList());
                 createMesoExplosionForceAtom(dropList);
                 break;
             case SHADOW_VEIL:
                 chr.write(UserLocal.skillUseResult((byte) 1, skillID));
                 break;
-            case MESOGUARD:
-                o1.nOption = si.getValue(x, slv);
+            case MESO_GUARD:
+                o1.nOption = 1;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(MesoGuard, o1);
@@ -432,11 +346,68 @@ public class Shadower extends Thief {
                 tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
                 break;
             case FLIP_THE_COIN:
-                incrementFlipTheCoinStack(tsm);
+                int stacks = 1;
+                if (tsm.hasStat(FlipTheCoin)) {
+                    stacks = tsm.getOption(FlipTheCoin).nOption;
+                    if (stacks < si.getValue(y, 1)) {
+                        stacks++;
+                    }
+                }
+                o1.nOption = stacks;
+                o1.rOption = FLIP_THE_COIN;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(FlipTheCoin, o1);
+                o2.nOption = stacks * si.getValue(x, slv);
+                o2.rOption = FLIP_THE_COIN;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(CriticalBuff, o1);
+                o2.nReason = FLIP_THE_COIN;
+                o2.nValue = stacks * si.getValue(indieDamR, slv);
+                o2.tStart = Util.getCurrentTime();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o2);
+                o3.nReason = FLIP_THE_COIN;
+                o3.nValue = stacks * si.getValue(indieMaxDamageOver, slv);
+                o3.tStart = Util.getCurrentTime();
+                o3.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMaxDamageOver, o3);
                 chr.write(WvsContext.flipTheCoinEnabled((byte) 0));
                 break;
         }
         tsm.sendSetStatPacket();
+    }
+
+    private void createMesoExplosionForceAtom(List<Drop> droplist) {
+        Rect rect = new Rect(
+                new Position(
+                        chr.getPosition().getX() - 800,
+                        chr.getPosition().getY() - 800),
+                new Position(
+                        chr.getPosition().getX() + 800,
+                        chr.getPosition().getY() + 800)
+        );
+        List<Mob> targets = chr.getField().getMobsInRect(rect);
+        if (targets.size() == 0) {
+            return;
+        }
+        Field field = chr.getField();
+        ForceAtomEnum atomEnum = ForceAtomEnum.FLYING_MESO;
+        List<ForceAtomInfo> faiList = new ArrayList<>();
+        List<Integer> targetList = new ArrayList<>();
+        for (Drop drop : droplist) {
+            Mob target = Util.getRandomFromCollection(targets);
+            if (target == null) {
+                continue;
+            }
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), atomEnum.getInc(), 2, 3,
+                    0, 0, Util.getCurrentTime(), 1, 0, new Position());
+            faiList.add(forceAtomInfo);
+            targetList.add(target.getObjectId());
+            field.removeDrop(drop.getObjectId(), 0, true, -1);
+        }
+        chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), atomEnum.getForceAtomType(),
+                true, targetList, MESO_EXPLOSION_ATOM, faiList, null, 0, 0,
+                null, 0, null));
     }
 
 
@@ -446,20 +417,27 @@ public class Shadower extends Thief {
     @Override
     public void handleHit(Char chr, InPacket inPacket, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (tsm.hasStat(MesoGuard)) {
-            Skill skill = chr.getSkill(MESOGUARD);
-            SkillInfo si = SkillData.getSkillInfoById(MESOGUARD);
-            int dmg = hitInfo.hpDamage;
-            int mesoLoss = (int) (dmg * (si.getValue(x, skill.getCurrentLevel()) / 100D));
+        if (hitInfo.hpDamage > 2 && tsm.hasStat(MesoGuard)) {
+            int guardRate = 50 + chr.getSkillStatValue(v, MESO_MASTERY);
+            int dmgGuarded = (int) (hitInfo.hpDamage / (100D / guardRate));
+            int mesoLoss = (int) (dmgGuarded / (100D / tsm.getOption(MesoGuard).nOption));
             if (chr.getMoney() < mesoLoss) {
                 chr.deductMoney(chr.getMoney());
                 tsm.removeStat(MesoGuard, false);
             } else {
                 chr.deductMoney(mesoLoss);
             }
-            hitInfo.hpDamage = (int) (dmg * 0.5);
+            hitInfo.hpDamage = hitInfo.hpDamage - dmgGuarded;
         }
         super.handleHit(chr, inPacket, hitInfo);
+        System.out.println(hitInfo);
+    }
+
+    @Override
+    public void handleCancelTimer(Char chr) {
+        if (critGrowthTimer != null && !critGrowthTimer.isDone()) {
+            critGrowthTimer.cancel(true);
+        }
     }
 
     @Override

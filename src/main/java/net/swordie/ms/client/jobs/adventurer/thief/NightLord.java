@@ -235,20 +235,27 @@ public class NightLord extends Thief {
                         mob.getPosition().getY() + 800)
         );
         List<Mob> targets = chr.getField().getMobsInRect(rect);
-        if (targets.size() <= 0) {
+        if (targets.size() == 0) {
             return;
         }
         int angleStart = Util.getRandom((360 / starCount)-1);
+        List<ForceAtomInfo> faiList = new ArrayList<>();
+        List<Integer> targetList = new ArrayList<>();
         for (int i = 0; i < starCount; i++) {
             Mob target = Util.getRandomFromCollection(targets);
+            if (target == null) {
+                continue;
+            }
             int angle = (360 / starCount) * i;
             ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), atomEnum.getInc(), 45, 4,
-                    angleStart + angle, 170, Util.getCurrentTime(), 1, 0,
-                    new Position());
-            chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), target.getObjectId(), atomEnum.getForceAtomType(),
-                    true, target.getObjectId(), skillId, forceAtomInfo, rect, 0, 300,
-                    target.getPosition(), chr.getBulletIDForAttack(), target.getPosition()));
+                    angleStart + angle, 170, Util.getCurrentTime(), 1, 0, new Position());
+            faiList.add(forceAtomInfo);
+            targetList.add(target.getObjectId());
+
         }
+        chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mob.getObjectId(), atomEnum.getForceAtomType(),
+                true, targetList, skillId, faiList, rect, 0, 300,
+                null, chr.getBulletIDForAttack(), null));
     }
 
     private void applyBleedDart(AttackInfo attackInfo) {

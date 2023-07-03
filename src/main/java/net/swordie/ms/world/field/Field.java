@@ -1060,7 +1060,7 @@ public class Field {
      * @param ownerID   The owner's character ID.
      */
     public void drop(Set<DropInfo> dropInfos, Position position, int ownerID) {
-        drop(dropInfos, findFootHoldBelow(position), position, ownerID, 0, 0);
+        drop(dropInfos, findFootHoldBelow(position), position, ownerID, 100, 100);
     }
 
     public void drop(Drop drop, Position position) {

@@ -126,12 +126,12 @@ public class FieldPacket {
         OutPacket outPacket = new OutPacket(OutHeader.CREATE_FORCE_ATOM);
 
         outPacket.encodeByte(byMob);
-        if(byMob) {
+        if (byMob) {
             outPacket.encodeInt(userOwner);
         }
         outPacket.encodeInt(charID);
         outPacket.encodeInt(forceAtomType);
-        if(forceAtomType != 0 && forceAtomType != 9 && forceAtomType != 14) {
+        if (forceAtomType != 0 && forceAtomType != 9 && forceAtomType != 14) {
             outPacket.encodeByte(toMob);
             switch (forceAtomType) {
                 case 2:
@@ -158,7 +158,7 @@ public class FieldPacket {
             }
             outPacket.encodeInt(skillID);
         }
-        for(ForceAtomInfo fai : faiList) {
+        for (ForceAtomInfo fai : faiList) {
             outPacket.encodeByte(1);
             fai.encode(outPacket);
         }

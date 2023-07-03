@@ -297,6 +297,11 @@ public class AffectedArea extends Life {
         Option o2 = new Option();
         Option o3 = new Option();
         switch (skillID) {
+            case Shadower.SMOKE_SCREEN:
+                o1.nValue = si.getValue(SkillStat.x, slv);
+                o1.nReason = skillID;
+                tsm.putCharacterStatValue(IndieCrMax, o1);
+                break;
             case Zero.TIME_DISTORTION:
                 tsm.removeAllDebuffs();
                 o2.nReason = skillID;
@@ -333,12 +338,6 @@ public class AffectedArea extends Life {
                 chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(w, slv))));
                 chr.healMP((int) (chr.getMaxHP() / ((double) 100 / si.getValue(w, slv))));
                 tsm.removeAllDebuffs();
-                break;
-            case Shadower.SMOKE_SCREEN:
-                o1.nOption = 1;
-                tsm.putCharacterStatValue(Invincible, o1);
-                o2.nOption = si.getValue(SkillStat.x, slv);
-                tsm.putCharacterStatValue(IncCriticalDamMax, o2);
                 break;
             case BeastTamer.PURR_ZONE:
                 chr.heal(si.getValue(hp, slv), true);

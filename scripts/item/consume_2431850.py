@@ -1,4 +1,4 @@
-#Mystic Stolen Boss (2431850)
+# Mystic Stolen Boss (2431850)
 
 from net.swordie.ms.client.character.skills.temp import CharacterTemporaryStat
 
