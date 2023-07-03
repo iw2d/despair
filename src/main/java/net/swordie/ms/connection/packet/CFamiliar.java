@@ -56,7 +56,7 @@ public class CFamiliar {
         outPacket.encodeByte(attackInfo.mobCount);
         for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
             outPacket.encodeInt(mai.mobId);
-            outPacket.encodeByte(mai.byteIdk1);
+            outPacket.encodeByte(mai.hitAction);
             outPacket.encodeByte(mai.damages.length);
             for (int dmg : mai.damages) {
                 outPacket.encodeInt(dmg);

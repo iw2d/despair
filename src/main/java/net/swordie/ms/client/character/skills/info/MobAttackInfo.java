@@ -17,8 +17,8 @@ public class MobAttackInfo {
     public short oldPosX;
     public short oldPosY;
     public short hpPerc;
+    public boolean[] crits = new boolean[15];
     public int[] damages;
-    public boolean[] crits = new boolean[15]; // could combine damage/crits into a list of tuples, but this looks better imo
     public int mobUpDownYRange;
     public byte type;
     public String currentAnimationName;
@@ -31,11 +31,7 @@ public class MobAttackInfo {
     public Position pos2;
     public Rect rect;
     public int idkInt;
-    public byte byteIdk1;
-    public byte byteIdk2;
-    public byte byteIdk3;
-    public byte byteIdk4;
-    public byte byteIdk5;
+    public byte idkByte;
     public int psychicLockInfo;
     public byte rocketRushInfo;
     public byte forceActionAndLeft;
@@ -58,13 +54,17 @@ public class MobAttackInfo {
         mai.oldPosX = oldPosX;
         mai.oldPosY = oldPosY;
         mai.hpPerc = hpPerc;
+        mai.crits = new boolean[crits.length];
+        if (crits != null && crits.length > 0) {
+            System.arraycopy(crits, 0, mai.crits, 0, crits.length);
+        }
         mai.damages = new int[damages.length];
-        if(damages != null && damages.length > 0) {
+        if (damages != null && damages.length > 0) {
             System.arraycopy(damages, 0, mai.damages, 0, damages.length);
         }
         mai.mobUpDownYRange = mobUpDownYRange;
         mai.animationDeltaL = animationDeltaL;
-        if(hitPartRunTimes != null && hitPartRunTimes.length > 0) {
+        if (hitPartRunTimes != null && hitPartRunTimes.length > 0) {
             System.arraycopy(hitPartRunTimes, 0, mai.hitPartRunTimes, 0, hitPartRunTimes.length);
         }
         mai.templateID = templateID;
@@ -74,11 +74,7 @@ public class MobAttackInfo {
         mai.pos2 = pos2 != null ? pos2.deepCopy() : null;
         mai.rect = rect != null ? rect.deepCopy() : null;
         mai.idkInt = idkInt;
-        mai.byteIdk1 = byteIdk1;
-        mai.byteIdk2 = byteIdk2;
-        mai.byteIdk3 = byteIdk3;
-        mai.byteIdk4 = byteIdk4;
-        mai.byteIdk5 = byteIdk5;
+        mai.idkByte = idkByte;
         mai.psychicLockInfo = psychicLockInfo;
         mai.rocketRushInfo = rocketRushInfo;
         return mai;

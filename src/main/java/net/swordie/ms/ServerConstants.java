@@ -20,4 +20,7 @@ public class ServerConstants {
 	public static final short CHAT_PORT = 8483;
 	public static final int API_PORT = 8482;
 	public static final int BCRYPT_ITERATIONS = 10;
+
+	// Client Hooks
+	public static final boolean MAKE_ATTACK_INFO_PACKET_HOOK = true; // PACKETMAKER::MakeAttackInfoPacket(a, oPacket) (0x0178A800)
 }

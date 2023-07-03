@@ -1,5 +1,6 @@
 package net.swordie.ms.client.jobs.adventurer.thief;
 
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.items.Item;
@@ -126,11 +127,26 @@ public class Shadower extends Thief {
     }
 
     private void activateFlipTheCoin(AttackInfo attackInfo) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        long totalCrit = chr.getBaseStats().get(BaseStat.cr);
-        totalCrit += tsm.getOption(CriticalBuff).nOption + tsm.getOption(CriticalGrowing).nOption;
-        if (Util.succeedProp((int) (totalCrit > 100 ? 100 : totalCrit))) {
-            chr.write(WvsContext.flipTheCoinEnabled((byte) 1));
+        if (ServerConstants.MAKE_ATTACK_INFO_PACKET_HOOK) {
+            boolean hasCrit = attackInfo.mobAttackInfo.stream()
+                    .anyMatch(mai -> {
+                        for (int i = 0; i < mai.crits.length; i++) {
+                            if (mai.crits[i]) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+            if (hasCrit) {
+                chr.write(WvsContext.flipTheCoinEnabled((byte) 1));
+            }
+        } else {
+            TemporaryStatManager tsm = chr.getTemporaryStatManager();
+            long totalCrit = chr.getBaseStats().get(BaseStat.cr);
+            totalCrit += tsm.getOption(CriticalBuff).nOption + tsm.getOption(CriticalGrowing).nOption;
+            if (Util.succeedProp((int) (totalCrit > 100 ? 100 : totalCrit))) {
+                chr.write(WvsContext.flipTheCoinEnabled((byte) 1));
+            }
         }
     }
 

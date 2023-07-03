@@ -1,5 +1,6 @@
 package net.swordie.ms.handlers.user;
 
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
@@ -33,7 +34,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class AttackHandler {
-
     private static final Logger log = LogManager.getLogger(AttackHandler.class);
 
 
@@ -234,28 +234,7 @@ public class AttackHandler {
                 mai.damages = damages;
                 mai.mobUpDownYRange = inPacket.decodeInt();
                 inPacket.decodeInt(); // crc
-                // Begin PACKETMAKER::MakeAttackInfoPacket
-                byte type = inPacket.decodeByte();
-                String currentAnimationName = "";
-                int animationDeltaL = 0;
-                String[] hitPartRunTimes = new String[0];
-                if (type == 1) {
-                    currentAnimationName = inPacket.decodeString();
-                    animationDeltaL = inPacket.decodeInt();
-                    int hitPartRunTimesSize = inPacket.decodeInt();
-                    hitPartRunTimes = new String[hitPartRunTimesSize];
-                    for (int j = 0; j < hitPartRunTimesSize; j++) {
-                        hitPartRunTimes[j] = inPacket.decodeString();
-                    }
-                } else if (type == 2) {
-                    currentAnimationName = inPacket.decodeString();
-                    animationDeltaL = inPacket.decodeInt();
-                }
-                // End PACKETMAKER::MakeAttackInfoPacket
-                mai.type = type;
-                mai.currentAnimationName = currentAnimationName;
-                mai.animationDeltaL = animationDeltaL;
-                mai.hitPartRunTimes = hitPartRunTimes;
+                parseAttackInfoPacket(inPacket, mai);
                 ai.mobAttackInfo.add(mai);
             }
         }
@@ -298,13 +277,13 @@ public class AttackHandler {
             MobAttackInfo mai = new MobAttackInfo();
             mai.mobId = inPacket.decodeInt();
             mai.templateID = inPacket.decodeInt();
-            mai.byteIdk1 = inPacket.decodeByte();
-            mai.byteIdk2 = inPacket.decodeByte();
-            mai.byteIdk3 = inPacket.decodeByte();
-            mai.byteIdk4 = inPacket.decodeByte();
-            mai.byteIdk5 = inPacket.decodeByte();
+            mai.hitAction = inPacket.decodeByte();
+            mai.left = inPacket.decodeByte();
+            mai.idk3 = inPacket.decodeByte();
+            mai.forceActionAndLeft = inPacket.decodeByte();
+            mai.frameIdx = inPacket.decodeByte();
             int idk5 = inPacket.decodeInt(); // another template id, same as the one above
-            byte byteIdk6 = inPacket.decodeByte();
+            mai.calcDamageStatIndexAndDoomed = inPacket.decodeByte(); // 1st bit for bDoomed, rest for calcDamageStatIndex
             mai.rect = inPacket.decodeShortRect();
             short idk6 = inPacket.decodeShort();
             int[] damages = new int[ai.hits];
@@ -313,29 +292,7 @@ public class AttackHandler {
             }
             mai.damages = damages;
             mai.mobUpDownYRange = inPacket.decodeInt();
-//            inPacket.decodeInt(); // crc
-            // Begin PACKETMAKER::MakeAttackInfoPacket
-            byte type = inPacket.decodeByte();
-            String currentAnimationName = "";
-            int animationDeltaL = 0;
-            String[] hitPartRunTimes = new String[0];
-            if (type == 1) {
-                currentAnimationName = inPacket.decodeString();
-                animationDeltaL = inPacket.decodeInt();
-                int hitPartRunTimesSize = inPacket.decodeInt();
-                hitPartRunTimes = new String[hitPartRunTimesSize];
-                for (int j = 0; j < hitPartRunTimesSize; j++) {
-                    hitPartRunTimes[j] = inPacket.decodeString();
-                }
-            } else if (type == 2) {
-                currentAnimationName = inPacket.decodeString();
-                animationDeltaL = inPacket.decodeInt();
-            }
-            // End PACKETMAKER::MakeAttackInfoPacket
-            mai.type = type;
-            mai.currentAnimationName = currentAnimationName;
-            mai.animationDeltaL = animationDeltaL;
-            mai.hitPartRunTimes = hitPartRunTimes;
+            parseAttackInfoPacket(inPacket, mai);
             ai.mobAttackInfo.add(mai);
         }
         handleAttack(chr, ai);
@@ -498,22 +455,7 @@ public class AttackHandler {
                 int idfk = inPacket.decodeInt();
                 int idfk1 = inPacket.decodeInt();
             }
-            // Begin PACKETMAKER::MakeAttackInfoPacket
-            mai.type = inPacket.decodeByte();
-            mai.currentAnimationName = "";
-            if (mai.type == 1) {
-                mai.currentAnimationName = inPacket.decodeString();
-                mai.animationDeltaL = inPacket.decodeInt();
-                mai.hitPartRunTimesSize = inPacket.decodeInt();
-                mai.hitPartRunTimes = new String[mai.hitPartRunTimesSize];
-                for (int j = 0; j < mai.hitPartRunTimesSize; j++) {
-                    mai.hitPartRunTimes[j] = inPacket.decodeString();
-                }
-            } else if (mai.type == 2) {
-                mai.currentAnimationName = inPacket.decodeString();
-                mai.animationDeltaL = inPacket.decodeInt();
-            }
-            // End PACKETMAKER::MakeAttackInfoPacket
+            parseAttackInfoPacket(inPacket, mai);
             ai.mobAttackInfo.add(mai);
         }
         if (skillID == 61121052 || skillID == 36121052 || SkillConstants.isScreenCenterAttackSkill(skillID)) {
@@ -640,14 +582,15 @@ public class AttackHandler {
         for (int i = 0; i < ai.mobCount; i++) {
             MobAttackInfo mai = new MobAttackInfo();
             mai.mobId = inPacket.decodeInt();
-            mai.byteIdk1 = inPacket.decodeByte();
-            mai.byteIdk2 = inPacket.decodeByte();
-            mai.byteIdk3 = inPacket.decodeByte();
-            mai.byteIdk4 = inPacket.decodeByte();
-            mai.byteIdk5 = inPacket.decodeByte();
-            int idk1 = inPacket.decodeInt();
-            byte idk2 = inPacket.decodeByte();
-            int idk3 = inPacket.decodeInt();
+            mai.hitAction = inPacket.decodeByte();
+            mai.left = inPacket.decodeByte();
+            mai.idkByte = inPacket.decodeByte();
+            mai.forceActionAndLeft = inPacket.decodeByte();
+            mai.frameIdx = inPacket.decodeByte();
+            mai.templateID = inPacket.decodeInt();
+            mai.calcDamageStatIndexAndDoomed = inPacket.decodeByte();
+            mai.hitX = inPacket.decodeShort();
+            mai.hitY = inPacket.decodeShort();
             mai.damages = new int[inPacket.decodeByte()];
             for (int j = 0; j < mai.damages.length; j++) {
                 mai.damages[j] = inPacket.decodeInt();
@@ -658,4 +601,33 @@ public class AttackHandler {
         // 4 more bytes after this, not sure what it is
     }
 
+
+    private static void parseAttackInfoPacket(InPacket inPacket, MobAttackInfo mai) {
+        mai.type = inPacket.decodeByte();
+        mai.currentAnimationName = "";
+        if (mai.type == 1) {
+            mai.currentAnimationName = inPacket.decodeString();
+            mai.animationDeltaL = inPacket.decodeInt();
+            mai.hitPartRunTimesSize = inPacket.decodeInt();
+            mai.hitPartRunTimes = new String[mai.hitPartRunTimesSize];
+            for (int j = 0; j < mai.hitPartRunTimesSize; j++) {
+                mai.hitPartRunTimes[j] = inPacket.decodeString();
+            }
+        } else if (mai.type == 2) {
+            mai.currentAnimationName = inPacket.decodeString();
+            mai.animationDeltaL = inPacket.decodeInt();
+        }
+        // post-hook for PACKETMAKER::MakeAttackInfoPacket(a, oPacket) (0x0178A800)
+        if (ServerConstants.MAKE_ATTACK_INFO_PACKET_HOOK) {
+            /*
+                int* abCritical = ((int*) a) + 22;
+                for (int i = 0; i < 15; ++i) {
+                    COutPacket__Encode1(oPacket, *(abCritical + i));
+                }
+             */
+            for (int j = 0; j < 15; j++) {
+                mai.crits[j] = inPacket.decodeByte() != 0;
+            }
+        }
+    }
 }

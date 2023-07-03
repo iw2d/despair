@@ -107,18 +107,19 @@ public class UserRemote {
             for(MobAttackInfo mai : ai.mobAttackInfo) {
                 outPacket.encodeInt(mai.mobId);
                 if(mai.mobId > 0) {
-                    outPacket.encodeByte(mai.byteIdk1);
-                    outPacket.encodeByte(mai.byteIdk2);
-                    outPacket.encodeByte(mai.byteIdk3);
-                    outPacket.encodeShort(mai.byteIdk4);
+                    outPacket.encodeByte(mai.hitAction);
+                    outPacket.encodeByte(mai.left);
+                    outPacket.encodeByte(mai.idk3);
+                    outPacket.encodeByte(mai.forceActionAndLeft);
+                    outPacket.encodeByte(mai.frameIdx);
                     if(ai.skillId == 80001835 || ai.skillId == 42111002 || ai.skillId == 80011050) {
                         // Soul Shear
                         outPacket.encodeByte(ai.hits);
                         outPacket.encodeInt(0); // not exactly sure
                     }
-                    for(int dmg : mai.damages) {
-                        outPacket.encodeByte(0); // isCrit
-                        outPacket.encodeInt(dmg);
+                    for (int j = 0; j < ai.hits; j++) {
+                        outPacket.encodeByte(mai.crits[j]); // isCrit
+                        outPacket.encodeInt(mai.damages[j]);
                     }
                     if(SkillConstants.isKinesisPsychicLockSkill(ai.skillId)) {
                         outPacket.encodeInt(mai.psychicLockInfo);
