@@ -96,7 +96,7 @@ public class Thief extends Beginner {
         Option o4 = new Option();
         switch (attackInfo.skillId) {
             case DualBlade.SUDDEN_RAID_DB:
-                chr.reduceSkillCoolTime(DualBlade.FINAL_CUT, (long) (chr.getRemainingCoolTime(DualBlade.FINAL_CUT) * 0.2F));
+                chr.reduceSkillCoolTime(DualBlade.FINAL_CUT, (long) (chr.getRemainingCoolTime(DualBlade.FINAL_CUT) / (100D / chr.getSkillStatValue(x, skillID))));
                 // Fallthrough intended
             case NightLord.SUDDEN_RAID_NL:
             case Shadower.SUDDEN_RAID_SHAD:

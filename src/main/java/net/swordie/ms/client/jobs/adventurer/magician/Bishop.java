@@ -101,8 +101,6 @@ public class Bishop extends Magician {
         Party party = chr.getParty();
 
         if (skillId <= 0 || party == null) {
-            tsm.removeStat(BlessEnsenble, true);
-            tsm.sendResetStatPacket();
             return;
         }
 
@@ -126,7 +124,7 @@ public class Bishop extends Magician {
                 tsm.putCharacterStatValue(IndieEXP, o2);
             }
             tsm.sendSetStatPacket();
-        } else {
+        } else if (tsm.hasStat(BlessEnsenble)) {
             tsm.removeStat(BlessEnsenble, true);
             tsm.sendResetStatPacket();
         }
@@ -140,37 +138,6 @@ public class Bishop extends Magician {
             return BLESSED_ENSEMBLE;
         }
         return 0;
-    }
-
-    private int changeBishopHealingBuffs(int skillID) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(skillID);
-        byte slv = (byte) skill.getCurrentLevel();
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        int rate = 0;
-        int maxHP = chr.getMaxHP();
-        int healrate = 0;
-        switch (skillID) {
-            case HEAL:
-                rate = si.getValue(hp, slv);
-                healrate = (int) (maxHP / ((double)100 / rate));
-                break;
-            case HOLY_MAGIC_SHELL:
-                rate = si.getValue(z, slv);
-                healrate = (int) (maxHP / ((double)100 / rate));
-                break;
-            case ANGEL_RAY:
-                rate = si.getValue(hp, slv);
-                healrate = (int) (maxHP / ((double)100 / rate));
-                break;
-            case INFINITY_BISH:
-                break;
-        }
-        if(tsm.hasStat(VengeanceOfAngel)) {
-            SkillInfo hsi = SkillData.getSkillInfoById(RIGHTEOUSLY_INDIGNANT);
-            healrate = (int) (healrate / ((double) 100 / (hsi.getValue(hp, 1))));
-        }
-        return healrate;
     }
 
 
@@ -201,7 +168,6 @@ public class Bishop extends Magician {
                         if (mob == null || mob.isBoss()) {
                             continue;
                         }
-                        System.out.println(si.getValue(time, slv));
                         mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
                 }
@@ -247,8 +213,12 @@ public class Bishop extends Magician {
                 }
                 break;
             case ANGEL_RAY:
+                int healRate = si.getValue(hp, slv);
+                if (tsm.hasStat(VengeanceOfAngel)) {
+                    healRate = (int) (healRate * (chr.getSkillStatValue(hp, RIGHTEOUSLY_INDIGNANT) / 100D));
+                }
                 if (chr.getParty() == null) {
-                    chr.heal(chr.getMaxHP() / si.getValue(hp, slv));
+                    chr.heal((int) (chr.getMaxHP() * (healRate / 100D)), true);
                 } else {
                     rect = chr.getRectAround(si.getFirstRect());
                     if (!chr.isLeft()) {
@@ -261,7 +231,7 @@ public class Bishop extends Magician {
                             .toList();
                     for (PartyMember partyMember : partyMembers) {
                         Char partyChr = partyMember.getChr();
-                        partyChr.heal(partyChr.getMaxHP() / si.getValue(hp, slv));
+                        partyChr.heal((int) (partyChr.getMaxHP() * (healRate / 100D)), true);
                     }
                 }
                 break;
@@ -281,20 +251,21 @@ public class Bishop extends Magician {
                     MobTemporaryStat mts = mob.getTemporaryStat();
                     int stack = 1;
                     if (mts.hasCurrentMobStat(MobStat.PDR)) {
-                        Option mo = mts.getCurrentOptionsByMobStat(MobStat.PDR);
-                        if (mo.rOption == skillID) {
-                            stack = mts.getCurrentOptionsByMobStat(MobStat.PDR).cOption;
+                        Option oldO = mts.getCurrentOptionsByMobStat(MobStat.PDR);
+                        if (oldO.rOption == skillID) {
+                            stack = oldO.cOption;
                             if (stack < si.getValue(y, slv)) {
                                 stack++;
                             }
                         }
                     }
-                    o1.nOption = stack * si.getValue(x, slv);
-                    o1.rOption = skillID;
-                    o1.tOption = si.getValue(time, slv);
-                    o1.cOption = stack;
-                    mts.addStatOptionsAndBroadcast(MobStat.PDR, o1);
-                    mts.addStatOptionsAndBroadcast(MobStat.MDR, o1);
+                    Option o = new Option();
+                    o.nOption = stack * si.getValue(x, slv);
+                    o.rOption = skillID;
+                    o.tOption = si.getValue(time, slv);
+                    o.cOption = stack;
+                    mts.addStatOptionsAndBroadcast(MobStat.PDR, o);
+                    mts.addStatOptionsAndBroadcast(MobStat.MDR, o);
                 }
                 break;
         }
@@ -364,6 +335,9 @@ public class Bishop extends Magician {
                 }
                 // heal party
                 int healRate = (int) (chr.getDamageCalc().getMaxBaseDamage() * (si.getValue(hp, slv)) / 100D);
+                if (tsm.hasStat(VengeanceOfAngel)) {
+                    healRate = (int) (healRate * (chr.getSkillStatValue(hp, RIGHTEOUSLY_INDIGNANT) / 100D));
+                }
                 if (chr.getParty() == null) {
                     chr.heal(!tsm.hasStat(CharacterTemporaryStat.Undead) ? healRate : -healRate, true);
                 } else {
@@ -476,7 +450,11 @@ public class Bishop extends Magician {
                 break;
             case HOLY_MAGIC_SHELL:
                 if (!tsm.hasStat(HolyMagicShell)) {
-                    chr.heal(chr.getMaxHP());
+                    int healAmount = chr.getMaxHP();
+                    if (tsm.hasStat(VengeanceOfAngel)) {
+                        healAmount = (int) (healAmount * (chr.getSkillStatValue(hp, RIGHTEOUSLY_INDIGNANT) / 100D));
+                    }
+                    chr.heal(healAmount, true);
                     o1.nOption = si.getValue(x, slv) + this.chr.getSkillStatValue(x, HOLY_MAGIC_SHELL_EXTRA_GUARD);
                     o1.rOption = skillID;
                     o1.tOption = si.getValue(time, slv) + this.chr.getSkillStatValue(time, HOLY_MAGIC_SHELL_PERSIST);

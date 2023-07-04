@@ -122,6 +122,7 @@ public class Mob extends Life {
     private boolean noDebuff;
     private boolean targetFromSvr;
     private int charismaEXP;
+    private boolean isSteal;
     private boolean isSplit;
     private int splitLink;
     private Map<Char, Long> damageDone = new HashMap<>();
@@ -1150,6 +1151,15 @@ public class Mob extends Life {
     public int getCharismaEXP() {
         return charismaEXP;
     }
+
+    public void setSteal(boolean isSteal) {
+        this.isSteal = isSteal;
+    }
+
+    public boolean isSteal() {
+        return isSteal;
+    }
+
 
     public void setSplit(boolean isSplit) {
         this.isSplit = isSplit;

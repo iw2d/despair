@@ -31,7 +31,7 @@ public class Option {
     public int nReason;
     public int nValue;
     public int nKey = keyRng.nextInt();
-    public int tStart;
+    public int tStart = Util.getCurrentTime();;
     public int tTerm;
     public int pOption;
     public int slv;
@@ -43,7 +43,6 @@ public class Option {
     public Option(int skillID) {
         this.nReason = skillID;
         this.rOption = skillID;
-        this.tStart = Util.getCurrentTime();
     }
 
     public Option(int itemID, long duration) {
@@ -52,14 +51,12 @@ public class Option {
         this.nReason = itemID;
         this.rOption = itemID;
         this.tOption = (int) duration;
-        this.tStart = Util.getCurrentTime();
     }
 
     public Option(int skillID, byte slv) {
         SkillInfo si = SkillData.getSkillInfoById(skillID);
-        rOption = skillID;
-        tOption = si.getValue(SkillStat.time, slv);
-        this.tStart = Util.getCurrentTime();
+        this.rOption = skillID;
+        this.tOption = si.getValue(SkillStat.time, slv);
     }
 
     public Option() {

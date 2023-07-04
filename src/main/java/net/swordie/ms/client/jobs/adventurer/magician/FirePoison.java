@@ -333,8 +333,10 @@ public class FirePoison extends Magician {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         int dotStacks = (int) chr.getField().getMobs().stream().filter(m -> m.getTemporaryStat().hasBurnFromOwner(chr.getId())).count();
         if (dotStacks == 0) {
-            tsm.removeStat(DotBasedBuff, true);
-            tsm.sendResetStatPacket();
+            if (tsm.hasStat(DotBasedBuff)) {
+                tsm.removeStat(DotBasedBuff, true);
+                tsm.sendResetStatPacket();
+            }
             return;
         }
 

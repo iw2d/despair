@@ -59,6 +59,13 @@ public class Position {
         return Math.sqrt(dX * dX + dY * dY);
     }
 
+    public Position delta(Position pos) {
+        return new Position(
+                getX() - pos.getX(),
+                getY() - pos.getY()
+        );
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

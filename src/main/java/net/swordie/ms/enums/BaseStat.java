@@ -393,9 +393,6 @@ public enum BaseStat {
             case ItemCritical:
                 stats.put(cr, o.nOption);
                 break;
-            case IllusionStep:
-                // TODO
-                break;
             case Concentration:
                 // TODO
                 break;
@@ -407,9 +404,6 @@ public enum BaseStat {
                 stats.put(dropR, o.nOption);
                 break;
             case EventRate:
-                // TODO
-                break;
-            case FinalCut:
                 // TODO
                 break;
             case EMHP:
@@ -477,8 +471,11 @@ public enum BaseStat {
                 stats.put(bd, o.xOption);
                 break;
             case VengeanceOfAngel:
-                stats.put(damR, o.nOption == 0 ? 0 : -40);
-                stats.put(fd, o.nOption == 0 ? 0 : 25);
+                si = SkillData.getSkillInfoById(o.rOption);
+                stats.put(damR, o.nOption * -si.getValue(SkillStat.z, 1));
+                break;
+            case IllusionStep:
+                stats.put(evaR, o.nOption);
                 break;
             case ExtremeArchery:
                 if (o.rOption == Bowmaster.RECKLESS_HUNT_BOW) {
@@ -497,6 +494,9 @@ public enum BaseStat {
             case BullsEye:
                 stats.put(cr, o.nOption >> 8);
                 stats.put(maxCd, o.nOption & 0xFF);
+                break;
+            case FinalCut:
+                stats.put(fd, o.nOption - 100);
                 break;
             default:
                 stats.put(unk, o.nOption);

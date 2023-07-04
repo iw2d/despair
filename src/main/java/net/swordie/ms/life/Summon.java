@@ -326,7 +326,7 @@ public class Summon extends Life {
         chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffected(skillId, (byte) 1, getObjectId())));
     }
 
-    public void onHit(int damage, int mobId) {
+    public void onHit(int damage) {
         Char chr = getChr();
         Skill skill = chr.getSkill(getSkillID());
 
@@ -345,10 +345,10 @@ public class Summon extends Life {
                 break;
 
             case WindArcher.EMERALD_DUST:
-                ((WindArcher) chr.getJobHandler()).applyEmeraldDustDebuffToMob(this, mobId);
+                ((WindArcher) chr.getJobHandler()).applyEmeraldDustDebuffToMob(this);
                 // Fallthrough intended
             case WindArcher.EMERALD_FLOWER:
-                ((WindArcher) chr.getJobHandler()).applyEmeraldFlowerDebuffToMob(this, mobId);
+                ((WindArcher) chr.getJobHandler()).applyEmeraldFlowerDebuffToMob(this);
                 break;
             default:
                 log.error(String.format("Unhandled HP Summon, id = %d", getSkillID()));

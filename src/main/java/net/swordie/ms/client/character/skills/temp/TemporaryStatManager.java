@@ -99,7 +99,7 @@ public class TemporaryStatManager {
         boolean indie = cts.isIndie();
         option.setTimeToMillis();
         SkillInfo skillinfo = SkillData.getSkillInfoById(indie ? option.nReason : option.rOption);
-        if(skillinfo != null && !skillinfo.isNotIncBuffDuration()) {
+        if (skillinfo != null && !skillinfo.isNotIncBuffDuration()) {
             if (indie) {
                 option.tTerm = getChr().getJobHandler().getBuffedSkillDuration(option.tTerm);
             } else {
@@ -208,7 +208,7 @@ public class TemporaryStatManager {
         if (TSIndex.isTwoStat(cts)) {
             getTSBByTSIndex(TSIndex.getTSEFromCTS(cts)).reset();
         }
-        if(!fromSchedule && getSchedules().containsKey(cts)) {
+        if (!fromSchedule && getSchedules().containsKey(cts)) {
             getSchedules().get(cts).cancel(false);
         } else {
             getSchedules().remove(cts);

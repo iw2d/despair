@@ -38,6 +38,8 @@ public class DualBlade extends Thief {
     public static final int SHADOW_MELD = 4330009;
     public static final int VENOM_DB = 4320005;
     public static final int LIFE_DRAIN = 4330007;
+    public static final int KATARA_EXPERT = 4340013;
+    public static final int SHARPNESS = 4340010;
     public static final int FINAL_CUT = 4341002; //Special Attack
     public static final int SUDDEN_RAID_DB = 4341011; //Special Attack
     public static final int MAPLE_WARRIOR_DB = 4341000; //Buff
@@ -51,9 +53,6 @@ public class DualBlade extends Thief {
 
     public static long lastShadowMeld = Long.MIN_VALUE;
 
-    private int[] addedSkills = new int[] {
-            MAPLE_RETURN,
-    };
 
     public DualBlade(Char chr) {
         super(chr);
@@ -67,26 +66,22 @@ public class DualBlade extends Thief {
     public void giveShadowMeld() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (chr.hasSkill(SHADOW_MELD)) {
-            if (tsm.getOptByCTSAndSkill(IndiePAD, SHADOW_MELD) == null) {
-                Skill skill = chr.getSkill(SHADOW_MELD);
-                byte slv = (byte) skill.getCurrentLevel();
-                SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-
-                if (lastShadowMeld + 5000 < Util.getCurrentTimeLong()) {
-                    Option o1 = new Option();
-                    Option o2 = new Option();
-                    o1.nOption = 100;
-                    o1.rOption = skill.getSkillId();
-                    o1.tOption = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(CriticalBuff, o1);
-                    o2.nReason = skill.getSkillId();
-                    o2.nValue = si.getValue(indiePad, slv);
-                    o2.tStart = Util.getCurrentTime();
-                    o2.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndiePAD, o2); //Indie
-                    tsm.sendSetStatPacket();
-                    lastShadowMeld = Util.getCurrentTimeLong();
-                }
+            if (lastShadowMeld + 5000 < Util.getCurrentTimeLong()) {
+                SkillInfo si = SkillData.getSkillInfoById(SHADOW_MELD);
+                int slv = chr.getSkillLevel(SHADOW_MELD);
+                Option o1 = new Option();
+                Option o2 = new Option();
+                o1.nOption = 100;
+                o1.rOption = SHADOW_MELD;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(CriticalBuff, o1);
+                o2.nReason = SHADOW_MELD;
+                o2.nValue = si.getValue(indiePad, slv);
+                o2.tStart = Util.getCurrentTime();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePAD, o2); //Indie
+                tsm.sendSetStatPacket();
+                lastShadowMeld = Util.getCurrentTimeLong();
             }
         }
     }
@@ -171,6 +166,7 @@ public class DualBlade extends Thief {
                     }
                 }
                 o2.nOption = 1;
+                o2.rOption = skillID;
                 o2.tOption = 3;
                 tsm.putCharacterStatValue(NotDamaged, o2);
                 tsm.sendSetStatPacket();
@@ -180,36 +176,29 @@ public class DualBlade extends Thief {
                 if (chr.getHP() > hpCost) {
                     chr.heal(-hpCost);
                 }
-                o1.nOption = 1;
+                o1.nOption = 100 + si.getValue(w, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(FinalCut, o1);
+                tsm.sendSetStatPacket();
                 o2.nOption = 1;
                 o2.rOption = skillID;
-                o2.tOption = 3;
+                o2.tOption = si.getValue(v, slv);
                 tsm.putCharacterStatValue(NotDamaged, o2);
-                o3.nOption = si.getValue(w, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamR, o3);
                 tsm.sendSetStatPacket();
-                chr.addSkillCoolTime(skillID, si.getValue(cooltime, slv) * 1000);
                 break;
         }
-
         super.handleAttack(chr, attackInfo);
     }
 
     private void recoverHPByLifeDrain() {
         if (chr.hasSkill(LIFE_DRAIN)) {
-            Skill skill = chr.getSkill(LIFE_DRAIN);
-            byte slv = (byte) skill.getCurrentLevel();
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+            SkillInfo si = SkillData.getSkillInfoById(LIFE_DRAIN);
+            int slv = chr.getSkillLevel(LIFE_DRAIN);
             int proc = si.getValue(prop, slv);
-            int amounthealed = si.getValue(x, slv);
             if (Util.succeedProp(proc)) {
-                int healamount = (int) ((chr.getMaxHP()) / ((double)100 / amounthealed));
-                chr.heal(healamount);
+                int healAmount = (int) (chr.getMaxHP() / (100D / si.getValue(x, slv)));
+                chr.heal(healAmount);
             }
         }
     }
@@ -261,10 +250,11 @@ public class DualBlade extends Thief {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(WindBreakerFinal, o1);
-                o2.nOption = 10;
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamR, o2);
+                o2.nValue = si.getValue(indieDamR, slv);
+                o2.nReason = skillID;
+                o2.tStart = Util.getCurrentTime();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o2);
                 break;
             case ASURAS_ANGER:
                 o1.nOption = 1;

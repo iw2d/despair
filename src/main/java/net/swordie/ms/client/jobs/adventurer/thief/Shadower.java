@@ -36,6 +36,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
+import static net.swordie.ms.client.character.skills.SkillStat.mob;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
 
 /**
@@ -130,21 +131,18 @@ public class Shadower extends Thief {
                     if (mob == null) {
                         continue;
                     }
-                    MobTemporaryStat mts = mob.getTemporaryStat();
-                    if (Util.succeedProp(si.getValue(prop, slv))) {
+                    if (!mob.isBoss()) {
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
+                    }
+                    if (!mob.isSteal() && Util.succeedProp(si.getValue(prop, slv))) {
                         int itemId = 2431835; // si.getValue(x, slv);
                         if (mob.isBoss()) {
                             itemId = 2431850; // si.getValue(y, slv);
-                            if (tsm.hasStatBySkillId(-itemId)) {
-                                // do not drop boss potion while item buff in effect
-                                continue;
-                            }
-                        } else {
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                         }
                         Item item = ItemData.getItemDeepCopy(itemId);
                         Drop drop = new Drop(item.getItemId(), item);
                         field.drop(drop, mob.getPosition());
+                        mob.setSteal(true);
                     }
                 }
                 break;
@@ -205,20 +203,20 @@ public class Shadower extends Thief {
             int proc = si.getValue(prop, slv) + chr.getSkillStatValue(u, MESO_MASTERY) + chr.getSkillStatValue(prop, MESO_EXPLOSION_ENHANCE);
             int meso = si.getValue(x, slv);
             Field field = chr.getField();
-            Set<DropInfo> dropInfoSet = new HashSet<>();
             for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                 Mob mob = (Mob) field.getLifeByObjectID(mai.mobId);
                 if (mob == null) {
                     continue;
                 }
+                Set<DropInfo> dropInfoSet = new HashSet<>();
                 for (int i = 0; i < mai.damages.length; i++) {
                     if (mai.damages[i] > 0 && dropInfoSet.size() < GameConstants.PICK_POCKET_MAX_MESOS && Util.succeedProp(proc)) {
                         dropInfoSet.add(new DropInfo(GameConstants.MAX_DROP_CHANCE, meso, meso));
                     }
                 }
-            }
-            if (dropInfoSet.size() > 0) {
-                field.drop(dropInfoSet, chr.getPosition(), chr.getId());
+                if (dropInfoSet.size() > 0) {
+                    field.drop(dropInfoSet, mob.getPosition(), chr.getId());
+                }
             }
         }
     }
@@ -376,6 +374,10 @@ public class Shadower extends Thief {
     }
 
     private void createMesoExplosionForceAtom(List<Drop> droplist) {
+        int dropCount = droplist.size();
+        if (dropCount == 0) {
+            return;
+        }
         Rect rect = new Rect(
                 new Position(
                         chr.getPosition().getX() - 800,
@@ -392,13 +394,16 @@ public class Shadower extends Thief {
         ForceAtomEnum atomEnum = ForceAtomEnum.FLYING_MESO;
         List<ForceAtomInfo> faiList = new ArrayList<>();
         List<Integer> targetList = new ArrayList<>();
-        for (Drop drop : droplist) {
+        int angleStart = Util.getRandom((360 / dropCount)-1);
+        for (int i = 0; i < dropCount; i++) {
+            Drop drop = droplist.get(i);
             Mob target = Util.getRandomFromCollection(targets);
             if (target == null) {
                 continue;
             }
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), atomEnum.getInc(), 2, 3,
-                    0, 0, Util.getCurrentTime(), 1, 0, new Position());
+            int angle = (360 / dropCount) * i;
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), atomEnum.getInc(), 45, 4,
+                    angleStart + angle, 0, Util.getCurrentTime(), 1, 0, chr.getPosition().delta(drop.getPosition()));
             faiList.add(forceAtomInfo);
             targetList.add(target.getObjectId());
             field.removeDrop(drop.getObjectId(), 0, true, -1);
@@ -428,7 +433,6 @@ public class Shadower extends Thief {
             hitInfo.hpDamage = hitInfo.hpDamage - dmgGuarded;
         }
         super.handleHit(chr, hitInfo);
-        System.out.println(hitInfo);
     }
 
     @Override

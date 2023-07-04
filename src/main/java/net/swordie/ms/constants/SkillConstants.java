@@ -1169,6 +1169,7 @@ public class SkillConstants {
         // for passive skills handled elsewhere
         switch (skillId) {
             case Paladin.SHIELD_MASTERY:
+            case DualBlade.SHADOW_MELD:
                 return true;
         }
         return false;
@@ -1640,12 +1641,14 @@ public class SkillConstants {
             // common
             case Archer.CRITICAL_SHOT:
             case NightLord.CRITICAL_THROW:
+            case DualBlade.SHARPNESS:
                 stats.put(BaseStat.cr, si.getValue(SkillStat.prop, slv));
                 break;
             case Bowmaster.BOW_EXPERT:
             case Marksman.CROSSBOW_EXPERT:
             case NightLord.CLAW_EXPERT:
             case Shadower.DAGGER_EXPERT:
+            case DualBlade.KATARA_EXPERT:
                 stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
                 break;
             case FirePoison.SPELL_MASTERY_FP:

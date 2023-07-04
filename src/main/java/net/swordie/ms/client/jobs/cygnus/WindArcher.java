@@ -304,7 +304,8 @@ public class WindArcher extends Noblesse {
         return skill;
     }
 
-    public void applyEmeraldFlowerDebuffToMob(Summon summon, int mobTemplateId) {
+    public void applyEmeraldFlowerDebuffToMob(Summon summon) {
+        /*
         Skill skill = getEmeraldFlowerSkill(chr);
         if(skill == null) {
             return;
@@ -325,9 +326,11 @@ public class WindArcher extends Noblesse {
             o.tOption = si.getValue(time, slv);
             mts.addStatOptionsAndBroadcast(MobStat.Speed, o);
         }
+         */
     }
 
-    public void applyEmeraldDustDebuffToMob(Summon summon, int mobId) {
+    public void applyEmeraldDustDebuffToMob(Summon summon) {
+        /*
         Skill skill = getEmeraldFlowerSkill(chr);
         if(skill == null) {
             return;
@@ -343,6 +346,7 @@ public class WindArcher extends Noblesse {
         o.rOption = skill.getSkillId();
         o.tOption = si.getValue(time, slv);
         mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.PDR, o);
+         */
     }
 
     @Override

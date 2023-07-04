@@ -156,7 +156,7 @@ public class Archer extends Beginner {
                 o2.nOption = si.getValue(x, slv);
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EVAR, o2);
+                tsm.putCharacterStatValue(IllusionStep, o2);
                 break;
             case Bowmaster.MAPLE_WARRIOR_BOW:
             case Marksman.MAPLE_WARRIOR_XBOW:
