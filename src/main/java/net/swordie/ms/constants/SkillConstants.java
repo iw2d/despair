@@ -84,6 +84,7 @@ public class SkillConstants {
     }
 
     public static boolean isSkillNeedMasterLevel(int skillId) {
+        // bool __cdecl is_skill_need_master_level(int) (0x00601370)
         if (isIgnoreMasterLevel(skillId)
                 || (skillId / 1000000 == 92 && (skillId % 10000 == 0))
                 || isMakingSkillRecipe(skillId)
@@ -98,28 +99,25 @@ public class SkillConstants {
     }
 
     public static boolean isAddedSpDualAndZeroSkill(int skillId) {
-        if (skillId > 101100101) {
-            if (skillId > 101110203) {
-                if (skillId == 101120104)
-                    return true;
-                return skillId == 101120204;
-            } else {
-                if (skillId == 101110203 || skillId == 101100201 || skillId == 101110102)
-                    return true;
-                return skillId == 101110200;
-            }
-        } else {
-            if (skillId == 101100101)
+        // bool __cdecl is_added_sp_dual_and_zero_skill(int) (0x00601300)
+        switch (skillId) {
+            case 4311003:
+            case 4321006:
+            case 4330009:
+            case 4331002:
+            case 4340007:
+            case 4341004:
+            case 101000101:
+            case 101100101:
+            case 101100201:
+            case 101110102:
+            case 101110200:
+            case 101110203:
+            case 101120104:
+            case 101120204:
                 return true;
-            if (skillId > 4331002) {
-                if (skillId == 4340007 || skillId == 4341004)
-                    return true;
-                return skillId == 101000101;
-            } else {
-                if (skillId == 4331002 || skillId == 4311003 || skillId == 4321006)
-                    return true;
-                return skillId == 4330009;
-            }
+            default:
+                return false;
         }
     }
 
@@ -169,6 +167,7 @@ public class SkillConstants {
     }
 
     public static boolean isIgnoreMasterLevel(int skillId) {
+        // bool __cdecl is_ignore_master_level(int) (0x00601200)
         switch (skillId) {
             case 1120012:
             case 1320011:
@@ -178,7 +177,8 @@ public class SkillConstants {
             case 3210015:
             case 4110012:
             case 4210012:
-            case 4340009:
+            case 4340010:
+            case 4340012:
             case 5120011:
             case 5120012:
             case 5220012:
@@ -190,13 +190,14 @@ public class SkillConstants {
             case 21120014:
             case 21120020:
             case 21120021:
+            case 21121008:
             case 22171069:
             case 23120011:
-            case 23120012:
             case 23120013:
             case 23121008:
             case 33120010:
             case 35120014:
+            case 51120000:
             case 80001913:
                 return true;
             default:
@@ -1158,6 +1159,7 @@ public class SkillConstants {
             case Bowmaster.BOW_MASTERY:
             case Marksman.CROSSBOW_MASTERY:
             case Shadower.DAGGER_MASTERY:
+            case DualBlade.KATARA_MASTERY:
                 return true;
         }
         return false;
@@ -1268,6 +1270,8 @@ public class SkillConstants {
     public static boolean isHomeTeleportSkill(int skillId) {
         switch (skillId) {
             case Warrior.MAPLE_RETURN: // All Adventurers
+            // case DualBlade.RETURN:
+            // case Jett.RETURN_TO_SPACESHIP:
             case BeastTamer.HOMEWARD_BOUND:
             case Kinesis.RETURN_KINESIS:
             case DawnWarrior.IMPERIAL_RECALL: // All KoC

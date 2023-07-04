@@ -1004,14 +1004,6 @@ public class Char {
 						outPacket.encodeInt(skill.getMasterLevel());
 					}
 				}
-				for (LinkSkill linkSkill : linkSkills) {
-					outPacket.encodeInt(linkSkill.getLinkSkillID());
-					outPacket.encodeInt(linkSkill.getOwnerID());
-					outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME));
-					if (SkillConstants.isSkillNeedMasterLevel(linkSkill.getLinkSkillID())) {
-						outPacket.encodeInt(3); // whatevs
-					}
-				}
 				outPacket.encodeShort(linkSkills.size());
 				for (LinkSkill linkSkill : linkSkills) {
 					outPacket.encodeInt(linkSkill.getLinkSkillID()); // another nCount
@@ -4534,7 +4526,7 @@ public class Char {
 	}
 
 	public void changeChannelAndWarp(byte channelId, int fieldId) {
-		logout();
+		punishLieDetectorEvasion();
 		setChangingChannel(true);
 		Field field = getField();
 		if (getFieldID() != fieldId) {

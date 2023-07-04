@@ -1052,7 +1052,10 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	@Override
 	public int getFieldID() {
-		return chr.getField().getId();
+		if (chr != null) {
+			return chr.getField().getId();
+		}
+		return field.getId();
 	}
 
 	public void warpInstanceOut() {

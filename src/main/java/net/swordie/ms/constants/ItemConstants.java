@@ -1974,6 +1974,7 @@ public class ItemConstants {
             WeaponType wt = WeaponType.getByVal(getWeaponType(itemId));
             switch (wt) {
                 case None:
+                case Katara:
                     break;
                 // physical melee
                 case Desperado:
@@ -1984,7 +1985,6 @@ public class ItemConstants {
                 case OneHandedAxe:
                 case OneHandedMace:
                 case Dagger:
-                case Katara:
                 case Cane:
                 case Barehand:
                 case TwoHandedSword:

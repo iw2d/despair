@@ -27,7 +27,7 @@ public class JobConstants {
             Map.entry("Marksman", List.of(BEGINNER, BOWMAN, CROSSBOWMAN, SNIPER, MARKSMAN)),
             Map.entry("Night Lord", List.of(BEGINNER, THIEF, ASSASSIN, HERMIT, NIGHTLORD)),
             Map.entry("Shadower", List.of(BEGINNER, THIEF, BANDIT, CHIEFBANDIT, SHADOWER)),
-            Map.entry("Dual Blade", List.of(BEGINNER, BLADE_RECRUIT, BLADE_ACOLYTE, BLADE_SPECIALIST, BLADE_LORD, BLADE_MASTER)),
+            Map.entry("Dual Blade", List.of(BEGINNER, THIEF, BLADE_RECRUIT, BLADE_ACOLYTE, BLADE_SPECIALIST, BLADE_LORD, BLADE_MASTER)),
             Map.entry("Buccaneer", List.of(BEGINNER, PIRATE, BRAWLER, MARAUDER, BUCCANEER)),
             Map.entry("Corsair", List.of(BEGINNER, PIRATE, GUNSLINGER, OUTLAW, CORSAIR)),
             Map.entry("Cannoneer", List.of(BEGINNER, PIRATE_CANNONEER, CANNONEER, CANNON_BLASTER, CANNON_MASTER)),
@@ -969,43 +969,47 @@ public class JobConstants {
     }
 
     public static boolean isBeginnerJob(short jobId) {
+        // bool __cdecl is_beginner_job(int) (0x004859D0)
         switch (jobId) {
-            case 8001:
-            case 13000:
-            case 14000:
-            case 6000:
-            case 6001:
-            case 5000:
-            case 4001:
-            case 4002:
-            case 3001:
-            case 3002:
+            case 0:
+            case 1000:
+            case 2000:
             case 2001:
             case 2002:
             case 2003:
             case 2004:
             case 2005:
+            case 3000:
+            case 3001:
+            case 3002:
+            case 4001:
+            case 4002:
+            case 5000:
+            case 6000:
+            case 6001:
+            case 8000:
+            case 9000:
+            case 10000:
+            case 11000:
+            case 13000:
+            case 14000:
                 return true;
             default:
-                return jobId % 1000 == 0 || jobId / 100 == 8000;
+                return false;
         }
     }
 
     public static int getJobLevel(short jobId) {
+        // int __cdecl get_job__level(int) (0x00485D40)
         int prefix;
-        if (isBeginnerJob(jobId) || (jobId % 100 == 0) || jobId == 501 || jobId == 3101) {
+        if (isBeginnerJob(jobId) || (jobId % 100 == 0) || jobId == 501 || jobId == 3101 || jobId == 508) {
             return 1;
         }
         if (isEvan(jobId)) {
             return getEvanJobLevel(jobId);
         }
         if (isDualBlade(jobId)) {
-            prefix = (jobId % 10) + 2;
-            if (prefix < 2) {
-                return 0;
-            } else if (prefix <= 6) {
-                return jobId % 10 + 2;
-            }
+            prefix = jobId % 10 / 2;
         } else {
             prefix = jobId % 10;
         }

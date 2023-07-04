@@ -27,6 +27,7 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class DualBlade extends Thief {
+    public static final int KATARA_MASTERY = 4300000;
     public static final int SELF_HASTE = 4301003; //Buff
     public static final int KATARA_BOOSTER = 4311009; //Buff
     public static final int FLYING_ASSAULTER = 4321006; //Special Attack (Stun Debuff)
