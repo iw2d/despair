@@ -41,7 +41,7 @@ public class UserPool {
         outPacket.encodeInt(cs.getPop());
         outPacket.encodeInt(10); // nFarmLevel
         outPacket.encodeInt(0); // nNameTagMark
-        tsm.encodeForRemote(outPacket, Collections.emptyMap()); // tsm.getCurrentStats());
+        tsm.encodeForRemote(outPacket, tsm.getCurrentStats());
         outPacket.encodeShort(chr.getJob());
         outPacket.encodeShort(cs.getSubJob());
         outPacket.encodeInt(chr.getTotalChuc());

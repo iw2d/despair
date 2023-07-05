@@ -15,10 +15,10 @@ public class TemporaryStatBase {
     private boolean dynamicTermSet;
 
     public TemporaryStatBase(boolean dynamicTermSet) {
-        option = new Option();
-        option.nOption = 0;
-        option.rOption = 0;
-        lastUpdated = FileTime.currentTime();
+        this.option = new Option();
+        this.option.nOption = 0;
+        this.option.rOption = 0;
+        this.lastUpdated = FileTime.currentTime();
         this.dynamicTermSet = dynamicTermSet;
     }
 

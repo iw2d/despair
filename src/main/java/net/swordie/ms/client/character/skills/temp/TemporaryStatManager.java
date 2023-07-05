@@ -276,9 +276,9 @@ public class TemporaryStatManager {
 
     public int[] getMaskByCollection(Map<CharacterTemporaryStat, List<Option>> map) {
         int[] res = new int[CharacterTemporaryStat.length];
-        for(int i = 0; i < res.length; i++) {
-            for(CharacterTemporaryStat cts : map.keySet()) {
-                if(cts.getPos() == i) {
+        for (int i = 0; i < res.length; i++) {
+            for (CharacterTemporaryStat cts : map.keySet()) {
+                if (cts.getPos() == i) {
                     res[i] |= cts.getVal();
                 }
             }
@@ -303,10 +303,10 @@ public class TemporaryStatManager {
         for(int i = 0; i < getNewMask().length; i++) {
             outPacket.encodeInt(mask[i]);
         }
-        List<CharacterTemporaryStat> orderedAndFilteredCtsList = new ArrayList<>(getNewStats().keySet()).stream()
+        List<CharacterTemporaryStat> orderedAndFilteredCtsList = getNewStats().keySet().stream()
                 .filter(cts -> cts.getOrder() != -1)
                 .sorted(Comparator.comparingInt(CharacterTemporaryStat::getOrder))
-                .collect(Collectors.toList());
+                .toList();
         for (CharacterTemporaryStat cts : orderedAndFilteredCtsList) {
             if (cts.getOrder() != -1) {
                 Option o = getOption(cts);
@@ -548,15 +548,18 @@ public class TemporaryStatManager {
 
 
 
-    public void encodeForRemote(OutPacket outPacket, Map<CharacterTemporaryStat, List<Option>> collection) {
+    public void encodeForRemote(OutPacket outPacket, Map<CharacterTemporaryStat, List<Option>> stats) {
+        Map<CharacterTemporaryStat, List<Option>> collection = stats.entrySet().stream()
+                .filter(entry -> !entry.getKey().isRemoteSkip())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         int[] mask = getMaskByCollection(collection);
         for (int maskElem : mask) {
             outPacket.encodeInt(maskElem);
         }
-        List<CharacterTemporaryStat> orderedAndFilteredCtsList = new ArrayList<>(collection.keySet()).stream()
+        List<CharacterTemporaryStat> orderedAndFilteredCtsList = collection.keySet().stream()
                 .filter(cts -> cts.getRemoteOrder() != -1)
                 .sorted(Comparator.comparingInt(CharacterTemporaryStat::getRemoteOrder))
-                .collect(Collectors.toList());
+                .toList();
         for (CharacterTemporaryStat cts : orderedAndFilteredCtsList) {
             if (cts.getRemoteOrder() != -1) {
                 Option o = getOption(cts);

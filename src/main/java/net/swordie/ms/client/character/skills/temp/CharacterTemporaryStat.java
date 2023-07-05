@@ -833,6 +833,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     public boolean isRemoteEncode1() {
         switch (this) {
             case Speed:
+            case ComboCounter:
             case Shock:
             case Team:
             case Cyclone:
@@ -842,6 +843,12 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case ReturnTeleport:
             case FireBomb:
             case SurplusSupply:
+            case AntiMagicShell:
+            case PoseType:
+            case ZeroAuraStr:
+            case ZeroAuraSpd:
+            case BMageAura:
+            case AdrenalinBoost:
             case Unk460:
                 return true;
             default:
@@ -900,6 +907,16 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case FullSoulMP:
             case AntiMagicShellBool:
             case PoseTypeBool:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public boolean isRemoteSkip() {
+        // for troublesome CTS that cause error38
+        switch (this) {
+            case EnergyCharged:
                 return true;
             default:
                 return false;
