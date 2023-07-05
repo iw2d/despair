@@ -460,6 +460,7 @@ public class Field {
             return;
         }
         getLifes().remove(life.getObjectId());
+        getLifeToControllers().remove(life);
     }
 
     public void spawnSummon(Summon summon) {

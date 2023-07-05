@@ -1613,8 +1613,8 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	@Override
 	public void removeMobByObjId(int id) {
-		chr.getField().removeLife(id);
 		chr.getField().broadcastPacket(MobPool.leaveField(id, DeathType.ANIMATION_DEATH));
+		chr.getField().removeLife(id);
 	}
 
 	@Override

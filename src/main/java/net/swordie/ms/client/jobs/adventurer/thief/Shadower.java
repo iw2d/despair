@@ -143,6 +143,7 @@ public class Shadower extends Thief {
                         Drop drop = new Drop(item.getItemId(), item);
                         field.drop(drop, mob.getPosition());
                         mob.setSteal(true);
+                        chr.write(MobPool.stealEffect(mob, itemId));
                     }
                 }
                 break;

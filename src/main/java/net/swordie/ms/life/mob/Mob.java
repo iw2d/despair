@@ -1258,10 +1258,16 @@ public class Mob extends Life {
             if (isBoss() && getHpTagColor() != 0) {
                 getField().broadcastPacket(FieldPacket.fieldEffect(FieldEffect.mobHPTagFieldEffect(this)));
             }
-        } else if (isBoss() && getHpTagColor() != 0) {
-            getField().broadcastPacket(FieldPacket.fieldEffect(FieldEffect.mobHPTagFieldEffect(this)));
         } else {
-            getField().broadcastPacket(MobPool.hpIndicator(getObjectId(), (byte) (percDamage * 100)));
+            if (isBoss() && getHpTagColor() != 0) {
+                getField().broadcastPacket(FieldPacket.fieldEffect(FieldEffect.mobHPTagFieldEffect(this)));
+            } else {
+                getField().broadcastPacket(MobPool.hpIndicator(getObjectId(), (byte) (percDamage * 100)));
+            }
+            if (getField().getLifeToControllers().get(this) != damageDealer && getMostDamageChar() == damageDealer) {
+                notifyControllerChange(damageDealer);
+                getField().putLifeController(this, damageDealer);
+            }
         }
     }
 

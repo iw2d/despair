@@ -77,6 +77,17 @@ public class MobPool {
 
         outPacket.encodeInt(mobID);
         outPacket.encodeByte(chase);
+
+        return outPacket;
+    }
+
+    public static OutPacket airHit(int mobID, short vY, short elapse) {
+        OutPacket outPacket = new OutPacket(OutHeader.MOB_AIR_HIT);
+
+        outPacket.encodeInt(mobID);
+        outPacket.encodeShort(vY);
+        outPacket.encodeShort(elapse);
+
         return outPacket;
     }
 
@@ -192,6 +203,25 @@ public class MobPool {
         outPacket.encodeInt(skillID);
         outPacket.encodeInt(charId);
         outPacket.encodeShort(hit);
+
+        return outPacket;
+    }
+
+    public static OutPacket catchEffect(Mob mob, byte idk1, byte idk2) {
+        OutPacket outPacket = new OutPacket(OutHeader.MOB_CATCH_EFFECT);
+
+        outPacket.encodeInt(mob.getObjectId());
+        outPacket.encodeByte(idk1);
+        outPacket.encodeByte(idk2);
+
+        return outPacket;
+    }
+
+    public static OutPacket stealEffect(Mob mob, int skillID) {
+        OutPacket outPacket = new OutPacket(OutHeader.MOB_STEAL_EFFECT);
+
+        outPacket.encodeInt(mob.getObjectId());
+        outPacket.encodeInt(skillID);
 
         return outPacket;
     }

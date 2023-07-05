@@ -73,6 +73,7 @@ public class MovementInfo implements Encodable {
         byte size = inPacket.decodeByte();
         for (int i = 0; i < size; i++) {
             byte type = inPacket.decodeByte();
+            // System.err.println("move type " + type);
             switch (type) {
                 case 0:
                 case 8:

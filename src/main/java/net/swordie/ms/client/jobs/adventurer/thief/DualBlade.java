@@ -9,6 +9,7 @@ import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
+import net.swordie.ms.connection.packet.MobPool;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
@@ -37,6 +38,7 @@ public class DualBlade extends Thief {
     public static final int ADVANCED_DARK_SIGHT_DB = 4330001;
     public static final int SHADOW_MELD = 4330009;
     public static final int VENOM_DB = 4320005;
+    public static final int UPPSER_STAB = 4321004;
     public static final int LIFE_DRAIN = 4330007;
     public static final int KATARA_EXPERT = 4340013;
     public static final int SHARPNESS = 4340010;
