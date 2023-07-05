@@ -21,4 +21,36 @@ public class CMapLoadable {
         outPacket.encodeInt(time);
         return outPacket;
     }
+
+    public static OutPacket setSpineBackEffect(String keyName, int msgType) {
+        OutPacket outPacket = new OutPacket(OutHeader.SET_SPINE_BACK_EFFECT);
+        outPacket.encodeString(keyName);
+        outPacket.encodeInt(msgType);
+        return outPacket;
+    }
+
+    public static OutPacket reloadBack() {
+        OutPacket outPacket = new OutPacket(OutHeader.RELOAD_BACK);
+        return outPacket;
+    }
+
+    public enum SpineScriptMsgType {
+        None(1),
+        PKCS7(2),
+        Zeros(3),
+        ANSIX923(4),
+        ISO10126(5),
+        ANSIX923_PKCS7(6)
+        ;
+
+        private int value;
+
+        SpineScriptMsgType(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 }
