@@ -3,10 +3,7 @@ package net.swordie.ms.loaders.containerclasses;
 import net.swordie.ms.life.mob.skill.MobSkillStat;
 import net.swordie.ms.util.Position;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created on 3/18/2018.
@@ -20,9 +17,10 @@ public class MobSkillInfo {
     private Position lt;
     private Position lt2;
     private Position rb2;
-    private Set<Integer> ints = new HashSet<>();
+    private List<Integer> ints = new ArrayList<>();
     private Position lt3;
     private Position rb3;
+    private int useLimit;
 
     public short getId() {
         return id;
@@ -95,7 +93,7 @@ public class MobSkillInfo {
         return rb2;
     }
 
-    public Set<Integer> getInts() {
+    public List<Integer> getInts() {
         return ints;
     }
 
@@ -117,5 +115,13 @@ public class MobSkillInfo {
 
     public Position getRb3() {
         return rb3;
+    }
+
+    public void setUseLimit(int useLimit) {
+        this.useLimit = useLimit;
+    }
+
+    public int getUseLimit() {
+        return useLimit;
     }
 }

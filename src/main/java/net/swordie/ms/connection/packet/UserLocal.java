@@ -1,6 +1,7 @@
 package net.swordie.ms.connection.packet;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.b2body.B2Body;
 import net.swordie.ms.client.character.damage.DamageSkinType;
 import net.swordie.ms.client.character.skills.LarknessManager;
 import net.swordie.ms.client.character.skills.PsychicArea;
@@ -589,6 +590,67 @@ public class UserLocal {
 
     public static OutPacket setNextShootExJablin() {
         OutPacket outPacket = new OutPacket(OutHeader.SET_NEXT_SHOOT_EX_JABLIN);
+        return outPacket;
+    }
+
+    public static OutPacket b2BodyResult(short requestType, B2Body b2Body) {
+        OutPacket outPacket = new OutPacket(OutHeader.B2_BODY_RESULT);
+        Char chr = b2Body.getChr();
+        outPacket.encodeShort(requestType);
+        outPacket.encodeInt(chr.getId()); // owner Id
+        outPacket.encodeInt(chr.getFieldID());
+        short loopsize = 1;
+
+        switch (requestType) {
+            case 0:
+                outPacket.encodeShort(loopsize); // loop size
+                for (int i = 0; i < loopsize; i++) {
+                    outPacket.encodeInt(b2Body.getBodyId());
+                    outPacket.encodeByte(b2Body.getType());
+                    outPacket.encodeByte(true); // redraw
+                    outPacket.encodePosition(b2Body.getPosition());
+                    if (b2Body.getType() == 5) {
+                        outPacket.encodeShort(b2Body.getnRadius());
+                        outPacket.encodeShort(b2Body.getfRadius());
+                    } else if (b2Body.getType() == 6) {
+                        outPacket.encodeInt(0); // unk
+                    }
+                    outPacket.encodeShort(b2Body.getDuration());
+                    outPacket.encodeShort(b2Body.getScale());
+                    outPacket.encodeShort(0); // sniffed from GMS
+                    outPacket.encodeShort(10); // sniffed from GMS
+                    outPacket.encodeInt(b2Body.getSkillId());
+                    outPacket.encodeShort(b2Body.getSlv());
+                    outPacket.encodeByte(chr.isLeft());
+                }
+                break;
+            case 3:
+                outPacket.encodeInt(chr.getId());
+                outPacket.encodeInt(b2Body.getSkillId());
+                outPacket.encodeInt(b2Body.getMaxSpeedX());
+                outPacket.encodeInt(b2Body.getMaxSpeedY());
+                break;
+            case 4:
+                outPacket.encodeShort(loopsize);
+                for (int i = 0; i < loopsize; i++) {
+                    outPacket.encodeByte(true); // redraw
+                    outPacket.encodePosition(b2Body.getPosition());
+                    outPacket.encodeInt(b2Body.getDuration());
+                    outPacket.encodeShort(0); // unk
+                    outPacket.encodeShort(0); // unk
+                    outPacket.encodeShort(0); // unk
+                    outPacket.encodeInt(b2Body.getSkillId());
+                    outPacket.encodeByte(chr.isLeft());
+                    outPacket.encodeInt(b2Body.getMaxSpeedX());
+                    outPacket.encodeInt(b2Body.getMaxSpeedY());
+                }
+                break;
+            case 5:
+                outPacket.encodeInt(b2Body.getSkillId()); // mob Skill Id
+                outPacket.encodeInt(b2Body.getSlv()); // mob Skill Lv
+                break;
+        }
+
         return outPacket;
     }
 }

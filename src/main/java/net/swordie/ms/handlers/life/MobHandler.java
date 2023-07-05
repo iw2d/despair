@@ -79,9 +79,9 @@ public class MobHandler {
     }
 
     @Handler(op = InHeader.MOB_MOVE)
-    public static void handleMobMove(Client c, InPacket inPacket) {
+    public static void handleMobMove(Char chr, InPacket inPacket) {
         // CMob::GenerateMovePath (line 918 onwards)
-        Field field = c.getChr().getField();
+        Field field = chr.getField();
         int objectID = inPacket.decodeInt();
         Life life = field.getLifeByObjectID(objectID);
         if (!(life instanceof Mob)) {
@@ -91,77 +91,15 @@ public class MobHandler {
         Mob mob = (Mob) life;
         Char controller = field.getLifeToControllers().get(mob);
         byte idk0 = inPacket.decodeByte(); // check if the templateID / 10000 == 250 or 251. No idea for what it's used
-        short moveID = inPacket.decodeShort();
+        short mobControlSN = inPacket.decodeShort();
         msai.actionAndDirMask = inPacket.decodeByte();
-        byte action = inPacket.decodeByte();
-        msai.action = (byte) (action >> 1);
-        life.setMoveAction(action);
-        int skillID = msai.action - 30; // thanks yuuroido :D
-        int skillSN = skillID;
-        int slv = 0;
-        msai.targetInfo = inPacket.decodeInt();
-        int afterAttack = -1;
-        //c.getChr().chatMessage("" + msai.action);
-        boolean didSkill = action != -1;
-        if (didSkill && mob.hasSkillDelayExpired() && !mob.isInAttack()) {
-            List<MobSkill> skillList = mob.getSkills();
-            if (Util.succeedProp(GameConstants.MOB_SKILL_CHANCE)) {
-                MobSkill mobSkill;
-                mobSkill = skillList.stream()
-                        .filter(ms -> ms.getSkillSN() == skillSN
-                                /*&& mob.hasSkillOffCooldown(ms.getSkillID(), ms.getLevel())*/)
-                        .findFirst()
-                        .orElse(null);
-                if (mobSkill == null) {
-                    skillList = skillList.stream()
-                            .filter(ms -> mob.hasSkillOffCooldown(ms.getSkillID(), ms.getLevel()))
-                            .collect(Collectors.toList());
-                    if (skillList.size() > 0) {
-                        mobSkill = skillList.get(Randomizer.nextInt(skillList.size()));
-                    }
-                }
-                didSkill = mobSkill != null;
-                if (didSkill) {
-                    didSkill = true;
-                    skillID = mobSkill.getSkillID();
-                    slv = mobSkill.getLevel();
-                    MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(skillID, slv);
-                    long curTime = Util.getCurrentTimeLong();
-                    long interval = msi.getSkillStatIntValue(MobSkillStat.interval) * 1000;
-                    long nextUseableTime = curTime + interval;
-                    c.getChr().dbgChatMsg(String.format("Mob" + mob + " did skill with ID %d (%s), level = %d",
-                            mobSkill.getSkillID(), MobSkillID.getMobSkillIDByVal(mobSkill.getSkillID()), mobSkill.getLevel()));
-                    mob.putSkillCooldown(skillID, slv, nextUseableTime);
-                    if (mobSkill.getSkillAfter() > 0) {
-                        List<Rect> rects = new ArrayList<Rect>();
-                        MobSkillID msID = MobSkillID.getMobSkillIDByVal(skillID);
-                        switch (msID) {
-                            case Toos:
-                                Rect rectangle = new Rect(-49, -1016, 211, -16);
-                                rects.add(rectangle);
-                                rects.add(rectangle.moveRight().moveRight());
-                                rects.add(rectangle.moveLeft().moveLeft());
-                                break;
-                        }
-                        mob.getSkillDelays().add(mobSkill);
-                        mob.setSkillDelay(mobSkill.getSkillAfter());
-                        c.write(MobPool.setSkillDelay(mob, mobSkill.getSkillAfter(), msi, 0, rects));
-                    } else {
-                        mobSkill.applyEffect(mob);
-                    }
-                }
-            }
-        }
-        if (!didSkill) {
-            // didn't do a skill, so ensure that the attack gets properly formed
-            int attackIdx = skillID + 17;
-            if (mob.hasAttackOffCooldown(attackIdx)) {
-                MobSkill ms = mob.getAttackById(attackIdx);
-                if (ms != null && ms.getAfterAttack() >= 0) {
-                    afterAttack = ms.getAfterAttack();
-                }
-            }
-        }
+        msai.action = inPacket.decodeByte();
+        byte action = (byte) (msai.action >> 1);
+        // inPacket.decodeInt(); // int containing the following
+        msai.skillID = inPacket.decodeUByte();
+        msai.slv = inPacket.decodeUByte();
+        msai.option = inPacket.decodeUShort();
+
         byte multiTargetForBallSize = inPacket.decodeByte();
         for (int i = 0; i < multiTargetForBallSize; i++) {
             Position pos = inPacket.decodePosition(); // list of ball positions
@@ -182,12 +120,88 @@ public class MobHandler {
         int moveActionCS = inPacket.decodeInt();
         int hitExpire = inPacket.decodeInt();
         byte idk = inPacket.decodeByte();
+
         MovementInfo movementInfo = new MovementInfo(inPacket);
-        c.write(MobPool.ctrlAck(mob, true, moveID, skillID, (byte) slv, -1));
         movementInfo.applyTo(mob);
-        mob.setInAttack(afterAttack >= 0);
-        if (afterAttack >= 0) {
-            c.write(MobPool.setAfterAttack(mob.getObjectId(), (short) afterAttack, msai.action, action % 2 != 0));
+
+        int skillID = msai.skillID;
+        int slv = msai.slv;
+        int afterAttack = -1;
+        int afterAttackCount = 0;
+        boolean didSkill = false;
+        // chr.chatMessage(String.format("act=%d,0x%X, id=%d, slv=%d, option=%d", msai.action, msai.action, msai.skillID, msai.slv, msai.option));
+        if (msai.skillID >= MobSkillID.PowerUp.getVal() && msai.skillID <= MobSkillID.No.getVal() && slv > 0
+                && mob.hasSkillDelayExpired() && !mob.isInAttack()) {
+            List<MobSkill> skillList = mob.getSkills();
+
+            MobSkill mobSkill;
+            mobSkill = skillList.stream()
+                    .filter(ms -> ms.getSkillID() == msai.skillID &&
+                            ms.getLevel() == msai.slv &&
+                            mob.hasSkillOffCooldown(ms.getSkillID(), ms.getLevel()))
+                    .findFirst().orElse(null);
+            if (mobSkill == null) {
+                chr.dbgChatMsg(String.format("Could not find off-cooldown mob skill with id %d, slv %d for mob %d.",
+                        skillID, slv, mob.getTemplateId()));
+            } else {
+                didSkill = true;
+                MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(skillID, slv);
+                long curTime = System.currentTimeMillis();
+                long interval = msi.getSkillStatIntValue(MobSkillStat.interval) * 1000L;
+                long nextUseableTime = curTime + interval;
+                chr.dbgChatMsg(String.format("Mob " + mob + " did skill with ID %d (%s), level = %d",
+                        mobSkill.getSkillID(), MobSkillID.getMobSkillIDByVal(mobSkill.getSkillID()), mobSkill.getLevel()));
+                mob.putSkillCooldown(skillID, slv, nextUseableTime);
+                mob.setSkillDelay(5000);
+                if (mobSkill.getSkillAfter() > 0) {
+                    mob.getSkillDelays().add(mobSkill);
+                    mob.setSkillDelay(mobSkill.getSkillAfter());
+                    chr.write(MobPool.setSkillDelay(mob.getObjectId(), mobSkill.getSkillAfter(), skillID, slv, 0, null));
+                } else {
+                    mobSkill.applyEffect(mob);
+                }
+                skillID = 0;
+                slv = 0;
+            }
+        } else if (slv == 0 && mob.hasSkillDelayExpired() && !mob.isInAttack()) {
+            // prepare next skill
+            MobSkill mobSkill = mob.getRandomAvailableSkill();
+            if (mobSkill != null) {
+                skillID = mobSkill.getSkillID();
+                slv = mobSkill.getLevel();
+            }
+        }
+        mob.setInAttack(false);
+        if (!didSkill) {
+            // didn't do a skill, so ensure that the attack gets properly formed
+            int attackIdx = action - 13;
+            if (mob.hasAttackOffCooldown(attackIdx)) {
+                MobSkill ms = mob.getAttackById(attackIdx);
+                if (ms != null && ms.getAfterAttack() >= 0) {
+                    mob.setInAttack(true);
+                    afterAttack = ms.getAfterAttack();
+                    afterAttackCount = ms.getAfterAttackCount();
+                } else {
+                    afterAttack = 0;
+                    if (attackIdx > 0) {
+                        int min = GameConstants.MOB_ATTACK_COOLDOWN_MIN;
+                        int max = GameConstants.MOB_ATTACK_COOLDOWN_MAX;
+                        if (mob.isBoss()) {
+                            max = max / 2 + 1;
+                        }
+                        mob.setAttackCooldown(Util.getRandom(min, max));
+                    }
+                }
+            }
+        }
+        if (mob.getAttackCooldown() > 0) {
+            mob.setAttackCooldown(mob.getAttackCooldown() - 1);
+        }
+        boolean nextAttackPossible = mob.getAttackCooldown() == 0 && Util.succeedProp(GameConstants.MOB_ATTACK_CHANCE);
+        chr.write(MobPool.ctrlAck(mob, nextAttackPossible, mobControlSN, skillID, (byte) slv, -1));
+        mob.setInAttack(afterAttackCount > 0);
+        if (afterAttackCount > 0) {
+            chr.write(MobPool.setAfterAttack(mob.getObjectId(), (short) afterAttack, msai.action, !mob.isFlip()));
         }
         field.checkMobInAffectedAreas(mob);
         field.broadcastPacket(MobPool.move(mob, msai, movementInfo), controller);

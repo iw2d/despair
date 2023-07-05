@@ -112,7 +112,11 @@ public class GameConstants {
 
     // Mob
     public static final int MOB_SKILL_CHANCE = 20;
-    public static final int NX_DROP_CHANCE = 70;
+    public static final int MOB_ATTACK_CHANCE = 75;
+    public static final int NX_DROP_CHANCE = 100;
+    public static final int MOB_ATTACK_COOLDOWN_MIN = 3;
+    public static final int MOB_ATTACK_COOLDOWN_MAX = 13;
+    public static final int MOB_RESUMMON_COOLDOWN = 120; // 2 minutes
 
     // Elite mob
     public static final int ELITE_MOB_SKILL_COUNT = 2;

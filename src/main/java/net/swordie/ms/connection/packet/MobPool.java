@@ -254,7 +254,9 @@ public class MobPool {
         outPacket.encodeInt(mob.getObjectId());
         outPacket.encodeByte(msai.actionAndDirMask);
         outPacket.encodeByte(msai.action);
-        outPacket.encodeInt(msai.targetInfo);
+        outPacket.encodeByte(msai.skillID);
+        outPacket.encodeByte(msai.slv);
+        outPacket.encodeShort(msai.option);
         outPacket.encodeByte(msai.multiTargetForBalls.size());
         for(Position pos : msai.multiTargetForBalls) {
             outPacket.encodePosition(pos);
@@ -264,6 +266,7 @@ public class MobPool {
             outPacket.encodeShort(s);
         }
         outPacket.encode(movementInfo);
+        outPacket.encodeByte(0);
 
         return outPacket;
     }

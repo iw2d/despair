@@ -11,8 +11,10 @@ import java.util.List;
 public class MobSkillAttackInfo {
     public byte actionAndDirMask;
     public byte action;
-    public int targetInfo;
-    public short skillID;
+    public long targetInfo;
+    public int skillID;
+    public int slv;
+    public int option;
     public List<Position> multiTargetForBalls = new ArrayList<>();
     public List<Short> randTimeForAreaAttacks = new ArrayList<>();
 }

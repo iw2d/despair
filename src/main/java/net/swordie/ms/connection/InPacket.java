@@ -95,6 +95,10 @@ public class InPacket extends Packet {
         return byteBuf.readShortLE();
     }
 
+    public int decodeUShort() {
+        return byteBuf.readUnsignedShortLE();
+    }
+
     /**
      * Reads a char array of a given length of this ByteBuf.
      * @param amount The length of the char array

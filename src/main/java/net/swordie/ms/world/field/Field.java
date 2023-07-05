@@ -1225,6 +1225,11 @@ public class Field {
         this.userFirstEnter = userFirstEnter;
     }
 
+    public int getAliveCharsCount() {
+        // not using getMobs() to only have to iterate `lifes' once
+        return (int) getChars().stream().filter(chr -> chr.getHP() > 0).count();
+    }
+
     public int getAliveMobCount() {
         // not using getMobs() to only have to iterate `lifes' once
         return getLifes().values().stream()

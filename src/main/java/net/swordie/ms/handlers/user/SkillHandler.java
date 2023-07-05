@@ -3,6 +3,7 @@ package net.swordie.ms.handlers.user;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.b2body.B2Body;
 import net.swordie.ms.client.character.damage.DamageSkinSaveData;
 import net.swordie.ms.client.character.damage.DamageSkinType;
 import net.swordie.ms.client.character.items.Equip;
@@ -244,17 +245,60 @@ public class SkillHandler {
 
     @Handler(op = InHeader.USER_B2_BODY_REQUEST)
     public static void handleB2BodyRequest(Char chr, InPacket inPacket) {
-        short type = inPacket.decodeShort();
-        int ownerCID = inPacket.decodeInt();
-        int bodyIdCounter = inPacket.decodeInt();
-        Position offsetPos = inPacket.decodePosition();
-        int skillID = inPacket.decodeInt();
-        boolean isLeft = inPacket.decodeByte() != 0;
-        inPacket.decodeByte();
-        inPacket.decodeShort();
-        inPacket.decodeShort();
-        inPacket.decodeShort();
-        Position forcedPos = inPacket.decodePositionInt();
+        short requestType = inPacket.decodeShort();
+        int chrId = inPacket.decodeInt();
+
+        switch (requestType) {
+            case 0:
+                byte unk1 = inPacket.decodeByte();
+                int b2BodyId = inPacket.decodeInt();
+                byte type = inPacket.decodeByte();
+                Position position = inPacket.decodePosition();
+                short nRadius = 0;
+                short fRadius = 0;
+                if (type == 5) {
+                    nRadius = inPacket.decodeShort();
+                    fRadius = inPacket.decodeShort();
+                }
+                short scale = inPacket.decodeShort();
+                int skillId = inPacket.decodeInt();
+                int slv = inPacket.decodeShort();
+                short unk2 = inPacket.decodeShort(); // 0 encoded
+                int duration = inPacket.decodeInt(); // in MS
+                short unk3 = inPacket.decodeShort(); // 10 encoded
+
+                B2Body b2Body = new B2Body(chr, b2BodyId, type, position, nRadius, fRadius, scale, skillId, slv, duration);
+                chr.write(UserLocal.b2BodyResult(requestType, b2Body));
+                break;
+            case 3:
+                b2BodyId = inPacket.decodeInt();
+                skillId = inPacket.decodeInt();
+                slv = inPacket.decodeInt();
+                int maxSpeedX = inPacket.decodeInt();
+                int maxSpeedY = inPacket.decodeInt();
+                b2Body = new B2Body(chr, b2BodyId, skillId, slv, maxSpeedX, maxSpeedY);
+                chr.write(UserLocal.b2BodyResult(requestType, b2Body));
+                break;
+            case 4:
+                b2BodyId = inPacket.decodeInt();
+                position = inPacket.decodePosition();
+                skillId = inPacket.decodeInt();
+                boolean left = inPacket.decodeByte() != 0;
+                unk1 = inPacket.decodeByte(); // 0 encoded
+                slv = inPacket.decodeShort();
+                unk2 = inPacket.decodeShort(); // 0 encoded
+                unk3 = inPacket.decodeShort(); // 10 encoded
+                maxSpeedX = inPacket.decodeInt();
+                maxSpeedY = inPacket.decodeInt();
+                b2Body = new B2Body(chr, b2BodyId, skillId, slv, maxSpeedX, maxSpeedY);
+                b2Body.setPosition(position);
+                chr.write(UserLocal.b2BodyResult(requestType, b2Body));
+                break;
+            default:
+                log.error(String.format("Unhandled B2Body Request Type: %d", requestType));
+                chr.chatMessage(String.format("Unhandled B2Body Request Type: %d", requestType));
+                break;
+        }
     }
 
     @Handler(op = InHeader.MAKING_SKILL_REQUEST)

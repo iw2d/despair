@@ -4,7 +4,6 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.ExpIncreaseInfo;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
@@ -25,6 +24,8 @@ import net.swordie.ms.life.Life;
 import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.life.drop.DropInfo;
 import net.swordie.ms.life.mob.skill.MobSkill;
+import net.swordie.ms.life.mob.skill.MobSkillID;
+import net.swordie.ms.life.mob.skill.MobSkillStat;
 import net.swordie.ms.life.mob.skill.ShootingMoveStat;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.MobData;
@@ -129,10 +130,13 @@ public class Mob extends Life {
     private Set<DropInfo> drops = new HashSet<>();
     private List<MobSkill> skills = new ArrayList<>();
     private List<MobSkill> attacks = new ArrayList<>();
+    private Map<Integer, Integer> skillUseCount = new HashMap<>();
     private Set<Integer> quests = new HashSet<>();
     private Set<Integer> revives = new HashSet<>();
     private Map<Integer, Long> skillCooldowns = new HashMap<>();
     private long nextPossibleSkillTime = 0;
+    private int attackCooldown;
+    private long nextSummonPossible;
     private List<Tuple<Integer, Integer>> eliteSkills = new ArrayList<>();
     private boolean selfDestruction;
     private List<MobSkill> skillDelays = new CopyOnWriteArrayList<>();
@@ -476,12 +480,12 @@ public class Mob extends Life {
         return hp;
     }
 
-    public int getHpComparedToMaxHP() {
-        if (getMaxHp() <= Integer.MAX_VALUE) {
-            return (int) getHp();
-        } else {
-            return (int) (getHp() * (((double) Integer.MAX_VALUE) / getMaxHp()));
-        }
+    /**
+     * Returns the current HP of the mob, in percentage in relation to the maximum HP.
+     * @return current HP percantage
+     */
+    public double getHpPerc() {
+        return 100 * ((double) getHp() / getMaxHp());
     }
 
     public void setHp(long hp) {
@@ -1483,6 +1487,25 @@ public class Mob extends Life {
         return Util.findWithPred(getAttacks(), att -> att.getSkillSN() == attackID);
     }
 
+    public int getSkillUseCount(MobSkill skill) {
+        return skillUseCount.getOrDefault(skill.getSkillSN(), 0);
+    }
+
+    public int getSkillUseCount(int skillId, int slv) {
+        MobSkill ms = getSkills().stream().filter(msf -> msf.getSkillID() == skillId && msf.getLevel() == slv).findFirst().orElse(null);
+        return ms == null ? 0 : getSkillUseCount(ms);
+    }
+
+    public void incrementSkillUseCount(MobSkill skill) {
+        skillUseCount.compute(skill.getSkillSN(), (k, v) -> v == null ? 1 : v+1);
+    }
+
+    public void incrementSkillUseCount(int skillId, int slv) {
+        MobSkill ms = getSkills().stream().filter(msf -> msf.getSkillID() == skillId && msf.getLevel() == slv).findFirst().orElse(null);
+        if (ms != null)
+            incrementSkillUseCount(ms);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Mob) {
@@ -1605,6 +1628,26 @@ public class Mob extends Life {
 
     private void setNextPossibleSkillTime(long nextPossibleSkillTime) {
         this.nextPossibleSkillTime = nextPossibleSkillTime;
+    }
+
+    public int getAttackCooldown() {
+        return attackCooldown;
+    }
+
+    public void setAttackCooldown(int attackCooldown) {
+        this.attackCooldown = attackCooldown;
+    }
+
+    /**
+     * Sets the amount of time before this mob can summon an "afterdead" summon (like Queen).
+     * @param nextSummonPossible amount of seconds until next possible summon
+     */
+    public void setNextSummonPossible(int nextSummonPossible) {
+        this.nextSummonPossible = System.currentTimeMillis() + nextSummonPossible * 1000;
+    }
+
+    public boolean canResummon() {
+        return nextSummonPossible <= System.currentTimeMillis();
     }
 
     @Override
@@ -2048,5 +2091,189 @@ public class Mob extends Life {
                 }
             }
         }
+    }
+
+    public MobSkill getRandomAvailableSkill() {
+        if (getSkills() == null || getSkills().size() == 0) {
+            return null;
+        }
+        List<MobSkill> list = new ArrayList<>();
+        List<MobSkill> lesserPriority = new ArrayList<>();
+        List<MobSkill> greaterPriority = new ArrayList<>();
+        for (MobSkill ms : getSkills()) {
+            if (canUseSkill(ms) && !BossConstants.isBlockedSkill(getTemplateId(), ms.getSkillID(), ms.getLevel())) {
+                if (ms.getPriority() == 2)
+                    greaterPriority.add(ms);
+                if (ms.getPriority() == 1)
+                    lesserPriority.add(ms);
+                list.add(ms);
+            }
+        }
+        return Util.getRandomFromCollection(greaterPriority.size() > 0 ? greaterPriority : lesserPriority.size() > 0 ? lesserPriority : list);
+    }
+
+    private boolean canUseSkill(MobSkill ms) {
+        MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(ms.getSkillID(), ms.getLevel());
+        int reqHp = msi.getSkillStatIntValue(MobSkillStat.hp);
+        int useLimit = ms.getUseLimit() > 0 ? ms.getUseLimit() : msi.getUseLimit();
+        // skill exists, is off cooldown, and mob is below required hp percentage to cast skill
+        return msi != null && hasSkillOffCooldown(ms.getSkillID(), ms.getLevel()) && (reqHp == 0 || getHpPerc() < reqHp) && (useLimit == 0 || getSkillUseCount(ms) < useLimit)
+                && (getSkills().size() == 0 || getSkills().stream().noneMatch(s -> s.getSkillSN() == ms.getPreSkillIndex()) || getSkillUseCount(getSkills().stream().filter(s -> s.getSkillSN() == ms.getPreSkillIndex()).findFirst().orElse(null)) >= ms.getPreSkillCount())
+                && canUseSkillLogic(ms);
+    }
+
+    private boolean canUseSkillLogic(MobSkill ms) {
+        int skillID = ms.getSkillID();
+        int slv = ms.getLevel();
+        MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(skillID, slv);
+
+        if (skillID == MobSkillID.Undead.getVal()) {
+            // disable undead until two states are fixed
+            return false;
+        }
+
+        if (skillID == MobSkillID.Summon.getVal() || skillID == MobSkillID.Summon2.getVal()) {
+            int summonLimit = msi.getSkillStatIntValue(MobSkillStat.limit);
+            boolean summonLimitReached = getField().getMobs().stream().filter(m -> m.getMobSpawnerId() == getObjectId()
+                    && msi.getInts().contains(m.getTemplateId())).count() >= (summonLimit <= 0 ? 100 : summonLimit);
+            if (summonLimitReached)
+                return false;
+
+            if ((ms.isAfterDead() && skillID == MobSkillID.Summon2.getVal() && !canResummon())) {
+                // Queen Switch Faces Cooldown
+                return false;
+            }
+        }
+
+        if ((skillID == MobSkillID.PhysicalImmune.getVal() || skillID == MobSkillID.MagicImmune.getVal())
+                && (getTemporaryStat().hasCurrentMobStat(MobStat.PImmune) || getTemporaryStat().hasCurrentMobStat(MobStat.MImmune))) {
+            // Don't cast Physical or Magic Immune if we already have one up, just wastes a cooldown
+            return false;
+        }
+        if (skillID == MobSkillID.MobConsume.getVal()) {
+            // Don't try to eat a mob unless the mob exists and in range, and has existed for long enough
+            Rect range = getPosition().getRectAround(new Rect(msi.getLt(), msi.getRb()));
+            if (getField().getMobs().stream().noneMatch(mb -> range.hasPositionInside(mb.getPosition()) && mb.getTemplateId() == msi.getInts().get(0)
+                    && (!mb.hasProperty("summonTimestamp") || System.currentTimeMillis() - ((long) mb.getProperty("summonTimestamp")) > BossConstants.MOB_CONSUME_DELAY)))
+                return false;
+        }
+
+        if (getTemplateId() == BossConstants.ALLURING_MIRROR || getTemplateId() == BossConstants.CHAOS_ALLURING_MIRROR) {
+            if (getField().getMobs().stream().anyMatch(m -> m.getTemplateId() == 8920004 || m.getTemplateId() == 8920104)) {
+                return false;
+            }
+        }
+
+        if (getTemplateId() >= 8800000 && getTemplateId() <= 8800148) {
+            return canUseSkillLogicZakum(ms);
+        }
+
+        if (getTemplateId() >= 8950000 && getTemplateId() <= 8950003 || getTemplateId() >= 8950100 && getTemplateId() <= 8950103) {
+            return canUseSkillLogicLotus(ms);
+        }
+
+        if (getTemplateId() >= 9450022) {
+            return canUseSkillLogicPrincessNo(ms);
+        }
+
+        if (getTemplateId() == 8910000) {
+            if (ms.getSkillID() == 170 && getHp() > 300000000000L) {
+                return false;
+            }
+            if (ms.getSkillID() == 203) {
+                return false;
+            }
+        }
+        if (getTemplateId() == 8880111) {
+            if (ms.getSkillID() == 170 && ms.getLevel() == 47) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean canUseSkillLogicPrincessNo(MobSkill ms) {
+        if (ms.getSkillID() == 145) {
+            return false;
+        }
+        if (ms.getSkillID() == 170) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean canUseSkillLogicZakum(MobSkill ms) {
+        if (ms.getSkillID() == MobSkillID.Teleport.getVal()) {
+            return false;
+        }
+        if (getTemplateId() == 8800002 || getTemplateId() == 8800022 || getTemplateId() == 8800102) {
+            // don't use skills if any arms are alive
+            if (!(getTemplateId() == 8800102 && ms.getSkillID() == 201 && ms.getLevel() == 162) && getField().getMobs().stream().anyMatch(mob ->
+                    (mob.getTemplateId() >= 8800003 && mob.getTemplateId() <= 8800010
+                            || mob.getTemplateId() >= 8800023 && mob.getTemplateId() <= 8800030
+                            || mob.getTemplateId() >= 8800103 && mob.getTemplateId() <= 8800110))) {
+                return false;
+            }
+            if (ms.getSkillID() == 201 && ms.getLevel() == 172)
+                return false;
+        } else if (Util.arrayContains(BossConstants.ZAKUM_ARMS, getTemplateId())) {
+            if (ms.getSkillID() == MobSkillID.Stun.getVal() && (getTemplateId() < 8800103 || getField().getAliveCharsCount() < 2)) {
+                return false;
+            }
+            if (ms.getSkillID() == MobSkillID.Damage.getVal() && ms.getLevel() == 27) {
+                return false;
+            }
+            if (ms.getSkillID() == MobSkillID.Damage.getVal() && ms.getLevel() != 27) {
+                return false;
+            }
+            if (ms.getSkillID() == MobSkillID.FieldCommand.getVal()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean canUseSkillLogicLotus(MobSkill ms) {
+        MobTemporaryStat mts = getTemporaryStat();
+        if (getTemplateId() == 8950000 || getTemplateId() == 8950100) { // First Stage
+            if (ms.getSkillID() == MobSkillID.LaserAttack.getVal()) {
+                if (mts.hasCurrentMobStat(MobStat.Laser)) {
+                    return false;
+                }
+            }
+
+            if (ms.getSkillID() == MobSkillID.LaserControl.getVal()) {
+                if (!mts.hasCurrentMobStat(MobStat.Laser) || hasSkillOffCooldown(201, 83)) {
+                    return false;
+                }
+            }
+
+            if (ms.getSkillID() == MobSkillID.Summon2.getVal()) {
+                if (!mts.hasCurrentMobStat(MobStat.Laser)) {
+                    return false;
+                }
+            }
+        }
+        if (getTemplateId() == 8950001 || getTemplateId() == 8950101) { // Second Stage
+            if (ms.getSkillID() == MobSkillID.AreaPoison.getVal()) {
+                return false;
+            }
+            if (ms.getSkillID() == MobSkillID.BounceAttack.getVal() && ms.getLevel() == 6 || ms.getSkillID() == MobSkillID.BounceAttack.getVal() && ms.getLevel() == 14
+                    || ms.getSkillID() == MobSkillID.BounceAttack.getVal() && ms.getLevel() == 16) {
+                return false;
+            }
+        }
+        if (getTemplateId() == 8950002 || getTemplateId() == 8950102) { // Third Stage
+            if (ms.getSkillID() == MobSkillID.AreaPoison.getVal()) {
+                return false;
+            }
+            if (ms.getSkillID() == MobSkillID.BounceAttack.getVal() && ms.getLevel() == 13 || ms.getSkillID() == MobSkillID.BounceAttack.getVal() && ms.getLevel() == 16) {
+                return false;
+            }
+            if (ms.getSkillID() == MobSkillID.FireAtRandomAttack.getVal()) {
+                return false;
+            }
+        }
+        return true;
     }
 }
