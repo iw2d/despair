@@ -450,13 +450,12 @@ public class SkillHandler {
     public static void handleUserFinalAttackRequest(Client c, InPacket inPacket) {
         Char chr = c.getChr();
         int skillID = inPacket.decodeInt();
-        if (!chr.hasSkill(skillID)) {
-            chr.getOffenseManager().addOffense("Tried to request a final attack of an unavailable skill.");
-            return;
-        }
         int pSkill = inPacket.decodeInt();
         int targetID = inPacket.decodeInt();
         int requestTime = inPacket.decodeInt();
-        c.write(FieldPacket.finalAttackRequest(chr, skillID, chr.getJobHandler().getFinalAttackSkill(), 0, targetID, requestTime));
+        int finalAttackSkill = chr.getJobHandler().getFinalAttackSkill();
+        if (finalAttackSkill != 0) {
+            c.write(FieldPacket.finalAttackRequest(chr, skillID, finalAttackSkill, 0, targetID, requestTime));
+        }
     }
 }

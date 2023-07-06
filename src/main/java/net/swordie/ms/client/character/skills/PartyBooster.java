@@ -18,12 +18,12 @@ public class PartyBooster extends TwoStateTemporaryStat {
 
     @Override
     public int getExpireTerm() {
-        return 1000 * expireTerm;
+        return expireTerm;
     }
 
     @Override
     public boolean hasExpired(long tCur) {
-        return getExpireTerm() < tCur - getCurrentTime();
+        return getExpireTerm() * 1000L < tCur - getCurrentTime();
     }
 
     public int getCurrentTime() {

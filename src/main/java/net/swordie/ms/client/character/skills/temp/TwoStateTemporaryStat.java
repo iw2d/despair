@@ -16,7 +16,7 @@ public class TwoStateTemporaryStat extends TemporaryStatBase {
 
     @Override
     public boolean isActive() {
-        return getNOption() != 0;
+        return getOption().nOption != 0;
     }
 
 }

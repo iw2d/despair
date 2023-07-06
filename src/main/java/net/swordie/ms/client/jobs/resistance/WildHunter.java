@@ -439,8 +439,9 @@ public class WildHunter extends Citizen {
                 if (tsm.hasStat(RideVehicle)) {
                     tsm.removeStat(RideVehicle, false);
                 } else {
-                    tsb.setNOption(MOUNTS[chr.getWildHunterInfo().getIdx()]);
-                    tsb.setROption(skillID);
+                    o1.nOption = MOUNTS[chr.getWildHunterInfo().getIdx()];
+                    o1.rOption = skillID;
+                    tsb.setOption(o1);
                     tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
                     tsm.sendSetStatPacket();
                 }

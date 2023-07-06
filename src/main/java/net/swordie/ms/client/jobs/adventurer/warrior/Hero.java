@@ -78,9 +78,7 @@ public class Hero extends Warrior {
         int maxCombo = getMaxCombo();
         int added = 1;
         if (chr.hasSkill(ADVANCED_COMBO)) {
-            int slv = chr.getSkillLevel(ADVANCED_COMBO);
-            SkillInfo si = SkillData.getSkillInfoById(ADVANCED_COMBO);
-            if (slv > 0 && Util.succeedProp(si.getValue(prop, slv))) {
+            if (Util.succeedProp(chr.getSkillStatValue(prop, ADVANCED_COMBO))) {
                 added = 2;
             }
         }
@@ -106,16 +104,16 @@ public class Hero extends Warrior {
     }
 
     private int getComboProp() {
-        Skill skill = null;
+        int skillId = 0;
         if (chr.hasSkill(COMBO_SYNERGY)) {
-            skill = chr.getSkill(COMBO_SYNERGY);
+            skillId = COMBO_SYNERGY;
         } else if (chr.hasSkill(COMBO_ATTACK)) {
-            skill = chr.getSkill(COMBO_ATTACK);
+            skillId = COMBO_ATTACK;
         }
-        if (skill == null) {
+        if (skillId == 0) {
             return 0;
         }
-        return SkillData.getSkillInfoById(skill.getSkillId()).getValue(prop, skill.getCurrentLevel());
+        return chr.getSkillStatValue(prop, skillId);
     }
 
     public int getComboCount() {
@@ -128,26 +126,23 @@ public class Hero extends Warrior {
 
     private int getMaxCombo() {
         int num = 0;
-        if (chr.hasSkill(COMBO_ATTACK)) {
-            num = 6;
-        }
         if (chr.hasSkill(ADVANCED_COMBO)) {
             num = 11;
+        } else if (chr.hasSkill(COMBO_ATTACK)) {
+            num = 6;
         }
         return num;
     }
 
-    public Skill getComboAttackSkill() {
-        Skill skill = null;
+    public int getComboAttackSkill() {
         if (chr.hasSkill(ADVANCED_COMBO)) {
-            skill = chr.getSkill(ADVANCED_COMBO);
+            return ADVANCED_COMBO;
         } else if (chr.hasSkill(COMBO_SYNERGY)) {
-            skill = chr.getSkill(COMBO_SYNERGY);
+            return COMBO_SYNERGY;
         } else if (chr.hasSkill(COMBO_ATTACK)) {
-            skill = chr.getSkill(COMBO_ATTACK);
+            return COMBO_ATTACK;
         }
-
-        return skill;
+        return 0;
     }
 
     public void selfRecovery() {

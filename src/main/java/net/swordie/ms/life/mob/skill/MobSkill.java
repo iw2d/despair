@@ -506,9 +506,10 @@ public class MobSkill {
         MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(skill, level);
         MobSkillID msID = MobSkillID.getMobSkillIDByVal(skill);
         Field field = chr.getField();
-        Option o = new Option(skill);
-        o.slv = level;
-        o.tOption = msi.getSkillStatIntValue(time);
+        Option o1 = new Option(skill);
+        Option o2 = new Option();
+        o1.slv = level;
+        o1.tOption = msi.getSkillStatIntValue(time);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         // disease succeed prop
         boolean appliedDisease = Util.succeedProp(msi.getSkillStatIntValue(prop));
@@ -529,23 +530,24 @@ public class MobSkill {
             case Curse:
             case Slow:
             case Fear:
-                o.nOption = 1;
-                tsm.putCharacterStatValueFromMobSkill(msID.getAffectedCTS(), o);
+                o1.nOption = 1;
+                tsm.putCharacterStatValueFromMobSkill(msID.getAffectedCTS(), o1);
                 tsm.sendSetStatPacket();
                 break;
             case PainMark:
             case Poison:
-                o.nOption = msi.getSkillStatIntValue(x);
-                tsm.putCharacterStatValueFromMobSkill(msID.getAffectedCTS(), o);
+                o1.nOption = msi.getSkillStatIntValue(x);
+                tsm.putCharacterStatValueFromMobSkill(msID.getAffectedCTS(), o1);
                 tsm.sendSetStatPacket();
                 break;
             case Undead:
-                o.nOption = 1;
-                tsm.putCharacterStatValueFromMobSkill(CharacterTemporaryStat.Undead, o);
+                o1.nOption = 1;
+                tsm.putCharacterStatValueFromMobSkill(CharacterTemporaryStat.Undead, o1);
                 TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.Undead);
-                tsb.setNOption(o.nOption);
-                tsb.setROption(skill << level | 16);
-                tsb.setExpireTerm(o.tOption);
+                o2.nOption = o1.nOption;
+                o2.rOption = skill << level | 16;
+                tsb.setOption(o2);
+                tsb.setExpireTerm(o1.tOption);
                 tsm.sendSetStatPacket();
                 break;
             case Unk:

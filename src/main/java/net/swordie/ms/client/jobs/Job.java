@@ -214,18 +214,20 @@ public abstract class Job {
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
 		SkillInfo si = SkillData.getSkillInfoById(skillID);
 
+		Option o1 = new Option();
 		Summon summon;
 		Field field;
 		if (isBuff(skillID)) {
 			handleJoblessBuff(chr, skillID, slv);
 		} else {
-			if(chr.hasSkill(skillID) && si.getVehicleId() > 0) {
+			if (chr.hasSkill(skillID) && si.getVehicleId() > 0) {
 				TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
-				if(tsm.hasStat(RideVehicle)) {
+				if (tsm.hasStat(RideVehicle)) {
 					tsm.removeStat(RideVehicle, false);
 				}
-				tsb.setNOption(si.getVehicleId());
-				tsb.setROption(skillID);
+				o1.nOption = si.getVehicleId();
+				o1.rOption = skillID;
+				tsb.setOption(o1);
 				tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
 				tsm.sendSetStatPacket();
 			} else {

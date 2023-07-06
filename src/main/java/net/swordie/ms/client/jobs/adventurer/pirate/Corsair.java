@@ -8,6 +8,7 @@ import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.client.jobs.nova.Kaiser;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
@@ -151,8 +152,7 @@ public class Corsair extends Pirate {
         }
         switch (attackInfo.skillId) {
             case PARROTARGETTING:
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
-
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
@@ -162,20 +162,19 @@ public class Corsair extends Pirate {
                     o1.rOption = skillID;
                     mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
 
-                    net.swordie.ms.client.character.skills.GuidedBullet gb = (GuidedBullet) tsm.getTSBByTSIndex(TSIndex.GuidedBullet);
-
-                    if(gb.getMobID() != 0) {
+                    GuidedBullet gb = (GuidedBullet) tsm.getTSBByTSIndex(TSIndex.GuidedBullet);
+                    if (gb.getMobID() != 0) {
                         Mob gbMob = (Mob) chr.getField().getLifeByObjectID(gb.getMobID());
-                        if(gbMob != null) {
+                        if (gbMob != null) {
                             MobTemporaryStat mobTemporaryStat = gbMob.getTemporaryStat();
-                            if(mobTemporaryStat.hasCurrentMobStatBySkillId(skillID)) {
+                            if (mobTemporaryStat.hasCurrentMobStatBySkillId(skillID)) {
                                 mobTemporaryStat.removeMobStat(MobStat.AddDamParty, false);
                             }
                         }
                     }
-
-                    gb.setNOption(1);
-                    gb.setROption(skillID);
+                    o2.nOption = 1;
+                    o2.rOption = skillID;
+                    gb.setOption(o2);
                     gb.setMobID(mai.mobId);
                     gb.setUserID(chr.getId());
                     tsm.putCharacterStatValue(GuidedBullet, gb.getOption());

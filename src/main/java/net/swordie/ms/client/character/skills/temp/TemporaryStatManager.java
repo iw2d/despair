@@ -66,8 +66,8 @@ public class TemporaryStatManager {
 
     public TemporaryStatManager(Char chr){
         this.chr = chr;
-        for(CharacterTemporaryStat cts : TSIndex.getAllCTS()) {
-            switch(cts) {
+        for (CharacterTemporaryStat cts : TSIndex.getAllCTS()) {
+            switch (cts) {
                 case PartyBooster:
                     twoStates.add(new PartyBooster());
                     break;
@@ -122,14 +122,15 @@ public class TemporaryStatManager {
             optList.add(option);
             if (hasStat(cts)) {
                 Option oldOption = getCurrentStats().get(cts).get(0);
-                // remove old base stats from map
                 for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(chr, cts, oldOption).entrySet()) {
+                    // System.out.printf("RemoveStat %s %d%n", stats.getKey(), stats.getValue());
                     removeBaseStat(stats.getKey(), stats.getValue());
                 }
             }
             getNewStats().put(cts, optList);
             getCurrentStats().put(cts, optList);
             for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(chr, cts, option).entrySet()) {
+                // System.out.printf("AddStat %s %d%n", stats.getKey(), stats.getValue());
                 addBaseStat(stats.getKey(), stats.getValue());
             }
             if (option.tOption > 0) {

@@ -428,14 +428,15 @@ public class Evan extends Job {
                 field.spawnSummon(summon);
                 break;
             case DRAGON_MASTER:
-                tsb.setNOption(1939007);
-                tsb.setROption(skillID);
+                o1.nOption = 1939007;
+                o1.rOption = skillID;
+                tsb.setOption(o1);
                 tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
                 tsm.sendSetStatPacket();
 
-                o1.nOption = 1;
-                o1.rOption = DRAGON_MASTER;
-                o1.tOption = 30;
+                //o1.nOption = 1;
+                //o1.rOption = DRAGON_MASTER;
+                //o1.tOption = 30;
                 //tsm.putCharacterStatValue(NewFlying, o1);
                 break;
             case DRAGON_MASTER_2:

@@ -310,6 +310,7 @@ public class Mechanic extends Citizen {
         Option o3 = new Option();
         Option o4 = new Option();
         Option o5 = new Option();
+        Option o6 = new Option();
         Summon summon;
         Field field;
         switch (skillID) {
@@ -394,10 +395,9 @@ public class Mechanic extends Citizen {
                 o5.tOption = 0;
                 tsm.putCharacterStatValue(IndieSpeed, o5);
 
-                tsm.sendSetStatPacket();
-
-                tsb.setNOption(MECH_VEHICLE);
-                tsb.setROption(skillID+100);
+                o6.nOption = MECH_VEHICLE;
+                o6.rOption = skillID + 100;
+                tsb.setOption(o6);
                 tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
                 break;
             case TANK_MECH:
@@ -406,8 +406,9 @@ public class Mechanic extends Citizen {
                 tsm.putCharacterStatValue(Mechanic, o1);
                 tsm.sendSetStatPacket();
 
-                tsb.setNOption(MECH_VEHICLE);
-                tsb.setROption(skillID + 100);
+                o2.nOption = MECH_VEHICLE;
+                o2.rOption = skillID + 100;
+                tsb.setOption(o2);
                 tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
                 break;
             case MECHANIC_RAGE:

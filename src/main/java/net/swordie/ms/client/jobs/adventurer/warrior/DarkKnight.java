@@ -395,14 +395,12 @@ public class DarkKnight extends Warrior {
         if (chr.hasSkill(FINAL_PACT_INFO)) {
             SkillInfo si = SkillData.getSkillInfoById(FINAL_PACT_INFO);
             int slv = chr.getSkillLevel(FINAL_PACT_INFO);
-
             int currentRatio = (int) ((double) chr.getHP() / chr.getMaxHP() * 100D);
             int targetRatio = si.getValue(x, slv);
             int damR = si.getValue(damage, slv);
             if (tsm.hasStat(Reincarnation) && chr.hasSkill(FINAL_PACT_DAMAGE)) {
                 damR += chr.getSkillStatValue(damage, FINAL_PACT_DAMAGE);
             }
-
             if (currentRatio < targetRatio || damR == 0) {
                 if (tsm.hasStatBySkillId(FINAL_PACT_INFO)) {
                     tsm.removeStatsBySkill(FINAL_PACT_INFO);

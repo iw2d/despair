@@ -1024,8 +1024,10 @@ public class AdminCommands {
             }
             TemporaryStatManager tsm = chr.getTemporaryStatManager();
             TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
-            tsb.setNOption(mountID);
-            tsb.setROption(Kaiser.FINAL_TRANCE);
+            Option o1 = new Option();
+            o1.nOption = mountID;
+            o1.rOption = Kaiser.FINAL_TRANCE;
+            tsb.setOption(o1);
             tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
             tsm.sendSetStatPacket();
         }

@@ -3,6 +3,7 @@ package net.swordie.ms.client.jobs.cygnus;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
+import net.swordie.ms.client.character.skills.PartyBooster;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
@@ -265,11 +266,13 @@ public class ThunderBreaker extends Noblesse {
                 arcChargeCDCount = 0;
                 break;
             case SPEED_INFUSION:
-                TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.PartyBooster);
-                tsb.setNOption(-1);
-                tsb.setROption(skillID);
-                tsb.setExpireTerm(1);
-                tsm.putCharacterStatValue(PartyBooster, tsb.getOption());
+                PartyBooster pb = (PartyBooster) tsm.getTSBByTSIndex(TSIndex.PartyBooster);
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                pb.setOption(o1);
+                pb.setCurrentTime(Util.getCurrentTime());
+                pb.setExpireTerm(si.getValue(time, slv));
+                tsm.putCharacterStatValue(PartyBooster, pb.getOption());
                 break;
             case CALL_OF_CYGNUS_TB:
                 o1.nReason = skillID;

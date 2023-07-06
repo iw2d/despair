@@ -25,6 +25,7 @@ import net.swordie.ms.client.guild.Guild;
 import net.swordie.ms.client.guild.GuildMember;
 import net.swordie.ms.client.guild.result.GuildResult;
 import net.swordie.ms.client.guild.result.GuildType;
+import net.swordie.ms.client.jobs.nova.Kaiser;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.client.trunk.TrunkOpen;
@@ -2283,9 +2284,10 @@ public class ScriptManagerImpl implements ScriptManager {
 	public void rideVehicle(int mountID) {
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
 		TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
-
-		tsb.setNOption(mountID);
-		tsb.setROption(0);
+		Option o1 = new Option();
+		o1.nOption = mountID;
+		o1.rOption = 0;
+		tsb.setOption(o1);
 		tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
 		tsm.sendSetStatPacket();
 	}

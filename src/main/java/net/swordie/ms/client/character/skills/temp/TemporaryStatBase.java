@@ -26,6 +26,10 @@ public class TemporaryStatBase {
         return option;
     }
 
+    public void setOption(Option option) {
+        this.option = option;
+    }
+
     public FileTime getLastUpdated() {
         return lastUpdated;
     }
@@ -69,17 +73,8 @@ public class TemporaryStatBase {
         return result;
     }
 
-    public int getNOption() {
-        return getOption().nOption;
-    }
-
-    public int getROption() {
-        return getOption().rOption;
-    }
-
     public void reset() {
-        getOption().nOption = 0;
-        getOption().rOption = 0;
+        setOption(new Option());
         setLastUpdated(Util.getCurrentTimeLong());
     }
 
@@ -95,13 +90,5 @@ public class TemporaryStatBase {
         if (isDynamicTermSet()) {
             outPacket.encodeShort(getExpireTerm() / 1000);
         }
-    }
-
-    public void setNOption(int i) {
-        getOption().nOption = i;
-    }
-
-    public void setROption(int reason) {
-        getOption().rOption = reason;
     }
 }

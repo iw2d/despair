@@ -6,6 +6,7 @@ import net.swordie.ms.client.jobs.Zero;
 import net.swordie.ms.client.jobs.adventurer.*;
 import net.swordie.ms.client.jobs.adventurer.archer.*;
 import net.swordie.ms.client.jobs.adventurer.magician.*;
+import net.swordie.ms.client.jobs.adventurer.pirate.*;
 import net.swordie.ms.client.jobs.adventurer.thief.*;
 import net.swordie.ms.client.jobs.adventurer.warrior.*;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
@@ -1159,6 +1160,7 @@ public class SkillConstants {
             case Marksman.CROSSBOW_MASTERY:
             case Shadower.DAGGER_MASTERY:
             case DualBlade.KATARA_MASTERY:
+            case Buccaneer.KNUCKLE_MASTERY:
                 return true;
         }
         return false;
@@ -1678,6 +1680,12 @@ public class SkillConstants {
             case Bowmaster.ILLUSION_STEP_BOW:
             case Marksman.ILLUSION_STEP_XBOW:
                 stats.remove(BaseStat.dex); // active effect
+                break;
+            case Buccaneer.CROSSBONES:
+                stats.remove(BaseStat.padR); // active effect
+                break;
+            case Buccaneer.STIMULATING_CONVERSATION:
+                stats.remove(BaseStat.damR); // active effect
                 break;
         }
     }

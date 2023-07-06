@@ -372,8 +372,15 @@ public enum SkillStat {
             case indieTerR:
             case terR:
                 return BaseStat.ter;
+            case indieAcc:
+            case acc:
+            case accX:
+                return BaseStat.acc;
+            case accR:
+                return BaseStat.accR;
             case indieEva:
             case eva:
+            case evaX:
                 return BaseStat.eva;
             case er:
             case evaR:

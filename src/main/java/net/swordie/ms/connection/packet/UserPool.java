@@ -151,7 +151,7 @@ public class UserPool {
         }
         outPacket.encodeByte(chr.getSoulEffect());
         if(tsm.hasStat(CharacterTemporaryStat.RideVehicle)) {
-            int vehicleID = tsm.getTSBByTSIndex(TSIndex.RideVehicle).getNOption();
+            int vehicleID = tsm.getTSBByTSIndex(TSIndex.RideVehicle).getOption().nOption;
             if(vehicleID == 1932249) { // is_mix_vehicle
                 size = 0;
                 outPacket.encodeInt(size); // ???
