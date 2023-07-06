@@ -38,7 +38,7 @@ public class DualBlade extends Thief {
     public static final int ADVANCED_DARK_SIGHT_DB = 4330001;
     public static final int SHADOW_MELD = 4330009;
     public static final int VENOM_DB = 4320005;
-    public static final int UPPSER_STAB = 4321004;
+    public static final int UPPER_STAB = 4321004;
     public static final int LIFE_DRAIN = 4330007;
     public static final int KATARA_EXPERT = 4340013;
     public static final int SHARPNESS = 4340010;
@@ -106,6 +106,7 @@ public class DualBlade extends Thief {
         Option o2 = new Option();
         Option o3 = new Option();
         Option o4 = new Option();
+        Field field;
         switch (attackInfo.skillId) {
             case FLASHBANG:
                 o1.nOption = -si.getValue(x, slv);
@@ -188,6 +189,19 @@ public class DualBlade extends Thief {
                 o2.tOption = si.getValue(v, slv);
                 tsm.putCharacterStatValue(NotDamaged, o2);
                 tsm.sendSetStatPacket();
+                break;
+            case UPPER_STAB:
+                field = chr.getField();
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = 1;
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                    Mob mob = (Mob) field.getLifeByObjectID(mai.mobId);
+                    if (mob == null || mob.isBoss()) {
+                        continue;
+                    }
+                    mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.RiseByToss, o1);
+                }
                 break;
         }
         super.handleAttack(chr, attackInfo);
