@@ -23,6 +23,7 @@ import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.client.party.PartyResult;
 import net.swordie.ms.connection.OutPacket;
+import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.util.AntiMacro;
@@ -51,10 +52,14 @@ public class WvsContext {
     }
 
     public static OutPacket statChanged(Map<Stat, Object> stats) {
-        return statChanged(stats, false, (byte) -1, (byte) 0, (byte) 0, (byte) 0, false, 0, 0);
+        return statChanged(stats, (short) 0, false, (byte) -1, (byte) 0, (byte) 0, (byte) 0, false, 0, 0);
     }
 
-    public static OutPacket statChanged(Map<Stat, Object> stats, boolean exclRequestSent, byte mixBaseHairColor,
+    public static OutPacket statChanged(Map<Stat, Object> stats, short jobId) {
+        return statChanged(stats, jobId, false, (byte) -1, (byte) 0, (byte) 0, (byte) 0, false, 0, 0);
+    }
+
+    public static OutPacket statChanged(Map<Stat, Object> stats, short jobId, boolean exclRequestSent, byte mixBaseHairColor,
                                         byte mixAddHairColor, byte mixHairBaseProb, byte charmOld, boolean updateCovery,
                                         int hpRecovery, int mpRecovery) {
         OutPacket outPacket = new OutPacket(OutHeader.STAT_CHANGED);
@@ -125,8 +130,8 @@ public class WvsContext {
                 case pvp2:
                     break;
                 case subJob:
+                    outPacket.encodeShort(jobId);
                     outPacket.encodeShort((Short) value);
-                    outPacket.encodeShort(0);
             }
         }
 

@@ -1655,13 +1655,21 @@ public class Char {
 	 * @param id
 	 */
 	public void setJob(int id) {
-		JobConstants.JobEnum job = JobConstants.JobEnum.getJobById((short) id);
+		short jobId = (short) id;
+		JobConstants.JobEnum job = JobConstants.JobEnum.getJobById(jobId);
 		if (job == null) {
 			return;
 		}
-		getAvatarData().getCharacterStat().setJob(id);
-		setJobHandler(JobManager.getJobById((short) id, this));
-		List<Skill> skills = SkillData.getSkillsByJob((short) id);
+		// set job
+		getAvatarData().getCharacterStat().setJob(jobId);
+		setJobHandler(JobManager.getJobById(jobId, this));
+		// set subJob
+		short subJob = (short) (JobConstants.isDualBlade(jobId) ? 1 : 0);
+		getAvatarData().getCharacterStat().setSubJob(subJob);
+		Map<Stat, Object> stats = Collections.singletonMap(Stat.subJob, subJob);
+		getClient().write(WvsContext.statChanged(stats, jobId));
+		// set skills
+		List<Skill> skills = SkillData.getSkillsByJob(jobId);
 		skills.forEach(skill -> addSkill(skill, true));
 		getClient().write(WvsContext.changeSkillRecordResult(skills, true, false, false, false));
 		notifyChanges();

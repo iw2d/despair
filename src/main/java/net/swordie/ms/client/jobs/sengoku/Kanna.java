@@ -351,7 +351,6 @@ public class Kanna extends Job {
             chr.setJob(JobConstants.JobEnum.KANNA3.getJobId());
             chr.setSpToCurrentJob(3);
             Map<Stat, Object> stats = new HashMap<>();
-            stats.put(Stat.subJob, JobConstants.JobEnum.KANNA3.getJobId());
             stats.put(Stat.sp, chr.getAvatarData().getCharacterStat().getExtendSP());
             chr.getClient().write(WvsContext.statChanged(stats));
         }
@@ -359,7 +358,6 @@ public class Kanna extends Job {
             chr.setJob(JobConstants.JobEnum.KANNA4.getJobId());
             chr.setSpToCurrentJob(3);
             Map<Stat, Object> stats = new HashMap<>();
-            stats.put(Stat.subJob, JobConstants.JobEnum.KANNA4.getJobId());
             stats.put(Stat.sp, chr.getAvatarData().getCharacterStat().getExtendSP());
             chr.getClient().write(WvsContext.statChanged(stats));
         }

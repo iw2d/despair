@@ -844,14 +844,6 @@ public class AdminCommands {
             JobEnum job = JobEnum.getJobById(id);
             if (job != null) {
                 chr.setJob(id);
-                Map<Stat, Object> stats = new HashMap<>();
-                if (JobConstants.isDualBlade(job.getJobId())) {
-                    stats.put(Stat.subJob, 1);
-                } else {
-                    stats.put(Stat.subJob, 0);
-                }
-                stats.put(Stat.subJob, id);
-                chr.getClient().write(WvsContext.statChanged(stats));
             }
         }
     }

@@ -480,7 +480,6 @@ public class Evan extends Job {
             chr.setJob(JobConstants.JobEnum.EVAN2.getJobId());
             chr.setSpToCurrentJob(3);
             Map<Stat, Object> stats = new HashMap<>();
-            stats.put(Stat.subJob, JobConstants.JobEnum.EVAN2.getJobId());
             stats.put(Stat.sp, chr.getAvatarData().getCharacterStat().getExtendSP());
             chr.getClient().write(WvsContext.statChanged(stats));
         }
@@ -488,7 +487,6 @@ public class Evan extends Job {
             chr.setJob(JobConstants.JobEnum.EVAN3.getJobId());
             chr.setSpToCurrentJob(3);
             Map<Stat, Object> stats = new HashMap<>();
-            stats.put(Stat.subJob, JobConstants.JobEnum.EVAN3.getJobId());
             stats.put(Stat.sp, chr.getAvatarData().getCharacterStat().getExtendSP());
             chr.getClient().write(WvsContext.statChanged(stats));
         }
@@ -496,7 +494,6 @@ public class Evan extends Job {
             chr.setJob(JobConstants.JobEnum.EVAN4.getJobId());
             chr.setSpToCurrentJob(3);
             Map<Stat, Object> stats = new HashMap<>();
-            stats.put(Stat.subJob, JobConstants.JobEnum.EVAN4.getJobId());
             stats.put(Stat.sp, chr.getAvatarData().getCharacterStat().getExtendSP());
             chr.getClient().write(WvsContext.statChanged(stats));
         }

@@ -685,9 +685,6 @@ public class ScriptManagerImpl implements ScriptManager {
 	@Override
 	public void setJob(short jobID) {
 		chr.setJob(jobID);
-		Map<Stat, Object> stats = new HashMap<>();
-		stats.put(Stat.subJob, jobID);
-		chr.getClient().write(WvsContext.statChanged(stats));
 	}
 
 	public void addSP(int amount) {
