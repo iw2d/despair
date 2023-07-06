@@ -1,0 +1,324 @@
+package net.swordie.ms.client.jobs.adventurer.pirate;
+
+import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.info.HitInfo;
+import net.swordie.ms.client.character.skills.GuidedBullet;
+import net.swordie.ms.client.character.skills.*;
+import net.swordie.ms.client.character.skills.info.AttackInfo;
+import net.swordie.ms.client.character.skills.info.MobAttackInfo;
+import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.connection.InPacket;
+import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.constants.SkillConstants;
+import net.swordie.ms.enums.MoveAbility;
+import net.swordie.ms.enums.TSIndex;
+import net.swordie.ms.life.Summon;
+import net.swordie.ms.life.mob.Mob;
+import net.swordie.ms.life.mob.MobStat;
+import net.swordie.ms.life.mob.MobTemporaryStat;
+import net.swordie.ms.loaders.SkillData;
+import net.swordie.ms.util.Util;
+import net.swordie.ms.world.field.Field;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static net.swordie.ms.client.character.skills.SkillStat.*;
+import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
+
+/**
+ * Created on 12/14/2017.
+ */
+public class Corsair extends Pirate {
+    public static final int SCURVY_SUMMONS = 5201012; //Summon
+    public static final int INFINITY_BLAST = 5201008; //Buff
+    public static final int GUN_BOOSTER = 5201003; //Buff
+
+    public static final int ALL_ABOARD = 5210015; //Summon
+    public static final int ROLL_OF_THE_DICE_SAIR = 5211007; //Buff
+    public static final int OCTO_CANNON = 5211014; //Summon
+
+    public static final int QUICKDRAW = 5221021; //Buff
+    public static final int PARROTARGETTING = 5221015; //Special Attack
+    public static final int NAUTILUS_STRIKE_SAIR = 5221013; //Special Attack
+    public static final int MAPLE_WARRIOR_SAIR = 5221000; //Buff
+    public static final int JOLLY_ROGER = 5221018; //Buff
+    public static final int PIRATE_REVENGE_SAIR = 5220012;
+    public static final int ROLL_OF_THE_DICE_SAIR_DD = 5220014;
+    public static final int HEROS_WILL_SAIR = 5221010;
+    public static final int MAJESTIC_PRESENCE = 5220020;
+    public static final int AHOY_MATEYS = 5220019;
+
+    public static final int EPIC_ADVENTURER_SAIR = 5221053;
+    public static final int WHALERS_POTION = 5221054;
+    public static final int ROLL_OF_THE_DICE_SAIR_ADDITION = 5220044;
+    public static final int ROLL_OF_THE_DICE_SAIR_SAVING_GRACE = 5220043;
+    public static final int ROLL_OF_THE_DICE_SAIR_ENHANCE = 5220045;
+
+    private int corsairSummonID = 0;
+
+    public Corsair(Char chr) {
+        super(chr);
+    }
+
+    @Override
+    public boolean isHandlerOfJob(short id) {
+        return JobConstants.isCorsair(id);
+    }
+
+    private void corsairSummons() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        Option o1 = new Option();
+        Option o3 = new Option();
+        List<Integer> set = new ArrayList<>();
+        if(chr.hasSkill(ALL_ABOARD)) {
+            set.add(5210015);
+            set.add(5210016);
+            set.add(5210017);
+            set.add(5210018);
+        } else {
+            set.add(5201012);
+            set.add(5201013);
+            set.add(5201014);
+        }
+
+        if(corsairSummonID != 0) {
+            set.remove((Integer) corsairSummonID);
+        }
+        if(chr.hasSkill(AHOY_MATEYS)) {
+            Skill skill = chr.getSkill(AHOY_MATEYS);
+            byte slv = (byte) skill.getCurrentLevel();
+            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+            int random = Util.getRandomFromCollection(set);
+            corsairSummonID = random;
+            Summon summon = Summon.getSummonBy(chr, random, (byte) 1);
+            Field field = chr.getField();
+            summon.setFlyMob(false);
+            summon.setMoveAbility(MoveAbility.WalkRandom);
+            field.spawnSummon(summon);
+
+            switch (random) {
+                case 5210015:
+                    o1.nOption = si.getValue(z, slv);
+                    o1.rOption = skill.getSkillId();
+                    o1.tOption = 120;
+                    tsm.putCharacterStatValue(IncCriticalDamMin, o1);
+                    tsm.putCharacterStatValue(IncCriticalDamMax, o1);
+                    break;
+                case 5210016:
+                    o1.nOption = si.getValue(s, slv);
+                    o1.rOption = skill.getSkillId();
+                    o1.tOption = 120;
+                    tsm.putCharacterStatValue(CriticalBuff, o1);
+                    break;
+                case 5210017:
+                    o1.nOption = si.getValue(x, slv);
+                    o1.rOption = skill.getSkillId();
+                    o1.tOption = 120;
+                    tsm.putCharacterStatValue(IndieMHPR, o1);
+                    tsm.putCharacterStatValue(IndieMMPR, o1);
+                    tsm.putCharacterStatValue(IndieSpeed, o1);
+                    break;
+                case 5210018:
+                    o1.nOption = si.getValue(y, slv);
+                    o1.rOption = skill.getSkillId();
+                    o1.tOption = 120;
+                    tsm.putCharacterStatValue(DamageReduce, o1);
+                    break;
+            }
+            tsm.sendSetStatPacket();
+        }
+    }
+
+
+
+    // Attack related methods ------------------------------------------------------------------------------------------
+
+    @Override
+    public void handleAttack(Char chr, AttackInfo attackInfo) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
+        boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        if(hasHitMobs) {
+            // Quickdraw
+            activateQuickdraw(attackInfo, tsm);
+        }
+        switch (attackInfo.skillId) {
+            case PARROTARGETTING:
+                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
+
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (mob == null) {
+                        continue;
+                    }
+                    MobTemporaryStat mts = mob.getTemporaryStat();
+                    o1.nOption = si.getValue(x, slv);
+                    o1.rOption = skillID;
+                    mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
+
+                    net.swordie.ms.client.character.skills.GuidedBullet gb = (GuidedBullet) tsm.getTSBByTSIndex(TSIndex.GuidedBullet);
+
+                    if(gb.getMobID() != 0) {
+                        Mob gbMob = (Mob) chr.getField().getLifeByObjectID(gb.getMobID());
+                        if(gbMob != null) {
+                            MobTemporaryStat mobTemporaryStat = gbMob.getTemporaryStat();
+                            if(mobTemporaryStat.hasCurrentMobStatBySkillId(skillID)) {
+                                mobTemporaryStat.removeMobStat(MobStat.AddDamParty, false);
+                            }
+                        }
+                    }
+
+                    gb.setNOption(1);
+                    gb.setROption(skillID);
+                    gb.setMobID(mai.mobId);
+                    gb.setUserID(chr.getId());
+                    tsm.putCharacterStatValue(GuidedBullet, gb.getOption());
+                    tsm.sendSetStatPacket();
+                }
+                break;
+        }
+
+        super.handleAttack(chr, attackInfo);
+    }
+
+    private void activateQuickdraw(AttackInfo attackInfo, TemporaryStatManager tsm) {
+        Option o = new Option();
+        boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
+        SkillInfo quickdrawInfo = SkillData.getSkillInfoById(QUICKDRAW);
+        if (tsm.getOption(QuickDraw).nOption == 2) {
+            if(hasHitMobs) {
+                tsm.removeStatsBySkill(QUICKDRAW);
+            }
+        } else {
+            if (Util.succeedProp(quickdrawInfo.getValue(prop, quickdrawInfo.getCurrentLevel()))) {
+                o.nOption = 1;
+                o.rOption = QUICKDRAW;
+                tsm.putCharacterStatValue(QuickDraw, o);
+                tsm.sendSetStatPacket();
+            }
+        }
+    }
+
+    @Override
+    public int getFinalAttackSkill() {
+        if (chr.hasSkill(MAJESTIC_PRESENCE)) {
+            return MAJESTIC_PRESENCE;
+        }
+        return super.getFinalAttackSkill();
+    }
+
+
+
+    // Skill related methods -------------------------------------------------------------------------------------------
+
+    @Override
+    public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
+        super.handleSkill(chr, skillID, slv, inPacket);
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        Option o5 = new Option();
+        Option o6 = new Option();
+        Option o7 = new Option();
+        Summon summon;
+        Field field;
+        switch (skillID) {
+            case INFINITY_BLAST:
+                o1.nOption = chr.getBulletIDForAttack() - 2329999;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(NoBulletConsume, o1);
+                break;
+            case QUICKDRAW:
+                o1.nOption = 2;
+                o1.rOption = skillID;
+                o1.tOption = 10;
+                tsm.putCharacterStatValue(QuickDraw, o1);
+                o2.nOption = si.getValue(damR, slv);
+                o2.rOption = skillID;
+                o2.tOption = 10;
+                tsm.putCharacterStatValue(DamR, o2);
+                break;
+            case JOLLY_ROGER:
+                o1.nOption = si.getValue(eva, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(EVA, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indiePadR, slv);
+                o2.tStart = Util.getCurrentTime();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndiePADR, o2);
+                o3.nOption = si.getValue(z, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Stance, o3);
+                o4.nOption = si.getValue(x, slv);
+                o4.rOption = skillID;
+                o4.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AsrR, o4);
+                o5.nOption = si.getValue(x, slv);
+                o5.rOption = skillID;
+                o5.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(TerR, o5);
+                break;
+            case WHALERS_POTION:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieMhpR, slv);
+                o1.tStart = Util.getCurrentTime();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieMHPR, o1);
+                o2.nOption = si.getValue(y, slv);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(AsrR, o2);
+                tsm.putCharacterStatValue(TerR, o2);
+                o3.nOption = si.getValue(w, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamageReduce, o3);
+                break;
+            case OCTO_CANNON: //Stationary, Attacks
+                summon = Summon.getSummonBy(chr, skillID, slv);
+                field = chr.getField();
+                summon.setFlyMob(false);
+                summon.setMoveAction((byte) 0);
+                summon.setMoveAbility(MoveAbility.Stop);
+                field.spawnAddSummon(summon);
+                break;
+            case ALL_ABOARD: //Moves, Attacks
+                tsm.removeStatsBySkill(AHOY_MATEYS);
+                corsairSummons();
+                // Fallthrough intended
+            case SCURVY_SUMMONS: //Moves, Attacks
+                corsairSummons();
+                chr.reduceSkillCoolTime(NAUTILUS_STRIKE_SAIR, (long) (chr.getRemainingCoolTime(NAUTILUS_STRIKE_SAIR) * 0.5F));
+                break;
+        }
+        tsm.sendSetStatPacket();
+    }
+
+
+
+    // Hit related methods ---------------------------------------------------------------------------------------------
+
+    @Override
+    public void handleHit(Char chr, HitInfo hitInfo) {
+        super.handleHit(chr, hitInfo);
+    }
+
+    @Override
+    public void handleLevelUp() {
+        super.handleLevelUp();
+    }
+}

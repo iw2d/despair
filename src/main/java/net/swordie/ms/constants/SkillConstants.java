@@ -6,7 +6,6 @@ import net.swordie.ms.client.jobs.Zero;
 import net.swordie.ms.client.jobs.adventurer.*;
 import net.swordie.ms.client.jobs.adventurer.archer.*;
 import net.swordie.ms.client.jobs.adventurer.magician.*;
-import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
 import net.swordie.ms.client.jobs.adventurer.thief.*;
 import net.swordie.ms.client.jobs.adventurer.warrior.*;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
@@ -63,8 +62,8 @@ public class SkillConstants {
                     BlazeWizard.DRAGON_BLAZE_FIRST,
                     Phantom.TEMPEST,
                     IceLightning.LIGHTNING_ORB,
-                    Pirate.FALLING_STARS,
-                    Pirate.BACKUP_BEATDOWN,
+                    Jett.FALLING_STARS,
+                    Jett.BACKUP_BEATDOWN,
                     AngelicBuster.SUPREME_SUPERNOVA)
     );
 

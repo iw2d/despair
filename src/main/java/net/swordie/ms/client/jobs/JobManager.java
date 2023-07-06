@@ -4,16 +4,14 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.jobs.adventurer.*;
 import net.swordie.ms.client.jobs.adventurer.archer.*;
 import net.swordie.ms.client.jobs.adventurer.magician.*;
-import net.swordie.ms.client.jobs.adventurer.pirate.Pirate;
+import net.swordie.ms.client.jobs.adventurer.pirate.*;
 import net.swordie.ms.client.jobs.adventurer.thief.*;
 import net.swordie.ms.client.jobs.adventurer.warrior.*;
 import net.swordie.ms.client.jobs.cygnus.*;
 import net.swordie.ms.client.jobs.legend.*;
-import net.swordie.ms.client.jobs.nova.AngelicBuster;
-import net.swordie.ms.client.jobs.nova.Kaiser;
+import net.swordie.ms.client.jobs.nova.*;
 import net.swordie.ms.client.jobs.resistance.*;
-import net.swordie.ms.client.jobs.sengoku.Hayato;
-import net.swordie.ms.client.jobs.sengoku.Kanna;
+import net.swordie.ms.client.jobs.sengoku.*;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -39,6 +37,10 @@ public class JobManager {
             Shadower.class,
             DualBlade.class,
             Pirate.class,
+            Buccaneer.class,
+            Corsair.class,
+            Cannoneer.class,
+            Jett.class,
             BeastTamer.class,
             Kinesis.class,
             PinkBean.class,
