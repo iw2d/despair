@@ -1161,6 +1161,7 @@ public class SkillConstants {
             case Shadower.DAGGER_MASTERY:
             case DualBlade.KATARA_MASTERY:
             case Buccaneer.KNUCKLE_MASTERY:
+            case Corsair.GUN_MASTERY:
                 return true;
         }
         return false;
@@ -1686,6 +1687,9 @@ public class SkillConstants {
                 break;
             case Buccaneer.STIMULATING_CONVERSATION:
                 stats.remove(BaseStat.damR); // active effect
+                break;
+            case Corsair.GUN_MASTERY:
+                stats.put(BaseStat.acc, si.getValue(SkillStat.x, slv));
                 break;
         }
     }

@@ -8,6 +8,7 @@ import net.swordie.ms.client.jobs.adventurer.warrior.Hero;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.loaders.SkillData;
 
+import java.util.List;
 import java.util.Map;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
@@ -18,6 +19,19 @@ import static net.swordie.ms.client.character.skills.SkillStat.*;
  * @author Asura
  */
 public class ToBaseStat {
+
+    private static final List<BaseStat>[] DICE_STAT_TYPE = new List[]{
+            List.of(),
+            List.of(),
+            List.of(BaseStat.pddR, BaseStat.mddR),
+            List.of(BaseStat.mhpR, BaseStat.mmpR),
+            List.of(BaseStat.cr),
+            List.of(BaseStat.damR),
+            List.of(BaseStat.expR),
+            List.of(BaseStat.ied)
+    };
+    private static final int[] DICE_STAT_VALUE = { 0, 0, 30, 20, 15, 20, 30, 20 };
+    private static final int[] DICE_STAT_VALUE_DD = { 0, 0, 40, 30, 25, 30, 40, 30 };
 
     public static void comboCounter(Char chr, Option o, Map<BaseStat, Integer> stats) {
         int orbAmount = o.nOption - 1;
@@ -55,6 +69,23 @@ public class ToBaseStat {
         stats.put(BaseStat.speed, si.getValue(speed, slv) / divideBy);
         stats.put(BaseStat.pdd, si.getValue(pdd, slv) / divideBy);
         stats.put(BaseStat.mdd, si.getValue(mdd, slv) / divideBy);
+    }
+
+    public static void dice(Char chr, Option o, Map<BaseStat, Integer> stats) {
+        int roll1 = o.nOption % 10;
+        int roll2 = o.nOption / 10;
+        if (roll1 == roll2) {
+            for (BaseStat bs : DICE_STAT_TYPE[roll1]) {
+                stats.put(bs, DICE_STAT_VALUE_DD[roll1]);
+            }
+        } else {
+            for (BaseStat bs : DICE_STAT_TYPE[roll1]) {
+                stats.put(bs, DICE_STAT_VALUE[roll1]);
+            }
+            for (BaseStat bs : DICE_STAT_TYPE[roll2]) {
+                stats.put(bs, DICE_STAT_VALUE[roll2]);
+            }
+        }
     }
 }
 

@@ -125,8 +125,8 @@ public class Pirate extends Beginner {
             case Corsair.ROLL_OF_THE_DICE_SAIR:
             case Cannoneer.LUCK_OF_THE_DIE:
                 int roll = Util.getRandom(1, 6);
-                chr.write(UserPacket.effect(Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + roll)));
-                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.avatarOriented("Skill/"+ (skillID/10000) +".img/skill/"+ skillID +"/affected/" + roll)));
+                chr.write(UserPacket.effect(Effect.skillAffectedSelect(skillID, slv, roll, false)));
+                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffectedSelect(skillID, slv, roll, false)));
                 if (roll == 1) {
                     return;
                 }
@@ -139,7 +139,7 @@ public class Pirate extends Beginner {
             case Buccaneer.ROLL_OF_THE_DICE_BUCC_DD:
             case Corsair.ROLL_OF_THE_DICE_SAIR_DD:
             case Cannoneer.LUCK_OF_THE_DIE_DD:
-                List<Integer> choices = new ArrayList<>(Arrays.asList(1,2,3,4,5,6));
+                List<Integer> choices = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6));
                 if (chr.hasSkill(Buccaneer.ROLL_OF_THE_DICE_BUCC_ADDITION) || chr.hasSkill(Corsair.ROLL_OF_THE_DICE_SAIR_ADDITION)) {
                     choices.add(7);
                 }
@@ -174,8 +174,7 @@ public class Pirate extends Beginner {
                     chr.resetSkillCoolTime(skillID);
                     o2.nOption = 1;
                     o2.rOption = savingGraceSkillId;
-                    o2.tStart = Util.getCurrentTime();
-                    tsm.putCharacterStatValue(IndieEmpty, o2);
+                    tsm.putCharacterStatValue(LUK, o2);
                 }
 
                 chr.write(UserPacket.effect(Effect.skillAffectedSelect(skillID, slv, roll1, false)));

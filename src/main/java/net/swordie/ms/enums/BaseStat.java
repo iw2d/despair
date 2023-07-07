@@ -501,6 +501,9 @@ public enum BaseStat {
             case EnergyCharged:
                 ToBaseStat.energyCharged(chr, o, stats);
                 break;
+            case Dice:
+                ToBaseStat.dice(chr, o, stats);
+                break;
             default:
                 stats.put(unk, o.nOption);
                 break;

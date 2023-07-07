@@ -427,9 +427,6 @@ public class FirePoison extends Magician {
         if (tsm.hasStatBySkillId(ELEMENTAL_ADAPTATION_FP)) {
             SkillInfo si = SkillData.getSkillInfoById(ELEMENTAL_ADAPTATION_FP);
             int slv = chr.getSkillLevel(ELEMENTAL_ADAPTATION_FP);
-
-            tsm.removeAllDebuffs();
-
             int mpCost = (int) (chr.getMaxMP() * si.getValue(x, slv) / 100D);
             chr.healMP(-mpCost);
             if (tsm.getOption(AntiMagicShell).nOption < si.getValue(y, slv) && Util.succeedProp(si.getValue(prop, slv))) {
@@ -442,6 +439,7 @@ public class FirePoison extends Magician {
                 tsm.removeStatsBySkill(ELEMENTAL_ADAPTATION_FP);
                 tsm.sendResetStatPacket();
             }
+            tsm.removeAllDebuffs();
             return;
         }
         super.handleMobDebuffSkill(chr);

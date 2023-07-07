@@ -312,23 +312,20 @@ public class IceLightning extends Magician {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (chr.hasSkill(ELEMENTAL_ADAPTATION_IL) && tsm.getOptByCTSAndSkill(AntiMagicShell, ELEMENTAL_ADAPTATION_IL) != null) {
             if (tsm.getOption(AntiMagicShell).bOption == 0) {
-                Skill skill = chr.getSkill(ELEMENTAL_ADAPTATION_IL);
-                SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-                byte slv = (byte) skill.getCurrentLevel();
+                SkillInfo si = SkillData.getSkillInfoById(ELEMENTAL_ADAPTATION_IL);
+                int slv = chr.getSkillLevel(ELEMENTAL_ADAPTATION_IL);
 
-                tsm.removeStatsBySkill(skill.getSkillId());
-                tsm.removeAllDebuffs();
-
+                tsm.removeStatsBySkill(ELEMENTAL_ADAPTATION_IL);
                 Option o = new Option();
                 o.nOption = 1;
-                o.rOption = skill.getSkillId();
+                o.rOption = ELEMENTAL_ADAPTATION_IL;
                 o.tOption = si.getValue(time, slv);
                 o.bOption = 1;
                 tsm.putCharacterStatValue(AntiMagicShell, o);
                 tsm.sendSetStatPacket();
-            } else {
-                tsm.removeAllDebuffs();
             }
+            tsm.removeAllDebuffs();
+            return;
         }
         super.handleMobDebuffSkill(chr);
     }

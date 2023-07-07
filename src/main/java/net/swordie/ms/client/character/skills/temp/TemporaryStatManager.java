@@ -178,9 +178,9 @@ public class TemporaryStatManager {
 
     public Option getOptByCTSAndSkill(CharacterTemporaryStat cts, int skillID) {
         Option res = null;
-        if(getCurrentStats().containsKey(cts)) {
+        if (getCurrentStats().containsKey(cts)) {
             for (Option o : getCurrentStats().get(cts)) {
-                if(o.rOption == skillID || o.nReason == skillID) {
+                if (o.rOption == skillID || o.nReason == skillID) {
                     res = o;
                     break;
                 }
@@ -776,10 +776,10 @@ public class TemporaryStatManager {
     public void throwDice(int roll, int secondRoll) {
         int[] array = {0, 0, 30, 20, 15, 20, 30, 20}; // Stats for Normal Rolls
         int[] arrayDD = {0, 0, 40, 30, 25, 30, 40, 30}; // Stats for Double Down Rolls
-        for(int i = 0; i < diceOption.length; i++) {
+        for (int i = 0; i < diceOption.length; i++) {
             diceOption[i] = 0;
         }
-        if(roll == secondRoll) {
+        if (roll == secondRoll) {
             diceOption[roll] = arrayDD[roll];
         } else {
             diceOption[roll] = array[roll];

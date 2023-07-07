@@ -539,6 +539,7 @@ public class Bishop extends Magician {
             tsm.removeStatsBySkill(DIVINE_PROTECTION);
             tsm.sendResetStatPacket();
             tsm.removeAllDebuffs();
+            return;
         }
         super.handleMobDebuffSkill(chr);
     }
