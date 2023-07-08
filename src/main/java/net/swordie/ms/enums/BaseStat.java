@@ -164,6 +164,7 @@ public enum BaseStat {
         Map<BaseStat, Integer> stats = new HashMap<>();
         // TODO: Left at "Albatross" in CTS
         SkillInfo si;
+        int slv;
         switch (ctsArg) {
             case IndiePAD:
                 stats.put(pad, o.nValue);
@@ -435,18 +436,20 @@ public enum BaseStat {
                 stats.put(fd, o.nOption);
                 break;
             case DotBasedBuff:
-                si = SkillData.getSkillInfoById(o.nReason);
-                stats.put(fd, o.nOption * si.getValue(SkillStat.x, 1));
+                si = SkillData.getSkillInfoById(o.nReason); // used for tracking fd
+                slv = chr.getSkillLevel(o.nReason);
+                stats.put(fd, o.nOption * si.getValue(SkillStat.x, slv));
                 break;
             case Infinity:
                 stats.put(fd, o.nOption - 1);
                 break;
             case IceAura:
                 si = SkillData.getSkillInfoById(o.rOption);
-                stats.put(stance, o.nOption * si.getValue(SkillStat.x, 1));
-                stats.put(dmgReduce, o.nOption * si.getValue(SkillStat.y, 1));
-                stats.put(asr, o.nOption * si.getValue(SkillStat.v, 1));
-                stats.put(ter, o.nOption * si.getValue(SkillStat.v, 1));
+                slv = chr.getSkillLevel(o.rOption);
+                stats.put(stance, o.nOption * si.getValue(SkillStat.x, slv));
+                stats.put(dmgReduce, o.nOption * si.getValue(SkillStat.y, slv));
+                stats.put(asr, o.nOption * si.getValue(SkillStat.v, slv));
+                stats.put(ter, o.nOption * si.getValue(SkillStat.v, slv));
                 break;
             case BlessEnsenble:
                 stats.put(fd, o.nOption);
@@ -472,7 +475,8 @@ public enum BaseStat {
                 break;
             case VengeanceOfAngel:
                 si = SkillData.getSkillInfoById(o.rOption);
-                stats.put(damR, o.nOption * -si.getValue(SkillStat.z, 1));
+                slv = chr.getSkillLevel(o.rOption);
+                stats.put(damR, o.nOption * -si.getValue(SkillStat.z, slv));
                 break;
             case IllusionStep:
                 stats.put(evaR, o.nOption);
@@ -503,6 +507,11 @@ public enum BaseStat {
                 break;
             case Dice:
                 ToBaseStat.dice(chr, o, stats);
+                break;
+            case BuckShot:
+                si = SkillData.getSkillInfoById(o.rOption);
+                slv = chr.getSkillLevel(o.rOption);
+                stats.put(fd, -si.getValue(SkillStat.y, slv));
                 break;
             default:
                 stats.put(unk, o.nOption);

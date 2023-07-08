@@ -103,18 +103,12 @@ public class Shadower extends Thief {
         int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
         if (hasHitMobs) {
-            if (chr.hasSkill(CRITICAL_GROWTH)) {
-                incrementCritGrowing();
-            }
             if (skillID != MESO_EXPLOSION_ATOM) {
                 handlePickPocket(attackInfo);
             }
-            if (chr.hasSkill(SHADOWER_INSTINCT)) {
-                handleBodyCount(skillID);
-            }
-            if (chr.hasSkill(FLIP_THE_COIN)) {
-                activateFlipTheCoin(attackInfo);
-            }
+            incrementCritGrowing();
+            handleBodyCount(skillID);
+            activateFlipTheCoin(attackInfo);
         }
         Option o1 = new Option();
         Option o2 = new Option();
@@ -248,6 +242,9 @@ public class Shadower extends Thief {
     }
 
     private void activateFlipTheCoin(AttackInfo attackInfo) {
+        if (!chr.hasSkill(FLIP_THE_COIN)) {
+            return;
+        }
         if (ServerConstants.MAKE_ATTACK_INFO_PACKET_HOOK) {
             boolean hasCrit = attackInfo.mobAttackInfo.stream()
                     .anyMatch(mai -> {
@@ -258,17 +255,18 @@ public class Shadower extends Thief {
                         }
                         return false;
                     });
-            if (hasCrit) {
-                chr.write(WvsContext.flipTheCoinEnabled((byte) 1));
+            if (!hasCrit) {
+                return;
             }
         } else {
             TemporaryStatManager tsm = chr.getTemporaryStatManager();
-            long totalCrit = chr.getBaseStats().get(BaseStat.cr);
+            int totalCrit = chr.getBaseStats().get(BaseStat.cr);
             totalCrit += tsm.getOption(CriticalBuff).nOption + tsm.getOption(CriticalGrowing).nOption;
-            if (Util.succeedProp((int) (totalCrit > 100 ? 100 : totalCrit))) {
-                chr.write(WvsContext.flipTheCoinEnabled((byte) 1));
+            if (!Util.succeedProp(totalCrit)) {
+                return;
             }
         }
+        chr.write(WvsContext.flipTheCoinEnabled((byte) 1));
     }
 
 

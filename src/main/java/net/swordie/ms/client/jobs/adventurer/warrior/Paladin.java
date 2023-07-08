@@ -152,89 +152,76 @@ public class Paladin extends Warrior {
         Option o4 = new Option();
         switch (attackInfo.skillId) {
             case CLOSE_COMBAT:
-                if (Util.succeedProp(si.getValue(prop, slv))) {
-                    for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
-                        if (!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            o1.nOption = 1;
-                            o1.rOption = skillID;
-                            o1.tOption = si.getValue(time, slv);
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (mob == null || mob.isBoss()) {
+                        continue;
+                    }
+                    if (Util.succeedProp(si.getValue(prop, slv))) {
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
                 }
                 break;
             case FLAME_CHARGE:
                 giveChargeBuff(skillID, tsm);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (mob == null) {
+                        continue;
+                    }
                     if (Util.succeedProp(si.getValue(prop, slv))) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        mts.createAndAddBurnedInfo(chr, skillID, slv);
+                        mob.getTemporaryStat().createAndAddBurnedInfo(chr, skillID, slv);
                     }
                 }
                 break;
             case BLIZZARD_CHARGE:
                 giveChargeBuff(skillID, tsm);
+                o1.nOption = -20;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                         if (mob == null) {
                             continue;
                         }
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        o1.nOption = -20;
-                        o1.rOption = skillID;
-                        o1.tOption = si.getValue(time, slv);
-                        mts.addStatOptionsAndBroadcast(MobStat.Speed, o1);
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Speed, o1);
                     }
                 }
                 break;
             case LIGHTNING_CHARGE:
                 giveChargeBuff(skillID, tsm);
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    if (Util.succeedProp(si.getValue(prop, slv))) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
-                        if (!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            o1.nOption = 1;
-                            o1.rOption = skillID;
-                            o1.tOption = si.getValue(time, slv);
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (mob == null) {
+                        continue;
+                    }
+                    MobTemporaryStat mts = mob.getTemporaryStat();
+                    if (Util.succeedProp(si.getValue(prop, slv)) && !mob.isBoss()) {
+                        mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     } else {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
-                        MobTemporaryStat mts = mob.getTemporaryStat();
                         mts.createAndAddBurnedInfo(chr, skillID, slv);
                     }
                 }
                 break;
             case DIVINE_CHARGE:
                 giveChargeBuff(skillID, tsm);
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                         if (mob == null) {
                             continue;
                         }
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        o1.nOption = 1;
-                        o1.rOption = skillID;
-                        o1.tOption = si.getValue(time, slv);
-                        mts.addStatOptionsAndBroadcast(MobStat.Seal, o1);
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Seal, o1);
                     }
                 }
                 break;
@@ -263,15 +250,15 @@ public class Paladin extends Warrior {
                 }
                 break;
             case SMITE_SHIELD:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = 1;
-                    o1.rOption = skillID;
-                    o1.tOption = si.getValue(time, slv);
                     mts.addStatOptionsAndBroadcast(MobStat.Smite, o1);
                 }
                 break;

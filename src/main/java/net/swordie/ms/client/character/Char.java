@@ -4740,11 +4740,15 @@ public class Char {
 	}
 
 	public boolean applyBulletCon(int skillID, byte slv, boolean isExJablin) {
-		if (getTemporaryStatManager().hasStat(NoBulletConsume) || JobConstants.isPhantom(getJob())) {
+		if (getTemporaryStatManager().hasStat(NoBulletConsume)) {
 			return true;
 		}
-		if (skillID == FirePoison.MEGIDDO_FLAME || skillID == Shadower.MESO_EXPLOSION) {
-			return true;
+		Item weapon = getEquippedInventory().getFirstItemByBodyPart(BodyPart.Weapon);
+		if (weapon != null) {
+			int weaponId = weapon.getItemId();
+			if (!ItemConstants.isBow(weaponId) && !ItemConstants.isXBow(weaponId) && !ItemConstants.isClaw(weaponId) && !ItemConstants.isGun(weaponId)) {
+				return true;
+			}
 		}
 		SkillInfo si = SkillData.getSkillInfoById(skillID);
 		if (si == null) {
