@@ -15,6 +15,8 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.client.jobs.Job;
+import net.swordie.ms.client.jobs.JobManager;
 import net.swordie.ms.client.jobs.nova.Kaiser;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
@@ -672,8 +674,8 @@ public class AdminCommands {
             String chrName = args[1];
 
             for(Mob m : chr.getField().getMobs()) {
-               Char controller = m.getField().getLifeToControllers().get(m);
-               chr.chatMessage(m.getObjectId() + " : " + controller.getName());
+                Char controller = m.getField().getLifeToControllers().get(m);
+                chr.chatMessage(m.getObjectId() + " : " + controller.getName());
             }
 
         }
@@ -838,7 +840,7 @@ public class AdminCommands {
     }
 
     @Command(names = {"job", "setjob"}, requiredType = Tester)
-    public static class Job extends AdminCommand {
+    public static class SetJob extends AdminCommand {
         public static void execute(Char chr, String[] args) {
             short id = Short.parseShort(args[1]);
             JobEnum job = JobEnum.getJobById(id);
@@ -1597,21 +1599,21 @@ public class AdminCommands {
             Char controller = chr.getField().getLifeToControllers().getOrDefault(mob, null);
             if (mob != null) {
                 chr.chatMessage(SpeakerChannel, String.format("Mob ID: %s | Template ID: %s | HP: %s/%s | MP: %s/%s | Left: %s | Controller: %s",
-                        NumberFormat.getNumberInstance(Locale.US).format(mob.getObjectId()),
-                        NumberFormat.getNumberInstance(Locale.US).format(mob.getTemplateId()),
-                        NumberFormat.getNumberInstance(Locale.US).format(mob.getHp()),
-                        NumberFormat.getNumberInstance(Locale.US).format(mob.getMaxHp()),
-                        NumberFormat.getNumberInstance(Locale.US).format(mob.getMp()),
-                        NumberFormat.getNumberInstance(Locale.US).format(mob.getMaxMp()),
-                        mob.isLeft(),
-                        controller == null ? "null" : chr.getName()
+                                NumberFormat.getNumberInstance(Locale.US).format(mob.getObjectId()),
+                                NumberFormat.getNumberInstance(Locale.US).format(mob.getTemplateId()),
+                                NumberFormat.getNumberInstance(Locale.US).format(mob.getHp()),
+                                NumberFormat.getNumberInstance(Locale.US).format(mob.getMaxHp()),
+                                NumberFormat.getNumberInstance(Locale.US).format(mob.getMp()),
+                                NumberFormat.getNumberInstance(Locale.US).format(mob.getMaxMp()),
+                                mob.isLeft(),
+                                controller == null ? "null" : chr.getName()
                         )
                 );
                 Map<MobStat, Option> mobStats = mob.getTemporaryStat().getCurrentStatVals();
                 for (MobStat stat : mobStats.keySet()) {
                     chr.chatMessage(SpeakerChannel, String.format("MobStat: %s | %s",
-                            stat.name(),
-                            mobStats.get(stat).toString()
+                                    stat.name(),
+                                    mobStats.get(stat).toString()
                             )
                     );
                 }
@@ -1899,9 +1901,58 @@ public class AdminCommands {
         }
     }
 
-    @Command(names = {"showbuffs"}, requiredType = Tester)
-    public static class showBuffs extends AdminCommand {
+    @Command(names = {"useskill"}, requiredType = Tester)
+    public static class UseSkill extends AdminCommand {
+        public static void doSkill(Char chr, int skillId, int slv) {
+            SkillInfo si = SkillData.getSkillInfoById(skillId);
+            if (si == null) {
+                chr.chatMessage("Could not resolve skill ID: " + skillId);
+                return;
+            }
+            Job job = JobManager.getJobById((short) si.getRootId(), chr);
+            if (job == null) {
+                chr.chatMessage("Could not resolve root ID: " + si.getRootId());
+                return;
+            }
+            slv = Math.min(si.getMaxLevel(), slv);
+            job.handleSkill(chr, skillId, slv, null);
+        }
 
+        public static void execute(Char chr, String[] args) {
+            if (args.length < 2 || !Util.isNumber(args[1]) || !Util.isNumber(args[2])) {
+                chr.chatMessage(SpeakerChannel, "Invalid args. Use !useskill <skillId> <slv>");
+                return;
+            }
+            doSkill(chr, Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+        }
+    }
+
+    @Command(names = {"allbuffs"}, requiredType = Tester)
+    public static class AllBuffs extends AdminCommand {
+        public static void execute(Char chr, String[] args) {
+            UseSkill.doSkill(chr, 1101006, 20); // Rage
+            UseSkill.doSkill(chr, 1211011, 20); // Combat Orders
+            UseSkill.doSkill(chr, 1301007, 20); // Hyper Body
+            UseSkill.doSkill(chr, 2001002, 20); // Magic Guard
+            UseSkill.doSkill(chr, 2001002, 20); // Magic Guard
+            UseSkill.doSkill(chr, 2101001, 20); // Meditation
+            UseSkill.doSkill(chr, 2321005, 20); // Adv Blessing
+            UseSkill.doSkill(chr, 3121002, 30); // Sharp Eyes
+            UseSkill.doSkill(chr, 4001005, 20); // Haste
+            UseSkill.doSkill(chr, 5121009, 20); // Speed Infusion
+
+            UseSkill.doSkill(chr, 1221054, 1); // Sacrosanctity
+            UseSkill.doSkill(chr, 5221054, 1); // Whaler's Potion
+            UseSkill.doSkill(chr, 5321054, 1); // Buckshot
+
+            UseSkill.doSkill(chr, 1005, 1); // Echo of Hero
+            UseSkill.doSkill(chr, 1121053, 1); // Epic Adventure
+            UseSkill.doSkill(chr, 1121000, 30); // Maple Warrior
+        }
+    }
+
+    @Command(names = {"showbuffs"}, requiredType = Tester)
+    public static class ShowBuffs extends AdminCommand {
         public static void execute(Char chr, String[] args) {
             TemporaryStatManager tsm = chr.getTemporaryStatManager();
             Set<Integer> buffs = new HashSet<>();
@@ -1924,7 +1975,7 @@ public class AdminCommands {
     }
 
     @Command(names = {"showcts"}, requiredType = Tester)
-    public static class showCTS extends AdminCommand {
+    public static class ShowCTS extends AdminCommand {
         public static void execute(Char chr, String[] args) {
             TemporaryStatManager tsm = chr.getTemporaryStatManager();
             chr.chatMessage("Current CTS:");
@@ -1936,10 +1987,10 @@ public class AdminCommands {
     }
 
     @Command(names = {"mobskill"}, requiredType = Tester)
-    public static class mobSkill extends AdminCommand {
+    public static class ApplyMobSkill extends AdminCommand {
         public static void execute(Char chr, String[] args) {
             MobSkill mobSkill = new MobSkill();
-            mobSkill.setSkillID(MobSkillID.Stun.getVal());
+            mobSkill.setSkillID(MobSkillID.Slow.getVal());
             mobSkill.setLevel(3);
             mobSkill.applyEffect(chr);
         }
@@ -1993,7 +2044,7 @@ public class AdminCommands {
             chr.getField().getReactors().forEach(reactor -> chr.chatMessage(reactor.toString()));
         }
     }
-    
+
     @Command(names = {"script"}, requiredType = Tester)
     public static class StartScriptTest extends AdminCommand {
 
