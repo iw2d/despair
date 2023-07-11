@@ -1162,6 +1162,7 @@ public class SkillConstants {
             case DualBlade.KATARA_MASTERY:
             case Buccaneer.KNUCKLE_MASTERY:
             case Corsair.GUN_MASTERY:
+            case Jett.GUN_MASTERY:
                 return true;
         }
         return false;
@@ -1689,7 +1690,17 @@ public class SkillConstants {
                 stats.remove(BaseStat.damR); // active effect
                 break;
             case Corsair.GUN_MASTERY:
+            case Jett.GUN_MASTERY:
                 stats.put(BaseStat.acc, si.getValue(SkillStat.x, slv));
+                break;
+            case Jett.BOUNTY_CHASER:
+                stats.clear();
+                stats.put(BaseStat.str, si.getValue(SkillStat.strX, slv));
+                stats.put(BaseStat.dex, si.getValue(SkillStat.dexX, slv));
+                break;
+            case Jett.HIGH_GRAVITY:
+                stats.clear();
+                stats.put(BaseStat.bd, si.getValue(SkillStat.bdR, slv));
                 break;
         }
     }

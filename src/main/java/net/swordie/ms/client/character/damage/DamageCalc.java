@@ -23,6 +23,7 @@ import java.util.*;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.SetBaseDamage;
 import static net.swordie.ms.enums.BaseStat.*;
+import static net.swordie.ms.enums.BaseStat.mastery;
 
 
 /**
@@ -61,7 +62,11 @@ public class DamageCalc {
     }
 
     public double getMinBaseDamage() {
-        return getMaxBaseDamage() * (chr.getTotalStat(mastery) / 100D);
+        int totalMastery = chr.getTotalStat(mastery);
+        if (chr.getEquippedWeaponType() == WeaponType.Barehand) {
+            totalMastery += 20;
+        }
+        return getMaxBaseDamage() * (totalMastery / 100D);
     }
 
     public double getMaxBaseDamage() {

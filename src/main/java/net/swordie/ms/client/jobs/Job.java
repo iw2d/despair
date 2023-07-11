@@ -818,7 +818,7 @@ public abstract class Job {
 		characterStat.setMaxHp(50);
 		characterStat.setMp(5);
 		characterStat.setMaxMp(5);
-                
+
 		characterStat.setPosMap(100000000);// should be handled for each job not here
 		Item whitePot = ItemData.getItemDeepCopy(2000002);
 		whitePot.setQuantity(100);

@@ -302,29 +302,24 @@ public enum BaseStat {
                 stats.put(booster, o.nOption);
                 break;
             case STR:
+            case ZeroAuraStr:
+            case IndieSTR:
                 stats.put(str, o.nOption);
                 break;
             case DEX:
+            case IndieDEX:
                 stats.put(dex, o.nOption);
                 break;
             case INT:
+            case IndieINT:
                 stats.put(inte, o.nOption);
                 break;
             case LUK:
+            case IndieLUK:
                 stats.put(luk, o.nOption);
                 break;
-            case ZeroAuraStr:
-            case IndieSTR:
-                stats.put(str, o.nValue);
-                break;
-            case IndieDEX:
-                stats.put(dex, o.nValue);
-                break;
-            case IndieINT:
-                stats.put(inte, o.nValue);
-                break;
-            case IndieLUK:
-                stats.put(luk, o.nValue);
+            case DEXR:
+                stats.put(dexR, o.nOption);
                 break;
             case IndieStatR:
                 stats.put(strR, o.nValue);
@@ -377,6 +372,7 @@ public enum BaseStat {
                 stats.put(stance, o.nOption);
                 break;
             case PowerGuard:
+            case DamageReduce:
                 stats.put(dmgReduce, o.nOption);
                 break;
             case ComboCounter:

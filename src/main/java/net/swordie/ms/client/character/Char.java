@@ -2476,7 +2476,11 @@ public class Char {
 	}
 
 	public WeaponType getEquippedWeaponType() {
-		return WeaponType.getByVal(ItemConstants.getWeaponType(getEquippedItemByBodyPart(BodyPart.Weapon).getItemId()));
+		Item weapon = getEquippedItemByBodyPart(BodyPart.Weapon);
+		if (weapon == null) {
+			return WeaponType.Barehand;
+		}
+		return WeaponType.getByVal(ItemConstants.getWeaponType(weapon.getItemId()));
 	}
 
 	public boolean isLeft() {
@@ -3650,7 +3654,7 @@ public class Char {
 			kindOfBulletPred = i -> ItemConstants.isBowArrow(i.getItemId());
 		} else if (ItemConstants.isXBow(id)) {
 			kindOfBulletPred = i -> ItemConstants.isXBowArrow(i.getItemId());
-		} else if (ItemConstants.isGun(id)) {
+		} else if (ItemConstants.isGun(id) && JobConstants.isAdventurerPirate(getJob())) {
 			kindOfBulletPred = i -> ItemConstants.isBullet(i.getItemId());
 		} else {
 			return 0;
@@ -4746,7 +4750,8 @@ public class Char {
 		Item weapon = getEquippedInventory().getFirstItemByBodyPart(BodyPart.Weapon);
 		if (weapon != null) {
 			int weaponId = weapon.getItemId();
-			if (!ItemConstants.isBow(weaponId) && !ItemConstants.isXBow(weaponId) && !ItemConstants.isClaw(weaponId) && !ItemConstants.isGun(weaponId)) {
+			if (!ItemConstants.isBow(weaponId) && !ItemConstants.isXBow(weaponId) && !ItemConstants.isClaw(weaponId) &&
+					!(ItemConstants.isGun(weaponId) && JobConstants.isAdventurerPirate(getJob()))) {
 				return true;
 			}
 		}

@@ -450,12 +450,12 @@ public class SkillHandler {
     public static void handleUserFinalAttackRequest(Client c, InPacket inPacket) {
         Char chr = c.getChr();
         int skillID = inPacket.decodeInt();
-        int pSkill = inPacket.decodeInt();
+        int delay = inPacket.decodeInt();
         int targetID = inPacket.decodeInt();
         int requestTime = inPacket.decodeInt();
         int finalAttackSkill = chr.getJobHandler().getFinalAttackSkill();
         if (finalAttackSkill != 0) {
-            c.write(FieldPacket.finalAttackRequest(chr, skillID, finalAttackSkill, 0, targetID, requestTime));
+            c.write(FieldPacket.finalAttackRequest(chr, skillID, finalAttackSkill, delay, targetID, requestTime));
         }
     }
 }

@@ -15,7 +15,6 @@ import net.swordie.ms.enums.MoveAbility;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
-import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
@@ -28,9 +27,8 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  */
 public class Jett extends Job {
     public static final int RETURN_TO_SPACESHIP = 1227;
-
     public static final int GALACTIC_MIGHT = 5081023; //Buff
-
+    public static final int GUN_MASTERY = 5700000;
     public static final int BOUNTY_CHASER = 5701013; //Buff
     public static final int STARLINE_TWO = 5701010; //Special Attack (Stun Debuff)
 
@@ -42,13 +40,14 @@ public class Jett extends Job {
     public static final int BACKUP_BEATDOWN = 5721061;
     public static final int HEROS_WILL_JETT = 5721002;
 
+    public static final int SINGULARAITY_SHOCK = 5721052;
+    public static final int SINGULARAITY_SHOCK_FINAL = 5721055;
     public static final int EPIC_ADVENTURER_JETT = 5721053;
     public static final int BIONIC_MAXIMIZER = 5721054;
 
     private int[] addedSkills = new int[] {
             RETURN_TO_SPACESHIP
     };
-
 
     public Jett(Char chr) {
         super(chr);
@@ -83,19 +82,16 @@ public class Jett extends Job {
         Option o3 = new Option();
         switch (attackInfo.skillId) {
             case STARLINE_TWO:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(hcTime, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (mob == null || mob.isBoss()) {
+                        continue;
+                    }
                     if (Util.succeedProp(si.getValue(hcProp, slv))) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
-                        if (!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            o1.nOption = 1;
-                            o1.rOption = skillID;
-                            o1.tOption = si.getValue(hcTime, slv);
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
                 }
                 break;
@@ -146,24 +142,16 @@ public class Jett extends Job {
                 tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case BOUNTY_CHASER:
-                o1.nOption = si.getValue(dexX, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DEX, o1);
-                o2.nOption = si.getValue(strX, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(STR, o2);
-                o3.nReason = skillID;
-                o3.nValue = si.getValue(indieCr, slv);
-                o3.tStart = Util.getCurrentTime();
-                o3.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieCr, o3);
-                o4.nReason = skillID;
-                o4.nValue = si.getValue(indieDamR, slv);
-                o4.tStart = Util.getCurrentTime();
-                o4.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o4);
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieCr, slv);
+                o1.tStart = Util.getCurrentTime();
+                o1.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieCr, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieDamR, slv);
+                o2.tStart = Util.getCurrentTime();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o2);
                 break;
             case SLIPSTREAM_SUIT:
                 o1.nOption = si.getValue(x, slv);
@@ -209,7 +197,7 @@ public class Jett extends Job {
                 break;
             case BIONIC_MAXIMIZER:
                 o1.nReason = skillID;
-                o1.nValue = si.getValue(indieMhpR, slv);
+                o1.nValue = si.getValue(x, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMHPR, o1);
@@ -235,6 +223,13 @@ public class Jett extends Job {
         tsm.sendSetStatPacket();
     }
 
+    @Override
+    public int getFinalAttackSkill() {
+        if (chr.hasSkill(SINGULARAITY_SHOCK)) {
+            return SINGULARAITY_SHOCK_FINAL;
+        }
+        return 0;
+    }
 
 
     // Hit related methods ---------------------------------------------------------------------------------------------
