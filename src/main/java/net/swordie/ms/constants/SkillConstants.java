@@ -1163,6 +1163,7 @@ public class SkillConstants {
             case Buccaneer.KNUCKLE_MASTERY:
             case Corsair.GUN_MASTERY:
             case Jett.GUN_MASTERY:
+            case DawnWarrior.SWORD_MASTERY:
                 return true;
         }
         return false;
@@ -1275,7 +1276,7 @@ public class SkillConstants {
         switch (skillId) {
             case Warrior.MAPLE_RETURN: // All Adventurers
             // case DualBlade.RETURN:
-            // case Jett.RETURN_TO_SPACESHIP:
+            case Jett.RETURN_TO_SPACESHIP:
             case BeastTamer.HOMEWARD_BOUND:
             case Kinesis.RETURN_KINESIS:
             case DawnWarrior.IMPERIAL_RECALL: // All KoC
@@ -1652,12 +1653,18 @@ public class SkillConstants {
             case NightLord.CLAW_EXPERT:
             case Shadower.DAGGER_EXPERT:
             case DualBlade.KATARA_EXPERT:
+            case DawnWarrior.STUDENT_OF_THE_BLADE:
                 stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
                 break;
             case FirePoison.SPELL_MASTERY_FP:
             case IceLightning.SPELL_MASTERY_IL:
             case Bishop.SPELL_MASTERY_BISH:
                 stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
+                break;
+            case Corsair.GUN_MASTERY:
+            case Jett.GUN_MASTERY:
+            case DawnWarrior.SWORD_MASTERY:
+                stats.put(BaseStat.acc, si.getValue(SkillStat.x, slv));
                 break;
             // class specific
             case Hero.ADVANCED_COMBO:
@@ -1689,10 +1696,6 @@ public class SkillConstants {
             case Buccaneer.STIMULATING_CONVERSATION:
                 stats.remove(BaseStat.damR); // active effect
                 break;
-            case Corsair.GUN_MASTERY:
-            case Jett.GUN_MASTERY:
-                stats.put(BaseStat.acc, si.getValue(SkillStat.x, slv));
-                break;
             case Jett.BOUNTY_CHASER:
                 stats.clear();
                 stats.put(BaseStat.str, si.getValue(SkillStat.strX, slv));
@@ -1701,6 +1704,9 @@ public class SkillConstants {
             case Jett.HIGH_GRAVITY:
                 stats.clear();
                 stats.put(BaseStat.bd, si.getValue(SkillStat.bdR, slv));
+                break;
+            case DawnWarrior.WILL_OF_STEEL:
+                stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.x, slv));
                 break;
         }
     }

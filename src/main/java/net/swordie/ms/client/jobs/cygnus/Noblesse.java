@@ -2,22 +2,35 @@ package net.swordie.ms.client.jobs.cygnus;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
+import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
+import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.life.Summon;
 import net.swordie.ms.loaders.SkillData;
+import net.swordie.ms.world.field.Field;
+
+import static net.swordie.ms.client.character.skills.SkillStat.x;
 
 /**
  * Created on 12/14/2017.
  */
 public class Noblesse extends Job {
-
+    public static final int IMPERIAL_RECALL = 10001245;
     public static final int ELEMENTAL_SLASH = 10001244;
     public static final int ELEMENTAL_SHIFT_BASE = 10000252;
     public static final int ELEMENTAL_SHIFT_HIGH = 10001253;
     public static final int ELEMENTAL_SHIFT_FLASH = 10001254;
+    public static final int ELEMENTAL_EXPERT = 10000250; // given with 4th job
+    public static final int ELEMENTAL_HARMONY_STR = 10000246;
+    public static final int ELEMENTAL_HARMONY_DEX = 10000247;
+    public static final int ELEMENTAL_HARMONY_INT = 10000248;
+    public static final int ELEMENTAL_HARMONY_LUK = 10000249;
+    public static final int NOBLE_MIND = 10000202;
 
     private int[] addedSkills = {
             ELEMENTAL_SLASH,
@@ -28,7 +41,7 @@ public class Noblesse extends Job {
 
     public Noblesse(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
+        if (chr.getId() != 0 && JobConstants.isCygnusKnight(chr.getJob())) {
             for (int id : addedSkills) {
                 if (!chr.hasSkill(id)) {
                     Skill skill = SkillData.getSkillDeepCopyById(id);
@@ -42,6 +55,11 @@ public class Noblesse extends Job {
     }
 
     @Override
+    public boolean isHandlerOfJob(short id) {
+        return id == JobConstants.JobEnum.NOBLESSE.getJobId();
+    }
+
+    @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         super.handleAttack(chr, attackInfo);
     }
@@ -49,18 +67,24 @@ public class Noblesse extends Job {
     @Override
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        SkillInfo si = SkillData.getSkillInfoById(skillID);
 
+        Option o1 = new Option();
+        switch (skillID) {
+            case IMPERIAL_RECALL:
+                o1.nValue = si.getValue(x, slv);
+                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
+                chr.warp(toField);
+                break;
+        }
+        tsm.sendSetStatPacket();
     }
 
     @Override
     public void handleHit(Char chr, HitInfo hitInfo) {
 
         super.handleHit(chr, hitInfo);
-    }
-
-    @Override
-    public boolean isHandlerOfJob(short id) {
-        return id == JobConstants.JobEnum.NOBLESSE.getJobId();
     }
 
     @Override

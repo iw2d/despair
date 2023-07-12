@@ -7,6 +7,7 @@ import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
@@ -32,17 +33,8 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class DawnWarrior extends Noblesse {
-
-    public static final int IMPERIAL_RECALL = 10001245;
-    public static final int ELEMENTAL_EXPERT = 10000250;
-    public static final int ELEMENTAL_SLASH = 10001244;
-    public static final int NOBLE_MIND = 10000202;
-    public static final int ELEMENTAL_SHIFT = 10001254;
-    public static final int ELEMENTAL_SHIFT2 = 10000252;
-    public static final int ELEMENTAL_HARMONY_STR = 10000246;
-
     public static final int SOUL_ELEMENT = 11001022; //Buff  (Immobility Debuff)
-
+    public static final int SWORD_MASTERY = 11100025;
     public static final int SOUL_SPEED = 11101024; //Buff
     public static final int FALLING_MOON = 11101022; //Buff (Unlimited Duration)
 
@@ -50,6 +42,7 @@ public class DawnWarrior extends Noblesse {
     public static final int TRUE_SIGHT = 11111023; //Buff (Mob Def Debuff & Final DmgUp Debuff)
     public static final int WILL_OF_STEEL = 11110025;
 
+    public static final int STUDENT_OF_THE_BLADE = 11120007;
     public static final int EQUINOX_CYCLE = 11121005; //Buff
     public static final int EQUINOX_CYCLE_MOON = 11121011;
     public static final int EQUINOX_CYCLE_SUN = 11121012;
@@ -58,25 +51,25 @@ public class DawnWarrior extends Noblesse {
     public static final int CALL_OF_CYGNUS_DW = 11121000; //Buff
     public static final int MASTER_OF_THE_SWORD = 11120009;
 
+    public static final int TRUE_SIGHT_PERSIST = 11120043;
+    public static final int TRUE_SIGHT_ENHANCE = 11120044;
+    public static final int TRUE_SIGHT_GUARDBREAK = 11120045;
     public static final int SOUL_FORGE = 11121054;
+    public static final int STYX_CROSSING = 11121052;
+    public static final int STYX_CROSSING_CHARGED = 11121055;
     public static final int GLORY_OF_THE_GUARDIANS_DW = 11121053;
 
 
     private int[] addedSkills = new int[] {
             ELEMENTAL_HARMONY_STR,
-            IMPERIAL_RECALL,
-            ELEMENTAL_EXPERT,
-            ELEMENTAL_SLASH,
-            NOBLE_MIND,
-            ELEMENTAL_SHIFT,
-            ELEMENTAL_SHIFT2
+            IMPERIAL_RECALL
     };
 
     private ScheduledFuture willOfSteelTimer;
 
     public DawnWarrior(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
             for (int id : addedSkills) {
                 if (!chr.hasSkill(id)) {
                     Skill skill = SkillData.getSkillDeepCopyById(id);
@@ -84,11 +77,8 @@ public class DawnWarrior extends Noblesse {
                     chr.addSkill(skill);
                 }
             }
-            if(willOfSteelTimer != null && !willOfSteelTimer.isDone()) {
-                willOfSteelTimer.cancel(true);
-            }
-            //willOfSteel();
         }
+        willOfSteelTimer = EventManager.addEvent(this::handleWillOfSteel, getWillOfSteelDelay(), TimeUnit.SECONDS);
     }
 
     @Override
@@ -96,21 +86,22 @@ public class DawnWarrior extends Noblesse {
         return JobConstants.isDawnWarrior(id);
     }
 
-
-    private void willOfSteel() { //TODO needs to be called
-        if(chr.hasSkill(WILL_OF_STEEL)) {
-            Skill skill = chr.getSkill(WILL_OF_STEEL);
-            byte slv = (byte) skill.getCurrentLevel();
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            int interval = si.getValue(w, slv);
-            int heal = (int) (chr.getMaxHP() / ((double) 100 / si.getValue(y, slv)));
-
-            if ((chr.getMaxHP() - chr.getHP()) == 0) {
-                return;
-            }
-            chr.heal(heal);
+    private void handleWillOfSteel() {
+        if (chr.hasSkill(WILL_OF_STEEL) && chr.getHP() > 0) {
+            int healRate = chr.getSkillStatValue(y, WILL_OF_STEEL);
+            chr.heal((int) (chr.getMaxHP() / (100D / healRate)));
         }
-        willOfSteelTimer = EventManager.addEvent(() -> willOfSteel(), 4, TimeUnit.SECONDS);
+        if (willOfSteelTimer != null && !willOfSteelTimer.isDone()) {
+            willOfSteelTimer.cancel(true);
+        }
+        willOfSteelTimer = EventManager.addEvent(this::handleWillOfSteel, getWillOfSteelDelay(), TimeUnit.SECONDS);
+    }
+
+    private int getWillOfSteelDelay() {
+        if (!chr.hasSkill(WILL_OF_STEEL)) {
+            return 4;
+        }
+        return chr.getSkillStatValue(w, WILL_OF_STEEL);
     }
 
 
@@ -119,155 +110,150 @@ public class DawnWarrior extends Noblesse {
 
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
+        System.out.println(attackInfo.skillId);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
         SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
         int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        if (tsm.hasStat(SoulMasterFinal)) {
-            applySoulElementOnMob(attackInfo, slv);
+        if (hasHitMobs) {
+            applySoulElementDebuff(attackInfo);
         }
-        if (chr.hasSkill(RISING_SUN) && chr.hasSkill(FALLING_MOON)) {
-            equinox(tsm);
-        }
+        handleEquinoxCycle();
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
         switch (attackInfo.skillId) {
             case IMPALING_RAYS:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                o2.nOption = 1;
+                o2.rOption = skillID;
+                o2.wOption = chr.getId();
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (mob == null) {
+                        continue;
+                    }
                     if (Util.succeedProp(si.getValue(prop, slv))) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
                         MobTemporaryStat mts = mob.getTemporaryStat();
-                        o1.nOption = 1;
-                        o1.rOption = skillID;
-                        o1.tOption = si.getValue(time, slv);
                         mts.addStatOptionsAndBroadcast(MobStat.Freeze, o1);
-                        o2.nOption = 1;
-                        o2.rOption = skillID;
-                        o2.wOption = chr.getId();
                         mts.addStatOptionsAndBroadcast(MobStat.SoulExplosion, o2);
                     }
                 }
+                break;
+            case STYX_CROSSING_CHARGED:
+                chr.setSkillCooldown(STYX_CROSSING, chr.getSkillLevel(STYX_CROSSING));
                 break;
         }
 
         super.handleAttack(chr, attackInfo);
     }
 
-    private void equinox(TemporaryStatManager tsm ) {
+    private void applySoulElementDebuff(AttackInfo attackInfo) {
+        if (!chr.hasSkill(SOUL_ELEMENT)) {
+            return;
+        }
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (!tsm.hasStat(SoulMasterFinal)) {
+            return;
+        }
+        SkillInfo si = SkillData.getSkillInfoById(SOUL_ELEMENT);
+        int slv = chr.getSkillLevel(SOUL_ELEMENT);
+        Option o1 = new Option();
+        o1.nOption = 1;
+        o1.rOption = SOUL_ELEMENT;
+        o1.tOption = si.getValue(subTime, slv);
+        for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+            Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+            if (mob == null || mob.isBoss()) {
+                continue;
+            }
+            if (Util.succeedProp(si.getValue(prop, slv))) {
+                mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
+            }
+        }
+    }
+
+    private void handleEquinoxCycle() {
+        if (!chr.hasSkill(RISING_SUN) || !chr.hasSkill(FALLING_MOON)) {
+            return;
+        }
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (!tsm.hasStat(GlimmeringTime)) {
+            return;
+        }
+        SkillInfo siRS = SkillData.getSkillInfoById(RISING_SUN);
+        SkillInfo siFM = SkillData.getSkillInfoById(FALLING_MOON);
+        int slvRS = chr.getSkillLevel(RISING_SUN);
+        int slvFM = chr.getSkillLevel(FALLING_MOON);
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
         Option o4 = new Option();
         Option o5 = new Option();
-        SkillInfo mosSI = SkillData.getSkillInfoById(MASTER_OF_THE_SWORD);
-        //Rising Sun Skill Info
-            Skill skillRS = chr.getSkill(RISING_SUN);
-            byte slvRS = (byte) skillRS.getCurrentLevel();
-            SkillInfo siRS = SkillData.getSkillInfoById(skillRS.getSkillId());
-        //Falling Moon Skill Info
-            Skill skillFM = chr.getSkill(FALLING_MOON);
-            byte slvFM = (byte) skillFM.getCurrentLevel();
-            SkillInfo siFM = SkillData.getSkillInfoById(skillFM.getSkillId());
+        if (tsm.getOption(PoseType).nOption == 1) {
+            o1.nOption = 2;
+            o1.rOption = RISING_SUN;
+            o1.bOption = 1;
+            tsm.putCharacterStatValue(PoseType, o1);
+            o2.nValue = siRS.getValue(indieDamR, slvRS) + chr.getSkillStatValue(v, MASTER_OF_THE_SWORD);
+            o2.nReason = RISING_SUN;
+            o2.tStart = Util.getCurrentTime();
+            tsm.putCharacterStatValue(IndieDamR, o2);
+            o3.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? chr.getSkillStatValue(w, MASTER_OF_THE_SWORD) : siRS.getValue(indieBooster, slvRS);
+            o3.nReason = RISING_SUN;
+            o3.tStart = Util.getCurrentTime();
+            tsm.putCharacterStatValue(IndieBooster, o3);
+            // Invisible FM buff
+            o4.nValue = siFM.getValue(indieCr, slvFM) + chr.getSkillStatValue(indieCr, MASTER_OF_THE_SWORD);
+            o4.nReason = EQUINOX_CYCLE_MOON;
+            o4.tStart = Util.getCurrentTime();
+            tsm.putCharacterStatValue(IndieCr, o4);
+            o5.nOption = 1;
+            o5.rOption = EQUINOX_CYCLE_MOON;
+            tsm.putCharacterStatValue(BuckShot, o5);
 
-
-        if(tsm.hasStat(GlimmeringTime)) {
-            if(tsm.getOption(PoseType).nOption == 1) {
-                //Switch to Rising Sun State
-                o1.nOption = 2;
-                o1.rOption = RISING_SUN;
-                o1.tOption = 0;
-                o1.bOption = 1;
-                tsm.putCharacterStatValue(PoseType, o1);
-
-                tsm.removeStatsBySkill(FALLING_MOON);
-                tsm.removeStatsBySkill(EQUINOX_CYCLE_SUN);
-
-                    o2.nReason = RISING_SUN;
-                    o2.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(v, slvRS) : siRS.getValue(indieDamR, slvRS);
-                    o2.tStart = Util.getCurrentTime();
-                    o2.tTerm = 0;
-                    tsm.putCharacterStatValue(IndieDamR, o2); //Indie
-
-                    o3.nOption = chr.hasSkill(MASTER_OF_THE_SWORD) ? -2 : siRS.getValue(indieBooster, slvRS);
-                    o3.rOption = RISING_SUN;
-                    o3.tOption = siRS.getValue(time, slvRS);
-                    tsm.putCharacterStatValue(HayatoBooster, o3);
-
-                //Invisible Moon Buffs
-                o4.nOption = 1;
-                o4.rOption = EQUINOX_CYCLE_MOON;
-                tsm.putCharacterStatValue(BuckShot, o4);
-
-                o5.nOption = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(indieCr, slvFM) : siFM.getValue(indieCr, slvFM);
-                o5.rOption = EQUINOX_CYCLE_MOON;
-                tsm.putCharacterStatValue(HayatoCr, o5);
-            } else {
-                //Switch to Falling Moon State
-                o1.nOption = 1;
-                o1.rOption = FALLING_MOON;
-                o1.tOption = 0;
-                o1.bOption = 1;
-                tsm.putCharacterStatValue(PoseType, o1);
-
-                tsm.removeStatsBySkill(RISING_SUN);
-                tsm.removeStatsBySkill(EQUINOX_CYCLE_MOON);
-
-                o2.nOption = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(indieCr, slvFM) : siFM.getValue(indieCr, slvFM);
-                o2.rOption = FALLING_MOON;
-                o2.tOption = siFM.getValue(time, slvFM);
-                tsm.putCharacterStatValue(HayatoCr, o2);
-
-                o3.nOption = 1;
-                o3.rOption = FALLING_MOON;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(BuckShot, o3);
-
-                //Invisible Sun Buffs
-                o4.nReason = EQUINOX_CYCLE_SUN;
-                o4.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(v, slvRS) : siRS.getValue(indieDamR, slvRS);
-                o4.tStart = Util.getCurrentTime();
-                o4.tTerm = 0;
-                tsm.putCharacterStatValue(IndieDamR, o4);
-
-                o5.nOption = chr.hasSkill(MASTER_OF_THE_SWORD) ? -2 : siRS.getValue(indieBooster, slvRS);
-                o5.rOption = EQUINOX_CYCLE_SUN;
-                o5.tOption = siRS.getValue(time, slvRS);
-                tsm.putCharacterStatValue(HayatoBooster, o5);
-            }
-            tsm.sendSetStatPacket();
+            tsm.removeStatsBySkill(FALLING_MOON);
+            tsm.removeStatsBySkill(EQUINOX_CYCLE_SUN);
         } else {
-            if(tsm.getOptByCTSAndSkill(BuckShot, EQUINOX_CYCLE_MOON) != null) {
-                tsm.removeStatsBySkill(EQUINOX_CYCLE_MOON);
-            }
-            if(tsm.getOptByCTSAndSkill(HayatoBooster, EQUINOX_CYCLE_SUN) != null) {
-                tsm.removeStatsBySkill(EQUINOX_CYCLE_SUN);
-            }
+            o1.nOption = 1;
+            o1.rOption = FALLING_MOON;
+            o1.bOption = 1;
+            tsm.putCharacterStatValue(PoseType, o1);
+            o2.nValue = siFM.getValue(indieCr, slvFM) + chr.getSkillStatValue(indieCr, MASTER_OF_THE_SWORD);
+            o2.nReason = FALLING_MOON;
+            o2.tStart = Util.getCurrentTime();
+            tsm.putCharacterStatValue(IndieCr, o2);
+            o3.nOption = 1;
+            o3.rOption = FALLING_MOON;
+            tsm.putCharacterStatValue(BuckShot, o3);
+            // Invisible RS buff
+            o4.nValue = siRS.getValue(indieDamR, slvRS) + chr.getSkillStatValue(v, MASTER_OF_THE_SWORD);
+            o4.nReason = EQUINOX_CYCLE_SUN;
+            o4.tStart = Util.getCurrentTime();
+            tsm.putCharacterStatValue(IndieDamR, o4);
+            o5.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? chr.getSkillStatValue(w, MASTER_OF_THE_SWORD) : siRS.getValue(indieBooster, slvRS);
+            o5.nReason = EQUINOX_CYCLE_SUN;
+            o5.tStart = Util.getCurrentTime();
+            tsm.putCharacterStatValue(IndieBooster, o5);
+
+            tsm.removeStatsBySkill(RISING_SUN);
+            tsm.removeStatsBySkill(EQUINOX_CYCLE_MOON);
         }
+        tsm.sendSetStatPacket();
     }
 
-    private void applySoulElementOnMob(AttackInfo attackInfo, int slv) {
-        Option o1 = new Option();
-        SkillInfo si = SkillData.getSkillInfoById(SOUL_ELEMENT);
-        for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-            if (Util.succeedProp(si.getValue(prop, slv))) {
-                Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                if (mob == null) {
-                    continue;
-                }
-                MobTemporaryStat mts = mob.getTemporaryStat();
-                if(!mob.isBoss()) {
-                    o1.nOption = 1;
-                    o1.rOption = SOUL_ELEMENT;
-                    o1.tOption = si.getValue(subTime, slv);
-                    mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                }
-            }
+    @Override
+    public void handleRemoveCTS(CharacterTemporaryStat cts) {
+        if (cts == GlimmeringTime) {
+            TemporaryStatManager tsm = chr.getTemporaryStatManager();
+            tsm.removeStatsBySkill(EQUINOX_CYCLE_SUN);
+            tsm.removeStatsBySkill(EQUINOX_CYCLE_MOON);
+            tsm.sendResetStatPacket();
         }
+        super.handleRemoveCTS(cts);
     }
 
     @Override
@@ -294,32 +280,30 @@ public class DawnWarrior extends Noblesse {
         Field field;
         switch(skillID) {
             case TRUE_SIGHT:
-                // Mob Def = v
-                // Final Dmg on mob = s
-                Rect rect = new Rect(inPacket.decodeShort(), inPacket.decodeShort()
-                        , inPacket.decodeShort(), inPacket.decodeShort());
-
-                if(!chr.isLeft()) {
-                    rect = rect.moveRight();
-                }
-                for(Life life : chr.getField().getLifesInRect(rect)) {
-                    if(life instanceof Mob && ((Mob) life).getHp() > 0) {
+                o1.nOption = -si.getValue(v, slv) - chr.getSkillStatValue(w, TRUE_SIGHT_GUARDBREAK);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, TRUE_SIGHT_PERSIST);
+                o2.nOption = -chr.getSkillStatValue(w, TRUE_SIGHT_ENHANCE);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, TRUE_SIGHT_PERSIST);
+                o3.nOption = si.getValue(s, slv);
+                o3.rOption = skillID;
+                o3.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, TRUE_SIGHT_PERSIST);;
+                Rect rect = chr.getPosition().getRectAround(si.getFirstRect());
+                for (Life life : chr.getField().getLifesInRect(rect)) {
+                    if (life instanceof Mob && ((Mob) life).getHp() > 0) {
                         Mob mob = (Mob) life;
                         MobTemporaryStat mts = mob.getTemporaryStat();
-                        if(Util.succeedProp(si.getValue(prop, slv))) {
-                            o1.nOption = -(si.getValue(v, slv));
-                            o1.rOption = skillID;
-                            o1.tOption = si.getValue(time, slv);
-                            mts.addStatOptionsAndBroadcast(MobStat.PDR, o1);
-                            mts.addStatOptionsAndBroadcast(MobStat.MDR, o1);
+                        if (Util.succeedProp(si.getValue(prop, slv))) {
+                            mts.addStatOptions(MobStat.PDR, o1);
+                            mts.addStatOptions(MobStat.MDR, o1);
+                            if (chr.hasSkill(TRUE_SIGHT_ENHANCE)) {
+
+                            }
+                            mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o3);
                         }
                     }
                 }
-                break;
-            case IMPERIAL_RECALL:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
                 break;
             case SOUL_ELEMENT:
                 o1.nOption = 1;
@@ -334,49 +318,43 @@ public class DawnWarrior extends Noblesse {
                 tsm.putCharacterStatValue(Booster, o1);
                 break;
             case FALLING_MOON:
-                SkillInfo mosSI = SkillData.getSkillInfoById(MASTER_OF_THE_SWORD);
-                if(tsm.getOption(PoseType).nOption != 1) {
+                if (tsm.getOption(PoseType).nOption != 1) {
                     tsm.removeStatsBySkill(RISING_SUN);
                     tsm.sendResetStatPacket();
                 }
                 o1.nOption = 1;
                 o1.rOption = skillID;
-                o1.tOption = 0;
                 tsm.putCharacterStatValue(PoseType, o1);
-                o2.nOption = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(indieCr, slv) : si.getValue(indieCr, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(HayatoCr, o2);
+                o2.nValue = si.getValue(indieCr, slv) + chr.getSkillStatValue(indieCr, MASTER_OF_THE_SWORD);
+                o2.nReason = skillID;
+                o2.tStart = Util.getCurrentTime();
+                tsm.putCharacterStatValue(IndieCr, o2);
                 o3.nOption = 1;
                 o3.rOption = skillID;
-                o3.tOption = 0;
                 tsm.putCharacterStatValue(BuckShot, o3);
                 break;
             case RISING_SUN:
-                mosSI = SkillData.getSkillInfoById(MASTER_OF_THE_SWORD);
-                if(tsm.getOption(PoseType).nOption != 2) {
+                if (tsm.getOption(PoseType).nOption != 2) {
                     tsm.removeStatsBySkill(FALLING_MOON);
                     tsm.sendResetStatPacket();
                 }
                 o1.nOption = 2;
                 o1.rOption = skillID;
-                o1.tOption = 0;
                 tsm.putCharacterStatValue(PoseType, o1);
+                o2.nValue = si.getValue(indieDamR, slv) + chr.getSkillStatValue(v, MASTER_OF_THE_SWORD);
                 o2.nReason = skillID;
-                o2.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? mosSI.getValue(v, slv) : si.getValue(indieDamR, slv);
                 o2.tStart = Util.getCurrentTime();
-                o2.tTerm = 0;
-                tsm.putCharacterStatValue(IndieDamR, o2); //Indie
-                o3.nOption = chr.hasSkill(MASTER_OF_THE_SWORD) ? -2 : si.getValue(indieBooster, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(HayatoBooster, o3);
+                tsm.putCharacterStatValue(IndieDamR, o2);
+                o3.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? chr.getSkillStatValue(w, MASTER_OF_THE_SWORD) : si.getValue(indieBooster, slv);
+                o3.nReason = skillID;
+                o3.tStart = Util.getCurrentTime();
+                tsm.putCharacterStatValue(IndieBooster, o3);
                 break;
             case EQUINOX_CYCLE:
-                o5.nOption = 1;
-                o5.rOption = skillID;
-                o5.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(GlimmeringTime, o5);
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(GlimmeringTime, o1);
                 break;
             case CALL_OF_CYGNUS_DW:
                 o1.nReason = skillID;
@@ -385,17 +363,17 @@ public class DawnWarrior extends Noblesse {
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieStatR, o1); //Indie
                 break;
-            case SOUL_FORGE:    //IndieMaxDamageOver is still causing some problems
-                o1.nReason = skillID;
+            case SOUL_FORGE:
                 o1.nValue = si.getValue(indiePad, slv);
+                o1.nReason = skillID;
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1);
                 o2.nReason = skillID;
-                o2.nValue = 1;//   si.getValue(indieMaxDamageOver, slv);
+                o2.nValue = si.getValue(indieMaxDamageOver, slv);
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+                tsm.putCharacterStatValue(IndieMaxDamageOver, o2);
                 o3.nOption = 1;
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);
