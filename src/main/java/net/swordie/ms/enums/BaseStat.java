@@ -536,6 +536,22 @@ public enum BaseStat {
     }
 
     public boolean isNonAdditiveStat() {
-        return this == fd || this == ied;
+        return this == fd || this == ied || isLevelStat();
+    }
+
+    public boolean isLevelStat() {
+        switch (this) {
+            case strLv:
+            case dexLv:
+            case intLv:
+            case lukLv:
+            case padLv:
+            case madLv:
+            case mhpLv:
+            case mmpLv:
+                return true;
+            default:
+                return false;
+        }
     }
 }

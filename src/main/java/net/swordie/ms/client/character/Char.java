@@ -38,8 +38,6 @@ import net.swordie.ms.client.guild.GuildMember;
 import net.swordie.ms.client.guild.result.GuildResult;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.JobManager;
-import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
-import net.swordie.ms.client.jobs.adventurer.thief.Shadower;
 import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.client.jobs.resistance.WildHunterInfo;
@@ -76,6 +74,7 @@ import net.swordie.ms.scripts.ScriptInfo;
 import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.scripts.ScriptType;
 import net.swordie.ms.util.*;
+import net.swordie.ms.util.container.Tuple;
 import net.swordie.ms.world.Channel;
 import net.swordie.ms.world.World;
 import net.swordie.ms.world.field.*;
@@ -3985,11 +3984,33 @@ public class Char {
 			// Stat gained by passives
 			stat += getBaseStats().getOrDefault(baseStat, 0);
 			// Stat gained by buffs
-			int ctsStat = getTemporaryStatManager().getBaseStats().getOrDefault(baseStat, 0);
-			stat += ctsStat;
+			stat += getTemporaryStatManager().getBaseStats().getOrDefault(baseStat, 0);
 			// Stat gained by the stat's corresponding "per level" value
-			if (baseStat.getLevelVar() != null) {
-				stat += getTotalStatAsDouble(baseStat.getLevelVar()) * getLevel();
+			BaseStat levelVar = baseStat.getLevelVar();
+			if (levelVar != null) {
+				// Level Stat stored in BaseStat (passives), e.g. Skill/10000246 #lv2str = $50 -> 1 STR every 2 levels
+				if (getNonAddBaseStats().containsKey(levelVar)) {
+					for (Integer lv2val : getNonAddBaseStats().get(levelVar)) {
+						stat += (int) (getLevel() / (int) (100 / lv2val));
+					}
+				}
+				// Level Stat gained by equips, ItemOption $inkSTRlv = $4 -> 4 STR every 10 levels
+				for (Item item : getEquippedInventory().getItems()) {
+					Equip equip = (Equip) item;
+					if (!canEquip(equip)) {
+						continue;
+					}
+					stat += equip.getBaseStat(levelVar) * (int) (getLevel() / 10);
+				}
+				// Level Stat from Character potential, e.g. 70000025 #lv2pad = $20 ~ $10 -> 1 ATT every #lv2pad level
+				for (CharacterPotential cp : getPotentials()) {
+					Skill skill = cp.getSkill();
+					SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
+					Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel());
+					if (stats.containsKey(baseStat)) {
+						stat += (int) (getLevel() / stats.get(baseStat));
+					}
+				}
 			}
 			// Stat gained by equips
 			for (Item item : getEquippedInventory().getItems()) {
@@ -5209,9 +5230,9 @@ public class Char {
 					continue;
 				}
 				for (Object effect : setEffect.getStatsByLevel(i)) {
-					if (effect instanceof net.swordie.ms.util.container.Tuple) {
-						ScrollStat ss = (ScrollStat) (((net.swordie.ms.util.container.Tuple) effect).getLeft());
-						int amount = (int) (((net.swordie.ms.util.container.Tuple) effect).getRight());
+					if (effect instanceof Tuple) {
+						ScrollStat ss = (ScrollStat) (((Tuple) effect).getLeft());
+						int amount = (int) (((Tuple) effect).getRight());
 						stats.put(ss, amount);
 					}
 				}
