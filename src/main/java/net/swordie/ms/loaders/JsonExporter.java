@@ -24,6 +24,8 @@ public class JsonExporter {
             return "Heroes";
         } else if (JobConstants.isResistance(id)) {
             return "Resistance";
+        } else if (JobConstants.isKaiser(id) || JobConstants.isAngelicBuster(id)) {
+            return "Nova";
         } else if (JobConstants.isHayato(id) || JobConstants.isKanna(id)) {
             return "Sengoku";
         }

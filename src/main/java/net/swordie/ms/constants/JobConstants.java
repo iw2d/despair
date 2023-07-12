@@ -55,6 +55,9 @@ public class JobConstants {
             Map.entry("Xenon", List.of(XENON, XENON1, XENON2, XENON3, XENON4)),
             Map.entry("Blaster", List.of(CITIZEN, BLASTER_1, BLASTER_2, BLASTER_3, BLASTER_4)),
 
+            Map.entry("Kaiser", List.of(KAISER, KAISER1, KAISER2, KAISER3, KAISER4)),
+            Map.entry("Angelic Buster", List.of(ANGELIC_BUSTER, ANGELIC_BUSTER1, ANGELIC_BUSTER2, ANGELIC_BUSTER3, ANGELIC_BUSTER4)),
+
             Map.entry("Hayato", List.of(HAYATO, HAYATO1, HAYATO2, HAYATO3, HAYATO4)),
             Map.entry("Kanna", List.of(KANNA, KANNA1, KANNA2, KANNA3, KANNA4)),
 
@@ -410,10 +413,10 @@ public class JobConstants {
         ARAN2(2110, 2000),
         ARAN3(2111, 2000),
         ARAN4(2112, 2000),
-        EVAN1(2210, 2001),
-        EVAN2(2212, 2001),
+        EVAN1(2200, 2001),
+        EVAN2(2211, 2001),
         EVAN3(2214, 2001),
-        EVAN4(2218, 2001),
+        EVAN4(2217, 2001),
         MERCEDES1(2300, 2002),
         MERCEDES2(2310, 2002),
         MERCEDES3(2311, 2002),
