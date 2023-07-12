@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static net.swordie.ms.connection.netty.NettyClient.CLIENT_KEY;
 
@@ -116,28 +117,36 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
         if (!InHeader.isSpamHeader(InHeader.getInHeaderByOp(op))) {
             log.debug(String.format("[In]\t| %s, %d/0x%s\t| %s", InHeader.getInHeaderByOp(op), op, Integer.toHexString(op).toUpperCase(), inPacket));
         }
-        Method method = handlers.get(inHeader);
-        try {
-            if (method == null) {
-                handleUnknown(inPacket, op);
-            } else {
-                Class clazz = method.getParameterTypes()[0];
-                try {
-                    if (method.getParameterTypes().length == 3) {
-                        method.invoke(this, chr, inPacket, inHeader);
-                    } else if (clazz == Client.class) {
-                        method.invoke(this, c, inPacket);
-                    } else if (clazz == Char.class) {
-                        method.invoke(this, chr, inPacket);
-                    } else {
-                        log.error("Unhandled first param type of handler " + method.getName() + ", type = " + clazz);
+        Runnable handlePacket = () -> {
+            Method method = handlers.get(inHeader);
+            try {
+                if (method == null) {
+                    handleUnknown(inPacket, op);
+                } else {
+                    Class clazz = method.getParameterTypes()[0];
+                    try {
+                        if (method.getParameterTypes().length == 3) {
+                            method.invoke(this, chr, inPacket, inHeader);
+                        } else if (clazz == Client.class) {
+                            method.invoke(this, c, inPacket);
+                        } else if (clazz == Char.class) {
+                            method.invoke(this, chr, inPacket);
+                        } else {
+                            log.error("Unhandled first param type of handler " + method.getName() + ", type = " + clazz);
+                        }
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
                     }
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
                 }
+            } finally {
+                inPacket.release();
             }
-        } finally {
-            inPacket.release();
+        };
+
+        if (chr != null && chr.getPacketDelay() > 0) {
+            ctx.executor().schedule(handlePacket,chr.getPacketDelay(), TimeUnit.MILLISECONDS);
+        } else {
+            handlePacket.run();
         }
     }
 

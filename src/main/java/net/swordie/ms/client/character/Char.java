@@ -436,6 +436,8 @@ public class Char {
 	private Merchant merchant;
 	@Transient
 	private Merchant visitingmerchant;
+	@Transient
+	private int packetDelay;
 
 
 	public Char() {
@@ -5348,5 +5350,13 @@ public class Char {
 					&& equip.getrLuk() <= luk && matchingJob;
 		}
 		return false;
+	}
+
+	public int getPacketDelay() {
+		return packetDelay;
+	}
+
+	public void setPacketDelay(int delay) {
+		this.packetDelay = delay;
 	}
 }

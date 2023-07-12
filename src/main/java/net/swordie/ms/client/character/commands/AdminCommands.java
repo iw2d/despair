@@ -103,6 +103,19 @@ public class AdminCommands {
         }
     }
 
+    @Command(names = {"delaypacket"}, requiredType = Admin)
+    public static class DelayPacket extends AdminCommand {
+
+        public static void execute(Char chr, String[] args) {
+            if (args.length < 2 || !Util.isNumber(args[1]) || Integer.parseInt(args[1]) < 0) {
+                chr.chatMessage("Usage: !packetdelay <ms>");
+                return;
+            }
+            chr.setPacketDelay(Integer.parseInt(args[1]));
+            chr.chatMessage("Packet delay set to " + args[1] + " ms");
+        }
+    }
+
 
     @Command(names = {"showinvinfo", "invinfo"}, requiredType = Tester)
     public static class ShowInvInfo extends AdminCommand {

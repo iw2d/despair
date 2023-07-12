@@ -1,5 +1,6 @@
 package net.swordie.ms.client.jobs.cygnus;
 
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
@@ -10,6 +11,7 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
+import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.handlers.EventManager;
@@ -109,7 +111,6 @@ public class DawnWarrior extends Noblesse {
 
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
-        System.out.println(attackInfo.skillId);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
         SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
@@ -118,7 +119,9 @@ public class DawnWarrior extends Noblesse {
         if (hasHitMobs) {
             applySoulElementDebuff(attackInfo);
         }
-        handleEquinoxCycle();
+        if (!ServerConstants.CLIENT_SIDED_SKILL_HOOK) {
+            handleEquinoxCycle();
+        }
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -245,17 +248,6 @@ public class DawnWarrior extends Noblesse {
     }
 
     @Override
-    public void handleRemoveCTS(CharacterTemporaryStat cts) {
-        if (cts == GlimmeringTime) {
-            TemporaryStatManager tsm = chr.getTemporaryStatManager();
-            tsm.removeStatsBySkill(EQUINOX_CYCLE_SUN);
-            tsm.removeStatsBySkill(EQUINOX_CYCLE_MOON);
-            tsm.sendResetStatPacket();
-        }
-        super.handleRemoveCTS(cts);
-    }
-
-    @Override
     public int getFinalAttackSkill() {
         return 0;
     }
@@ -275,6 +267,7 @@ public class DawnWarrior extends Noblesse {
         Option o3 = new Option();
         Option o4 = new Option();
         Option o5 = new Option();
+        Option o6 = new Option();
         Summon summon;
         Field field;
         switch(skillID) {
@@ -350,10 +343,42 @@ public class DawnWarrior extends Noblesse {
                 tsm.putCharacterStatValue(IndieBooster, o3);
                 break;
             case EQUINOX_CYCLE:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(GlimmeringTime, o1);
+                // Reset FM / RS stats and replace with equinox cycle buff
+                if (ServerConstants.CLIENT_SIDED_SKILL_HOOK) {
+                    tsm.removeStatsBySkill(IndieCr, FALLING_MOON);
+                    tsm.removeStatsBySkill(BuckShot, FALLING_MOON);
+                    tsm.removeStatsBySkill(IndieDamR, RISING_SUN);
+                    tsm.removeStatsBySkill(IndieBooster, RISING_SUN);
+                    tsm.sendResetStatPacket();
+                    o1.nOption = tsm.getOption(PoseType).nOption != 0 ? tsm.getOption(PoseType).nOption : 1; // for client side buff icon
+                    o1.rOption = skillID;
+                    o1.tOption = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(GlimmeringTime, o1);
+                    o2.nValue = chr.getSkillStatValue(indieCr, FALLING_MOON) + chr.getSkillStatValue(indieCr, MASTER_OF_THE_SWORD);
+                    o2.nReason = skillID;
+                    o2.tStart = Util.getCurrentTime();
+                    o2.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieCr, o2);
+                    o3.nOption = 1;
+                    o3.rOption = skillID;
+                    o3.tOption = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(BuckShot, o3);
+                    o4.nValue = chr.getSkillStatValue(indieDamR, RISING_SUN) + chr.getSkillStatValue(v, MASTER_OF_THE_SWORD);
+                    o4.nReason = skillID;
+                    o4.tStart = Util.getCurrentTime();
+                    o4.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieDamR, o4);
+                    o5.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? chr.getSkillStatValue(w, MASTER_OF_THE_SWORD) : chr.getSkillStatValue(indieBooster, RISING_SUN);
+                    o5.nReason = skillID;
+                    o5.tStart = Util.getCurrentTime();
+                    o5.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieBooster, o5);
+                } else {
+                    o1.nOption = 1;
+                    o1.rOption = skillID;
+                    o1.tOption = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(GlimmeringTime, o1);
+                }
                 break;
             case CALL_OF_CYGNUS_DW:
                 o1.nReason = skillID;
@@ -392,6 +417,21 @@ public class DawnWarrior extends Noblesse {
                 break;
         }
         tsm.sendSetStatPacket();
+    }
+
+    @Override
+    public void handleRemoveCTS(CharacterTemporaryStat cts) {
+        if (cts == GlimmeringTime) {
+            TemporaryStatManager tsm = chr.getTemporaryStatManager();
+            if (ServerConstants.CLIENT_SIDED_SKILL_HOOK) {
+                tsm.removeStatsBySkill(FALLING_MOON);
+                tsm.removeStatsBySkill(RISING_SUN);
+                chr.write(WvsContext.temporaryStatReset(PoseType));
+            }
+            tsm.removeStatsBySkill(EQUINOX_CYCLE_SUN);
+            tsm.removeStatsBySkill(EQUINOX_CYCLE_MOON);
+        }
+        super.handleRemoveCTS(cts);
     }
 
 

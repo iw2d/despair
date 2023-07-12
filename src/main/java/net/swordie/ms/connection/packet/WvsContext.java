@@ -12,6 +12,7 @@ import net.swordie.ms.client.character.potential.CharacterPotential;
 import net.swordie.ms.client.character.quest.Quest;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.TownPortal;
+import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.friend.Friend;
 import net.swordie.ms.client.friend.result.FriendResult;
@@ -278,6 +279,23 @@ public class WvsContext {
         }
 
         temporaryStatManager.getRemovedStats().clear();
+        return outPacket;
+    }
+
+    public static OutPacket temporaryStatReset(CharacterTemporaryStat cts) {
+        OutPacket outPacket = new OutPacket(OutHeader.TEMPORARY_STAT_RESET);
+
+        int[] removedMask = new int[CharacterTemporaryStat.length];
+        for (int i = 0; i < removedMask.length; i++) {
+            if (cts.getPos() == i) {
+                removedMask[i] |= cts.getVal();
+            }
+            outPacket.encodeInt(removedMask[i]);
+        }
+
+        outPacket.encodeByte(0); // ?
+        outPacket.encodeByte(false);
+
         return outPacket;
     }
 

@@ -954,6 +954,29 @@ public class TemporaryStatManager {
         this.lastStatResetRequestTime = curTime;
     }
 
+    public void removeStatsBySkill(CharacterTemporaryStat cts, int skillId) {
+        Map<CharacterTemporaryStat, Option> removedMap = new HashMap<>();
+        Option checkOpt = new Option();
+        checkOpt.nReason = skillId;
+        if (cts.isIndie() && getOptions(cts) != null && getOptions(cts).contains(checkOpt)) {
+            Option o = Util.findWithPred(getOptions(cts), opt -> opt.equals(checkOpt));
+            if (o == null) {
+                log.error("Found option null, yet the options contained it?");
+            } else {
+                removedMap.put(cts, o);
+            }
+        } else if (getOption(cts).rOption == skillId || getOption(cts).nReason == skillId) {
+            removedMap.put(cts, getOption(cts));
+        }
+        removedMap.forEach((toRemove, opt) -> {
+            if (toRemove.isIndie()) {
+                removeIndieStat(toRemove, opt, false);
+            } else {
+                removeStat(toRemove, false);
+            }
+        });
+    }
+
     public void removeStatsBySkill(int skillId) {
         Map<CharacterTemporaryStat, Option> removedMap = new HashMap<>();
         for (CharacterTemporaryStat cts : getCurrentStats().keySet()) {
