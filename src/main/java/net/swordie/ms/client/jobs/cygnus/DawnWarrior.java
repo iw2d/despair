@@ -61,7 +61,6 @@ public class DawnWarrior extends Noblesse {
 
 
     private int[] addedSkills = new int[] {
-            ELEMENTAL_HARMONY_STR,
             IMPERIAL_RECALL
     };
 

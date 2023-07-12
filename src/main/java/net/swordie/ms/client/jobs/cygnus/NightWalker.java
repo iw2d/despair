@@ -47,7 +47,6 @@ public class NightWalker extends Noblesse {
     public static final int NOBLE_MIND = 10000202;
     public static final int ELEMENTAL_SHIFT = 10001254;
     public static final int ELEMENTAL_SHIFT2 = 10000252;
-    public static final int ELEMENTAL_HARMONY_LUK = 10000249;
 
     public static final int LUCKY_SEVEN = 14001020;
     public static final int DARK_ELEMENTAL = 14001021; //Buff (Mark of Darkness)
@@ -94,7 +93,6 @@ public class NightWalker extends Noblesse {
     public static final int TRIPLE_THROW_FINISHER = 14101021;
 
     private int[] addedSkills = new int[] {
-            ELEMENTAL_HARMONY_LUK,
             IMPERIAL_RECALL,
             ELEMENTAL_EXPERT,
             ELEMENTAL_SLASH,

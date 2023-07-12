@@ -45,7 +45,6 @@ public class BlazeWizard extends Noblesse {
     public static final int NOBLE_MIND = 10000202;
     public static final int ELEMENTAL_SHIFT = 10001254;
     public static final int ELEMENTAL_SHIFT2 = 10000252;
-    public static final int ELEMENTAL_HARMONY_INT = 10000248;
 
     public static final int ORBITAL_FLAME = 12001020;
     public static final int GREATER_ORBITAL_FLAME = 12100020;
@@ -88,7 +87,6 @@ public class BlazeWizard extends Noblesse {
     public static final int FINAL_FLAME_ELEMENT = 12120007;
 
     private int[] addedSkills = new int[] {
-            ELEMENTAL_HARMONY_INT,
             IMPERIAL_RECALL,
             ELEMENTAL_EXPERT,
             ELEMENTAL_SLASH,

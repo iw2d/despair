@@ -30,7 +30,6 @@ public class ThunderBreaker extends Noblesse {
     public static final int NOBLE_MIND = 10000202;
     public static final int ELEMENTAL_SHIFT = 10001254;
     public static final int ELEMENTAL_SHIFT2 = 10000252;
-    public static final int ELEMENTAL_HARMONY_STR = 10000246;
 
     public static final int LIGHTNING_ELEMENTAL = 15001022; //Buff (Charge) //Stackable Charge
     public static final int ELECTRIFIED = 15000023;
@@ -52,7 +51,6 @@ public class ThunderBreaker extends Noblesse {
     public static final int PRIMAL_BOLT = 15121054;
 
     private int[] addedSkills = new int[] {
-            ELEMENTAL_HARMONY_STR,
             IMPERIAL_RECALL,
             ELEMENTAL_EXPERT,
             ELEMENTAL_SLASH,

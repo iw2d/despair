@@ -536,7 +536,7 @@ public enum BaseStat {
     }
 
     public boolean isNonAdditiveStat() {
-        return this == fd || this == ied || isLevelStat();
+        return this == fd || this == ied;
     }
 
     public boolean isLevelStat() {

@@ -3988,12 +3988,10 @@ public class Char {
 			// Stat gained by the stat's corresponding "per level" value
 			BaseStat levelVar = baseStat.getLevelVar();
 			if (levelVar != null) {
-				// Level Stat stored in BaseStat (passives), e.g. Skill/10000246 #lv2str = $50 -> 1 STR every 2 levels
-				if (getNonAddBaseStats().containsKey(levelVar)) {
-					for (Integer lv2val : getNonAddBaseStats().get(levelVar)) {
-						stat += (int) (getLevel() / (int) (100 / lv2val));
-					}
-				}
+				// Stat gained by passives
+				stat += getBaseStats().getOrDefault(levelVar, 0);
+				// Stat gained by buffs
+				stat += getTemporaryStatManager().getBaseStats().getOrDefault(levelVar, 0);
 				// Level Stat gained by equips, ItemOption $inkSTRlv = $4 -> 4 STR every 10 levels
 				for (Item item : getEquippedInventory().getItems()) {
 					Equip equip = (Equip) item;
@@ -4007,7 +4005,7 @@ public class Char {
 					Skill skill = cp.getSkill();
 					SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
 					Map<BaseStat, Integer> stats = si.getBaseStatValues(this, skill.getCurrentLevel());
-					if (stats.containsKey(baseStat)) {
+					if (stats.containsKey(baseStat) && stats.get(baseStat) > 0) {
 						stat += (int) (getLevel() / stats.get(baseStat));
 					}
 				}

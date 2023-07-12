@@ -26,10 +26,6 @@ public class Noblesse extends Job {
     public static final int ELEMENTAL_SHIFT_HIGH = 10001253;
     public static final int ELEMENTAL_SHIFT_FLASH = 10001254;
     public static final int ELEMENTAL_EXPERT = 10000250; // given with 4th job
-    public static final int ELEMENTAL_HARMONY_STR = 10000246;
-    public static final int ELEMENTAL_HARMONY_DEX = 10000247;
-    public static final int ELEMENTAL_HARMONY_INT = 10000248;
-    public static final int ELEMENTAL_HARMONY_LUK = 10000249;
     public static final int NOBLE_MIND = 10000202;
 
     private int[] addedSkills = {

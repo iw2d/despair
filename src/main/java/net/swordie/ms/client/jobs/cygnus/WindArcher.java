@@ -47,7 +47,6 @@ public class WindArcher extends Noblesse {
     public static final int NOBLE_MIND = 10000202;
     public static final int ELEMENTAL_SHIFT = 10001254;
     public static final int ELEMENTAL_SHIFT2 = 10000252;
-    public static final int ELEMENTAL_HARMONY_DEX = 10000247;
 
     public static final int STORM_ELEMENTAL = 13001022; //Buff
 
@@ -76,7 +75,6 @@ public class WindArcher extends Noblesse {
     public static final int MONSOON = 13121052;
 
     private int[] addedSkills = new int[] {
-            ELEMENTAL_HARMONY_DEX,
             IMPERIAL_RECALL,
             ELEMENTAL_EXPERT,
             ELEMENTAL_SLASH,
