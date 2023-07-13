@@ -61,7 +61,6 @@ public class DawnWarrior extends Noblesse {
     public static final int STYX_CROSSING_CHARGED = 11121055;
     public static final int GLORY_OF_THE_GUARDIANS_DW = 11121053;
 
-
     private int[] addedSkills = new int[] {
             IMPERIAL_RECALL
     };
@@ -442,5 +441,21 @@ public class DawnWarrior extends Noblesse {
     public void handleHit(Char chr, HitInfo hitInfo) {
 
         super.handleHit(chr, hitInfo);
+    }
+
+    @Override
+    public void handleSkillRemove(Char chr, int skillID) {
+        if (skillID == WILL_OF_STEEL && willOfSteelTimer != null && !willOfSteelTimer.isDone()) {
+            willOfSteelTimer.cancel(true);
+        }
+        super.handleSkillRemove(chr, skillID);
+    }
+
+    @Override
+    public void handleCancelTimer(Char chr) {
+        if (willOfSteelTimer != null && !willOfSteelTimer.isDone()) {
+            willOfSteelTimer.cancel(true);
+        }
+        super.handleCancelTimer(chr);
     }
 }

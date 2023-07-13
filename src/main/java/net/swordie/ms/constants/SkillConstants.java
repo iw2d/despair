@@ -60,7 +60,7 @@ public class SkillConstants {
                     PinkBean.LETS_ROLL,
                     Demon.VITALITY_VEIL,
                     AngelicBuster.SOUL_RESONANCE,
-                    BlazeWizard.DRAGON_BLAZE_FIRST,
+                    BlazeWizard.DRAGON_BLAZE,
                     Phantom.TEMPEST,
                     IceLightning.LIGHTNING_ORB,
                     Jett.FALLING_STARS,
@@ -1659,6 +1659,8 @@ public class SkillConstants {
             case FirePoison.SPELL_MASTERY_FP:
             case IceLightning.SPELL_MASTERY_IL:
             case Bishop.SPELL_MASTERY_BISH:
+            case BlazeWizard.SPELL_CONTROL:
+            case BlazeWizard.PURE_MAGIC:
                 stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
                 break;
             case Corsair.GUN_MASTERY:
@@ -1707,6 +1709,9 @@ public class SkillConstants {
                 break;
             case DawnWarrior.WILL_OF_STEEL:
                 stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.x, slv));
+                break;
+            case BlazeWizard.FIRE_REPULSION:
+                stats.put(BaseStat.magicGuard, si.getValue(SkillStat.x, slv));
                 break;
         }
     }

@@ -1,5 +1,6 @@
 package net.swordie.ms.handlers.user;
 
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.quest.Quest;
@@ -184,6 +185,8 @@ public class JobSkillHandler {
         int skillID = inPacket.decodeInt();
         byte slv = inPacket.decodeByte();
         short dir = inPacket.decodeShort();
+
+        chr.applyMpCon(skillID, slv);
         SkillInfo si = SkillData.getSkillInfoById(skillID);
         int range = si.getValue(SkillStat.range, slv);
         ForceAtomEnum fae;
@@ -207,37 +210,27 @@ public class JobSkillHandler {
         }
 
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (tsm.hasStatBySkillId(BlazeWizard.ORBITAL_FLAME_RANGE)) {
+        boolean addRange = tsm.hasStatBySkillId(BlazeWizard.ORBITAL_FLAME_RANGE);
+        if (addRange) {
             range = tsm.getOptByCTSAndSkill(AddRangeOnOff, BlazeWizard.ORBITAL_FLAME_RANGE).nOption;
         }
 
         int curTime = Util.getCurrentTime();
-        int angle = 0; // left
-        int firstImpact = 5;
-        int secondImpact = 21;
-        switch (dir) {
-            case 1: // right
-                angle = 180;
-                break;
-            case 2: // up
-                angle = 270;
-                firstImpact = 11;
-                secondImpact = 13;
-                range /= 1.5;
-                break;
-            case 3: // down
-                angle = 90;
-                firstImpact = 11;
-                secondImpact = 13;
-                range /= 1.5;
-                break;
+        int angle = 90;
+        int firstImpact = addRange ? 10 : 7;
+        int secondImpact = addRange ? 30 : 20;
+        if (dir == 2 || dir == 3) {
+            // up or down
+            firstImpact = 21;
+            secondImpact = 21;
+            range /= 1.5;
         }
         ForceAtomInfo fai = new ForceAtomInfo(chr.getNewForceAtomKey(), fae.getInc(), firstImpact, secondImpact,
                 angle, 0, curTime, si.getValue(SkillStat.mobCount, slv), skillID, new Position(0, 0));
         List<ForceAtomInfo> faiList = new ArrayList<>();
         faiList.add(fai);
         chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), fae.getForceAtomType(), false,
-                new ArrayList<>(), skillID, faiList, null, dir, range, null, 0, null));
+                new ArrayList<>(), skillID, faiList, null, dir, range, null, 0, null), ServerConstants.CLIENT_SIDED_SKILL_HOOK ? chr : null);
     }
 
     @Handler(op = InHeader.ZERO_TAG)

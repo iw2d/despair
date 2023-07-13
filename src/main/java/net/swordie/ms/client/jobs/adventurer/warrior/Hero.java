@@ -420,6 +420,14 @@ public class Hero extends Warrior {
     }
 
     @Override
+    public void handleSkillRemove(Char chr, int skillID) {
+        if (skillID == SELF_RECOVERY && selfRecoveryTimer != null && !selfRecoveryTimer.isDone()) {
+            selfRecoveryTimer.cancel(true);
+        }
+        super.handleSkillRemove(chr, skillID);
+    }
+
+    @Override
     public void handleCancelTimer(Char chr) {
         if (selfRecoveryTimer != null && !selfRecoveryTimer.isDone()) {
             selfRecoveryTimer.cancel(true);

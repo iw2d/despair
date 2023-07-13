@@ -924,8 +924,10 @@ public class TemporaryStatManager {
 
     public boolean hasStatBySkillId(int skillId) {
         for (CharacterTemporaryStat cts : getCurrentStats().keySet()) {
-            if (getOption(cts).rOption == skillId || getOption(cts).nReason == skillId) {
-                return true;
+            for (Option option : getCurrentStats().getOrDefault(cts, List.of())) {
+                if (option.rOption == skillId || option.nReason == skillId) {
+                    return true;
+                }
             }
         }
         return false;

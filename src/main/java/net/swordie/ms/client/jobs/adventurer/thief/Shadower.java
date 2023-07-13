@@ -435,6 +435,14 @@ public class Shadower extends Thief {
     }
 
     @Override
+    public void handleSkillRemove(Char chr, int skillID) {
+        if (skillID == CRITICAL_GROWTH && critGrowthTimer != null && !critGrowthTimer.isDone()) {
+            critGrowthTimer.cancel(true);
+        }
+        super.handleSkillRemove(chr, skillID);
+    }
+
+    @Override
     public void handleCancelTimer(Char chr) {
         if (critGrowthTimer != null && !critGrowthTimer.isDone()) {
             critGrowthTimer.cancel(true);

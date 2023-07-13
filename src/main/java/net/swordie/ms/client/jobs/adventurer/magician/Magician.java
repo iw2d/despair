@@ -340,6 +340,24 @@ public class Magician extends Beginner {
     }
 
     @Override
+    public void handleSkillRemove(Char chr, int skillID) {
+        if (skillID == FirePoison.INFINITY_FP || skillID == IceLightning.INFINITY_IL || skillID == Bishop.INFINITY_BISH) {
+            if (infinityTimer != null && !infinityTimer.isDone()) {
+                infinityTimer.cancel(true);
+            }
+        }
+        super.handleSkillRemove(chr, skillID);
+    }
+
+    @Override
+    public void handleCancelTimer(Char chr) {
+        if (infinityTimer != null && !infinityTimer.isDone()) {
+            infinityTimer.cancel(true);
+        }
+        super.handleCancelTimer(chr);
+    }
+
+    @Override
     public void handleLevelUp() {
         super.handleLevelUp();
     }

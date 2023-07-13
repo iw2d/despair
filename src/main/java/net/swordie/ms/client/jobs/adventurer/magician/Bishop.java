@@ -545,6 +545,14 @@ public class Bishop extends Magician {
     }
 
     @Override
+    public void handleSkillRemove(Char chr, int skillID) {
+        if (skillID == BLESSED_ENSEMBLE && blessedEmsembleTimer != null && !blessedEmsembleTimer.isDone()) {
+            blessedEmsembleTimer.cancel(true);
+        }
+        super.handleSkillRemove(chr, skillID);
+    }
+
+    @Override
     public void handleCancelTimer(Char chr) {
         if (blessedEmsembleTimer != null && !blessedEmsembleTimer.isDone()) {
             blessedEmsembleTimer.cancel(true);

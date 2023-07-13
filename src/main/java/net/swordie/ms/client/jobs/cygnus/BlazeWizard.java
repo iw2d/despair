@@ -12,9 +12,7 @@ import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
-import net.swordie.ms.enums.AssistType;
-import net.swordie.ms.enums.LeaveType;
-import net.swordie.ms.enums.MoveAbility;
+import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Life;
@@ -27,8 +25,6 @@ import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
-import java.util.HashMap;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
@@ -38,14 +34,6 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class BlazeWizard extends Noblesse {
-
-    public static final int IMPERIAL_RECALL = 10001245;
-    public static final int ELEMENTAL_EXPERT = 10000250;
-    public static final int ELEMENTAL_SLASH = 10001244;
-    public static final int NOBLE_MIND = 10000202;
-    public static final int ELEMENTAL_SHIFT = 10001254;
-    public static final int ELEMENTAL_SHIFT2 = 10000252;
-
     public static final int ORBITAL_FLAME = 12001020;
     public static final int GREATER_ORBITAL_FLAME = 12100020;
     public static final int GRAND_ORBITAL_FLAME = 12110020;
@@ -57,17 +45,20 @@ public class BlazeWizard extends Noblesse {
     public static final int FINAL_ORBITAL_FLAME_ATOM = 12120010;
 
 
-
+    public static final int FIRE_REPULSION = 12000024;
+    public static final int SPELL_CONTROL = 12100027;
     public static final int IGNITION = 12101024; //Buff
     public static final int IGNITION_EXPLOSION = 12100029; // Explosion Attack
     public static final int FLASHFIRE = 12101025; //Special Skill
     public static final int WORD_OF_FIRE = 12101023; //Buff
     public static final int CONTROLLED_BURN = 12101022; //Special Skill
 
-    public static final int CINDER_MAELSTROM = 12111022; //Special Skill //TODO
+    public static final int CINDER_MAELSTROM = 12111022; //Special Skill
     public static final int PHOENIX_RUN = 12111023; //Special Buff
     public static final int PHOENIX_RUN_EFFECTS = 12111029;
 
+    public static final int PURE_MAGIC = 12120009;
+    public static final int TOWERING_INFERNO = 12121002;
     public static final int BURNING_CONDUIT = 12121005;
     public static final int FIRES_OF_CREATION = 12121004; //only used for visual cooldown
     public static final int FIRES_OF_CREATION_FOX = 12120014; //Buff
@@ -78,34 +69,24 @@ public class BlazeWizard extends Noblesse {
 
     public static final int CATACLYSM = 12121052;
     public static final int GLORY_OF_THE_GUARDIANS_BW = 12121053;
-    public static final int DRAGON_BLAZE_FIRST = 12121054;
+    public static final int DRAGON_BLAZE = 12121054;
+    public static final int DRAGON_BLAZE_FINAL = 12121055;
 
-    //Flame Elements
     public static final int FLAME_ELEMENT = 12000022;
     public static final int GREATER_FLAME_ELEMENT = 12100026;
     public static final int GRAND_FLAME_ELEMENT = 12110024;
     public static final int FINAL_FLAME_ELEMENT = 12120007;
 
     private int[] addedSkills = new int[] {
-            IMPERIAL_RECALL,
-            ELEMENTAL_EXPERT,
-            ELEMENTAL_SLASH,
-            NOBLE_MIND,
-            ELEMENTAL_SHIFT,
-            ELEMENTAL_SHIFT2
+            IMPERIAL_RECALL
     };
 
-    boolean used;
-    Position chrPos;
-    int prevmap;
-    private HashMap<Mob, ScheduledFuture> hashMap = new HashMap<>();
-    private ScheduledFuture schFuture;
-    private Summon summonFox;
-    private Summon summonLion;
+    private FlashFire flashFire;
+
 
     public BlazeWizard(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
             for (int id : addedSkills) {
                 if (!chr.hasSkill(id)) {
                     Skill skill = SkillData.getSkillDeepCopyById(id);
@@ -122,76 +103,6 @@ public class BlazeWizard extends Noblesse {
     }
 
 
-    @Override
-    public void handleSkillRemove(Char chr, int skillID) {
-        switch (skillID) {
-            case FIRES_OF_CREATION_FOX:
-            case FIRES_OF_CREATION_LION:
-                removeFiresOfCreationSummon(chr, skillID);
-                break;
-        }
-    }
-
-    private void removeFiresOfCreationSummon(Char chr, int skillID) {
-        Summon summon = skillID == FIRES_OF_CREATION_FOX ? summonFox : summonLion;
-
-        if (summon != null)
-        {
-            Field field = chr.getField();
-            field.broadcastPacket(Summoned.summonedRemoved(summon, LeaveType.ANIMATION));
-        }
-    }
-
-    private void summonFlameElement(Char chr) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if(tsm.getOptByCTSAndSkill(MAD, getFlameElement()) == null) {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Skill skill = chr.getSkill(FLAME_ELEMENT);
-            SkillInfo si = SkillData.getSkillInfoById(getFlameElement());
-            byte slv = (byte) chr.getSkill(getFlameElement()).getCurrentLevel();
-            Summon summon;
-            Field field;
-            field = chr.getField();
-            summon = Summon.getSummonBy(chr, getFlameElement(), slv);
-            summon.setFlyMob(false);
-            summon.setAttackActive(false);
-            summon.setAssistType(AssistType.None);
-            field.spawnSummon(summon);
-
-            o2.nReason = getFlameElement();
-            o2.nValue = 1;
-            o2.summon = summon;
-            o2.tStart = Util.getCurrentTime();
-            o2.tTerm = si.getValue(time, slv);
-            tsm.putCharacterStatValue(IndieEmpty, o2);
-
-            o1.nOption = si.getValue(x, slv);
-            o1.rOption = getFlameElement();
-            o1.tOption = si.getValue(time, slv);
-            tsm.putCharacterStatValue(MAD, o1);
-            tsm.sendSetStatPacket();
-        }
-    }
-
-    private int getFlameElement() {
-        int skill = 0;
-        if(chr.hasSkill(FLAME_ELEMENT)) {
-            skill = FLAME_ELEMENT;
-        }
-        if(chr.hasSkill(GREATER_FLAME_ELEMENT)) {
-            skill = GREATER_FLAME_ELEMENT;
-        }
-        if(chr.hasSkill(GRAND_FLAME_ELEMENT)) {
-            skill = GRAND_FLAME_ELEMENT;
-        }
-        if(chr.hasSkill(FINAL_FLAME_ELEMENT)) {
-            skill = FINAL_FLAME_ELEMENT;
-        }
-        return skill;
-    }
-
-
 
     // Attack related methods ------------------------------------------------------------------------------------------
 
@@ -204,69 +115,128 @@ public class BlazeWizard extends Noblesse {
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
         if (hasHitMobs) {
             if (attackInfo.skillId != IGNITION_EXPLOSION) {
-                applyIgniteOnMob(attackInfo);
+                applyIgnition(attackInfo);
             }
         }
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
+        Summon summon;
         switch (attackInfo.skillId) {
             case ORBITAL_FLAME_ATOM:
             case GREATER_ORBITAL_FLAME_ATOM:
             case GRAND_ORBITAL_FLAME_ATOM:
             case FINAL_ORBITAL_FLAME_ATOM:
-                summonFlameElement(chr);
+                summonFlameElement();
+                break;
+            case CATACLYSM:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = 5;
+                tsm.putCharacterStatValue(NotDamaged, o1);
+                tsm.sendSetStatPacket();
+                break;
+            case DRAGON_BLAZE_FINAL:
+                chr.setSkillCooldown(DRAGON_BLAZE, slv);
                 break;
         }
 
         super.handleAttack(chr, attackInfo);
     }
 
-    private void applyIgniteOnMob(AttackInfo attackInfo) {
+    private void applyIgnition(AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o = new Option();
-        if(tsm.hasStat(WizardIgnite)) {
-            Skill skill = chr.getSkill(IGNITION);
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            byte slv = (byte) skill.getCurrentLevel();
-            for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
+        if (tsm.hasStat(WizardIgnite)) {
+            SkillInfo si = SkillData.getSkillInfoById(IGNITION);
+            int slv = chr.getSkillLevel(IGNITION);
+            Option o1 = new Option();
+            Option o2 = new Option();
+            for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                if (mob == null) {
+                    continue;
+                }
+                MobTemporaryStat mts = mob.getTemporaryStat();
                 if (Util.succeedProp(si.getValue(prop, slv))) {
-                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if(mob == null) {
-                        continue;
+                    if (tsm.hasStatBySkillId(FIRES_OF_CREATION_FOX) || tsm.hasStatBySkillId(FIRES_OF_CREATION_LION)) {
+                        o1.nOption = chr.getSkillStatValue(z, FIRES_OF_CREATION);
+                        o1.rOption = FIRES_OF_CREATION;
+                        o1.tOption = si.getValue(dotTime, slv);
+                        mts.addStatOptions(MobStat.ElementResetBySummon, o1);
                     }
-                    MobTemporaryStat mts = mob.getTemporaryStat();
-
-                    mts.createAndAddBurnedInfo(chr, skill);
-
-                    if(hashMap.get(mob) != null && !hashMap.get(mob).isDone()) {
-                        hashMap.get(mob).cancel(true);
-                        hashMap.remove(mob);
-                    }
-
-                    schFuture = EventManager.addEvent(() ->
-                            explodeIgnitionOnMob(mob), si.getValue(dotTime, slv), TimeUnit.SECONDS);
-
-                    hashMap.put(mob, schFuture);
-
-                    o.nOption = 1;
-                    o.rOption = skill.getSkillId();
-                    o.tOption = 10;
-                    o.wOption = 10;
-                    mts.addStatOptionsAndBroadcast(MobStat.Ember, o);
+                    o2.nOption = chr.getSkillStatValue(x, TOWERING_INFERNO);
+                    o2.rOption = IGNITION;
+                    o2.tOption = si.getValue(dotTime, slv);
+                    mts.addStatOptions(MobStat.Ember, o2);
+                    mts.createAndAddBurnedInfo(chr, IGNITION, slv);
+                    EventManager.addEvent(() -> explodeIgnition(mob), si.getValue(dotTime, slv), TimeUnit.SECONDS);
                 }
             }
         }
     }
 
-    private void explodeIgnitionOnMob(Mob mob) {
-        MobTemporaryStat mts = mob.getTemporaryStat();
-        hashMap.remove(mob);
+    private void explodeIgnition(Mob mob) {
         Life checkMob = chr.getField().getLifeByObjectID(mob.getObjectId());
-        if(checkMob != null && checkMob instanceof Mob) {
-            chr.write(UserLocal.explosionAttack(IGNITION_EXPLOSION, mob.getPosition(), mob.getObjectId(), 10));
+        if (checkMob instanceof Mob) {
+            chr.write(UserLocal.explosionAttack(IGNITION_EXPLOSION, mob.getPosition(), mob.getObjectId(), 8));
         }
+    }
 
+    private void summonFlameElement() {
+        int skillId = 0;
+        if (chr.hasSkill(FINAL_FLAME_ELEMENT)) {
+            skillId = FINAL_FLAME_ELEMENT;
+        } else if (chr.hasSkill(GRAND_FLAME_ELEMENT)) {
+            skillId = GRAND_FLAME_ELEMENT;
+        } else if (chr.hasSkill(GREATER_FLAME_ELEMENT)) {
+            skillId = GREATER_FLAME_ELEMENT;
+        } else if (chr.hasSkill(FLAME_ELEMENT)) {
+            skillId = FLAME_ELEMENT;
+        }
+        if (skillId == 0) {
+            return;
+        }
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        SkillInfo si = SkillData.getSkillInfoById(skillId);
+        int slv = chr.getSkillLevel(skillId);
+        // create/refresh summon
+        Summon summon = null;
+        if (tsm.hasStatBySkillId(skillId)) {
+            summon = tsm.getOptByCTSAndSkill(IndieEmpty, skillId).summon;
+        }
+        if (summon == null) {
+            summon = new Summon(skillId);
+            summon.setChr(chr);
+            summon.setSkillID(skillId);
+            summon.setSlv((byte) slv);
+            summon.setSummonTerm(chr.getJobHandler().getBuffedSkillDuration(si.getValue(time, slv)));
+            summon.setCharLevel((byte) chr.getStat(Stat.level));
+            summon.setPosition(chr.getPosition().deepCopy());
+            summon.setMoveAction((byte) 1);
+            summon.setCurFoothold((short) chr.getField().findFootHoldBelow(summon.getPosition()).getId());
+            summon.setMoveAbility(MoveAbility.Walk);
+            summon.setEnterType(EnterType.Animation);
+            summon.setFlyMob(false);
+            summon.setAttackActive(false);
+            summon.setAssistType(AssistType.None);
+            chr.getField().spawnSummon(summon);
+        } else {
+            summon.setSummonTerm(chr.getJobHandler().getBuffedSkillDuration(si.getValue(time, slv)));
+        }
+        // set stat
+        Option o1 = new Option();
+        Option o2 = new Option();
+        o1.nReason = skillId;
+        o1.nValue = 1;
+        o1.summon = summon;
+        o1.tStart = Util.getCurrentTime();
+        o1.tTerm = si.getValue(time, slv);
+        tsm.putCharacterStatValue(IndieEmpty, o1);
+        o2.nOption = si.getValue(x, slv);
+        o2.rOption = skillId;
+        o2.tOption = si.getValue(time, slv);
+        tsm.putCharacterStatValue(MAD, o2);
+        tsm.sendSetStatPacket();
     }
 
     @Override
@@ -290,31 +260,24 @@ public class BlazeWizard extends Noblesse {
         Summon summon;
         switch(skillID) {
             case FLASHFIRE:
-                Position flamepos = chr.getPosition();
-                if(used == true) {
-                    if(chr.getFieldID() != prevmap) {
-                        //Set Blink
-                        prevmap = chr.getFieldID();
-                        chr.write(WvsContext.flameWizardFlareBlink(chr, flamepos, false));
-                        chrPos = chr.getPosition();
-                        used = true;
-                    } else {
-                        //Clear Blink + Teleport
-                        chr.write(WvsContext.flameWizardFlareBlink(chr, chrPos, true));
-                        used = false;
-                    }
+                if (flashFire != null && flashFire.getFieldId() == chr.getFieldID() && tsm.hasStatBySkillId(skillID)) {
+                    // clear blink + teleport
+                    flashFire.blink();
+                    flashFire = null;
+                    tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
                 } else {
-                    //Set Blink
-                    prevmap = chr.getFieldID();
-                    chr.write(WvsContext.flameWizardFlareBlink(chr, flamepos, false));
-                    chrPos = chr.getPosition();
-                    used = true;
+                    // set blink
+                    flashFire = new FlashFire(chr, inPacket.decodePosition());
+                    o1.nValue = 1;
+                    o1.nReason = skillID;
+                    o1.tStart = Util.getCurrentTime();
+                    o1.tTerm = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(IndieEmpty, o1);
                 }
                 break;
             case CONTROLLED_BURN:
-                int healmp = si.getValue(x, slv);
-                int healpercent = (chr.getMaxMP() * healmp) / 100;
-                chr.healMP(healpercent);
+                chr.healMP((int) (chr.getMaxMP() / (100D / si.getValue(x, slv))));
                 break;
             case IMPERIAL_RECALL:
                 o1.nValue = si.getValue(x, slv);
@@ -356,58 +319,13 @@ public class BlazeWizard extends Noblesse {
                 break;
             case FIRES_OF_CREATION_FOX:
             case FIRES_OF_CREATION_LION:
-                if (chr.hasSkillOnCooldown(FIRES_OF_CREATION_FOX) || chr.hasSkillOnCooldown(FIRES_OF_CREATION_LION)) {
-                    break;
-                }
-
-                tsm.removeStatsBySkill(skillID == FIRES_OF_CREATION_FOX ? FIRES_OF_CREATION_LION : FIRES_OF_CREATION_LION);
-                Field field = chr.getField();
-
-                if (summonFox != null)
-                {
-                    field.broadcastPacket(Summoned.summonedRemoved(summonFox, LeaveType.ANIMATION));
-                }
-
-                if (summonLion != null)
-                {
-                    field.broadcastPacket(Summoned.summonedRemoved(summonLion, LeaveType.ANIMATION));
-                }
-
-                tsm.sendResetStatPacket();
-
-                chr.setSkillCooldown(FIRES_OF_CREATION, slv); // to display cooldown in quickslot
-                chr.setSkillCooldown(FIRES_OF_CREATION_FOX, slv);
-                chr.setSkillCooldown(FIRES_OF_CREATION_LION, slv);
-
-                summon = Summon.getSummonBy(chr, skillID, slv);
-                summon.setFlyMob(skillID == FIRES_OF_CREATION_FOX);
-                summon.setMoveAbility(MoveAbility.Walk);
-                // i have to specify the summon term as the _FOX/LION skills have the time set to 0, making the summon last forever!
-                summon.setSummonTerm(SkillData.getSkillInfoById(FIRES_OF_CREATION).getValue(time, slv));
-                field.spawnSummon(summon);
-
-                if (skillID == FIRES_OF_CREATION_FOX) {
-                    summonFox = summon;
-                } else {
-                    summonLion = summon;
-                }
-
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(y, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o1);
-                o2.nOption = si.getValue(z, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(ElementalReset, o2);
+                handleFiresOfCreation(skillID);
                 break;
-            case CINDER_MAELSTROM:  //Special Summon    //TODO
+            case CINDER_MAELSTROM:  //Special Summon
                 summon = Summon.getSummonBy(chr, skillID, slv);
-                field = chr.getField();
                 summon.setFlyMob(false);
                 summon.setMoveAbility(MoveAbility.Stop);
-                field.spawnSummon(summon);
+                chr.getField().spawnSummon(summon);
                 break;
             case PHOENIX_RUN:
                 o1.nOption = 1;
@@ -427,7 +345,6 @@ public class BlazeWizard extends Noblesse {
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
-
             case ORBITAL_FLAME_RANGE:
                 if (tsm.hasStat(AddRangeOnOff)) {
                     tsm.removeStatsBySkill(skillID);
@@ -441,9 +358,57 @@ public class BlazeWizard extends Noblesse {
                 break;
         }
         tsm.sendSetStatPacket();
-
     }
 
+    public void handleFiresOfCreation(int skillId) {
+        if (chr.hasSkillOnCooldown(FIRES_OF_CREATION)) {
+            return;
+        }
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        SkillInfo si = SkillData.getSkillInfoById(FIRES_OF_CREATION);
+        int slv = chr.getSkillLevel(FIRES_OF_CREATION);
+        if (tsm.hasStatBySkillId(FIRES_OF_CREATION_FOX) || tsm.hasStatBySkillId(FIRES_OF_CREATION_LION)) {
+            tsm.removeStatsBySkill(FIRES_OF_CREATION_FOX);
+            tsm.removeStatsBySkill(FIRES_OF_CREATION_LION);
+            tsm.sendResetStatPacket();
+        }
+
+        Summon summon = new Summon(skillId);
+        summon.setChr(chr);
+        summon.setSkillID(skillId);
+        summon.setSlv((byte) slv);
+        summon.setSummonTerm(chr.getJobHandler().getBuffedSkillDuration(si.getValue(time, slv)));
+        summon.setCharLevel((byte) chr.getStat(Stat.level));
+        summon.setPosition(chr.getPosition().deepCopy());
+        summon.setMoveAction((byte) 1);
+        summon.setCurFoothold((short) chr.getField().findFootHoldBelow(summon.getPosition()).getId());
+        summon.setMoveAbility(MoveAbility.Walk);
+        summon.setEnterType(EnterType.Animation);
+        summon.setFlyMob(skillId == FIRES_OF_CREATION_FOX);
+        summon.setAttackActive(false);
+        summon.setAssistType(AssistType.None);
+        chr.getField().spawnSummon(summon);
+
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        o1.nReason = skillId;
+        o1.nValue = 1;
+        o1.summon = summon;
+        o1.tStart = Util.getCurrentTime();
+        o1.tTerm = si.getValue(time, slv);
+        tsm.putCharacterStatValue(IndieEmpty, o1);
+        o2.nOption = si.getValue(v, slv);
+        o2.rOption = skillId;
+        o2.tOption = si.getValue(time, slv);
+        // tsm.putCharacterStatValue(); // mpConIncrease?
+        o3.nReason = skillId;
+        o3.nValue = si.getValue(y, slv);
+        o3.tStart = Util.getCurrentTime();
+        o3.tTerm = si.getValue(time, slv);
+        tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o3);
+        tsm.sendSetStatPacket();
+    }
 
 
     // Hit related methods ---------------------------------------------------------------------------------------------
@@ -482,5 +447,27 @@ public class BlazeWizard extends Noblesse {
         o.tOption = si.getValue(x, slv); // duration
         tsm.putCharacterStatValue(NotDamaged, o);
         tsm.sendSetStatPacket();
+    }
+
+
+    private class FlashFire {
+        private Char chr;
+        private Position position;
+        private int fieldId;
+
+        public FlashFire(Char chr, Position position) {
+            this.chr = chr;
+            this.fieldId = chr.getFieldID();
+            this.position = position;
+            chr.write(WvsContext.flameWizardFlareBlink(chr, position, false));
+        }
+
+        public int getFieldId() {
+            return fieldId;
+        }
+
+        public void blink() {
+            chr.write(WvsContext.flameWizardFlareBlink(chr, position, true));
+        }
     }
 }
