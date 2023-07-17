@@ -223,6 +223,10 @@ public class Corsair extends Pirate {
                 tsm.putCharacterStatValue(DamageReduce, o3);
                 break;
             case OCTO_CANNON: //Stationary, Attacks
+                if (tsm.hasStatBySkillId(skillID)) {
+                    tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
+                }
                 summon = Summon.getSummonBy(chr, skillID, slv);
                 field = chr.getField();
                 summon.setFlyMob(false);

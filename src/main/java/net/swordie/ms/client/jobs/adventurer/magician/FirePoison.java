@@ -144,7 +144,7 @@ public class FirePoison extends Magician {
                 break;
             case POISON_MIST:
                 aa = AffectedArea.getAffectedArea(chr, attackInfo);
-                aa.setPosition(chr.getPosition());
+                aa.setPosition(new Position(attackInfo.forcedXSh, attackInfo.forcedYSh));
                 aa.setRect(aa.getPosition().getRectAround(si.getFirstRect()));
                 aa.setDelay((short) 9);
                 chr.getField().spawnAffectedArea(aa);
@@ -168,10 +168,6 @@ public class FirePoison extends Magician {
                 }
                 break;
             case FLAME_HAZE:
-                SkillInfo pmSi = SkillData.getSkillInfoById(POISON_MIST);
-                byte pmSlv = (byte) chr.getSkillLevel(POISON_MIST);
-                aa = AffectedArea.getPassiveAA(chr, POISON_MIST, pmSlv > 0 ? pmSlv : 1);
-                aa.setPosition(chr.getPosition());
                 o1.nOption = 1;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
@@ -183,18 +179,13 @@ public class FirePoison extends Magician {
                     if (mob == null) {
                         continue;
                     }
-                    if (Util.succeedProp(si.getValue(prop, slv))) {
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        if (!mob.isBoss()) {
-                            mts.addStatOptionsAndBroadcast(MobStat.DodgeBodyAttack, o1); //Untouchable (physical dmg) Mob Stat
-                        }
-                        mts.addStatOptionsAndBroadcast(MobStat.Speed, o2);
-                        mts.createAndAddBurnedInfo(chr, skillID, slv, si.getValue(dot, slv), si.getValue(dotInterval, slv), getExtendedDoTTime(si.getValue(dotTime, slv)), 1);
+                    MobTemporaryStat mts = mob.getTemporaryStat();
+                    if (!mob.isBoss()) {
+                        mts.addStatOptionsAndBroadcast(MobStat.DodgeBodyAttack, o1); //Untouchable (physical dmg) Mob Stat
                     }
-                    aa.setPosition(mob.getPosition());
+                    mts.addStatOptionsAndBroadcast(MobStat.Speed, o2);
+                    mts.createAndAddBurnedInfo(chr, skillID, slv, si.getValue(dot, slv), si.getValue(dotInterval, slv), getExtendedDoTTime(si.getValue(dotTime, slv)), 1);
                 }
-                aa.setRect(aa.getPosition().getRectAround(pmSi.getFirstRect()));
-                chr.getField().spawnAffectedArea(aa);
                 break;
             case PARALYZE:
                 o1.nOption = 1;
@@ -405,7 +396,7 @@ public class FirePoison extends Magician {
                 }
                 break;
             case VIRAL_SLIME:
-                summonViralSlime(chr.getPosition(), true);
+                summonViralSlime(inPacket.decodePosition(), true);
                 break;
             case ELEMENTAL_ADAPTATION_FP:
                 o1.nOption = 0;

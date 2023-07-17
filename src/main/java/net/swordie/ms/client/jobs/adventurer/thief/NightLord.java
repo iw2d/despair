@@ -284,7 +284,7 @@ public class NightLord extends Thief {
             case FRAILTY_CURSE:
                 AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
                 aa.setMobOrigin((byte) 0);
-                aa.setPosition(chr.getPosition());
+                aa.setPosition(inPacket.decodePosition());
                 aa.setRect(aa.getPosition().getRectAround(si.getFirstRect()));
                 aa.setFlip(!chr.isLeft());
                 aa.setDelay((short) 9);

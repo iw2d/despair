@@ -155,19 +155,59 @@ public class Bishop extends Magician {
         Option o2 = new Option();
         Option o3 = new Option();
         Rect rect;
+        int healRate;
         List<PartyMember> partyMembers;
         switch (attackInfo.skillId) {
+            case HEAL:
+                // debuff mobs
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                rect = attackInfo.getForcedPos().getRectAround(si.getFirstRect());
+                int count = si.getValue(u, slv);
+                for (Life life : chr.getField().getLifesInRect(rect)) {
+                    if (life instanceof Mob && ((Mob) life).getHp() > 0) {
+                        Mob mob = (Mob) life;
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
+                        count--;
+                        if (count <= 0) {
+                            break;
+                        }
+                    }
+                }
+                // heal party
+                healRate = (int) (chr.getDamageCalc().getMaxBaseDamage() * (si.getValue(hp, slv)) / 100D);
+                if (tsm.hasStat(VengeanceOfAngel)) {
+                    healRate = (int) (healRate * (chr.getSkillStatValue(hp, RIGHTEOUSLY_INDIGNANT) / 100D));
+                }
+                if (chr.getParty() == null) {
+                    chr.heal(!tsm.hasStat(CharacterTemporaryStat.Undead) ? healRate : -healRate, true);
+                } else {
+                    partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
+                            .filter(pml -> pml.getChr().getHP() > 0)
+                            .toList();
+                    for (PartyMember partyMember : partyMembers) {
+                        Char partyChr = partyMember.getChr();
+                        partyChr.heal(!partyChr.getTemporaryStatManager().hasStat(CharacterTemporaryStat.Undead)
+                                ? healRate / partyMembers.size() : -healRate / partyMembers.size(), true);
+                    }
+                    count = partyMembers.size() - 1;
+                    if (count > 0) {
+                        chr.reduceSkillCoolTime(skillID, count * si.getValue(y, slv) * 1000L);
+                    }
+                }
+                break;
             case TELEPORT_MASTERY_BISH:
             case SHINING_RAY:
                 o1.nOption = 1;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (mob == null || mob.isBoss()) {
+                        continue;
+                    }
                     if (Util.succeedProp(si.getValue(prop, slv))) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null || mob.isBoss()) {
-                            continue;
-                        }
                         mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
                 }
@@ -189,10 +229,7 @@ public class Bishop extends Magician {
                 o1.nOption = 1;
                 o1.rOption = HEAVENS_DOOR;
                 o1.tOption = 0;
-                rect = chr.getRectAround(si.getFirstRect());
-                if (!chr.isLeft()) {
-                    rect.horizontalFlipAround(chr.getPosition().getX());
-                }
+                rect = attackInfo.getForcedPos().getRectAround(si.getFirstRect());
                 if (chr.getParty() == null) {
                     tsm.putCharacterStatValue(HeavensDoor, o1);
                     tsm.sendSetStatPacket();
@@ -213,20 +250,17 @@ public class Bishop extends Magician {
                 }
                 break;
             case ANGEL_RAY:
-                int healRate = si.getValue(hp, slv);
+                healRate = si.getValue(hp, slv);
                 if (tsm.hasStat(VengeanceOfAngel)) {
                     healRate = (int) (healRate * (chr.getSkillStatValue(hp, RIGHTEOUSLY_INDIGNANT) / 100D));
                 }
                 if (chr.getParty() == null) {
                     chr.heal((int) (chr.getMaxHP() * (healRate / 100D)), true);
                 } else {
-                    rect = chr.getRectAround(si.getFirstRect());
-                    if (!chr.isLeft()) {
-                        rect.horizontalFlipAround(chr.getPosition().getX());
-                    }
-                    partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
-                            .filter(pml -> pml.getChr().getHP() > 0 &&
-                                    pml.getChr().getTemporaryStatManager().hasDebuffs()
+                    partyMembers = chr.getParty().getOnlineMembers().stream()
+                            .filter(pml -> pml != null &&
+                                    pml.getChr().getFieldID() == chr.getFieldID() &&
+                                    pml.getChr().getHP() > 0
                             )
                             .toList();
                     for (PartyMember partyMember : partyMembers) {
@@ -290,6 +324,7 @@ public class Bishop extends Magician {
         Option o6 = new Option();
         Option o7 = new Option();
         int count;
+        Position pos;
         Rect rect;
         Field field;
         Party party;
@@ -298,7 +333,7 @@ public class Bishop extends Magician {
             case HOLY_FOUNTAIN:
                 AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
                 aa.setMobOrigin((byte) 0);
-                aa.setPosition(chr.getPosition());
+                aa.setPosition(inPacket.decodePosition());
                 aa.setRect(aa.getPosition().getRectAround(si.getFirstRect()));
                 aa.setDelay((short) 4);
                 aa.setForce(si.getValue(y, slv));
@@ -309,51 +344,7 @@ public class Bishop extends Magician {
                 o1.rOption = skillID;
                 tsm.putCharacterStatValue(AntiMagicShell, o1);
                 break;
-            case HEAL:
-                if (!chr.equals(this.chr)) {
-                    // massSpell, handle everything as caster
-                    break;
-                }
-                // debuff mobs
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                rect = chr.getRectAround(si.getFirstRect());
-                if (!chr.isLeft()) {
-                    rect.horizontalFlipAround(chr.getPosition().getX());
-                }
-                count = si.getValue(u, slv);
-                for (Life life : chr.getField().getLifesInRect(rect)) {
-                    if (life instanceof Mob && ((Mob) life).getHp() > 0) {
-                        Mob mob = (Mob) life;
-                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
-                        count--;
-                        if (count <= 0) {
-                            break;
-                        }
-                    }
-                }
-                // heal party
-                int healRate = (int) (chr.getDamageCalc().getMaxBaseDamage() * (si.getValue(hp, slv)) / 100D);
-                if (tsm.hasStat(VengeanceOfAngel)) {
-                    healRate = (int) (healRate * (chr.getSkillStatValue(hp, RIGHTEOUSLY_INDIGNANT) / 100D));
-                }
-                if (chr.getParty() == null) {
-                    chr.heal(!tsm.hasStat(CharacterTemporaryStat.Undead) ? healRate : -healRate, true);
-                } else {
-                    partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
-                            .filter(pml -> pml.getChr().getHP() > 0)
-                            .toList();
-                    for (PartyMember partyMember : partyMembers) {
-                        Char partyChr = partyMember.getChr();
-                        partyChr.heal(!partyChr.getTemporaryStatManager().hasStat(CharacterTemporaryStat.Undead)
-                                ? healRate / partyMembers.size() : -healRate / partyMembers.size(), true);
-                    }
-                    count = partyMembers.size() - 1;
-                    if (count > 0) {
-                        chr.reduceSkillCoolTime(skillID, count * si.getValue(y, slv) * 1000L);
-                    }
-                }
+            case HEAL: // handle in handleAttack
                 break;
             case DISPEL:
                 if (!chr.equals(this.chr)) {
@@ -363,9 +354,10 @@ public class Bishop extends Magician {
                 if (chr.getParty() == null) {
                     tsm.removeAllDebuffs();
                 } else {
-                    rect = chr.getRectAround(si.getFirstRect());
+                    pos = inPacket.decodePosition();
+                    rect = pos.getRectAround(si.getFirstRect());
                     if (!chr.isLeft()) {
-                        rect.horizontalFlipAround(chr.getPosition().getX());
+                        rect.horizontalFlipAround(pos.getX());
                     }
                     partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
                             .filter(pml -> pml.getChr().getHP() > 0 &&
@@ -393,7 +385,7 @@ public class Bishop extends Magician {
                     TownPortal townPortal = chr.getTownPortal();
                     townPortal.despawnTownPortal();
                 }
-                TownPortal townPortal = new TownPortal(chr, townPosition, chr.getPosition(), chr.getField().getReturnMap(), chr.getFieldID(), skillID, duration);
+                TownPortal townPortal = new TownPortal(chr, townPosition, inPacket.decodePosition(), chr.getField().getReturnMap(), chr.getFieldID(), skillID, duration);
                 townPortal.spawnTownPortal();
                 chr.dispose();
                 break;
@@ -466,9 +458,9 @@ public class Bishop extends Magician {
                 party = chr.getParty();
                 if (party != null) {
                     field = chr.getField();
-                    rect = chr.getPosition().getRectAround(si.getFirstRect());
+                    rect = chr.getPosition().getRectAround(si.getFirstRect()); // position not encoded
                     if(!chr.isLeft()) {
-                        rect = rect.moveRight();
+                        rect = rect.horizontalFlipAround(chr.getPosition().getX());
                     }
                     List<PartyMember> eligblePartyMemberList = field.getPartyMembersInRect(chr, rect).stream()
                             .filter(pml -> pml.getChr().getId() != chr.getId() &&

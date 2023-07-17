@@ -9,10 +9,7 @@ import net.swordie.ms.client.jobs.adventurer.magician.*;
 import net.swordie.ms.client.jobs.adventurer.pirate.*;
 import net.swordie.ms.client.jobs.adventurer.thief.*;
 import net.swordie.ms.client.jobs.adventurer.warrior.*;
-import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
-import net.swordie.ms.client.jobs.cygnus.DawnWarrior;
-import net.swordie.ms.client.jobs.cygnus.NightWalker;
-import net.swordie.ms.client.jobs.cygnus.ThunderBreaker;
+import net.swordie.ms.client.jobs.cygnus.*;
 import net.swordie.ms.client.jobs.legend.*;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
 import net.swordie.ms.client.jobs.resistance.Blaster;
@@ -1164,6 +1161,7 @@ public class SkillConstants {
             case Corsair.GUN_MASTERY:
             case Jett.GUN_MASTERY:
             case DawnWarrior.SWORD_MASTERY:
+            case WindArcher.BOW_MASTERY:
                 return true;
         }
         return false;
@@ -1654,6 +1652,7 @@ public class SkillConstants {
             case Shadower.DAGGER_EXPERT:
             case DualBlade.KATARA_EXPERT:
             case DawnWarrior.STUDENT_OF_THE_BLADE:
+            case WindArcher.BOW_EXPERT:
                 stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
                 break;
             case FirePoison.SPELL_MASTERY_FP:
@@ -1666,6 +1665,7 @@ public class SkillConstants {
             case Corsair.GUN_MASTERY:
             case Jett.GUN_MASTERY:
             case DawnWarrior.SWORD_MASTERY:
+            case WindArcher.BOW_MASTERY:
                 stats.put(BaseStat.acc, si.getValue(SkillStat.x, slv));
                 break;
             // class specific

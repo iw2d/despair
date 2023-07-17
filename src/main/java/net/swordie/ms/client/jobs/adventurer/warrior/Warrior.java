@@ -16,6 +16,7 @@ import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
+import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
@@ -93,19 +94,20 @@ public class Warrior extends Beginner {
             case Hero.MAGIC_CRASH_HERO:
             case Paladin.MAGIC_CRASH_PALADIN:
             case DarkKnight.MAGIC_CRASH_DRK:
-                Rect rect2 = chr.getPosition().getRectAround(si.getRects().get(0));
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                Position pos = inPacket.decodePosition();
+                Rect rect = pos.getRectAround(si.getFirstRect());
                 if (!chr.isLeft()) {
-                    rect2 = rect2.moveRight();
+                    rect = rect.horizontalFlipAround(pos.getX());
                 }
-                for (Life life : chr.getField().getLifesInRect(rect2)) {
+                for (Life life : chr.getField().getLifesInRect(rect)) {
                     if (life instanceof Mob && ((Mob) life).getHp() > 0) {
                         Mob mob = (Mob) life;
                         MobTemporaryStat mts = mob.getTemporaryStat();
                         if (Util.succeedProp(si.getValue(prop, slv))) {
                             mts.removeBuffs();
-                            o1.nOption = 1;
-                            o1.rOption = skillID;
-                            o1.tOption = si.getValue(time, slv);
                             mts.addStatOptionsAndBroadcast(MobStat.MagicCrash, o1);
                         }
                     }

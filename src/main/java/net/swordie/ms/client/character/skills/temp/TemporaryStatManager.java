@@ -915,6 +915,7 @@ public class TemporaryStatManager {
 
         if (aa.getRemoveSkill()) {
             removeStatsBySkill(aa.getSkillID());
+            sendResetStatPacket();
         }
     }
 

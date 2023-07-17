@@ -280,7 +280,7 @@ public class DawnWarrior extends Noblesse {
                 o3.nOption = si.getValue(s, slv);
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, TRUE_SIGHT_PERSIST);;
-                Rect rect = chr.getPosition().getRectAround(si.getFirstRect());
+                Rect rect = inPacket.decodePosition().getRectAround(si.getFirstRect());
                 for (Life life : chr.getField().getLifesInRect(rect)) {
                     if (life instanceof Mob && ((Mob) life).getHp() > 0) {
                         Mob mob = (Mob) life;

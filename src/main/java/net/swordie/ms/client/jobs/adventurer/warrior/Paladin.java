@@ -23,6 +23,7 @@ import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
+import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
@@ -89,7 +90,7 @@ public class Paladin extends Warrior {
     private Char getReviveTarget(Rect range) {
         Party party = chr.getParty();
         if (party != null) {
-            List<Char> pChrList = chr.getParty().getPartyMembersInSameField(chr).stream().filter(pChr -> range.hasPositionInside(pChr.getPosition())).collect(Collectors.toList());
+            List<Char> pChrList = chr.getParty().getPartyMembersInSameField(chr).stream().filter(pChr -> range.hasPositionInside(pChr.getPosition())).toList();
             Char closestChr = null;
             double closestDst = Double.MIN_VALUE;
             for (Char pChr : pChrList) {
@@ -325,15 +326,16 @@ public class Paladin extends Warrior {
         Option o3 = new Option();
         Option o4 = new Option();
         Rect rect;
-        Char ptChr;
+        Position pos;
         switch (skillID) {
             case HP_RECOVERY:
                 hpRecovery();
                 break;
             case THREATEN:
-                rect = chr.getRectAround(si.getFirstRect());
+                pos = inPacket.decodePosition();
+                rect = pos.getRectAround(si.getFirstRect());
                 if (!chr.isLeft()) {
-                    rect = rect.moveRight();
+                    rect = rect.horizontalFlipAround(pos.getX());
                 }
                 for (Life life : chr.getField().getLifesInRect(rect)) {
                     if (life instanceof Mob && ((Mob) life).getHp() > 0) {
@@ -358,7 +360,7 @@ public class Paladin extends Warrior {
             case GUARDIAN:
                 // note: skill only triggers if not in a pt or a dead pt member is nearby
                 // but the detect radius is bigger than the actual skill range
-                ptChr = getReviveTarget(chr.getRectAround(si.getFirstRect()));
+                Char ptChr = getReviveTarget(chr.getRectAround(si.getFirstRect())); // position not encoded
                 if (ptChr != null) {
                     o1.nOption = 1;
                     o1.rOption = skillID;

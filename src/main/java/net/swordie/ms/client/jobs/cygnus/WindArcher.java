@@ -39,20 +39,12 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class WindArcher extends Noblesse {
-
-
-    public static final int IMPERIAL_RECALL = 10001245;
-    public static final int ELEMENTAL_EXPERT = 10000250;
-    public static final int ELEMENTAL_SLASH = 10001244;
-    public static final int NOBLE_MIND = 10000202;
-    public static final int ELEMENTAL_SHIFT = 10001254;
-    public static final int ELEMENTAL_SHIFT2 = 10000252;
-
     public static final int STORM_ELEMENTAL = 13001022; //Buff
 
     public static final int TRIFLING_WIND_I = 13101022; //Special Buff (Proc) (ON/OFF)
     public static final int TRIFLING_WIND_ATOM = 13100027;
     public static final int BOW_BOOSTER = 13101023; //Buff
+    public static final int BOW_MASTERY = 13100025;
     public static final int SYLVAN_AID = 13101024; //Buff
 
     public static final int TRIFLING_WIND_II = 13110022; //Special Buff Upgrade
@@ -61,6 +53,7 @@ public class WindArcher extends Noblesse {
     public static final int SECOND_WIND = 13110026; //
     public static final int PINPOINT_PIERCE = 13111021;
 
+    public static final int BOW_EXPERT = 13120006;
     public static final int ALBATROSS_MAX = 13120008; //Upgrade on Albatross
     public static final int TRIFLING_WIND_III = 13120003; //Special Buff Upgrade
     public static final int SHARP_EYES = 13121005; //Buff
@@ -76,16 +69,11 @@ public class WindArcher extends Noblesse {
 
     private int[] addedSkills = new int[] {
             IMPERIAL_RECALL,
-            ELEMENTAL_EXPERT,
-            ELEMENTAL_SLASH,
-            NOBLE_MIND,
-            ELEMENTAL_SHIFT,
-            ELEMENTAL_SHIFT2
     };
 
     public WindArcher(Char chr) {
         super(chr);
-        if(isHandlerOfJob(chr.getJob())) {
+        if (isHandlerOfJob(chr.getJob())) {
             for (int id : addedSkills) {
                 if (!chr.hasSkill(id)) {
                     Skill skill = SkillData.getSkillDeepCopyById(id);
@@ -404,6 +392,10 @@ public class WindArcher extends Noblesse {
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(SoulArrow, o3);
+                o4.nOption = 1;
+                o4.rOption = skillID;
+                o4.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(NoBulletConsume, o4);
                 break;
             case ALBATROSS:
                 o1.nReason = skillID;

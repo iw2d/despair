@@ -287,13 +287,12 @@ public class Shadower extends Thief {
             case SMOKE_SCREEN:
                 AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
                 aa.setMobOrigin((byte) 0);
-                aa.setPosition(chr.getPosition());
-                aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
+                aa.setPosition(inPacket.decodePosition());
+                aa.setRect(aa.getPosition().getRectAround(si.getFirstRect()));
                 aa.setDelay((short) 4);
                 chr.getField().spawnAffectedArea(aa);
                 break;
             case MESO_EXPLOSION:
-                field = chr.getField();
                 int rectRange = si.getValue(range, slv);
                 Rect rect = new Rect(
                         new Position(
@@ -303,7 +302,7 @@ public class Shadower extends Thief {
                                 chr.getPosition().getX() + rectRange,
                                 chr.getPosition().getY() + rectRange)
                 );
-                List<Drop> dropList = field.getDropsInRect(rect).stream()
+                List<Drop> dropList = chr.getField().getDropsInRect(rect).stream()
                         .filter(d -> d.isMoney() &&
                                 (d.getOwnerID() == 0 || d.getOwnerID() == chr.getId()))
                         .limit(si.getValue(bulletCount, slv) + this.chr.getSkillStatValue(bulletCount, MESO_EXPLOSION_ENHANCE))

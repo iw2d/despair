@@ -91,4 +91,8 @@ public class AttackInfo {
     public int requestTime;
     public int summonID;
     public boolean boxAttack;
+
+    public Position getForcedPos() {
+        return new Position(forcedX, forcedY);
+    }
 }

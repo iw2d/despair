@@ -23,6 +23,7 @@ import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
+import net.swordie.ms.world.field.Foothold;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -335,11 +336,16 @@ public class Cannoneer extends Pirate {
                 }
                 break;
             case ANCHOR_AWEIGH: //Stationary, Pulls mobs
+                if (tsm.hasStatBySkillId(skillID)) {
+                    tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
+                }
                 summon = Summon.getSummonBy(chr, skillID, slv);
                 summon.setFlyMob(false);
                 summon.setMoveAbility(MoveAbility.Stop);
-                Position position = new Position(chr.isLeft() ? chr.getPosition().getX() - 250 : chr.getPosition().getX() + 250, chr.getPosition().getY());
-                summon.setCurFoothold((short) chr.getField().findFootHoldBelow(position).getId());
+                Position position = inPacket.decodePosition();
+                Foothold foothold = chr.getField().findFootHoldBelow(position);
+                summon.setCurFoothold((short) foothold.getId());
                 summon.setPosition(position);
                 chr.getField().spawnSummon(summon);
                 break;

@@ -223,10 +223,11 @@ public class IceLightning extends Magician {
                 o3.nOption = si.getValue(y, slv);
                 o3.rOption = skillID;
                 o3.tOption = 1;
-                rect = chr.getPosition().getRectAround(si.getRects().get(0));
+                rect = chr.getPosition().getRectAround(si.getFirstRect()); // position not encoded
                 if (!chr.isLeft()) {
-                    rect = rect.moveRight();
+                    rect = rect.horizontalFlipAround(chr.getPosition().getX());
                 }
+                System.out.println(rect);
                 for (Life life : chr.getField().getLifesInRect(rect)) {
                     if (life instanceof Mob && ((Mob) life).getHp() > 0) {
                         Mob mob = (Mob) life;
@@ -236,10 +237,12 @@ public class IceLightning extends Magician {
                         mts.addStatOptionsAndBroadcast(MobStat.MDR, o3);
                     }
                 }
-                o4.nOption = 1;
-                o4.rOption = skillID;
-                o4.tOption = 25;
-                tsm.putCharacterStatValue(NotDamaged, o1);
+                if (!tsm.hasStatBySkillId(skillID)) {
+                    o4.nOption = 1;
+                    o4.rOption = skillID;
+                    o4.tOption = 25;
+                    tsm.putCharacterStatValue(NotDamaged, o4);
+                }
                 break;
             case Magician.TELEPORT:
                 if (chr.hasSkill(CHILLING_STEP)) {
@@ -258,14 +261,10 @@ public class IceLightning extends Magician {
                 field.spawnSummon(summon);
                 break;
             case CHILLING_STEP:
-                if (tsm.hasStat(ChillingStep)) {
-                    tsm.removeStatsBySkill(skillID);
-                    tsm.sendResetStatPacket();
-                } else {
-                    o1.nOption = 1;
-                    o1.rOption = skillID;
-                    tsm.putCharacterStatValue(ChillingStep, o1);
-                }
+                // Skill cancel handled by client
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                tsm.putCharacterStatValue(ChillingStep, o1);
                 break;
             case ABSOLUTE_ZERO_AURA:
                 o1.nOption = 1;
@@ -288,12 +287,12 @@ public class IceLightning extends Magician {
         int slv = chr.getSkillLevel(CHILLING_STEP);
         if (tsm.hasStat(ChillingStep) && Util.succeedProp(chillingStepInfo.getValue(prop, slv))) {
             for (int i = 0; i < 168; i += 56) {
-                AffectedArea aa = AffectedArea.getPassiveAA(chr, CHILLING_STEP, (byte) slv);
+                AffectedArea aa = AffectedArea.getPassiveAA(chr, CHILLING_STEP, slv);
                 aa.setMobOrigin((byte) 0);
                 int x = chr.isLeft() ? chr.getPosition().getX() - i : chr.getPosition().getX() + i;
                 int y = chr.getPosition().getY();
                 aa.setPosition(new Position(x, y));
-                aa.setRect(aa.getPosition().getRectAround(chillingStepInfo.getRects().get(0)));
+                aa.setRect(aa.getPosition().getRectAround(chillingStepInfo.getFirstRect()));
                 aa.setCurFoothold();
                 aa.setDelay((short) 4);
                 aa.setSkillID(CHILLING_STEP);

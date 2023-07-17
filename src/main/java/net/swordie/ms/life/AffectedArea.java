@@ -300,6 +300,7 @@ public class AffectedArea extends Life {
             case Shadower.SMOKE_SCREEN:
                 o1.nValue = si.getValue(SkillStat.x, slv);
                 o1.nReason = skillID;
+                o1.tStart = Util.getCurrentTime();
                 tsm.putCharacterStatValue(IndieCrMax, o1);
                 break;
             case Zero.TIME_DISTORTION:
@@ -404,8 +405,9 @@ public class AffectedArea extends Life {
         field.broadcastPacket(FieldPacket.affectedAreaRemoved(this, false));
         for (Char chr : field.getChars()) {
             TemporaryStatManager tsm = chr.getTemporaryStatManager();
-            if (tsm.hasAffectedArea(this)) {
+            if (getRemoveSkill() && tsm.hasAffectedArea(this)) {
                 tsm.removeStatsBySkill(getSkillID());
+                tsm.sendResetStatPacket();
             }
         }
     }
