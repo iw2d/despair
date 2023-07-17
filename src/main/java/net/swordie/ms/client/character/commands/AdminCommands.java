@@ -1994,7 +1994,7 @@ public class AdminCommands {
             chr.chatMessage("Current CTS:");
 
             for (CharacterTemporaryStat cts : tsm.getCurrentStats().keySet()) {
-                chr.chatMessage(String.format("    %s : %d", cts.name(), tsm.getOption(cts).nOption));
+                chr.chatMessage(String.format("    %s : %d", cts.name(), cts.isIndie() ? tsm.getOption(cts).nValue : tsm.getOption(cts).nOption));
             }
         }
     }
