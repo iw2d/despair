@@ -337,21 +337,21 @@ public class Paladin extends Warrior {
                 if (!chr.isLeft()) {
                     rect = rect.horizontalFlipAround(pos.getX());
                 }
+                o1.nOption = si.getValue(x, slv) + chr.getSkillStatValue(x, THREATEN_ENHANCE);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, THREATEN_PERSIST);
+                o2.nOption = -si.getValue(z, slv) - chr.getSkillStatValue(y, THREATEN_ENHANCE);
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(subTime, slv);
                 for (Life life : chr.getField().getLifesInRect(rect)) {
                     if (life instanceof Mob && ((Mob) life).getHp() > 0) {
                         Mob mob = (Mob) life;
                         MobTemporaryStat mts = mob.getTemporaryStat();
                         if (Util.succeedProp(si.getValue(prop, slv) + chr.getSkillStatValue(prop, THREATEN_OPPORTUNITY))) {
-                            o1.nOption = si.getValue(x, slv) + chr.getSkillStatValue(x, THREATEN_ENHANCE);
-                            o1.rOption = skillID;
-                            o1.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, THREATEN_PERSIST);
-                            mts.addStatOptions(MobStat.PAD, o1.deepCopy());
-                            mts.addStatOptions(MobStat.MAD, o1.deepCopy());
-                            mts.addStatOptions(MobStat.PDR, o1.deepCopy());
-                            mts.addStatOptions(MobStat.MDR, o1.deepCopy());
-                            o2.nOption = -si.getValue(z, slv) - chr.getSkillStatValue(y, THREATEN_ENHANCE);
-                            o2.rOption = skillID;
-                            o2.tOption = si.getValue(subTime, slv);
+                            mts.addStatOptions(MobStat.PAD, o1);
+                            mts.addStatOptions(MobStat.MAD, o1);
+                            mts.addStatOptions(MobStat.PDR, o1);
+                            mts.addStatOptions(MobStat.MDR, o1);
                             mts.addStatOptionsAndBroadcast(MobStat.Darkness, o2);
                         }
                     }

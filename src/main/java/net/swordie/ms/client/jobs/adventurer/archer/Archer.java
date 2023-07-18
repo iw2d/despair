@@ -137,7 +137,6 @@ public class Archer extends Beginner {
                         this.chr.getSkillStatValue(x, Bowmaster.SHARP_EYES_BOW_CR_H) +
                         this.chr.getSkillStatValue(x, Marksman.SHARP_EYES_XBOW_CR_H);
                 o1.nOption = (cr << 8) + si.getValue(y, slv); // (cr << 8) + crDmg;
-                o1.nValue = si.getValue(y, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv) +
                         this.chr.getSkillStatValue(time, Bowmaster.SHARP_EYES_BOW_PERSIST) +

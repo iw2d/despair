@@ -343,11 +343,8 @@ public class Summon extends Life {
             case DualBlade.MIRRORED_TARGET:
                 ((DualBlade) chr.getJobHandler()).giveShadowMeld();
                 break;
-
-            case WindArcher.EMERALD_DUST:
-                ((WindArcher) chr.getJobHandler()).applyEmeraldDustDebuffToMob(this);
-                // Fallthrough intended
             case WindArcher.EMERALD_FLOWER:
+            case WindArcher.EMERALD_DUST:
                 ((WindArcher) chr.getJobHandler()).applyEmeraldFlowerDebuffToMob(this);
                 break;
             default:

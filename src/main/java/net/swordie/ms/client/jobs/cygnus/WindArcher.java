@@ -9,9 +9,13 @@ import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
+import net.swordie.ms.client.jobs.adventurer.archer.Marksman;
 import net.swordie.ms.connection.InPacket;
+import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.connection.packet.UserLocal;
+import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.AssistType;
@@ -28,6 +32,7 @@ import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -48,9 +53,11 @@ public class WindArcher extends Noblesse {
     public static final int SYLVAN_AID = 13101024; //Buff
 
     public static final int TRIFLING_WIND_II = 13110022; //Special Buff Upgrade
+    public static final int FEATHERWEIGHT = 13110025;
     public static final int ALBATROSS = 13111023; //Buff
     public static final int EMERALD_FLOWER = 13111024; //Summon (Stationary, No Attack, Aggros)
     public static final int SECOND_WIND = 13110026; //
+    public static final int SENTIENT_ARROW = 13111020;
     public static final int PINPOINT_PIERCE = 13111021;
 
     public static final int BOW_EXPERT = 13120006;
@@ -63,6 +70,8 @@ public class WindArcher extends Noblesse {
     public static final int SPIRALING_VORTEX = 13121002;
     public static final int SPIRALING_VORTEX_EXPLOSION = 13121009;
 
+    public static final int TRIFLING_WIND_ENHANCE = 13120044;
+    public static final int TRIFLING_WIND_DOUBLE_CHANCE = 13120045;
     public static final int GLORY_OF_THE_GUARDIANS_WA = 13121053;
     public static final int STORM_BRINGER = 13121054;
     public static final int MONSOON = 13121052;
@@ -102,14 +111,10 @@ public class WindArcher extends Noblesse {
         int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
         if (hasHitMobs) {
-            if (attackInfo.skillId != TRIFLING_WIND_ATOM && attackInfo.skillId != 0 && attackInfo.skillId != STORM_BRINGER) {
+            if (attackInfo.skillId != 0 && attackInfo.skillId != SENTIENT_ARROW &&
+                    attackInfo.skillId != TRIFLING_WIND_ATOM && attackInfo.skillId != STORM_BRINGER) {
+                createTriflingWindForceAtom(attackInfo);
                 createStormBringerForceAtom(attackInfo);
-
-                int maxtrif = getMaxTriffling();
-                for (int i = 0; i < maxtrif; i++) {
-                    createTriflingWindForceAtom(attackInfo);
-
-                }
             }
         }
         Option o1 = new Option();
@@ -122,217 +127,116 @@ public class WindArcher extends Noblesse {
                     if (mob == null) {
                         continue;
                     }
-                    MobTemporaryStat mts = mob.getTemporaryStat();
-                    mts.createAndAddBurnedInfo(chr, skillID, slv);
+                    mob.getTemporaryStat().createAndAddBurnedInfo(chr, skillID, slv);
                 }
                 break;
             case PINPOINT_PIERCE:
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
                     }
-                    MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = si.getValue(x, slv);
-                    o1.rOption = skillID;
-                    mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
+                    mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.AddDamSkill, o1);
                 }
                 break;
             case SPIRALING_VORTEX:
-                List<MobAttackInfo> mai = attackInfo.mobAttackInfo;
-                if(attackInfo.mobAttackInfo.size() <= 0) {
-                    return;
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (mob == null) {
+                        continue;
+                    }
+                    chr.getField().broadcastPacket(UserLocal.explosionAttack(SPIRALING_VORTEX_EXPLOSION, mob.getPosition(), mob.getObjectId(), 1));
+                    break;
                 }
-                Mob mob = (Mob) chr.getField().getLifeByObjectID(Util.getRandomFromCollection(mai).mobId);
-                if (mob == null) {
-                    return;
-                }
-                chr.getField().broadcastPacket(UserLocal.explosionAttack(SPIRALING_VORTEX_EXPLOSION, mob.getPosition(), mob.getObjectId(), 1));
-                break;
         }
         super.handleAttack(chr, attackInfo);
     }
 
+    private int getTriflingWindSkill() {
+        int skillId = 0;
+        if (chr.hasSkill(TRIFLING_WIND_III)) {
+            skillId = TRIFLING_WIND_III;
+        } else if (chr.hasSkill(TRIFLING_WIND_II)) {
+            skillId = TRIFLING_WIND_II;
+        } else if (chr.hasSkill(TRIFLING_WIND_I)) {
+            skillId = TRIFLING_WIND_I;
+        }
+        return skillId;
+    }
+
     private void createTriflingWindForceAtom(AttackInfo attackInfo) {
+        int skillId = getTriflingWindSkill();
+        if (skillId == 0) {
+            return;
+        }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (tsm.hasStat(TriflingWhimOnOff)) {
-            SkillInfo si = SkillData.getSkillInfoById(TRIFLING_WIND_I);
-            Random random = new Random();
-            int firstImpact = random.nextInt(10) + 31; // 36
-            int secondImpact = 6;
-            int anglenum;
-            if (new Random().nextBoolean()) {
-                anglenum = 0;
-            } else {
-                anglenum = 180;
+        if (!tsm.hasStat(TriflingWhimOnOff)) {
+            return;
+        }
+        SkillInfo si = SkillData.getSkillInfoById(skillId);
+        int slv = chr.getSkillLevel(skillId);
+        int proc = si.getValue(prop, slv) + chr.getSkillStatValue(prop, TRIFLING_WIND_ENHANCE);
+        int subProc = si.getValue(subProp, slv);
+        List<ForceAtomInfo> faiList = new ArrayList<>();
+        List<Integer> targetList = new ArrayList<>();
+        int mobCount = si.getValue(x, slv);
+        int hitCount = chr.hasSkill(TRIFLING_WIND_DOUBLE_CHANCE) ? 2 : 1;
+        for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+            Mob target = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+            if (target == null || !Util.succeedProp(proc)) {
+                continue;
             }
-            for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                Life life = chr.getField().getLifeByObjectID(mai.mobId);
-                if (!(life instanceof Mob)) {
-                    continue;
-                }
-                Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                if (mob == null) {
-                    continue;
-                }
-                int TW2subprop = getTriflingWindSubProp();
-                int TW1prop = getTriflingWindProp();
-                if (Util.succeedProp(TW1prop)) {
-                    if (Util.succeedProp(TW2subprop)) {
-                        int mobID = mai.mobId;
-                        int inc = ForceAtomEnum.WA_ARROW_2.getInc();
-                        int type = ForceAtomEnum.WA_ARROW_2.getForceAtomType();
-                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, firstImpact, secondImpact,
-                                anglenum, 0, Util.getCurrentTime(), 1, 0,
-                                new Position(0, 0)); //Slightly behind the player
-                        chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
-                                true, mobID, TRIFLING_WIND_ATOM, forceAtomInfo, new Rect(), 0, 300,
-                                mob.getPosition(), TRIFLING_WIND_ATOM, mob.getPosition()));
-                    } else {
-                        int mobID = mai.mobId;
-                        int inc = ForceAtomEnum.WA_ARROW_1.getInc();
-                        int type = ForceAtomEnum.WA_ARROW_1.getForceAtomType();
-                        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, firstImpact, secondImpact,
-                                anglenum, 0, Util.getCurrentTime(), 1, 0,
-                                new Position(0, 0)); //Slightly behind the player
-                        chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
-                                true, mobID, TRIFLING_WIND_ATOM, forceAtomInfo, new Rect(), 0, 300,
-                                mob.getPosition(), TRIFLING_WIND_ATOM, mob.getPosition()));
-                    }
-                }
+            for (int i = 0; i < hitCount; i++) {
+                int firstImpact = Util.getRandom(31, 41);
+                int secondImpact = 6;
+                int angle = Util.getRandom(1) == 1 ? 0 : 180;
+                ForceAtomEnum fae = Util.succeedProp(subProc) ? ForceAtomEnum.WA_ARROW_2 : ForceAtomEnum.WA_ARROW_1;
+                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), fae.getInc(), firstImpact, secondImpact,
+                        angle, 0, Util.getCurrentTime(), 1, 0, new Position(35, 0));
+                faiList.add(forceAtomInfo);
+                targetList.add(target.getObjectId());
+            }
+            mobCount -= hitCount;
+            if (mobCount <= 0) {
+                break;
             }
         }
+        chr.getField().broadcastPacket(FieldPacket.createForceAtom(
+                false, 0, chr.getId(), ForceAtomEnum.WA_ARROW_1.getForceAtomType(),
+                true, targetList, TRIFLING_WIND_ATOM, faiList, null, 0, 0,
+                null, 0, null));
     }
 
     private void createStormBringerForceAtom(AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (tsm.hasStat(StormBringer)) {
-            SkillInfo si = SkillData.getSkillInfoById(STORM_BRINGER);
-            for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                if (mob == null) {
-                    continue;
-                }
-                int ranY = new Random().nextInt(150) -100;
-                int hyperprop = si.getValue(prop, 1);
-                if (Util.succeedProp(hyperprop)) {
-                    int mobID = mai.mobId;
-                    int inc = ForceAtomEnum.WA_ARROW_HYPER.getInc();
-                    int type = ForceAtomEnum.WA_ARROW_HYPER.getForceAtomType();
-                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 5, 5,
-                            270, 0, Util.getCurrentTime(), 1, 0,
-                            new Position(35, ranY)); //Slightly behind the player
-                    chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
-                            true, mobID, STORM_BRINGER, forceAtomInfo, new Rect(), 0, 300,
-                            mob.getPosition(), STORM_BRINGER, mob.getPosition()));
-                }
+        if (!tsm.hasStat(StormBringer)) {
+            return;
+        }
+        SkillInfo si = SkillData.getSkillInfoById(STORM_BRINGER);
+        int slv = chr.getSkillLevel(STORM_BRINGER);
+        int proc = si.getValue(prop, slv);
+        ForceAtomEnum fae = ForceAtomEnum.WA_ARROW_HYPER;
+        List<ForceAtomInfo> faiList = new ArrayList<>();
+        List<Integer> targetList = new ArrayList<>();
+        for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+            Mob target = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+            if (target == null || !Util.succeedProp(proc)) {
+                continue;
             }
+            int ranY = Util.getRandom(150) - 100;
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), fae.getInc(), 5, 5,
+                    270, 0, Util.getCurrentTime(), 1, 0, new Position(35, ranY));
+            faiList.add(forceAtomInfo);
+            targetList.add(target.getObjectId());
         }
-    }
-
-    private Skill getTriflingWindSkill() {
-        Skill skill = null;
-        if(chr.hasSkill(TRIFLING_WIND_I)) {
-            skill = chr.getSkill(TRIFLING_WIND_I);
+        if (faiList.size() > 0) {
+            chr.getField().broadcastPacket(FieldPacket.createForceAtom(
+                    false, 0, chr.getId(), fae.getForceAtomType(),
+                    true, targetList, STORM_BRINGER, faiList, null, 0, 300,
+                    null, 0, null));
         }
-        if (chr.hasSkill(TRIFLING_WIND_II)) {
-            skill = chr.getSkill(TRIFLING_WIND_II);
-        }
-        if (chr.hasSkill(TRIFLING_WIND_III)) {
-            skill = chr.getSkill(TRIFLING_WIND_III);
-        }
-
-        return skill;
-    }
-
-    private int getTriflingWindProp() {
-        Skill skill = getTriflingWindSkill();
-        if(skill != null) {
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            byte slv = (byte) skill.getCurrentLevel();
-
-            return si.getValue(prop, slv);
-        }
-        return 0;
-    }
-
-    private int getTriflingWindSubProp() {
-        Skill skill = getTriflingWindSkill();
-        if(skill != null) {
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            byte slv = (byte) skill.getCurrentLevel();
-
-            return si.getValue(subProp, slv);
-        }
-        return 0;
-    }
-
-    private int getMaxTriffling() {
-        Skill skill = getTriflingWindSkill();
-        if(skill != null) {
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            byte slv = (byte) skill.getCurrentLevel();
-
-            return si.getValue(x, slv);
-        }
-        return 0;
-    }
-
-    public static Skill getEmeraldFlowerSkill(Char chr) {
-        Skill skill = null;
-        if(chr.hasSkill(EMERALD_FLOWER)) {
-            skill = chr.getSkill(EMERALD_FLOWER);
-        }
-        if(chr.hasSkill(EMERALD_DUST)) {
-            skill = chr.getSkill(EMERALD_DUST);
-        }
-
-        return skill;
-    }
-
-    public void applyEmeraldFlowerDebuffToMob(Summon summon) {
-        /*
-        Skill skill = getEmeraldFlowerSkill(chr);
-        if(skill == null) {
-            return;
-        }
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        byte slv = (byte) skill.getCurrentLevel();
-
-        List<Mob> mobListWithTemplateId = chr.getField()
-                .getMobsInRect(summon.getPosition().getRectAround(si.getRects().get(0)))
-                .stream()
-                .filter(mob -> mob.getTemplateId() == mobTemplateId)
-                .collect(Collectors.toList());
-        for(Mob mob : mobListWithTemplateId) {
-            MobTemporaryStat mts = mob.getTemporaryStat();
-            Option o = new Option();
-            o.nOption = si.getValue(z, slv);
-            o.rOption = skill.getSkillId();
-            o.tOption = si.getValue(time, slv);
-            mts.addStatOptionsAndBroadcast(MobStat.Speed, o);
-        }
-         */
-    }
-
-    public void applyEmeraldDustDebuffToMob(Summon summon) {
-        /*
-        Skill skill = getEmeraldFlowerSkill(chr);
-        if(skill == null) {
-            return;
-        }
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        byte slv = (byte) skill.getCurrentLevel();
-        Mob mob = (Mob) chr.getField().getLifeByObjectID(mobId);
-        if (mob == null) {
-            return;
-        }
-        Option o = new Option();
-        o.nOption = si.getValue(w, slv);
-        o.rOption = skill.getSkillId();
-        o.tOption = si.getValue(time, slv);
-        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.PDR, o);
-         */
     }
 
     @Override
@@ -357,6 +261,7 @@ public class WindArcher extends Noblesse {
         Option o5 = new Option();
         Option o6 = new Option();
         Option o7 = new Option();
+        Option o8 = new Option();
         Summon summon;
         Field field;
         switch(skillID) {
@@ -418,6 +323,10 @@ public class WindArcher extends Noblesse {
                 o4.tStart = Util.getCurrentTime();
                 o4.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o4); //Indie
+                o5.nOption = slv;
+                o5.rOption = skillID;
+                o5.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Albatross, o5);
                 break;
             case ALBATROSS_MAX:
                 o1.nReason = skillID;
@@ -441,12 +350,12 @@ public class WindArcher extends Noblesse {
                 o4.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieAsrR, o4); //Indie
                 o5.nReason = skillID;
-                o5.nValue = si.getValue(indieAsrR, slv);
+                o5.nValue = si.getValue(indieTerR, slv);
                 o5.tStart = Util.getCurrentTime();
                 o5.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieTerR, o5); //Indie
                 o6.nReason = skillID;
-                o6.nValue = -2; //si.getValue(indieBooster, slv);
+                o6.nValue = si.getValue(indieBooster, slv);
                 o6.tStart = Util.getCurrentTime();
                 o6.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBooster, o6); //Indie
@@ -454,18 +363,19 @@ public class WindArcher extends Noblesse {
                 o7.rOption = skillID;
                 o7.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IgnoreMobpdpR, o7);
+                o8.nOption = slv;
+                o8.rOption = skillID;
+                o8.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Albatross, o8);
                 break;
-            case SHARP_EYES: // x = crit rate    y = max crit dmg
-                o1.nOption = si.getValue(x, slv);
+            case SHARP_EYES:
+                int cr = si.getValue(x, slv);
+                o1.nOption = (cr << 8) + si.getValue(y, slv); // (cr << 8) + crDmg;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(CriticalBuff, o1);
-                o2.nOption = si.getValue(y, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(SharpEyes, o2);
+                tsm.putCharacterStatValue(SharpEyes, o1);
                 break;
-            case TOUCH_OF_THE_WIND: // x = Dex%   avoid/acc = y
+            case TOUCH_OF_THE_WIND:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indiePadR, slv);
                 o1.tStart = Util.getCurrentTime();
@@ -484,7 +394,7 @@ public class WindArcher extends Noblesse {
                 o4.rOption = skillID;
                 o4.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(ACCR, o4);
-                o5.nOption = si.getValue(y, slv);
+                o5.nOption = si.getValue(prop, slv);
                 o5.rOption = skillID;
                 o5.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(EVAR, o5);
@@ -498,7 +408,7 @@ public class WindArcher extends Noblesse {
                 break;
             case TRIFLING_WIND_I:
                 o1.nOption = 1;
-                o1.rOption = skillID;
+                o1.rOption = getTriflingWindSkill();
                 o1.tOption = 0;
                 tsm.putCharacterStatValue(TriflingWhimOnOff, o1);
                 break;
@@ -509,7 +419,7 @@ public class WindArcher extends Noblesse {
                 summon.setFlyMob(false);
                 summon.setMoveAction((byte) 0);
                 summon.setMoveAbility(MoveAbility.Stop);
-                Position position = new Position(chr.isLeft() ? chr.getPosition().getX() - 250 : chr.getPosition().getX() + 250, chr.getPosition().getY());
+                Position position = inPacket.decodePosition();
                 summon.setCurFoothold((short) chr.getField().findFootHoldBelow(position).getId());
                 summon.setPosition(position);
                 summon.setAttackActive(false);
@@ -517,6 +427,7 @@ public class WindArcher extends Noblesse {
                 summon.setMaxHP(si.getValue(x, slv));
                 summon.setHp(summon.getMaxHP());
                 field.spawnSummon(summon);
+                applyEmeraldFlowerDebuffToMob(summon);
                 break;
             case GLORY_OF_THE_GUARDIANS_WA:
                 o1.nReason = skillID;
@@ -540,48 +451,73 @@ public class WindArcher extends Noblesse {
         tsm.sendSetStatPacket();
     }
 
+    public void applyEmeraldFlowerDebuffToMob(Summon summon) {
+        Position pos = summon.getPosition();
+        Rect rect = new Rect( // no rect in wz
+                pos.getX() - 200, pos.getY() - 200,
+                pos.getX() + 200, pos.getY() + 200
+        );
+        int skillId = summon.getSkillID();
+        SkillInfo si = SkillData.getSkillInfoById(skillId);
+        int slv = summon.getSlv();
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        o1.nOption = si.getValue(z, slv);
+        o1.rOption = skillId;
+        o1.tOption = si.getValue(time, slv);
+        o2.nOption = si.getValue(w, slv); // already negative
+        o2.rOption = skillId;
+        o2.tOption = si.getValue(time, slv);
+        o3.nOption = -si.getValue(y, slv);
+        o3.rOption = skillId;
+        o3.tOption = si.getValue(time, slv);
+        for (Mob mob : summon.getField().getMobsInRect(rect)) {
+            if (mob == null) {
+                continue;
+            }
+            MobTemporaryStat mts = mob.getTemporaryStat();
+            if (skillId == EMERALD_DUST) {
+                mts.addStatOptions(MobStat.PDR, o2);
+                mts.addStatOptions(MobStat.MDR, o2);
+                mts.addStatOptions(MobStat.PAD, o3);
+                mts.addStatOptions(MobStat.MAD, o3);
+            }
+            mts.addStatOptionsAndBroadcast(MobStat.Speed, o1);
+        }
+    }
+
+    @Override
+    public void handleSkillRemove(Char chr, int skillID) {
+        if (skillID == TRIFLING_WIND_I) {
+            TemporaryStatManager tsm = chr.getTemporaryStatManager();
+            tsm.removeStat(TriflingWhimOnOff, true);
+            tsm.sendResetStatPacket();
+        }
+    }
 
 
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
     public void handleHit(Char chr, HitInfo hitInfo) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        if(chr.hasSkill(SECOND_WIND)) {
-            if(hitInfo.hpDamage == 0 && hitInfo.mpDamage == 0) {
-                Skill skill = chr.getSkill(SECOND_WIND);
-                SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-                byte slv = (byte) skill.getCurrentLevel();
-                o1.nOption = si.getValue(er, slv);
-                o1.rOption = skill.getSkillId();
-                o1.tOption = 5; // time isn't a variable in the skill Info
-                tsm.putCharacterStatValue(EVAR, o1);
-                o2.nOption = si.getValue(pddX, slv);
-                o2.rOption = skill.getSkillId();
-                o2.tOption = 5; // time isn't a variable in the skill Info
-                tsm.putCharacterStatValue(PDD, o2);
-                tsm.putCharacterStatValue(MDD, o2);
-                o3.nReason = skill.getSkillId();
-                o3.nValue = si.getValue(indiePad, slv);
-                o3.tStart = Util.getCurrentTime();
-                o3.tTerm = 5; // time isn't a variable in the skill Info
-                tsm.putCharacterStatValue(IndiePAD, o3);
-                tsm.sendSetStatPacket();
-            }
+        if (hitInfo.hpDamage == 0 && hitInfo.mpDamage == 0 && chr.hasSkill(SECOND_WIND)) {
+            TemporaryStatManager tsm = chr.getTemporaryStatManager();
+            SkillInfo si = SkillData.getSkillInfoById(SECOND_WIND);
+            int slv = chr.getSkillLevel(SECOND_WIND);
+            Option o1 = new Option();
+            o1.nValue = si.getValue(indiePad, slv);
+            o1.nReason = SECOND_WIND;
+            o1.tStart = Util.getCurrentTime();
+            o1.tTerm = 5; // time isn't a variable in the skill Info
+            tsm.putCharacterStatValue(IndiePAD, o1);
+            tsm.sendSetStatPacket();
         }
-
-
         super.handleHit(chr, hitInfo);
     }
 
     @Override
     public void handleLevelUp() {
         super.handleLevelUp();
-        if (chr.getLevel() == 60) {
-            chr.getQuestManager().addQuest(20880);
-        }
     }
 }

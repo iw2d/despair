@@ -429,9 +429,8 @@ public class BlazeWizard extends Noblesse {
     public void reviveByPhoenixRun() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         Option o = new Option();
-        Skill skill = chr.getSkill(PHOENIX_RUN);
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        byte slv = (byte) skill.getCurrentLevel();
+        SkillInfo si = SkillData.getSkillInfoById(PHOENIX_RUN);
+        int slv = chr.getSkillLevel(PHOENIX_RUN);
 
         chr.heal(chr.getMaxHP() / 2); // 50%
         tsm.removeStatsBySkill(PHOENIX_RUN);
@@ -442,12 +441,12 @@ public class BlazeWizard extends Noblesse {
         chr.write(FieldPacket.teleport(new Position(position.getX() + (chr.isLeft() ? + 350 : - 350), position.getY()), chr));
 
         // Hit effect
-        chr.write(UserPacket.effect(Effect.skillUse(PHOENIX_RUN_EFFECTS, slv, 0)));
-        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(PHOENIX_RUN_EFFECTS, slv, 0)));
+        chr.write(UserPacket.effect(Effect.skillUse(PHOENIX_RUN_EFFECTS, (byte) slv, 0)));
+        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(PHOENIX_RUN_EFFECTS, (byte) slv, 0)));
 
         // Backstep effect
-        chr.write(UserPacket.effect(Effect.skillAffected(PHOENIX_RUN_EFFECTS, slv, 0)));
-        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffected(PHOENIX_RUN_EFFECTS, slv, 0)));
+        chr.write(UserPacket.effect(Effect.skillAffected(PHOENIX_RUN_EFFECTS, (byte) slv, 0)));
+        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffected(PHOENIX_RUN_EFFECTS, (byte) slv, 0)));
 
         o.nOption = 1;
         o.rOption = PHOENIX_RUN;

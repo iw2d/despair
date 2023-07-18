@@ -4029,6 +4029,10 @@ public class Char {
 			}
 			// Stat gained by set effects
 			stat += getSetBaseStats().getOrDefault(baseStat, 0);
+			// Handle DEXR, which only affects stat allocated by sp
+			if (baseStat.getSpStatRateVar() != null) {
+				stat += getStat(baseStat.toStat()) * (getTotalStat(baseStat.getSpStatRateVar()) / 100D);
+			}
 			// Stat gained by the stat's corresponding rate value
 			if (baseStat.getRateVar() != null) {
 				stat += stat * (getTotalStat(baseStat.getRateVar()) / 100D);

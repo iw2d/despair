@@ -427,7 +427,7 @@ public class SkillConstants {
     }
 
     public static boolean isKeydownSkillRectMoveXY(int skillID) {
-        return skillID == 13111020;
+        return skillID == WindArcher.SENTIENT_ARROW;
     }
 
     public static int getOriginalOfLinkedSkill(int skillID) {
@@ -1712,6 +1712,11 @@ public class SkillConstants {
                 break;
             case BlazeWizard.FIRE_REPULSION:
                 stats.put(BaseStat.magicGuard, si.getValue(SkillStat.x, slv));
+                break;
+            case WindArcher.FEATHERWEIGHT:
+                stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.x, slv));
+            case WindArcher.SECOND_WIND:
+                stats.remove(BaseStat.pad); // active effect
                 break;
         }
     }

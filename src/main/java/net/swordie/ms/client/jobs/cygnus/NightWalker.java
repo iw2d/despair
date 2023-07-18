@@ -40,14 +40,6 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class NightWalker extends Noblesse {
-
-    public static final int IMPERIAL_RECALL = 10001245;
-    public static final int ELEMENTAL_EXPERT = 10000250;
-    public static final int ELEMENTAL_SLASH = 10001244;
-    public static final int NOBLE_MIND = 10000202;
-    public static final int ELEMENTAL_SHIFT = 10001254;
-    public static final int ELEMENTAL_SHIFT2 = 10000252;
-
     public static final int LUCKY_SEVEN = 14001020;
     public static final int DARK_ELEMENTAL = 14001021; //Buff (Mark of Darkness)
     public static final int HASTE = 14001022; //Buff
@@ -94,11 +86,6 @@ public class NightWalker extends Noblesse {
 
     private int[] addedSkills = new int[] {
             IMPERIAL_RECALL,
-            ELEMENTAL_EXPERT,
-            ELEMENTAL_SLASH,
-            NOBLE_MIND,
-            ELEMENTAL_SHIFT,
-            ELEMENTAL_SHIFT2,
     };
 
     private int[] darkEleSkills = new int[] {

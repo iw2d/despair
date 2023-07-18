@@ -72,6 +72,7 @@ public enum BaseStat {
     dexLv,
     intLv,
     lukLv,
+    baseDexR, // from SkillStat.DEXR
     buffTimeR, // Buff Duration multiplier
     recoveryUp, // % increase in heal potion use
     mpconReduce,
@@ -104,6 +105,15 @@ public enum BaseStat {
                 return mmp;
             default:
                 return unk;
+        }
+    }
+
+    public BaseStat getSpStatRateVar() {
+        switch (this) {
+            case dex:
+                return baseDexR;
+            default:
+                return null;
         }
     }
 
@@ -319,7 +329,7 @@ public enum BaseStat {
                 stats.put(luk, o.nOption);
                 break;
             case DEXR:
-                stats.put(dexR, o.nOption);
+                stats.put(baseDexR, o.nOption);
                 break;
             case IndieStatR:
                 stats.put(strR, o.nValue);
