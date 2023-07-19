@@ -63,6 +63,7 @@ public class Summon extends Life {
     private Position[] kishinPositions = new Position[2];
     private int maxHP;
     private int hp;
+    private boolean fromDarkOmen;
 
     public Summon(int templateId) {
         super(templateId);
@@ -298,6 +299,14 @@ public class Summon extends Life {
 
     public void setHp(int hp) {
         this.hp = hp;
+    }
+
+    public boolean getFromDarkOmen() {
+        return fromDarkOmen;
+    }
+
+    public void setFromDarkOmen(boolean fromDarkOmen) {
+        this.fromDarkOmen = fromDarkOmen;
     }
 
     public void onSkillUse(int skillId) {

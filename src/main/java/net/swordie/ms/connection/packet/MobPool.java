@@ -46,7 +46,7 @@ public class MobPool {
         OutPacket outPacket = new OutPacket(OutHeader.MOB_CHANGE_CONTROLLER);
         outPacket.encodeByte(isController);
         outPacket.encodeInt(mob.getObjectId());
-        if(isController) {
+        if (isController) {
             outPacket.encodeByte(mob.getCalcDamageIndex());
             outPacket.encodeInt(mob.getTemplateId());
             ForcedMobStat fms = mob.getForcedMobStat();
@@ -150,7 +150,7 @@ public class MobPool {
         mts.encode(outPacket);
         outPacket.encodeShort(delay);
         outPacket.encodeByte(1); // nCalcDamageStatIndex
-        if(hasMovementStat) {
+        if (hasMovementStat) {
             outPacket.encodeByte(0); // ?
         }
 
@@ -161,37 +161,43 @@ public class MobPool {
         return statReset(mob, byteCalcDamageStatIndex, sn, null);
     }
 
-    public synchronized static OutPacket statReset(Mob mob, byte calcDamageStatIndex, boolean sn, Set<BurnedInfo> biList) {
+    public static OutPacket statReset(Mob mob, byte calcDamageStatIndex, boolean sn, Set<BurnedInfo> biList) {
         OutPacket outPacket = new OutPacket(OutHeader.MOB_STAT_RESET);
-        MobTemporaryStat resetStats = mob.getTemporaryStat();
-        int[] mask = resetStats.getRemovedMask();
-        outPacket.encodeInt(mob.getObjectId());
-        for (int i = 0; i < 3; i++) {
-            outPacket.encodeInt(mask[i]);
-        }
-        if(resetStats.hasRemovedMobStat(MobStat.BurnedInfo)) {
-            if(biList == null) {
-                outPacket.encodeInt(0);
-                outPacket.encodeInt(0);
-            } else {
-                int dotCount = biList.stream().mapToInt(BurnedInfo::getDotCount).sum();
-                outPacket.encodeInt(dotCount);
-                outPacket.encodeInt(biList.size());
-                for(BurnedInfo bi : biList) {
-                    outPacket.encodeInt(bi.getCharacterId());
-                    outPacket.encodeInt(bi.getSuperPos());
+        MobTemporaryStat mts = mob.getTemporaryStat();
+        mts.getRemovedStatLock().lock();
+        try {
+            int[] mask = mts.getRemovedMask();
+            outPacket.encodeInt(mob.getObjectId());
+            for (int i = 0; i < 3; i++) {
+                outPacket.encodeInt(mask[i]);
+            }
+            if (mts.hasRemovedMobStat(MobStat.BurnedInfo)) {
+                mts.getBurnedInfoLock().writeLock().lock();
+                try {
+                    if (biList == null) {
+                        outPacket.encodeInt(0);
+                        outPacket.encodeInt(0);
+                    } else {
+                        int dotCount = biList.stream().mapToInt(BurnedInfo::getDotCount).sum();
+                        outPacket.encodeInt(dotCount);
+                        outPacket.encodeInt(biList.size());
+                        for (BurnedInfo bi : biList) {
+                            outPacket.encodeInt(bi.getCharacterId());
+                            outPacket.encodeInt(bi.getSuperPos());
+                        }
+                    }
+                    mts.getBurnedInfos().clear();
+                } finally {
+                    mts.getBurnedInfoLock().writeLock().unlock();
                 }
             }
-            synchronized (resetStats.getBurnedInfos()) {
-                resetStats.getBurnedInfos().clear();
+            outPacket.encodeByte(calcDamageStatIndex);
+            if (mts.hasRemovedMovementAffectingStat()) {
+                outPacket.encodeByte(sn);
             }
-        }
-        outPacket.encodeByte(calcDamageStatIndex);
-        if(resetStats.hasRemovedMovementAffectingStat()) {
-            outPacket.encodeByte(sn);
-        }
-        synchronized (resetStats.getRemovedStatVals()) {
-            resetStats.getRemovedStatVals().clear();
+            mts.getRemovedStatVals().clear();
+        } finally {
+            mts.getRemovedStatLock().unlock();
         }
         return outPacket;
     }

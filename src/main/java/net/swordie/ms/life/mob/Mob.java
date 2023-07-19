@@ -1268,7 +1268,8 @@ public class Mob extends Life {
             } else {
                 getField().broadcastPacket(MobPool.hpIndicator(getObjectId(), (byte) (percDamage * 100)));
             }
-            if (getField().getLifeToControllers().get(this) != damageDealer && getMostDamageChar() == damageDealer) {
+            if (getField().getLifeToControllers().containsKey(this) &&
+                    getField().getLifeToControllers().get(this) != damageDealer && getMostDamageChar() == damageDealer) {
                 notifyControllerChange(damageDealer);
                 getField().putLifeController(this, damageDealer);
             }

@@ -3127,7 +3127,7 @@ public class Char {
 	public void heal(int amount, boolean showEffect) {
 		int curHP = getHP();
 		int maxHP = getMaxHP();
-		int newHP = curHP + amount > maxHP ? maxHP : curHP + amount < 0 ? 0 : curHP + amount;
+		int newHP = Math.min(curHP + amount, maxHP);
 
 		if (showEffect && newHP != curHP) {
 			write(UserPacket.effect(Effect.changeHPEffect(newHP - curHP, false)));
@@ -3155,7 +3155,7 @@ public class Char {
 	public void healMP(int amount) {
 		int curMP = getMP();
 		int maxMP = getMaxMP();
-		int newMP = curMP + amount > maxMP ? maxMP : curMP + amount;
+		int newMP = Math.min(curMP + amount, maxMP);
 		Map<Stat, Object> stats = new HashMap<>();
 		setStat(Stat.mp, newMP);
 		stats.put(Stat.mp, newMP);

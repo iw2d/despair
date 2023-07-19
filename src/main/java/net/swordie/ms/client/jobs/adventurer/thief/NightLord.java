@@ -206,7 +206,7 @@ public class NightLord extends Thief {
             MobTemporaryStat mts = mob.getTemporaryStat();
             BurnedInfo bi = mob.getTemporaryStat().getBurnBySkillAndOwner(skillId, chr.getId());
             if (bi != null) {
-                mts.removeBurnedInfo(bi, true);
+                mts.removeBurnedInfo(bi, false);
                 procMark(mob, atomSkillId, atomEnum, starCount);
             } else if (hasMarkStat && Util.succeedProp(proc)) {
                 if (Arrays.stream(mai.damages).sum() >= mob.getHp()) {

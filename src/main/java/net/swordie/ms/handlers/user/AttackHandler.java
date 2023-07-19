@@ -342,7 +342,7 @@ public class AttackHandler {
         if (SkillConstants.isUsercloneSummonedAbleSkill(skillID)) {
             ai.bySummonedID = inPacket.decodeInt();
         }
-        ai.buckShot = inPacket.decodeByte();
+        ai.buckShot = inPacket.decodeByte(); // noBulletConsume = (buckShot >>> 6 & 1) != 0
         ai.someMask = inPacket.decodeByte();
         if (header == InHeader.USER_SHOOT_ATTACK) {
             int idk3 = inPacket.decodeInt();
@@ -408,9 +408,9 @@ public class AttackHandler {
             if ( v674 || is_noconsume_usebullet_melee_attack(v669) )
               COutPacket::Encode4(&a, v1748);
           }*/
-        if (SkillConstants.isNoConsumeBullet(skillID) && header == InHeader.USER_MELEE_ATTACK) {
+        if (header == InHeader.USER_MELEE_ATTACK) {
             inPacket.decodeShort();
-            if (skillID == 14121052 || skillID == NightWalker.SHADOW_BAT_ATOM) {
+            if (((ai.buckShot >> 6) & 1) != 0 || SkillConstants.isNoConsumeBullet(skillID)) {
                 inPacket.decodeInt();
             }
         }

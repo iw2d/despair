@@ -697,6 +697,13 @@ public abstract class Job {
 
 	}
 
+	/**
+	 * Called when client sends a USER_FORCE_ATOM_COLLISION packet
+	 */
+	public void handleForceAtomCollision(int forceAtomKey, int mobId) {
+
+	}
+
 	public void handleLevelUp() {
 		short level = chr.getLevel();
 		Map<Stat, Object> stats = new HashMap<>();

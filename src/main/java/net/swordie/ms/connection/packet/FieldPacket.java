@@ -102,13 +102,13 @@ public class FieldPacket {
     }
 
     public static OutPacket createForceAtom(boolean byMob, int userOwner, int targetID, int forceAtomType, boolean toMob,
-                                     int targets, int skillID, ForceAtomInfo fai, Rect rect, int arriveDir, int arriveRange,
+                                     int target, int skillID, ForceAtomInfo fai, Rect rect, int arriveDir, int arriveRange,
                                      Position forcedTargetPos, int bulletID, Position pos) {
-        List<Integer> integers = new ArrayList<>();
-        integers.add(targets);
+        List<Integer> targets = new ArrayList<>();
+        targets.add(target);
         List<ForceAtomInfo> forceAtomInfos = new ArrayList<>();
         forceAtomInfos.add(fai);
-        return createForceAtom(byMob, userOwner, targetID, forceAtomType, toMob, integers, skillID, forceAtomInfos,
+        return createForceAtom(byMob, userOwner, targetID, forceAtomType, toMob, targets, skillID, forceAtomInfos,
                 rect, arriveDir, arriveRange, forcedTargetPos, bulletID, pos);
     }
 

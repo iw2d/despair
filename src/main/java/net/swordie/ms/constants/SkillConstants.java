@@ -1600,15 +1600,31 @@ public class SkillConstants {
 
     public static boolean isNoConsumeBullet(int skillID) {
         switch (skillID) {
-            case 14111023:
-            case 14111022:
-            case 14121052:
-            case NightWalker.SHADOW_BAT_ATOM:
-            case NightWalker.SHADOW_STITCH:
+            case NightWalker.DARK_OMEN:
+            case NightWalker.DOMINION:
+            case NightWalker.SHADOW_BAT_ATTACK:
+            case NightWalker.SHADOW_BAT_ATTACK_BOUND:
                 return true;
         }
         // Tower of Oz skill rings
         return (skillID >= 80001455 && skillID <= 80001479);
+    }
+
+    public static boolean isThrowingStarSkill(int skillID) {
+        // used for Night Walker Shadow Bat Creation
+        switch (skillID) {
+            case NightWalker.LUCKY_SEVEN:
+            case NightWalker.TRIPLE_THROW:
+            case NightWalker.TRIPLE_THROW_FINISHER:
+            case NightWalker.QUAD_STAR:
+            case NightWalker.QUAD_STAR_FINISHER:
+            case NightWalker.QUINTUPLE_STAR:
+            case NightWalker.QUINTUPLE_STAR_FINISHER:
+            case NightWalker.SHADOW_SPARK:
+                return true;
+            default:
+                return false;
+        }
     }
 
     public static BeastTamerBeasts getBeastFromSkill(int skillId) {
@@ -1644,6 +1660,7 @@ public class SkillConstants {
             case Archer.CRITICAL_SHOT:
             case NightLord.CRITICAL_THROW:
             case DualBlade.SHARPNESS:
+            case NightWalker.CRITICAL_THROW:
                 stats.put(BaseStat.cr, si.getValue(SkillStat.prop, slv));
                 break;
             case Bowmaster.BOW_EXPERT:
@@ -1653,6 +1670,7 @@ public class SkillConstants {
             case DualBlade.KATARA_EXPERT:
             case DawnWarrior.STUDENT_OF_THE_BLADE:
             case WindArcher.BOW_EXPERT:
+            case NightWalker.THROWING_EXPERT:
                 stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
                 break;
             case FirePoison.SPELL_MASTERY_FP:
@@ -1691,6 +1709,11 @@ public class SkillConstants {
             case Bowmaster.ILLUSION_STEP_BOW:
             case Marksman.ILLUSION_STEP_XBOW:
                 stats.remove(BaseStat.dex); // active effect
+                break;
+            case Thief.HASTE:
+            case NightWalker.HASTE:
+                stats.remove(BaseStat.speed); // active effect
+                stats.remove(BaseStat.jump);
                 break;
             case Buccaneer.CROSSBONES:
                 stats.remove(BaseStat.padR); // active effect

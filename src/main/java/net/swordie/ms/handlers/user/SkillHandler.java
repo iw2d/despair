@@ -46,34 +46,29 @@ public class SkillHandler {
 
 
     @Handler(op = InHeader.USER_FORCE_ATOM_COLLISION)
-    public static void handleForceAtomCollision(Client c, InPacket inPacket) {
+    public static void handleForceAtomCollision(Char chr, InPacket inPacket) {
         int size = inPacket.decodeInt();
-        int idk2 = inPacket.decodeInt();
+        int idkInt = inPacket.decodeInt();
         for (int i = 0; i < size; i++) {
-            int idk3 = inPacket.decodeInt();
-            byte idk4 = inPacket.decodeByte();
-            int mobID = inPacket.decodeInt();
-            Mob mob = (Mob) c.getChr().getField().getLifeByObjectID(mobID);
-            if (mob != null) {
-//            mob.damage((long) 133337);
-//            c.write(FieldPacket.damaged(mobID, (long) 133337, mob.getTemplateId(), (byte) 1, (int) mob.getHp(), (int) mob.getMaxHp()));
-            }
+            int forceAtomKey = inPacket.decodeInt();
+            byte idkByte = inPacket.decodeByte();
+            int mobId = inPacket.decodeInt();
+
+            chr.getJobHandler().handleForceAtomCollision(forceAtomKey, mobId);
         }
     }
 
 
     @Handler(op = InHeader.USER_ACTIVATE_DAMAGE_SKIN)
-    public static void handleUserActivateDamageSkin(Client c, InPacket inPacket) {
+    public static void handleUserActivateDamageSkin(Char chr, InPacket inPacket) {
         int damageSkin = inPacket.decodeInt();
-        Char chr = c.getChr();
         chr.setDamageSkin(damageSkin);
 //        c.write(User.setDamageSkin(chr));
     }
 
     @Handler(op = InHeader.USER_ACTIVATE_DAMAGE_SKIN__PREMIUM)
-    public static void handleUserActivateDamageSkinPremium(Client c, InPacket inPacket) {
+    public static void handleUserActivateDamageSkinPremium(Char chr, InPacket inPacket) {
         int damageSkin = inPacket.decodeInt();
-        Char chr = c.getChr();
         chr.setPremiumDamageSkin(damageSkin);
 //        c.write(User.setPremiumDamageSkin(chr));
     }

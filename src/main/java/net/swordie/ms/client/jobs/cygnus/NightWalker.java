@@ -4,20 +4,18 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
+import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.FieldPacket;
-import net.swordie.ms.connection.packet.Summoned;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
-import net.swordie.ms.enums.ForceAtomEnum;
-import net.swordie.ms.enums.LeaveType;
-import net.swordie.ms.enums.MoveAbility;
-import net.swordie.ms.handlers.EventManager;
+import net.swordie.ms.enums.*;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
@@ -28,10 +26,9 @@ import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -44,27 +41,33 @@ public class NightWalker extends Noblesse {
     public static final int DARK_ELEMENTAL = 14001021; //Buff (Mark of Darkness)
     public static final int HASTE = 14001022; //Buff
     public static final int DARK_SIGHT = 14001023; //Buff
-
     public static final int THROWING_BOOSTER = 14101022; //Buff
 
 
+    public static final int CRITICAL_THROW = 14100024; //Buff
     public static final int DARK_SERVANT = 14111024; //Buff
     public static final int SPIRIT_PROJECTION = 14111025; //Buff
     public static final int DARKNESS_ASCENDING = 14110030; //Special Buff
     public static final int SHADOW_SPARK = 14111023;
 
+    public static final int THROWING_EXPERT = 14120005;
     public static final int DARK_OMEN = 14121003; //Summon
     public static final int SHADOW_STITCH = 14121004; //Special Attack (Bind Debuff)
     public static final int CALL_OF_CYGNUS_NW = 14121000; //Buff
     public static final int VITALITY_SIPHON = 14120009;
 
+    public static final int VITALITY_SIPHON_EXTRA_POINT = 14120049;
+    public static final int VITALITY_SIPHON_STEEL_SKIN = 14120050;
+    public static final int VITALITY_SIPHON_PREPARATION = 14120051;
     public static final int GLORY_OF_THE_GUARDIANS_NW = 14121053;
     public static final int SHADOW_ILLUSION = 14121054;
     public static final int DOMINION = 14121052;
 
     //Bats
     public static final int SHADOW_BAT = 14001027; //Buff (Shadow Bats) (ON/OFF)
-    public static final int SHADOW_BAT_ATOM = 14000028;
+    public static final int SHADOW_BAT_SUMMON = 14000027;
+    public static final int SHADOW_BAT_ATTACK = 14000028;
+    public static final int SHADOW_BAT_ATTACK_BOUND = 14000029;
     public static final int BAT_AFFINITY = 14100027; //Summon Upgrade
     public static final int BAT_AFFINITY_II = 14110029; //Summon Upgrade
     public static final int BAT_AFFINITY_III = 14120008; //Summon Upgrade
@@ -84,28 +87,20 @@ public class NightWalker extends Noblesse {
     public static final int TRIPLE_THROW = 14101020;
     public static final int TRIPLE_THROW_FINISHER = 14101021;
 
+    private static final int DARKNESS_SKILLS[] = {
+            DARK_ELEMENTAL,
+            ADAPTIVE_DARKNESS,
+            ADAPTIVE_DARKNESS_II,
+            ADAPTIVE_DARKNESS_III
+    };
+
     private int[] addedSkills = new int[] {
             IMPERIAL_RECALL,
     };
 
-    private int[] darkEleSkills = new int[] {
-            DARK_ELEMENTAL,
-            ADAPTIVE_DARKNESS,
-            ADAPTIVE_DARKNESS_II,
-            ADAPTIVE_DARKNESS_III,
-    };
-
-    private int[] batSkills = new int[] {
-            SHADOW_BAT,
-            BAT_AFFINITY,
-            BAT_AFFINITY_II,
-            BAT_AFFINITY_III,
-    };
-
-    private List<Summon> bats = new ArrayList<>();
-    private Summon darkServant;
-    private List<Summon> darkOmenBats = new ArrayList<>();
-    private int darkOmenAttackCount = 0;
+    private Map<Integer, Integer> batBounceMap = new ConcurrentHashMap<>();
+    private AtomicInteger shadowBatAttackCounter = new AtomicInteger(0);
+    private AtomicInteger darkOmenAttackCounter = new AtomicInteger(0);
 
     public NightWalker(Char chr) {
         super(chr);
@@ -126,29 +121,6 @@ public class NightWalker extends Noblesse {
     }
 
 
-    private void applyDarkServant() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(DARK_SERVANT);
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        byte slv = (byte) skill.getCurrentLevel();
-        Option o1 = new Option();
-
-
-        o1.nOption = si.getValue(x, slv);
-        o1.rOption = skill.getSkillId();
-        o1.tOption = si.getValue(time, slv);
-        tsm.putCharacterStatValue(ShadowServant, o1);
-        tsm.sendSetStatPacket();
-
-        darkServant = Summon.getSummonBy(chr, skill.getSkillId(), slv);
-        Field field = chr.getField();
-        darkServant.setFlyMob(false);
-        darkServant.setAvatarLook(chr.getAvatarData().getAvatarLook());
-        darkServant.setMoveAbility(MoveAbility.WalkClone);
-        field.spawnSummon(darkServant);
-    }
-
-
 
     // Attack related methods ------------------------------------------------------------------------------------------
 
@@ -160,74 +132,79 @@ public class NightWalker extends Noblesse {
         int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
         if (hasHitMobs) {
-            // Handling Shadow Bats
-            if (attackInfo.skillId != SHADOW_BAT_ATOM) {
-                shadowBats(attackInfo);
-            } else {
-                recreateShadowBatForceAtom();
-            }
-            if (attackInfo.skillId == DARK_OMEN) {
-                if (!tsm.hasStatBySkillId(SHADOW_BAT)) {
-                    return;
+            // handle bat force atom attack and healing
+            handleShadowBat(attackInfo);
+            // handle dark elemental proc and bat creation
+            if (SkillConstants.isThrowingStarSkill(attackInfo.skillId)) {
+                handleDarkElemental(attackInfo);
+                if (tsm.hasStat(Dominion) || shadowBatAttackCounter.incrementAndGet() % 3 == 0) {
+                    summonShadowBat(false);
                 }
-                int mobsHit = attackInfo.mobAttackInfo.size();
-                darkOmenAttackCount += mobsHit;
-                int attForBats = si.getValue(x, slv);
-                int batsToSummon = darkOmenAttackCount / attForBats;
-                darkOmenAttackCount = darkOmenAttackCount % attForBats;
-                for (int i = 0; i < batsToSummon; i++) {
-                    if (darkOmenBats.size() < getDarkOmenBatCount(chr)) {
-                        summonBatByDarkOmen();
-                    } else {
+            } else if (attackInfo.skillId == DARK_OMEN) {
+                if (darkOmenAttackCounter.incrementAndGet() % 3 == 0) {
+                    summonShadowBat(true);
+                }
+            }
+            // handle dark omen cooldown reduce
+            if (chr.hasSkillOnCooldown(DARK_OMEN)) {
+                switch (attackInfo.skillId) {
+                    case LUCKY_SEVEN:
+                    case TRIPLE_THROW:
+                    case QUAD_STAR:
+                    case QUINTUPLE_STAR:
+                    case SHADOW_BAT_ATTACK:
+                    case SHADOW_BAT_ATTACK_BOUND:
+                    case DARK_OMEN:
                         break;
-                    }
+                    default:
+                        chr.reduceSkillCoolTime(DARK_OMEN, 500);
+                        break;
                 }
-            }
-            if (attackInfo.skillId != DARK_OMEN && attackInfo.skillId != SHADOW_BAT_ATOM && chr.hasSkillOnCooldown(DARK_OMEN)) {
-                SkillInfo skillInfo = SkillData.getSkillInfoById(DARK_OMEN);
-                chr.reduceSkillCoolTime(DARK_OMEN, skillInfo.getValue(y, slv));
-            }
-            // Handling Dark Elemental
-            if (tsm.hasStat(ElementDarkness)) {
-                applyDarkElementalOnMob(attackInfo);
             }
         }
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
         Option o4 = new Option();
+        Option o5 = new Option();
         switch (attackInfo.skillId) {
             case SHADOW_STITCH:
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = Math.min(si.getValue(time, slv) + attackInfo.mobAttackInfo.size(), si.getValue(s, slv));
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if(mob == null) {
+                    if (mob == null) {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = 1;
-                    o1.rOption = skillID;
-                    o1.tOption = (si.getValue(time, slv) + attackInfo.mobAttackInfo.size() > 25 ? 25 : si.getValue(time, slv) + attackInfo.mobAttackInfo.size());
                     mts.addStatOptionsAndBroadcast(MobStat.Freeze, o1);
                 }
                 break;
             case DOMINION:
                 o1.nOption = 1;
                 o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
+                o1.tOption = 5;
                 tsm.putCharacterStatValue(NotDamaged, o1);
-                o2.nOption = 100;
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(CriticalBuff, o2);
-                o3.nOption = 100;
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(Stance, o3);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieCr, slv);
+                o2.tStart = Util.getCurrentTime();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieCr, o2);
+                o3.nReason = skillID;
+                o3.nValue = si.getValue(indieStance, slv);
+                o3.tStart = Util.getCurrentTime();
+                o3.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieStance, o3);
                 o4.nReason = skillID;
-                o4.nValue = 20;
+                o4.nValue = si.getValue(indieDamR, slv);
                 o4.tStart = Util.getCurrentTime();
                 o4.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o4);
+                o5.nOption = 1;
+                o5.rOption = skillID;
+                o5.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Dominion, o5);
                 tsm.sendSetStatPacket();
                 break;
         }
@@ -235,306 +212,230 @@ public class NightWalker extends Noblesse {
         super.handleAttack(chr, attackInfo);
     }
 
-    // handling Shadow Bats
-    private void shadowBats(AttackInfo attackInfo) {
+    private void handleDarkElemental(AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if(!tsm.hasStat(NightWalkerBat)) {
+        if (!tsm.hasStat(ElementDarkness)) {
             return;
         }
-        for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
+        // get debuff values
+        int proc = 0;
+        int maxStacks = 0;
+        int defIgnore = 0;
+        int dotDamage = 0;
+        int interval = 0;
+        int duration = 0;
+        for (int skillId : DARKNESS_SKILLS) {
+            if (!chr.hasSkill(skillId)) {
+                continue;
+            }
+            SkillInfo si = SkillData.getSkillInfoById(skillId);
+            int slv = chr.getSkillLevel(skillId);
+            proc += si.getValue(prop, slv);
+            maxStacks += si.getValue(x, slv);
+            defIgnore += si.getValue(y, slv);
+            dotDamage += si.getValue(dot, slv);
+            interval += si.getValue(dotInterval, slv);
+            duration += si.getValue(dotTime, slv);
+        }
+        // apply debuff
+        for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
             Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
             if (mob == null) {
                 continue;
             }
+            if (!Util.succeedProp(proc) && !tsm.hasStat(Dominion)) {
+                continue;
+            }
             MobTemporaryStat mts = mob.getTemporaryStat();
-            // Remove Bats & Create ForceAtom
-            if (bats.size() > 0) {
-                for(Iterator<Summon> it = bats.iterator(); it.hasNext();) {
-                    Summon bat = it.next();
-                    if (Util.succeedProp((mts.hasCurrentMobStat(MobStat.ElementDarkness) ? 2*getBatAttackProp() : getBatAttackProp()))) {
-                        it.remove();
-                        chr.getField().broadcastPacket(Summoned.summonedRemoved(bat, LeaveType.ANIMATION));
-                        createShadowBatForceAtom(attackInfo);
-                    }
+            int stacks = 0;
+            if (tsm.hasStat(Dominion)) {
+                // max stacks when dominion is active
+                stacks = maxStacks;
+            } else {
+                Option oldO = mts.getCurrentOptionsByMobStat(MobStat.ElementDarkness);
+                if (oldO != null && oldO.nOption > 0) {
+                    stacks = oldO.nOption;
+                }
+                if (stacks < maxStacks) {
+                    stacks++;
                 }
             }
-            // Remove bats created by dark omen and create ForceAtom
-            if (darkOmenBats.size() > 0) {
-                for(Iterator<Summon> it = darkOmenBats.iterator(); it.hasNext();) {
-                    Summon bat = it.next();
-                    if (Util.succeedProp((mts.hasCurrentMobStat(MobStat.ElementDarkness) ? 2*getBatAttackProp() : getBatAttackProp()))) {
-                        it.remove();
-                        chr.getField().broadcastPacket(Summoned.summonedRemoved(bat, LeaveType.ANIMATION));
-                        createShadowBatForceAtom(attackInfo);
-                    }
+            Option o1 = new Option();
+            Option o2 = new Option();
+            o1.nOption = stacks;
+            o1.rOption = DARK_ELEMENTAL;
+            o1.tOption = duration;
+            o2.nOption = - (stacks * defIgnore);
+            o2.rOption = DARK_ELEMENTAL;
+            o2.tOption = duration;
+            mts.addStatOptions(MobStat.ElementDarkness, o1);
+            mts.addStatOptions(MobStat.PDR, o2);
+            mts.addStatOptions(MobStat.MDR, o2);
+            if (tsm.hasStat(Dominion)) {
+                for (int i = 0; i < maxStacks; i++) {
+                    mts.createAndAddBurnedInfo(chr, DARK_ELEMENTAL, chr.getSkillLevel(DARK_ELEMENTAL), dotDamage, interval, duration, maxStacks);
                 }
+            } else {
+                mts.createAndAddBurnedInfo(chr, DARK_ELEMENTAL, chr.getSkillLevel(DARK_ELEMENTAL), dotDamage, interval, duration, maxStacks);
             }
-
-            // Spawn Bat
-            if (bats.size() < getMaxBats() && Util.succeedProp(33)) {
-                summonBatAndRegister();
-            }
+            // increment vitality siphon buff
+            updateVitalitySiphon();
         }
     }
 
-    private void createShadowBatForceAtom(AttackInfo attackInfo) {
-        SkillInfo si = SkillData.getSkillInfoById(getBatSkill().getSkillId());
-        Mob mob = (Mob) chr.getField().getLifeByObjectID(Util.getRandomFromCollection(attackInfo.mobAttackInfo).mobId);
+    private void updateVitalitySiphon() {
+        if (!chr.hasSkill(VITALITY_SIPHON)) {
+            return;
+        }
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        SkillInfo si = SkillData.getSkillInfoById(VITALITY_SIPHON);
+        int slv = chr.getSkillLevel(VITALITY_SIPHON);
+        int duration = si.getValue(time, slv);
+        int stacks = tsm.getOption(SiphonVitality).nOption;
+        if (stacks < si.getValue(x, slv)) {
+            stacks++;
+        }
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        Option o4 = new Option();
+        o1.nOption = stacks;
+        o1.rOption = VITALITY_SIPHON;
+        o1.tOption = duration;
+        o2.nOption = stacks * (si.getValue(y, slv) + chr.getSkillStatValue(x, VITALITY_SIPHON_EXTRA_POINT));
+        o2.rOption = VITALITY_SIPHON;
+        o2.tOption = duration;
+        tsm.putCharacterStatValue(SiphonVitality, o1);
+        tsm.putCharacterStatValue(IncMaxHP, o2);
+        if (chr.hasSkill(VITALITY_SIPHON_STEEL_SKIN)) {
+            o3.nOption = stacks * chr.getSkillStatValue(x, VITALITY_SIPHON_STEEL_SKIN);
+            o3.rOption = VITALITY_SIPHON;
+            o3.tOption = duration;
+            tsm.putCharacterStatValue(PDD, o3);
+            tsm.putCharacterStatValue(MDD, o3);
+        }
+        if (chr.hasSkill(VITALITY_SIPHON_PREPARATION)) {
+            o4.nOption = stacks * chr.getSkillStatValue(x, VITALITY_SIPHON_PREPARATION);
+            o4.rOption = VITALITY_SIPHON;
+            o4.tOption = duration;
+            tsm.putCharacterStatValue(AsrR, o4);
+        }
+        tsm.sendSetStatPacket();
+    }
 
-        if(mob == null) {
-            Rect rect = new Rect( // Skill itself doesn't hold any rect info
-                    new Position(
-                            chr.getPosition().getX() - 500,
-                            chr.getPosition().getY() - 500),
-                    new Position(
-                            chr.getPosition().getX() + 500,
-                            chr.getPosition().getY() + 500)
-            );
-            if(chr.getField().getMobsInRect(rect).size() <= 0) {
+    private int getShadowBatStat(SkillStat stat) {
+        return chr.getSkillStatValue(stat, SHADOW_BAT) +
+                chr.getSkillStatValue(stat, BAT_AFFINITY) +
+                chr.getSkillStatValue(stat, BAT_AFFINITY_II) +
+                chr.getSkillStatValue(stat, BAT_AFFINITY_III);
+    }
+
+    private void handleShadowBat(AttackInfo attackInfo) {
+        if (attackInfo.skillId == SHADOW_BAT_ATTACK) {
+            // handle heal on first damage
+            if (chr.getHP() >= 0) {
+                int healRate = chr.getSkillStatValue(x, SHADOW_BAT);
+                chr.heal((int) (chr.getMaxHP() / 100D / healRate));
+            }
+        } else if (attackInfo.skillId == SHADOW_BAT_ATTACK_BOUND) {
+            // do nothing, bounces are handled in handleForceAtomCollision
+        } else {
+            // initial summon -> force atom conversion
+            int proc = getShadowBatStat(prop);
+            if (!Util.succeedProp(proc)) {
                 return;
             }
-            mob = Util.getRandomFromCollection(chr.getField().getMobsInRect(rect));
+            Field field = chr.getField();
+            Summon summon = field.getSummons().stream()
+                    .filter(s -> s != null && s.getChr().getId() == chr.getId() &&
+                            (s.getSkillID() == SHADOW_BAT_SUMMON || s.getSkillID() == BAT_AFFINITY_III))
+                    .findFirst().orElse(null);
+            if (summon == null) {
+                return;
+            }
+            // get target
+            Position pos = chr.getPosition();
+            Rect rect = new Rect( // range = 350
+                    pos.getX() - 350, pos.getY() - 350,
+                    pos.getX() + 350, pos.getY() + 350
+            );
+            Mob target = Util.getRandomFromCollection(field.getMobsInRect(rect));
+            if (target == null) {
+                return;
+            }
+            // create force atom
+            int angle = pos.getX() > target.getX() ? 90 : 270;
+            int forceAtomKey = chr.getNewForceAtomKey();
+            batBounceMap.put(forceAtomKey, getShadowBatStat(mobCount) - 1);
+            ForceAtomEnum fae = chr.hasSkill(BAT_AFFINITY_III) ? ForceAtomEnum.NIGHT_WALKER_BAT_4 : ForceAtomEnum.NIGHT_WALKER_BAT;
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(forceAtomKey, fae.getInc(), 5, 6,
+                    angle, 0, Util.getCurrentTime(), 1, 0,
+                    new Position());
+            field.broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), fae.getForceAtomType(),
+                    true, target.getObjectId(), SHADOW_BAT_ATTACK, forceAtomInfo, rect, 0, 30,
+                    null, 0, null));
+            // remove summon
+            field.removeLife(summon);
         }
-        int mobId = mob.getObjectId();
-
-        int inc = ForceAtomEnum.NIGHT_WALKER_FROM_MOB.getInc();
-        int type = ForceAtomEnum.NIGHT_WALKER_FROM_MOB.getForceAtomType();
-
-        if(getBatSkill().getSkillId() == BAT_AFFINITY_III) {
-            inc = ForceAtomEnum.NIGHT_WALKER_FROM_MOB_4.getInc();
-            type = ForceAtomEnum.NIGHT_WALKER_FROM_MOB_4.getForceAtomType();
-        }
-
-        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 2, 1,
-                ((chr.getPosition().getX() > mob.getPosition().getX()) ? 90 : 270), 0, Util.getCurrentTime(), 1, 0,
-                new Position());
-
-        chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
-                true, mobId, SHADOW_BAT_ATOM, forceAtomInfo, new Rect(), ((chr.getPosition().getX() < mob.getPosition().getX()) ? 90 : 270), 30,
-                mob.getPosition(), SHADOW_BAT_ATOM, mob.getPosition()));
     }
 
-    private void recreateShadowBatForceAtom() {
+    private void summonShadowBat(boolean fromDarkOmen) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if(!tsm.hasStat(NightWalkerBat)) {
             return;
         }
-        if(Util.succeedProp(45)) {
-            Rect rect = new Rect( // Skill itself doesn't hold any rect info
-                    new Position(
-                            chr.getPosition().getX() - 500,
-                            chr.getPosition().getY() - 500),
-                    new Position(
-                            chr.getPosition().getX() + 500,
-                            chr.getPosition().getY() + 500)
-            );
-            List<Mob> mobs = chr.getField().getMobsInRect(rect);
-            if (mobs.size() <= 0) {
-                return;
-            }
-            Mob mob = Util.getRandomFromCollection(mobs);
-            int mobId = mob.getObjectId();
-
-            int inc = ForceAtomEnum.NIGHT_WALKER_FROM_MOB.getInc();
-            int type = ForceAtomEnum.NIGHT_WALKER_FROM_MOB.getForceAtomType();
-
-            if (getBatSkill().getSkillId() == BAT_AFFINITY_III) {
-                inc = ForceAtomEnum.NIGHT_WALKER_FROM_MOB_4.getInc();
-                type = ForceAtomEnum.NIGHT_WALKER_FROM_MOB_4.getForceAtomType();
-            }
-
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 2, 1,
-                    ((chr.getPosition().getX() > mob.getPosition().getX()) ? 90 : 270), 0, Util.getCurrentTime(), 1, 0,
-                    new Position());
-
-            chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, mobId, 0, type,
-                    true, mobId, SHADOW_BAT_ATOM, forceAtomInfo, new Rect(), ((chr.getPosition().getX() < mob.getPosition().getX()) ? 90 : 270), 30,
-                    mob.getPosition(), SHADOW_BAT_ATOM, mob.getPosition()));
+        int summonLimit = fromDarkOmen ? chr.getSkillStatValue(z, DARK_OMEN) : getShadowBatStat(y);
+        int summonCount = (int) chr.getField().getSummons().stream()
+                .filter(s -> s != null && s.getChr().getId() == chr.getId() &&
+                        (s.getSkillID() == SHADOW_BAT_SUMMON || s.getSkillID() == BAT_AFFINITY_III) &&
+                        (!fromDarkOmen || s.getFromDarkOmen()))
+                .count();
+        if (summonCount >= summonLimit) {
+            return;
         }
+        Summon summon = Summon.getSummonBy(chr, SHADOW_BAT_SUMMON, chr.getSkillLevel(SHADOW_BAT_SUMMON));
+        summon.setTemplateId(chr.hasSkill(BAT_AFFINITY_III) ? BAT_AFFINITY_III : SHADOW_BAT_SUMMON);
+        summon.setFlyMob(true);
+        summon.setMoveAbility(MoveAbility.Fly);
+        summon.setAttackActive(false);
+        summon.setFromDarkOmen(fromDarkOmen);
+        chr.getField().spawnAddSummon(summon);
     }
 
-    private int getMaxBats() {
-        int maxBats = 0;
-        for(int batSkill : batSkills) {
-            Skill skill = chr.getSkill(batSkill);
-            if(skill == null) {
-                continue;
-            }
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            byte slv = (byte) skill.getCurrentLevel();
-            maxBats += si.getValue(y, slv);
+
+    @Override
+    public void handleForceAtomCollision(int forceAtomKey, int mobId) {
+        // handle bat bouncing
+        Integer bouncesLeft = batBounceMap.remove(forceAtomKey);
+        if (bouncesLeft == null || bouncesLeft <= 0) {
+            return;
         }
-        return maxBats;
-    }
-
-    private int getBatAttackProp() {
-        int batAttackProp = 0;
-        for(int batSkill : batSkills) {
-            Skill skill = chr.getSkill(batSkill);
-            if(skill == null) {
-                continue;
-            }
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            byte slv = (byte) skill.getCurrentLevel();
-            batAttackProp += si.getValue(prop, slv);
+        // get source mob
+        Field field = chr.getField();
+        Mob source = (Mob) field.getLifeByObjectID(mobId);
+        if (source == null) {
+            return;
         }
-        return batAttackProp;
-    }
-
-    private Skill getBatSkill() {
-        Skill skill = null;
-        for(int batSkill : batSkills) {
-            if(chr.hasSkill(batSkill)) {
-                skill = chr.getSkill(batSkill);
-            }
+        // get target mob
+        Position pos = source.getPosition();
+        Rect rect = new Rect( // range = 350
+                pos.getX() - 350, pos.getY() - 350,
+                pos.getX() + 350, pos.getY() + 350
+        );
+        Mob target = Util.getRandomFromCollection(field.getMobsInRect(rect));
+        if (target == null) {
+            return;
         }
-        return skill;
-    }
-
-    private Summon summonBatAndRegister() {
-        Summon bat = Summon.getSummonBy(chr, getBatSkill().getSkillId(), (byte) getBatSkill().getCurrentLevel());
-        bat.setFlyMob(true);
-        bat.setMoveAbility(MoveAbility.Fly);
-        bat.setAttackActive(false);
-        chr.getField().spawnAddSummon(bat);
-        bats.add(bat);
-
-        return bat;
-    }
-
-    private Summon summonBatByDarkOmen() {
-        Summon bat = Summon.getSummonBy(chr, getBatSkill().getSkillId(), (byte) getBatSkill().getCurrentLevel());
-        bat.setFlyMob(true);
-        bat.setMoveAbility(MoveAbility.Fly);
-        bat.setAttackActive(false);
-        chr.getField().spawnAddSummon(bat);
-        darkOmenBats.add(bat);
-
-        return bat;
-    }
-
-    private void applyDarkElementalOnMob(AttackInfo attackInfo) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if(tsm.hasStat(ElementDarkness)) {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            int amount = 1;
-            for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                Skill skill = chr.getSkill(DARK_ELEMENTAL);
-                if (Util.succeedProp(getDarkEleProp())) {
-                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if(mob == null) {
-                        continue;
-                    }
-                    MobTemporaryStat mts = mob.getTemporaryStat();
-
-                    if (mts.hasCurrentMobStat(MobStat.ElementDarkness)) {
-                        amount = mts.getCurrentOptionsByMobStat(MobStat.ElementDarkness).nOption;
-                        if (amount < getMaxDarkEleStack()) {
-                            amount++;
-                        }
-                    }
-
-                    // if dominion is active, instantly gain max stack
-                    if(tsm.getOptByCTSAndSkill(Stance, DOMINION) != null) {
-                        amount = getMaxDarkEleStack();
-                    }
-
-                    o1.nOption = amount;
-                    o1.rOption = DARK_ELEMENTAL;
-                    o1.tOption = 15;
-                    mts.addStatOptionsAndBroadcast(MobStat.ElementDarkness, o1);
-
-                    o2.nOption = 1;
-                    o2.rOption = DARK_ELEMENTAL;
-                    o2.tOption = 15; //si.getValue(subTime, slv);
-                    mts.addStatOptionsAndBroadcast(MobStat.Blind, o2);  //To Show the Stack Effect
-
-                    mts.createAndAddBurnedInfo(chr, skill);
-
-                    //handle Vitality Siphon
-                    if (chr.hasSkill(VITALITY_SIPHON)) {
-                        incrementSiphonVitality(tsm);
-                    }
-                }
-            }
-        }
-    }
-
-    private int getMaxDarkEleStack() {
-        int maxStack = 0;
-        for(int darkEleSkill : darkEleSkills) {
-            if(chr.hasSkill(darkEleSkill)) {
-                Skill skill = chr.getSkill(darkEleSkill);
-                SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-                byte slv = (byte) skill.getCurrentLevel();
-                maxStack += si.getValue(x, slv);
-            }
-        }
-        return maxStack;
-    }
-
-    private Skill getDarkElementalSkill() {
-        Skill skill = null;
-        for(int darkEleSkill : darkEleSkills) {
-            if(chr.hasSkill(darkEleSkill)) {
-                skill = chr.getSkill(darkEleSkill);
-            }
-        }
-        return skill;
-    }
-
-    private int getDarkEleProp() {
-        int proc = 0;
-        for(int darkEleSkill : darkEleSkills) {
-            if(chr.hasSkill(darkEleSkill)) {
-                Skill skill = chr.getSkill(darkEleSkill);
-                SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-                byte slv = (byte) skill.getCurrentLevel();
-                proc += si.getValue(prop, slv);
-            }
-        }
-        return proc;
-    }
-
-    private void incrementSiphonVitality(TemporaryStatManager tsm) {
-        Option o = new Option();
-        Option o1 = new Option();
-        SkillInfo siphonInfo = SkillData.getSkillInfoById(VITALITY_SIPHON);
-        Skill skill = chr.getSkill(VITALITY_SIPHON);
-        byte slv = (byte) skill.getCurrentLevel();
-        int amount = 1;
-        if(tsm.hasStat(ElementDarkness)) {
-            if (tsm.hasStat(SiphonVitality)) {
-                amount = tsm.getOption(SiphonVitality).nOption;
-                if (amount < getMaxSiphon()) {
-                    amount++;
-                }
-            }
-
-            // if dominion is active, instantly gain max stack
-            if(tsm.getOptByCTSAndSkill(Stance, DOMINION) != null) {
-                amount = getMaxSiphon();
-            }
-
-            o.nOption = amount;
-            o.rOption = VITALITY_SIPHON;
-            o.tOption = siphonInfo.getValue(time, slv);
-            tsm.putCharacterStatValue(SiphonVitality, o);
-            o1.nOption = (amount * siphonInfo.getValue(y, slv));
-            o1.rOption = VITALITY_SIPHON;
-            o1.tOption = siphonInfo.getValue(time, slv);
-            tsm.putCharacterStatValue(IncMaxHP, o1);
-            tsm.sendSetStatPacket();
-        }
-    }
-
-    private int getMaxSiphon() {
-        Skill skill = null;
-        if (chr.hasSkill(14120009)) {
-            skill = chr.getSkill(14120009);
-        }
-        return skill == null ? 0 : SkillData.getSkillInfoById(skill.getSkillId()).getValue(x, skill.getCurrentLevel());
+        // create force atom
+        int angle = source.getX() > target.getX() ? 90 : 270;
+        ForceAtomEnum fae = chr.hasSkill(BAT_AFFINITY_III) ? ForceAtomEnum.NIGHT_WALKER_FROM_MOB_4 : ForceAtomEnum.NIGHT_WALKER_FROM_MOB;
+        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(forceAtomKey, fae.getInc(), 5, 6,
+                angle, 0, Util.getCurrentTime(), 1, 0,
+                new Position());
+        field.broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), source.getObjectId(), fae.getForceAtomType(),
+                true, target.getObjectId(), SHADOW_BAT_ATTACK_BOUND, forceAtomInfo, null, 0, 30,
+                null, 0, pos));
+        batBounceMap.put(forceAtomKey, bouncesLeft - 1);
     }
 
     @Override
@@ -578,10 +479,6 @@ public class NightWalker extends Noblesse {
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Jump, o2);
-                o3.nOption = si.getValue(er, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EVAR, o3);
                 break;
             case DARK_SIGHT:
                 o1.nOption = si.getValue(x, slv);
@@ -596,7 +493,7 @@ public class NightWalker extends Noblesse {
                 tsm.putCharacterStatValue(Booster, o1);
                 break;
             case DARK_SERVANT:
-                applyDarkServant();
+                summonDarkServant();
                 break;
             case SPIRIT_PROJECTION:
                 o1.nOption = chr.getBulletIDForAttack() - 2069999;
@@ -609,6 +506,7 @@ public class NightWalker extends Noblesse {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(ReviveOnce, o1);
+                chr.resetSkillCoolTime(skillID);
                 break;
             case CALL_OF_CYGNUS_NW:
                 o1.nReason = skillID;
@@ -618,7 +516,9 @@ public class NightWalker extends Noblesse {
                 tsm.putCharacterStatValue(IndieStatR, o1); //Indie
                 break;
             case SHADOW_BAT:
-                if(tsm.hasStatBySkillId(skillID)) {
+                if (tsm.hasStatBySkillId(skillID)) {
+                    tsm.removeStatsBySkill(SHADOW_BAT_SUMMON);
+                    tsm.removeStatsBySkill(BAT_AFFINITY_III);
                     tsm.removeStatsBySkill(skillID);
                     tsm.sendResetStatPacket();
                 } else {
@@ -641,27 +541,21 @@ public class NightWalker extends Noblesse {
                 tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case SHADOW_ILLUSION:
-                if(chr.getField().getSummons().stream()
-                        .anyMatch(l -> l.getChr() == chr &&
-                                l.getSkillID() == DARK_SERVANT)
-                ) {
+                if (tsm.hasStatBySkillId(DARK_SERVANT)) {
                     tsm.removeStatsBySkill(DARK_SERVANT);
-                    chr.getField().broadcastPacket(Summoned.summonedRemoved(darkServant, LeaveType.ANIMATION));
+                    tsm.sendResetStatPacket();
                 }
                 o1.nOption = 1;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(ShadowIllusion, o1);
-                for(int i = skillID; i < skillID+3; i++) {
+                for(int i = skillID; i < skillID + 3; i++) {
                     summon = Summon.getSummonBy(chr, i, slv);
                     field = chr.getField();
                     summon.setFlyMob(false);
                     summon.setAvatarLook(chr.getAvatarData().getAvatarLook());
                     summon.setMoveAbility(MoveAbility.WalkClone);
                     field.spawnSummon(summon);
-                }
-                if(chr.hasSkill(DARK_SERVANT)) {
-                    EventManager.addEvent(this::applyDarkServant, si.getValue(time, slv) * 1001, TimeUnit.MILLISECONDS);
                 }
                 break;
             case DARK_OMEN:
@@ -675,13 +569,51 @@ public class NightWalker extends Noblesse {
         tsm.sendSetStatPacket();
     }
 
+    private void summonDarkServant() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        SkillInfo si = SkillData.getSkillInfoById(DARK_SERVANT);
+        int slv = chr.getSkillLevel(DARK_SERVANT);
+        // creat esummon
+        Summon summon = new Summon(DARK_SERVANT);
+        summon.setChr(chr);
+        summon.setSkillID(DARK_SERVANT);
+        summon.setSlv((byte) slv);
+        summon.setSummonTerm(chr.getJobHandler().getBuffedSkillDuration(si.getValue(time, slv)));
+        summon.setCharLevel((byte) chr.getStat(Stat.level));
+        summon.setPosition(chr.getPosition().deepCopy());
+        summon.setMoveAction((byte) 1);
+        summon.setCurFoothold((short) chr.getField().findFootHoldBelow(summon.getPosition()).getId());
+        summon.setEnterType(EnterType.Animation);
+        summon.setFlyMob(false);
+        summon.setAttackActive(false);
+        summon.setAssistType(AssistType.None);
+        summon.setAvatarLook(chr.getAvatarData().getAvatarLook());
+        summon.setMoveAbility(MoveAbility.WalkClone);
+        chr.getField().spawnSummon(summon);
+        // set buff
+        Option o1 = new Option();
+        o1.nOption = si.getValue(x, slv);
+        o1.rOption = DARK_SERVANT;
+        o1.tOption = si.getValue(time, slv);
+        o1.summon = summon;
+        tsm.putCharacterStatValue(ShadowServant, o1);
+        tsm.sendSetStatPacket();
+    }
+
+    @Override
+    public void handleRemoveCTS(CharacterTemporaryStat cts) {
+        if (cts == ShadowIllusion) {
+            summonDarkServant();
+        }
+        super.handleRemoveCTS(cts);
+    }
+
 
 
     // Hit related methods ---------------------------------------------------------------------------------------------
 
     @Override
     public void handleHit(Char chr, HitInfo hitInfo) {
-
         super.handleHit(chr, hitInfo);
     }
 
@@ -691,13 +623,6 @@ public class NightWalker extends Noblesse {
         tsm.removeStatsBySkill(DARKNESS_ASCENDING);
         tsm.sendResetStatPacket();
         chr.chatMessage("You have been revived by Darkness Ascending.");
-    }
-
-    public static int getDarkOmenBatCount(Char chr) {
-        if (chr.hasSkill(DARK_OMEN)) {
-            SkillInfo si = SkillData.getSkillInfoById(DARK_OMEN);
-            return si.getValue(z, chr.getSkillLevel(DARK_OMEN));
-        }
-        return 0;
+        chr.setSkillCooldown(DARKNESS_ASCENDING, chr.getSkillLevel(DARKNESS_ASCENDING));
     }
 }

@@ -241,6 +241,8 @@ public class FirePoison extends Magician {
     private void createMegiddoFlameForceAtom() {
         Field field = chr.getField();
         SkillInfo si = SkillData.getSkillInfoById(MEGIDDO_FLAME);
+        int slv = chr.getSkillLevel(MEGIDDO_FLAME);
+        int hitCount = si.getValue(attackCount, slv);
         Rect rect = chr.getPosition().getRectAround(si.getFirstRect());
         if (!chr.isLeft()) {
             rect = rect.horizontalFlipAround(chr.getPosition().getX());
@@ -251,7 +253,7 @@ public class FirePoison extends Magician {
             int inc = ForceAtomEnum.DA_ORB.getInc();
             int type = ForceAtomEnum.DA_ORB.getForceAtomType();
             ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 20, 40,
-                    0, 500, Util.getCurrentTime(), 1, 0,
+                    0, 500, Util.getCurrentTime(), hitCount, 0,
                     new Position(0, -100));
             chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
                     true, mobID2, MEGIDDO_FLAME_ATOM, forceAtomInfo, new Rect(), 0, 300,
@@ -261,25 +263,25 @@ public class FirePoison extends Magician {
 
     private void recreateMegiddoFlameForceAtom(AttackInfo attackInfo) {
         SkillInfo si = SkillData.getSkillInfoById(MEGIDDO_FLAME);
-        int anglenum = new Random().nextInt(360);
+        int slv = chr.getSkillLevel(MEGIDDO_FLAME);
+        int proc = si.getValue(prop, slv);
+        int hitCount = si.getValue(attackCount, slv);
+
         for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
             Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-            if (mob == null) {
+            if (mob == null || ! Util.succeedProp(proc)) {
                 continue;
             }
-            int TW1prop = 85;//
-            if (Util.succeedProp(TW1prop)) {
-                int mobID = mai.mobId;
-
-                int inc = ForceAtomEnum.DA_ORB_RECREATION.getInc();
-                int type = ForceAtomEnum.DA_ORB_RECREATION.getForceAtomType();
-                ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 30, 5,
-                        anglenum, 0, Util.getCurrentTime(), 1, 0,
-                        new Position(0, 0));
-                chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
-                        true, mobID, MEGIDDO_FLAME_ATOM, forceAtomInfo, new Rect(), 0, 300,
-                        mob.getPosition(), MEGIDDO_FLAME_ATOM, mob.getPosition()));
-            }
+            int mobID = mai.mobId;
+            int inc = ForceAtomEnum.DA_ORB_RECREATION.getInc();
+            int type = ForceAtomEnum.DA_ORB_RECREATION.getForceAtomType();
+            int anglenum = Util.getRandom(360);
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 30, 5,
+                    anglenum, 0, Util.getCurrentTime(), hitCount, 0,
+                    new Position(0, 0));
+            chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
+                    true, mobID, MEGIDDO_FLAME_ATOM, forceAtomInfo, new Rect(), 0, 300,
+                    mob.getPosition(), MEGIDDO_FLAME_ATOM, mob.getPosition()));
         }
     }
 
