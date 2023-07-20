@@ -125,7 +125,7 @@ public class Bishop extends Magician {
             }
             tsm.sendSetStatPacket();
         } else if (tsm.hasStat(BlessEnsenble)) {
-            tsm.removeStat(BlessEnsenble, true);
+            tsm.removeStat(BlessEnsenble, false);
             tsm.sendResetStatPacket();
         }
     }
@@ -399,7 +399,7 @@ public class Bishop extends Magician {
                 break;
             case ADV_BLESSING:
                 if (tsm.hasStat(Bless)) {
-                    tsm.removeStat(Bless, true);
+                    tsm.removeStat(Bless, false);
                     tsm.sendResetStatPacket();
                 }
                 o1.nOption = slv;
@@ -555,7 +555,7 @@ public class Bishop extends Magician {
     public static void reviveByHeavensDoor(Char chr) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         chr.healHPMP();
-        tsm.removeStat(HeavensDoor, true);
+        tsm.removeStat(HeavensDoor, false);
         tsm.sendResetStatPacket();
         chr.chatMessage("You have been revived by Heaven's Door.");
     }

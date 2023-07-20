@@ -280,11 +280,6 @@ public class BlazeWizard extends Noblesse {
             case CONTROLLED_BURN:
                 chr.healMP((int) (chr.getMaxMP() / (100D / si.getValue(x, slv))));
                 break;
-            case IMPERIAL_RECALL:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case BURNING_CONDUIT:
                 field = chr.getField();
                 for (AffectedArea aa : chr.getField().getAffectedAreas()) {
@@ -311,13 +306,6 @@ public class BlazeWizard extends Noblesse {
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(DamageReduce, o1);
                 break;
-            case CALL_OF_CYGNUS_BW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
             case IGNITION:
                 o1.nOption = 1;
                 o1.rOption = skillID;
@@ -339,18 +327,6 @@ public class BlazeWizard extends Noblesse {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(ReviveOnce, o1);
-                break;
-            case GLORY_OF_THE_GUARDIANS_BW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case ORBITAL_FLAME_RANGE:
                 if (tsm.hasStat(AddRangeOnOff)) {

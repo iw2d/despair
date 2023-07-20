@@ -417,6 +417,7 @@ public class Phantom extends Job {
                 o2.nOption = si.getValue(ignoreMobpdpR, slv);
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
+                o2.bOption = 1;
                 tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
                 break;
             case MAPLE_WARRIOR_PH:

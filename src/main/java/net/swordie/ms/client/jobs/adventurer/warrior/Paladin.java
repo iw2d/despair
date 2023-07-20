@@ -233,18 +233,19 @@ public class Paladin extends Warrior {
                 if (charges == SkillData.getSkillInfoById(ELEMENTAL_CHARGE).getValue(z, 1)) {
                     if (tsm.getOptByCTSAndSkill(DamR, BLAST) == null) {
                         resetCharges(tsm);
-                        int t = si.getValue(time, slv);
+                        int duration = si.getValue(time, slv);
                         o1.nOption = si.getValue(cr, slv);
                         o1.rOption = skillID;
-                        o1.tOption = t;
+                        o1.tOption = duration;
                         tsm.putCharacterStatValue(CriticalBuff, o1);
                         o2.nOption = si.getValue(ignoreMobpdpR, slv);
                         o2.rOption = skillID;
-                        o2.tOption = t;
-                        tsm.putCharacterStatValue(IgnoreTargetDEF, o2);
+                        o2.tOption = duration;
+                        o2.bOption = 1;
+                        tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
                         o3.nOption = si.getValue(damR, slv);
                         o3.rOption = skillID;
-                        o3.tOption = t;
+                        o3.tOption = duration;
                         tsm.putCharacterStatValue(DamR, o3);
                         tsm.sendSetStatPacket();
                     }
@@ -523,8 +524,8 @@ public class Paladin extends Warrior {
 
     private void resetDivineShield() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        tsm.removeStat(BlessingArmor, true);
-        tsm.removeStat(BlessingArmorIncPAD, true);
+        tsm.removeStat(BlessingArmor, false);
+        tsm.removeStat(BlessingArmorIncPAD, false);
         tsm.sendResetStatPacket();
     }
 

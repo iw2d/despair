@@ -126,6 +126,7 @@ public class Kanna extends Job {
         o2.nOption = si.getValue(x, slv);
         o2.rOption = BREATH_UNSEEN;
         o2.tOption = si.getValue(time, slv);
+        o2.bOption = 1;
         tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
         tsm.sendSetStatPacket();
     }

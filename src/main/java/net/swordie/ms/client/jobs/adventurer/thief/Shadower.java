@@ -226,7 +226,7 @@ public class Shadower extends Thief {
             stacks = tsm.getOption(KillingPoint).nOption;
             // consume 3+ killing point stacks with assassinate
             if (stacks >= 3 && skillId == ASSASSINATE) {
-                tsm.removeStat(KillingPoint, true);
+                tsm.removeStat(KillingPoint, false);
                 tsm.sendResetStatPacket();
                 return;
             }
@@ -334,10 +334,6 @@ public class Shadower extends Thief {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(PAD, o1);
-                o2.nOption = si.getValue(ignoreMobpdpR, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
                 break;
             case FLIP_THE_COIN:
                 int stacks = 1;

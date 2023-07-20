@@ -11,7 +11,9 @@ import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.TSIndex;
+import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
@@ -23,17 +25,10 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class ThunderBreaker extends Noblesse {
-
-    public static final int IMPERIAL_RECALL = 10001245;
-    public static final int ELEMENTAL_EXPERT = 10000250;
-    public static final int ELEMENTAL_SLASH = 10001244;
-    public static final int NOBLE_MIND = 10000202;
-    public static final int ELEMENTAL_SHIFT = 10001254;
-    public static final int ELEMENTAL_SHIFT2 = 10000252;
-
     public static final int LIGHTNING_ELEMENTAL = 15001022; //Buff (Charge) //Stackable Charge
     public static final int ELECTRIFIED = 15000023;
 
+    public static final int KNUCKLE_MASTERY = 15100023;
     public static final int KNUCKLE_BOOSTER = 15101022; //Buff
     public static final int LIGHTNING_BOOST = 15100025;
 
@@ -41,6 +36,7 @@ public class ThunderBreaker extends Noblesse {
     public static final int LINK_MASTERY = 15110025; //Special Passive
     public static final int LIGHTNING_LORD = 15110026;
 
+    public static final int KNUCKLE_EXPERT = 15120006;
     public static final int ARC_CHARGER = 15121004; //Buff
     public static final int SPEED_INFUSION = 15121005; //Buff
     public static final int CALL_OF_CYGNUS_TB = 15121000; //Buff
@@ -50,25 +46,16 @@ public class ThunderBreaker extends Noblesse {
     public static final int GLORY_OF_THE_GUARDIANS_TB = 15121053;
     public static final int PRIMAL_BOLT = 15121054;
 
-    private int[] addedSkills = new int[] {
-            IMPERIAL_RECALL,
-            ELEMENTAL_EXPERT,
-            ELEMENTAL_SLASH,
-            NOBLE_MIND,
-            ELEMENTAL_SHIFT,
-            ELEMENTAL_SHIFT2
-    };
-
-    private int[] lightningBuffs = new int[] {
-            LIGHTNING_ELEMENTAL,
+    private static final int[] LIGHTNING_BUFF_PASSIVES = {
             ELECTRIFIED,
             LIGHTNING_BOOST,
             LIGHTNING_LORD,
-            THUNDER_GOD,
+            THUNDER_GOD
     };
 
-    private int lastAttackSkill = 0;
-    private byte arcChargeCDCount;
+    private int[] addedSkills = new int[] {
+            IMPERIAL_RECALL,
+    };
 
     public ThunderBreaker(Char chr) {
         super(chr);
@@ -95,25 +82,13 @@ public class ThunderBreaker extends Noblesse {
     @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(attackInfo.skillId);
-        int skillID = 0;
-        SkillInfo si = null;
+        int skillID = SkillConstants.getActualSkillIDfromSkillID(attackInfo.skillId);
+        SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
+        int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
-        int slv = 0;
-        if (skill != null) {
-            si = SkillData.getSkillInfoById(skill.getSkillId());
-            slv = skill.getCurrentLevel();
-            skillID = skill.getSkillId();
-        }
-        int chargeProp = getChargeProp();
-        if (tsm.hasStat(CygnusElementSkill)) {
-            if (hasHitMobs && Util.succeedProp(chargeProp)) {
-                incrementLightningElemental(tsm);
-            }
-        }
-        if(chr.hasSkill(LINK_MASTERY)) {
-            if (hasHitMobs && skill != null) {
-                giveLinkMasteryBuff(skill.getSkillId(), tsm);
+        if (hasHitMobs) {
+            if (attackInfo.skillId != GALE && attackInfo.skillId != TYPHOON) {
+                handleLightningBuff();
             }
         }
         Option o1 = new Option();
@@ -122,98 +97,64 @@ public class ThunderBreaker extends Noblesse {
         switch (attackInfo.skillId) {
             case GALE:
             case TYPHOON:
-                int chargeStack = tsm.getOption(IgnoreTargetDEF).mOption;
-                if((tsm.getOptByCTSAndSkill(IndieDamR, GALE) == null) || (tsm.getOptByCTSAndSkill(IndieDamR, TYPHOON) == null)) {
-                    o1.nReason = skillID;
-                    o1.nValue = chargeStack * si.getValue(y, slv);
-                    o1.tStart = Util.getCurrentTime();
-                    o1.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndieDamR, o1); //Indie
+                int stacks = tsm.getOption(IgnoreTargetDEF).mOption;
+                if (stacks >= si.getValue(x, slv)) {
+                    o1.nOption = stacks * si.getValue(y, slv);
+                    o1.rOption = GALE;
+                    o1.tOption = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(DamR, o1); //Indie
                     tsm.sendSetStatPacket();
+                    // reset lightning buff if no primal bolt buff
+                    if (!tsm.hasStat(StrikerHyperElectric)) {
+                        tsm.removeStat(IgnoreTargetDEF, false);
+                        tsm.sendResetStatPacket();
+                    }
                 }
                 break;
         }
         super.handleAttack(chr, attackInfo);
     }
 
-    private void giveLinkMasteryBuff(int skillId, TemporaryStatManager tsm) {
-        Option o = new Option();
-        SkillInfo linkInfo = SkillData.getSkillInfoById(LINK_MASTERY);
-        if (lastAttackSkill == skillId) {
+    private void handleLightningBuff() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (!tsm.hasStat(CygnusElementSkill)) {
             return;
-        } else {
-            lastAttackSkill = skillId;
-            o.nOption = linkInfo.getValue(x, linkInfo.getCurrentLevel());
-            o.rOption = LINK_MASTERY;
-            o.tOption = 10;
-            tsm.putCharacterStatValue(DamR, o);
-            tsm.sendSetStatPacket();
         }
-    }
-
-    private void incrementLightningElemental(TemporaryStatManager tsm) {
-        Option o = new Option();
-        Skill skill = chr.getSkill(LIGHTNING_ELEMENTAL);
-        SkillInfo leInfo = SkillData.getSkillInfoById(skill.getSkillId());
-        SkillInfo pbInfo = SkillData.getSkillInfoById(PRIMAL_BOLT);
-        byte slv = (byte) skill.getCurrentLevel();
-        int amount = 1;
-        if(tsm.hasStat(IgnoreTargetDEF)) {
-            amount = tsm.getOption(IgnoreTargetDEF).mOption;
-            if(amount < getMaxCharge()) {
-                amount++;
-            }
+        SkillInfo si = SkillData.getSkillInfoById(LIGHTNING_ELEMENTAL);
+        int slv = chr.getSkillLevel(LIGHTNING_ELEMENTAL);
+        int proc = si.getValue(prop, slv);
+        int maxStacks = si.getValue(v, slv);
+        int iedPerStack = tsm.hasStat(StrikerHyperElectric) ? chr.getSkillStatValue(x, PRIMAL_BOLT) : si.getValue(x, slv);
+        // add passive values
+        for (int skillId : LIGHTNING_BUFF_PASSIVES) {
+            SkillInfo psi = SkillData.getSkillInfoById(skillId);
+            int pslv = chr.getSkillLevel(skillId);
+            proc += psi.getValue(prop, pslv);
+            maxStacks += psi.getValue(v, pslv);
         }
-        o.nOption = (tsm.hasStat(StrikerHyperElectric) ? (pbInfo.getValue(x, slv)) : (leInfo.getValue(x, slv))) * amount;
-        o.mOption = amount;
-        o.rOption = LIGHTNING_ELEMENTAL;
-        o.tOption = leInfo.getValue(y, leInfo.getCurrentLevel());
-        tsm.putCharacterStatValue(IgnoreTargetDEF, o);
+        if (!Util.succeedProp(proc)) {
+            return;
+        }
+        // increment stack
+        int stacks = 0;
+        Option oldO = tsm.getOptByCTSAndSkill(IgnoreTargetDEF, LIGHTNING_ELEMENTAL);
+        if (oldO != null && oldO.mOption > 0) {
+            stacks = oldO.mOption;
+        }
+        if (stacks < maxStacks) {
+            stacks++;
+        }
+        Option o1 = new Option();
+        o1.nOption = stacks * iedPerStack;
+        o1.rOption = LIGHTNING_ELEMENTAL;
+        o1.tOption = si.getValue(y, slv);
+        o1.mOption = stacks;
+        tsm.putCharacterStatValue(IgnoreTargetDEF, o1);
         tsm.sendSetStatPacket();
-        reduceArcChargerCoolTime();
-    }
-
-    private void reduceArcChargerCoolTime() {
-        Skill skill = chr.getSkill(ARC_CHARGER);
-        if (skill == null || arcChargeCDCount >= 5) {
-            return;
+        // reduce arc charger cooldown
+        if (chr.hasSkillOnCooldown(ARC_CHARGER)) {
+            chr.reduceSkillCoolTime(ARC_CHARGER, 1000L * chr.getSkillStatValue(y, ARC_CHARGER));
         }
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        byte slv = (byte) skill.getCurrentLevel();
-
-        arcChargeCDCount++;
-        chr.reduceSkillCoolTime(ARC_CHARGER, (si.getValue(y, slv) * 1000));
-        chr.chatMessage(arcChargeCDCount + "");
-    }
-
-    private Skill getLightningChargeSkill() {
-        Skill skill = null;
-        for (int lightningSkill : lightningBuffs) {
-            if(chr.hasSkill(lightningSkill)) {
-                skill = chr.getSkill(lightningSkill);
-            }
-        }
-        return skill;
-    }
-
-    private int getChargeProp() {
-        Skill skill = getLightningChargeSkill();
-        if(skill != null) {
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            byte slv = (byte) skill.getCurrentLevel();
-            return si.getValue(prop, slv);
-        }
-        return 0;
-    }
-
-    private int getMaxCharge() {
-        int num = 0;
-        for(int skill : lightningBuffs) {
-            if(chr.hasSkill(skill)) {
-                num++;
-            }
-        }
-        return num;
     }
 
     @Override
@@ -234,21 +175,13 @@ public class ThunderBreaker extends Noblesse {
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
+        Option o4 = new Option();
         switch (skillID) {
-            case IMPERIAL_RECALL:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case LIGHTNING_ELEMENTAL:
                 o1.nOption = 1;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(CygnusElementSkill, o1);
-                o2.nOption = si.getValue(x, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
                 break;
             case KNUCKLE_BOOSTER:
                 o1.nOption = si.getValue(x, slv);
@@ -261,7 +194,6 @@ public class ThunderBreaker extends Noblesse {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(ShadowPartner, o1);
-                arcChargeCDCount = 0;
                 break;
             case SPEED_INFUSION:
                 PartyBooster pb = (PartyBooster) tsm.getTSBByTSIndex(TSIndex.PartyBooster);
@@ -271,31 +203,6 @@ public class ThunderBreaker extends Noblesse {
                 pb.setCurrentTime(Util.getCurrentTime());
                 pb.setExpireTerm(si.getValue(time, slv));
                 tsm.putCharacterStatValue(PartyBooster, pb.getOption());
-                break;
-            case CALL_OF_CYGNUS_TB:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
-            case LINK_MASTERY:
-                o1.nOption = si.getValue(x, slv);
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamR, o1);
-                break;
-            case GLORY_OF_THE_GUARDIANS_TB:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case PRIMAL_BOLT:
                 o1.nOption = 1;
@@ -307,6 +214,16 @@ public class ThunderBreaker extends Noblesse {
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o2);
+                // update lightning elemental buff
+                if (tsm.hasStat(IgnoreTargetDEF)) {
+                    int stacks = tsm.getOption(IgnoreTargetDEF).mOption;
+                    int duration = chr.getSkillStatValue(y, LIGHTNING_ELEMENTAL);
+                    o3.nOption = stacks * si.getValue(x, slv);
+                    o3.rOption = LIGHTNING_ELEMENTAL;
+                    o3.tOption = duration;
+                    o3.mOption = stacks;
+                    tsm.putCharacterStatValue(IgnoreTargetDEF, o3);
+                }
                 chr.resetSkillCoolTime(TYPHOON);
                 chr.resetSkillCoolTime(GALE);
                 break;
@@ -334,7 +251,6 @@ public class ThunderBreaker extends Noblesse {
 
     @Override
     public void handleHit(Char chr, HitInfo hitInfo) {
-
         super.handleHit(chr, hitInfo);
     }
 }

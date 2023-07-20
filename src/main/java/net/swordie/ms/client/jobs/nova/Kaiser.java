@@ -576,7 +576,7 @@ public class Kaiser extends Job {
                 break;
             case TEMPEST_BLADES_THREE:
                 if (tsm.getOption(StopForceAtomInfo).nOption != 1 && tsm.hasStat(StopForceAtomInfo)) {
-                    tsm.removeStat(StopForceAtomInfo, true);
+                    tsm.removeStat(StopForceAtomInfo, false);
                     tsm.sendResetStatPacket();
                 }
                 o1.nOption = 1;

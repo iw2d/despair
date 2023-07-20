@@ -48,7 +48,8 @@ public class NightWalker extends Noblesse {
     public static final int DARK_SERVANT = 14111024; //Buff
     public static final int SPIRIT_PROJECTION = 14111025; //Buff
     public static final int DARKNESS_ASCENDING = 14110030; //Special Buff
-    public static final int SHADOW_SPARK = 14111023;
+    public static final int SHADOW_SPARK = 14111022;
+    public static final int SHADOW_SPARK_EXPLOSION = 14111023;
 
     public static final int THROWING_EXPERT = 14120005;
     public static final int DARK_OMEN = 14121003; //Summon
@@ -265,10 +266,10 @@ public class NightWalker extends Noblesse {
             o1.nOption = stacks;
             o1.rOption = DARK_ELEMENTAL;
             o1.tOption = duration;
+            mts.addStatOptions(MobStat.ElementDarkness, o1);
             o2.nOption = - (stacks * defIgnore);
             o2.rOption = DARK_ELEMENTAL;
             o2.tOption = duration;
-            mts.addStatOptions(MobStat.ElementDarkness, o1);
             mts.addStatOptions(MobStat.PDR, o2);
             mts.addStatOptions(MobStat.MDR, o2);
             if (tsm.hasStat(Dominion)) {
@@ -302,10 +303,10 @@ public class NightWalker extends Noblesse {
         o1.nOption = stacks;
         o1.rOption = VITALITY_SIPHON;
         o1.tOption = duration;
+        tsm.putCharacterStatValue(SiphonVitality, o1);
         o2.nOption = stacks * (si.getValue(y, slv) + chr.getSkillStatValue(x, VITALITY_SIPHON_EXTRA_POINT));
         o2.rOption = VITALITY_SIPHON;
         o2.tOption = duration;
-        tsm.putCharacterStatValue(SiphonVitality, o1);
         tsm.putCharacterStatValue(IncMaxHP, o2);
         if (chr.hasSkill(VITALITY_SIPHON_STEEL_SKIN)) {
             o3.nOption = stacks * chr.getSkillStatValue(x, VITALITY_SIPHON_STEEL_SKIN);
@@ -459,11 +460,6 @@ public class NightWalker extends Noblesse {
         Summon summon;
         Field field;
         switch (skillID) {
-            case IMPERIAL_RECALL:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case DARK_ELEMENTAL:
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
@@ -508,13 +504,6 @@ public class NightWalker extends Noblesse {
                 tsm.putCharacterStatValue(ReviveOnce, o1);
                 chr.resetSkillCoolTime(skillID);
                 break;
-            case CALL_OF_CYGNUS_NW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
             case SHADOW_BAT:
                 if (tsm.hasStatBySkillId(skillID)) {
                     tsm.removeStatsBySkill(SHADOW_BAT_SUMMON);
@@ -527,18 +516,6 @@ public class NightWalker extends Noblesse {
                     o1.tOption = 0;
                     tsm.putCharacterStatValue(NightWalkerBat, o1);
                 }
-                break;
-            case GLORY_OF_THE_GUARDIANS_NW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case SHADOW_ILLUSION:
                 if (tsm.hasStatBySkillId(DARK_SERVANT)) {

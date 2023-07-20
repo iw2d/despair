@@ -89,7 +89,7 @@ public class Corsair extends Pirate {
                     GuidedBullet gb = (GuidedBullet) tsm.getTSBByTSIndex(TSIndex.GuidedBullet);
                     gb.setMobID(0);
                     gb.setUserID(0);
-                    tsm.removeStat(GuidedBullet, true);
+                    tsm.removeStat(GuidedBullet, false);
                     tsm.sendResetStatPacket();
                 }
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
@@ -146,7 +146,7 @@ public class Corsair extends Pirate {
             if (gb.getMobID() == mob.getObjectId()) {
                 gb.setMobID(0);
                 gb.setUserID(0);
-                tsm.removeStat(GuidedBullet, true);
+                tsm.removeStat(GuidedBullet, false);
                 tsm.sendResetStatPacket();
             }
         }

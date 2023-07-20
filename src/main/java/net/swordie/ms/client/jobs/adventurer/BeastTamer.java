@@ -348,9 +348,10 @@ public class BeastTamer extends Job {
         Option o2 = new Option();
         SkillInfo si = SkillData.getSkillInfoById(MOUSERS_INSIGHT);
         int slv = si.getCurrentLevel();
-        o1.nOption = si.getValue(x, slv);
-        o1.rOption = MOUSERS_INSIGHT;
-        tsm.putCharacterStatValue(IgnoreMobpdpR, o1);
+        o1.nValue = si.getValue(x, slv);
+        o1.nReason = MOUSERS_INSIGHT;
+        o1.tStart = Util.getCurrentTime();
+        tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o1);
         tsm.sendSetStatPacket();
     }
 

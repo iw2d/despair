@@ -289,7 +289,7 @@ public class DawnWarrior extends Noblesse {
                             mts.addStatOptions(MobStat.PDR, o1);
                             mts.addStatOptions(MobStat.MDR, o1);
                             if (chr.hasSkill(TRUE_SIGHT_ENHANCE)) {
-
+                                mts.addStatOptions(MobStat.ElementResetBySummon, o2);
                             }
                             mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o3);
                         }
@@ -383,13 +383,6 @@ public class DawnWarrior extends Noblesse {
                     tsm.putCharacterStatValue(GlimmeringTime, o1);
                 }
                 break;
-            case CALL_OF_CYGNUS_DW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
             case SOUL_FORGE:
                 o1.nValue = si.getValue(indiePad, slv);
                 o1.nReason = skillID;
@@ -405,18 +398,6 @@ public class DawnWarrior extends Noblesse {
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(LightOfSpirit, o3);
-                break;
-            case GLORY_OF_THE_GUARDIANS_DW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
         }
         tsm.sendSetStatPacket();

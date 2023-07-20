@@ -1605,9 +1605,15 @@ public class SkillConstants {
             case NightWalker.SHADOW_BAT_ATTACK:
             case NightWalker.SHADOW_BAT_ATTACK_BOUND:
                 return true;
+            default:
+                return false;
         }
-        // Tower of Oz skill rings
-        return (skillID >= 80001455 && skillID <= 80001479);
+    }
+
+    public static boolean isNoConsumeBullet2(int skillID) {
+        // 0x017443D0
+        return isNoConsumeBullet(skillID) || skillID == NightWalker.SHADOW_STITCH ||
+                skillID == NightWalker.SHADOW_SPARK || skillID == NightWalker.SHADOW_SPARK_EXPLOSION;
     }
 
     public static boolean isThrowingStarSkill(int skillID) {
@@ -1671,6 +1677,7 @@ public class SkillConstants {
             case DawnWarrior.STUDENT_OF_THE_BLADE:
             case WindArcher.BOW_EXPERT:
             case NightWalker.THROWING_EXPERT:
+            case ThunderBreaker.KNUCKLE_EXPERT:
                 stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
                 break;
             case FirePoison.SPELL_MASTERY_FP:
@@ -1684,6 +1691,7 @@ public class SkillConstants {
             case Jett.GUN_MASTERY:
             case DawnWarrior.SWORD_MASTERY:
             case WindArcher.BOW_MASTERY:
+            case ThunderBreaker.KNUCKLE_MASTERY:
                 stats.put(BaseStat.acc, si.getValue(SkillStat.x, slv));
                 break;
             // class specific
@@ -1740,6 +1748,9 @@ public class SkillConstants {
                 stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.x, slv));
             case WindArcher.SECOND_WIND:
                 stats.remove(BaseStat.pad); // active effect
+                break;
+            case ThunderBreaker.PRIMAL_BOLT:
+                stats.clear(); // active effect
                 break;
         }
     }

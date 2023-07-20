@@ -219,15 +219,19 @@ public enum BaseStat {
             case IndieMHP:
                 stats.put(mhp, o.nValue);
                 break;
-            case IndieMHPR:
             case MaxHP:
             case IncMaxHP:
-                stats.put(mhpR, o.nOption);
+                stats.put(mhp, o.nOption);
                 break;
-            case IndieMMP:
+            case IndieMHPR:
+                stats.put(mhpR, o.nValue);
+                break;
             case MaxMP:
             case IncMaxMP:
-                stats.put(mmpR, o.nOption);
+                stats.put(mmp, o.nOption);
+                break;
+            case IndieMMP:
+                stats.put(mmp, o.nValue);
                 break;
             case IndieMMPR:
                 stats.put(mmpR, o.nValue);
@@ -313,20 +317,28 @@ public enum BaseStat {
                 break;
             case STR:
             case ZeroAuraStr:
-            case IndieSTR:
                 stats.put(str, o.nOption);
                 break;
+            case IndieSTR:
+                stats.put(str, o.nValue);
+                break;
             case DEX:
-            case IndieDEX:
                 stats.put(dex, o.nOption);
                 break;
+            case IndieDEX:
+                stats.put(dex, o.nValue);
+                break;
             case INT:
-            case IndieINT:
                 stats.put(inte, o.nOption);
                 break;
+            case IndieINT:
+                stats.put(inte, o.nValue);
+                break;
             case LUK:
-            case IndieLUK:
                 stats.put(luk, o.nOption);
+                break;
+            case IndieLUK:
+                stats.put(luk, o.nValue);
                 break;
             case DEXR:
                 stats.put(baseDexR, o.nOption);
@@ -337,10 +349,11 @@ public enum BaseStat {
                 stats.put(intR, o.nValue);
                 stats.put(lukR, o.nValue);
                 break;
-            case IndieDamR:
             case DamR:
-                stats.put(damR, o.nValue);
+                stats.put(damR, o.nOption);
                 break;
+            case IndieDamR:
+                stats.put(damR, o.nValue);
             case BeastFormDamageUp:
                 stats.put(fd, o.nOption);
                 break;
@@ -367,6 +380,12 @@ public enum BaseStat {
                 break;
             case IndieStance:
                 stats.put(stance, o.nValue);
+                break;
+            case IgnoreMobpdpR:
+                stats.put(ied, o.nOption * o.bOption);
+                break;
+            case IgnoreTargetDEF:
+                stats.put(ied, o.nOption);
                 break;
             case IndieIgnoreMobpdpR:
                 stats.put(ied, o.nValue);

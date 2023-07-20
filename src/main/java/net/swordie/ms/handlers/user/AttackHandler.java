@@ -402,13 +402,7 @@ public class AttackHandler {
         if (skillID == 5111009) {
             ai.ignorePCounter = inPacket.decodeByte() != 0;
         }
-        /*if ( v1756 )
-          {
-            COutPacket::Encode2(&a, v1747);
-            if ( v674 || is_noconsume_usebullet_melee_attack(v669) )
-              COutPacket::Encode4(&a, v1748);
-          }*/
-        if (header == InHeader.USER_MELEE_ATTACK) {
+        if (header == InHeader.USER_MELEE_ATTACK && SkillConstants.isNoConsumeBullet2(skillID)) {
             inPacket.decodeShort();
             if (((ai.buckShot >> 6) & 1) != 0 || SkillConstants.isNoConsumeBullet(skillID)) {
                 inPacket.decodeInt();

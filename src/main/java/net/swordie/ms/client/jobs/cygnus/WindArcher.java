@@ -265,17 +265,16 @@ public class WindArcher extends Noblesse {
         Summon summon;
         Field field;
         switch(skillID) {
-            case IMPERIAL_RECALL:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case STORM_ELEMENTAL:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1); //Indie
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(CygnusElementSkill, o1);
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieDamR, slv);
+                o2.tStart = Util.getCurrentTime();
+                o2.tTerm = si.getValue(time, slv);
+                tsm.putCharacterStatValue(IndieDamR, o2); //Indie
                 break;
             case BOW_BOOSTER:
                 o1.nOption = si.getValue(x, slv);
@@ -362,6 +361,7 @@ public class WindArcher extends Noblesse {
                 o7.nOption = si.getValue(ignoreMobpdpR, slv);
                 o7.rOption = skillID;
                 o7.tOption = si.getValue(time, slv);
+                o7.bOption = 1;
                 tsm.putCharacterStatValue(IgnoreMobpdpR, o7);
                 o8.nOption = slv;
                 o8.rOption = skillID;
@@ -399,13 +399,6 @@ public class WindArcher extends Noblesse {
                 o5.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(EVAR, o5);
                 break;
-            case CALL_OF_CYGNUS_WA:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
             case TRIFLING_WIND_I:
                 o1.nOption = 1;
                 o1.rOption = getTriflingWindSkill();
@@ -428,18 +421,6 @@ public class WindArcher extends Noblesse {
                 summon.setHp(summon.getMaxHP());
                 field.spawnSummon(summon);
                 applyEmeraldFlowerDebuffToMob(summon);
-                break;
-            case GLORY_OF_THE_GUARDIANS_WA:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case STORM_BRINGER:
                 o1.nOption = 1;

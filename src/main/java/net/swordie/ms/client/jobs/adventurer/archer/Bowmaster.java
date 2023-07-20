@@ -362,7 +362,7 @@ public class Bowmaster extends Archer {
             forceAtomSkillId = QUIVER_CARTRIDGE_ATOM;
         } else {
             if (tsm.hasStat(QuiverCatridge)) {
-                tsm.removeStat(QuiverCatridge, true);
+                tsm.removeStat(QuiverCatridge, false);
                 tsm.sendResetStatPacket();
             }
             quiverCartridge = null;
