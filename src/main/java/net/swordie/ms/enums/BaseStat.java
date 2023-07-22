@@ -282,7 +282,7 @@ public enum BaseStat {
                 stats.put(cr, o.nValue);
                 break;
             case Enrage:
-                stats.put(fd, o.nOption);
+                stats.put(fd, o.nOption / 100);
             case EnrageCr:
                 stats.put(cr, o.nOption);
                 break;

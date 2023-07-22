@@ -116,7 +116,7 @@ public class Hero extends Warrior {
         return chr.getSkillStatValue(prop, skillId);
     }
 
-    public int getComboCount() {
+    private int getComboCount() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (tsm.hasStat(ComboCounter)) {
             return tsm.getOption(ComboCounter).nOption;
@@ -145,7 +145,7 @@ public class Hero extends Warrior {
         return 0;
     }
 
-    public void selfRecovery() {
+    private void selfRecovery() {
         if (chr.hasSkill(SELF_RECOVERY) && chr.getHP() > 0) {
             chr.heal(chr.getSkillStatValue(hp, SELF_RECOVERY));
             chr.healMP(chr.getSkillStatValue(mp, SELF_RECOVERY));
@@ -201,28 +201,28 @@ public class Hero extends Warrior {
                 removeCombo(!tsm.hasStat(ComboCostInc) ? 2 : tsm.getOption(ComboCostInc).nOption + 2);
                 panicComboCostInc();
                 if (hasHitMobs) {
-                    int dur = si.getValue(time, slv);
+                    int duration = si.getValue(time, slv);
 
                     o1.nOption = -si.getValue(w, slv);
                     o1.rOption = skillID;
-                    o1.tOption = dur;
+                    o1.tOption = duration;
                     o2.nOption = -si.getValue(w, slv);
                     o2.rOption = skillID;
-                    o2.tOption = dur / 2;
+                    o2.tOption = duration / 2;
 
                     o3.nOption = -si.getValue(x, slv);
                     o3.rOption = skillID;
-                    o3.tOption = dur;
+                    o3.tOption = duration;
                     o4.nOption = -si.getValue(x, slv);
                     o4.rOption = skillID;
-                    o4.tOption = dur / 2;
+                    o4.tOption = duration / 2;
 
                     o5.nOption = 1;
                     o5.rOption = skillID;
-                    o5.tOption = dur;
+                    o5.tOption = duration;
                     o6.nOption = 1;
                     o6.rOption = skillID;
-                    o6.tOption = dur / 2;
+                    o6.tOption = duration / 2;
                     for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                         if (mob == null) {
@@ -378,7 +378,7 @@ public class Hero extends Warrior {
                 break;
             case ENRAGE:
                 removeCombo(1);
-                o1.nOption = 100 * si.getValue(x, slv) + 1; // fd = n / 100, mobsHit = n % 100
+                o1.nOption = 100 * si.getValue(x, slv) + si.getValue(mobCount, slv);; // fd = n / 100, mobsHit = n % 100
                 o1.rOption = skillID;
                 tsm.putCharacterStatValue(Enrage, o1);
                 o2.nOption = si.getValue(y, slv);

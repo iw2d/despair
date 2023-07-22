@@ -461,51 +461,11 @@ public abstract class Job {
 		}
 
 		// Bishop - Holy Magic Shell
-		if (tsm.hasStat(HolyMagicShell)) {
-			Option oldOption = tsm.getOption(HolyMagicShell);
-			if (oldOption.nOption > 1) {
-				Option o = new Option();
-				o.nOption = oldOption.nOption - 1;
-				o.rOption = oldOption.rOption;
-				o.tOption = tsm.getRemainingTime(HolyMagicShell, o.rOption);
-				o.xOption = oldOption.xOption;
-				o.setInMillis(true);
-				tsm.putCharacterStatValue(HolyMagicShell, o);
-				tsm.sendSetStatPacket();
-			} else {
-				// apply cooldown
-				Option o = new Option();
-				o.nOption = 0;
-				o.rOption = oldOption.rOption;
-				o.tOption = (o.startTime + (oldOption.xOption * 1000)) - Util.getCurrentTime();
-				o.setInMillis(true);
-				tsm.putCharacterStatValue(HolyMagicShell, o);
-				tsm.sendSetStatPacket();
-			}
-		}
+		Bishop.handleHolyMagicShell(chr, hitInfo);
 
 		// Mihile - Soul Link
-		if (tsm.hasStat(MichaelSoulLink) && chr.getId() != tsm.getOption(MichaelSoulLink).cOption) {
-			Party party = chr.getParty();
-			PartyMember mihileInParty = party.getPartyMemberByID(tsm.getOption(MichaelSoulLink).cOption);
-			if (mihileInParty != null) {
-				Char mihileChr = mihileInParty.getChr();
-				Skill skill = mihileChr.getSkill(Mihile.SOUL_LINK);
-				SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-				byte slv = (byte) skill.getCurrentLevel();
+		Mihile.handleSoulLink(chr, hitInfo);
 
-				int hpDmg = hitInfo.hpDamage;
-				int mihileDmgTaken = (int) (hpDmg * ((double) si.getValue(q, slv) / 100));
-
-				hitInfo.hpDamage = hitInfo.hpDamage - mihileDmgTaken;
-				mihileChr.damage(mihileDmgTaken);
-			} else {
-				tsm.removeStatsBySkill(Mihile.SOUL_LINK);
-				tsm.removeStatsBySkill(Mihile.ROYAL_GUARD);
-				tsm.removeStatsBySkill(Mihile.ENDURING_SPIRIT);
-				tsm.sendResetStatPacket();
-			}
-		}
 
 		// Power Guard Damage Reflection
 		if (tsm.hasStat(PowerGuard)) {

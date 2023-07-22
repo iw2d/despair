@@ -112,7 +112,7 @@ public class Paladin extends Warrior {
 
     private void giveParashockGuardBuff() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (!chr.hasSkill(PARASHOCK_GUARD) || !tsm.hasStatBySkillId(PARASHOCK_GUARD)) {
+        if (!chr.hasSkill(PARASHOCK_GUARD) || !tsm.hasStat(KnightsAura)) {
             return;
         }
         SkillInfo si = SkillData.getSkillInfoById(PARASHOCK_GUARD);
@@ -122,7 +122,7 @@ public class Paladin extends Warrior {
         Party party = chr.getParty();
         if (party != null) {
             Rect rect = chr.getRectAround(si.getFirstRect());
-            List<Char> pChrList = chr.getParty().getPartyMembersInSameField(chr).stream().filter(pc -> rect.hasPositionInside(pc.getPosition())).toList();
+            List<Char> pChrList = party.getPartyMembersInSameField(chr).stream().filter(pc -> rect.hasPositionInside(pc.getPosition())).toList();
             for (Char pChr : pChrList) {
                 if (pChr.getHP() > 0) {
                     o1.nOption = slv;

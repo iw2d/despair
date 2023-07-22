@@ -70,7 +70,7 @@ public class DemianStigma {
 
         // if curStigma reaches maxStigma
         if (o.nOption >= BossConstants.DEMIAN_MAX_STIGMA) {
-            chr.damage(chr.getMaxHP()); // kill
+            chr.heal(-chr.getMaxHP()); // kill
             incCorruption(chr);         // increase Corruption by 1
             resetStigma(chr);
 

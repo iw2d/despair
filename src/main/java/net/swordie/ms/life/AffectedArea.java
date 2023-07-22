@@ -405,7 +405,7 @@ public class AffectedArea extends Life {
         field.broadcastPacket(FieldPacket.affectedAreaRemoved(this, false));
         for (Char chr : field.getChars()) {
             TemporaryStatManager tsm = chr.getTemporaryStatManager();
-            if (getRemoveSkill() && tsm.hasAffectedArea(this)) {
+            if (getRemoveSkill() && tsm.hasStatBySkillId(getSkillID())) {
                 tsm.removeStatsBySkill(getSkillID());
                 tsm.sendResetStatPacket();
             }

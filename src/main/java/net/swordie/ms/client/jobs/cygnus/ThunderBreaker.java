@@ -98,17 +98,15 @@ public class ThunderBreaker extends Noblesse {
             case GALE:
             case TYPHOON:
                 int stacks = tsm.getOption(IgnoreTargetDEF).mOption;
-                if (stacks >= si.getValue(x, slv)) {
-                    o1.nOption = stacks * si.getValue(y, slv);
-                    o1.rOption = GALE;
-                    o1.tOption = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(DamR, o1); //Indie
-                    tsm.sendSetStatPacket();
-                    // reset lightning buff if no primal bolt buff
-                    if (!tsm.hasStat(StrikerHyperElectric)) {
-                        tsm.removeStat(IgnoreTargetDEF, false);
-                        tsm.sendResetStatPacket();
-                    }
+                o1.nOption = stacks * si.getValue(y, slv);
+                o1.rOption = GALE;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamR, o1); //Indie
+                tsm.sendSetStatPacket();
+                // reset lightning buff if no primal bolt buff
+                if (!tsm.hasStat(StrikerHyperElectric)) {
+                    tsm.removeStat(IgnoreTargetDEF, false);
+                    tsm.sendResetStatPacket();
                 }
                 break;
         }

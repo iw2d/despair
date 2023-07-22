@@ -1162,16 +1162,20 @@ public class SkillConstants {
             case Jett.GUN_MASTERY:
             case DawnWarrior.SWORD_MASTERY:
             case WindArcher.BOW_MASTERY:
+            case Mihile.SOUL_ASYLUM:
                 return true;
+            default:
+                return false;
         }
-        return false;
     }
 
     private static boolean isSkipPassiveSkill(int skillId) {
         // for passive skills handled elsewhere
         switch (skillId) {
             case Paladin.SHIELD_MASTERY:
+            case Shadower.SHIELD_MASTERY:
             case DualBlade.SHADOW_MELD:
+            case ThunderBreaker.PRIMAL_BOLT:
                 return true;
         }
         return false;
@@ -1749,8 +1753,12 @@ public class SkillConstants {
             case WindArcher.SECOND_WIND:
                 stats.remove(BaseStat.pad); // active effect
                 break;
-            case ThunderBreaker.PRIMAL_BOLT:
+            case Mihile.RALLY:
                 stats.clear(); // active effect
+                stats.put(BaseStat.pad, si.getValue(SkillStat.padX, slv));
+                break;
+            case Mihile.SOUL_ASYLUM:
+                stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.t, slv));
                 break;
         }
     }

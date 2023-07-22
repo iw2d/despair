@@ -3126,7 +3126,7 @@ public class Char {
 	 */
 	public void heal(int amount, boolean showEffect) {
 		int curHP = getHP();
-		int maxHP = getMaxHP();
+		int maxHP = Math.min(getMaxHP(), 500000);
 		int newHP = Math.min(curHP + amount, maxHP);
 
 		if (showEffect && newHP != curHP) {
@@ -3154,7 +3154,7 @@ public class Char {
 	 */
 	public void healMP(int amount) {
 		int curMP = getMP();
-		int maxMP = getMaxMP();
+		int maxMP = Math.min(getMaxMP(), 500000);
 		int newMP = Math.min(curMP + amount, maxMP);
 		Map<Stat, Object> stats = new HashMap<>();
 		setStat(Stat.mp, newMP);
@@ -5142,7 +5142,7 @@ public class Char {
 		stack++;
 		Option o = new Option();
 		if (stack >= maxStack) {
-			this.damage(getHP());
+			this.heal(-getMaxHP());
 			stack = maxStack;
 		}
 		o.nOption = stack;

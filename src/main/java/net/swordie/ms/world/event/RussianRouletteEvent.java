@@ -118,11 +118,11 @@ public class RussianRouletteEvent implements InGameEvent {
                 c.chatMessage(ChatType.Mob, "X: " + c.getPosition().getX() + " Y: " + c.getPosition().getY());
                 // range
                 if (c.getPosition().getY() <= UPPER_BOUNDARY || c.getPosition().getY() >= LOWER_BOUNDARY) {
-                    c.damage(c.getMaxHP());
+                    c.heal(-c.getMaxHP());
                 }
                 // domain
                 if (c.getPosition().getX() >= randDomain[0] && c.getPosition().getX() <= randDomain[1]) {
-                    c.damage(c.getMaxHP());
+                    c.heal(-c.getMaxHP());
                 }
             }
 

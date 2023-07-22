@@ -583,7 +583,8 @@ public class UserHandler {
     @Handler(op = InHeader.USER_CATCH_DEBUFF_COLLISION)
     public static void handleUserCatchDebuffCollision(Char chr, InPacket inPacket) {
         int hpPerc = inPacket.decodeInt();
-        chr.damage(chr.getMaxHP() * hpPerc / 100);
+        int damage = chr.getMaxHP() * hpPerc / 100;
+        chr.heal(-damage, true);
     }
 
     @Handler(op = InHeader.GATHER_REQUEST)

@@ -1988,7 +1988,7 @@ public class Mob extends Life {
             int prop = o.mOption;
             if (prop >= 100 || Util.succeedProp(prop)) {
                 int hpDamage = (chr.getMaxHP() * damagePerc) / 100;
-                chr.damage(hpDamage);
+                chr.heal(-hpDamage);
                 getField().broadcastPacket(UserPacket.userHitByCounter(chr.getId(), hpDamage));
             }
         }

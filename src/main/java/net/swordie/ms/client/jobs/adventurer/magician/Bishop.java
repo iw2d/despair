@@ -1,6 +1,7 @@
 package net.swordie.ms.client.jobs.adventurer.magician;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.TownPortal;
@@ -558,6 +559,35 @@ public class Bishop extends Magician {
         tsm.removeStat(HeavensDoor, false);
         tsm.sendResetStatPacket();
         chr.chatMessage("You have been revived by Heaven's Door.");
+    }
+
+    public static void handleHolyMagicShell(Char chr, HitInfo hitInfo) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (!tsm.hasStat(HolyMagicShell)) {
+            return;
+        }
+        hitInfo.hpDamage = 0;
+        hitInfo.mpDamage = 0;
+        Option oldOption = tsm.getOption(HolyMagicShell);
+        if (oldOption.nOption > 1) {
+            Option o = new Option();
+            o.nOption = oldOption.nOption - 1;
+            o.rOption = oldOption.rOption;
+            o.tOption = tsm.getRemainingTime(HolyMagicShell, o.rOption);
+            o.xOption = oldOption.xOption;
+            o.setInMillis(true);
+            tsm.putCharacterStatValue(HolyMagicShell, o);
+            tsm.sendSetStatPacket();
+        } else {
+            // apply cooldown
+            Option o = new Option();
+            o.nOption = 0;
+            o.rOption = oldOption.rOption;
+            o.tOption = (o.startTime + (oldOption.xOption * 1000)) - Util.getCurrentTime();
+            o.setInMillis(true);
+            tsm.putCharacterStatValue(HolyMagicShell, o);
+            tsm.sendSetStatPacket();
+        }
     }
 
     @Override
