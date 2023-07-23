@@ -65,21 +65,6 @@ public class SkillConstants {
                     AngelicBuster.SUPREME_SUPERNOVA)
     );
 
-
-    //custom skill cd's
-    public static int getSkillCooldown(int skillId) {
-
-        switch(skillId) {
-            case 32120052: //Sweeping Staff - BM Hyper
-            case 32120055: //Sweeping Staff - BM Hyper
-            case 32121052: //Sweeping Staff - BM Hyper
-                return 0;
-
-        }
-
-        return -1;
-    }
-
     public static boolean isSkillNeedMasterLevel(int skillId) {
         // bool __cdecl is_skill_need_master_level(int) (0x00601370)
         if (isIgnoreMasterLevel(skillId)

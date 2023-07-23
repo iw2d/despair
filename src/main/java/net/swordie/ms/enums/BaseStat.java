@@ -402,6 +402,7 @@ public enum BaseStat {
                 break;
             case PowerGuard:
             case DamageReduce:
+            case DamAbsorbShield:
                 stats.put(dmgReduce, o.nOption);
                 break;
             case ComboCounter:

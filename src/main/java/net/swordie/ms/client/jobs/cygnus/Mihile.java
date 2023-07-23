@@ -1,9 +1,9 @@
 package net.swordie.ms.client.jobs.cygnus;
 
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
@@ -11,11 +11,11 @@ import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.party.Party;
-import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.UserLocal;
 import net.swordie.ms.connection.packet.UserPacket;
+import net.swordie.ms.connection.packet.UserRemote;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.handlers.EventManager;
@@ -28,7 +28,6 @@ import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
-import net.swordie.ms.world.field.Field;
 
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
@@ -44,7 +43,7 @@ public class Mihile extends Job {
     public static final int IMPERIAL_RECALL = 50001245;
 
     public static final int ROYAL_GUARD_BUFF = 51001005;
-    public static final int ROYAL_GUARD = 51001006; //Special Buff/Attack
+    public static final int ROYAL_GUARD_1 = 51001006;
     public static final int ROYAL_GUARD_2 = 51001007;
     public static final int ROYAL_GUARD_3 = 51001008;
     public static final int ROYAL_GUARD_4 = 51001009;
@@ -300,18 +299,32 @@ public class Mihile extends Job {
         Option o3 = new Option();
         Option o4 = new Option();
         switch (skillID) {
-            case ROYAL_GUARD:
+            case ROYAL_GUARD_BUFF:
+                if (ServerConstants.CLIENT_SIDED_SKILL_HOOK) {
+                    // hook CUserLocal::IsRoyalGuardSuccess to send USER_SKILL_USE_REQUEST packet
+                    royalGuardBuff();
+                    tsm.removeStat(RoyalGuardPrepare, false);
+                    tsm.sendResetStatPacket();
+                }
+                break;
+            case ROYAL_GUARD_1:
             case ROYAL_GUARD_2:
             case ROYAL_GUARD_3:
             case ROYAL_GUARD_4:
             case ROYAL_GUARD_5:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(x, slv) + (tsm.hasStatBySkillId(SACRED_CUBE) ? 500 : 0);
-                o1.setInMillis(true);
-                tsm.putCharacterStatValue(RoyalGuardPrepare, o1);
-                chr.getField().broadcastPacket(UserPacket.effect(Effect.skillUse(skillID, (byte) slv, 0)));
-                chr.setSkillCooldown(ROYAL_GUARD_BUFF, slv);
+                if (ServerConstants.CLIENT_SIDED_SKILL_HOOK) {
+                    chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skillID, (byte) slv, 0)), chr);
+                    // cooldown handled by client hook
+                } else {
+                    o1.nOption = 1;
+                    o1.rOption = skillID;
+                    o1.tOption = si.getValue(x, slv) + (tsm.hasStatBySkillId(SACRED_CUBE) ? chr.getSkillStatValue(y, SACRED_CUBE) : 0);
+                    o1.setInMillis(true);
+                    tsm.putCharacterStatValue(RoyalGuardPrepare, o1);
+                    chr.write(UserPacket.effect(Effect.skillUse(skillID, (byte) slv, 0)));
+                    chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skillID, (byte) slv, 0)), chr);
+                    chr.setSkillCooldown(ROYAL_GUARD_BUFF, slv);
+                }
                 break;
             case MAGIC_CRASH:
                 o1.nOption = 1;
@@ -385,15 +398,17 @@ public class Mihile extends Job {
                 AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
                 aa.setMobOrigin((byte) 0);
                 aa.setPosition(inPacket.decodePosition());
-                rect = aa.getPosition().getRectAround(si.getFirstRect());
-                if(!chr.isLeft()) {
-                    rect = rect.horizontalFlipAround(chr.getPosition().getX());
-                }
-                aa.setRect(rect);
                 inPacket.decodeShort(); // unk
                 inPacket.decodeByte(); // unk
-                aa.setFlip(inPacket.decodeByte() == 0);
+                boolean flipped = inPacket.decodeByte() == 0;
+                rect = aa.getPosition().getRectAround(si.getFirstRect());
+                if (flipped) {
+                    rect = rect.horizontalFlipAround(aa.getPosition().getX());
+                }
+                aa.setRect(rect);
+                aa.setFlip(flipped);
                 chr.getField().spawnAffectedAreaAndRemoveOld(aa);
+                break;
             case ROILING_SOUL:
                 o1.nOption = 100 * si.getValue(x, slv) + si.getValue(mobCount, slv); // fd = n / 100, mobsHit = n % 100
                 o1.rOption = skillID;
@@ -435,7 +450,7 @@ public class Mihile extends Job {
                 o3.nOption = si.getValue(x, slv);
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamageReduce, o3);
+                tsm.putCharacterStatValue(DamAbsorbShield, o3);
                 break;
         }
         tsm.sendSetStatPacket();
@@ -478,10 +493,16 @@ public class Mihile extends Job {
 
     @Override
     public void handleHit(Char chr, HitInfo hitInfo) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (tsm.hasStat(RoyalGuardPrepare)) {
-            chr.write(UserLocal.royalGuardAttack(true));
-            royalGuardBuff();
+        if (ServerConstants.CLIENT_SIDED_SKILL_HOOK) {
+            // do nothing - buff handled in handleSkill
+        } else {
+            TemporaryStatManager tsm = chr.getTemporaryStatManager();
+            if (tsm.hasStat(RoyalGuardPrepare)) {
+                chr.write(UserLocal.royalGuardAttack(true));
+                royalGuardBuff();
+                tsm.removeStat(RoyalGuardPrepare, false);
+                tsm.sendResetStatPacket();
+            }
         }
         super.handleHit(chr, hitInfo);
     }
@@ -490,15 +511,6 @@ public class Mihile extends Job {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         SkillInfo si = SkillData.getSkillInfoById(ROYAL_GUARD_BUFF);
         int slv = chr.getSkillLevel(ROYAL_GUARD_BUFF);
-        Option o1 = new Option();
-        Option o2 = new Option();
-        Option o3 = new Option();
-        o1.nOption = 1;
-        o1.rOption = ROYAL_GUARD_BUFF;
-        o1.tOption = si.getValue(dot, slv);
-        tsm.putCharacterStatValue(NotDamaged, o1);
-        tsm.sendSetStatPacket();
-        // separate NotDamaged buff
         int maxStacks = chr.hasSkill(ADVANCED_ROYAL_GUARD) ? 5 : 3;
         int stacks = Math.min(tsm.getOption(RoyalGuardState).nOption + 1, maxStacks);
         int padAmount;
@@ -513,6 +525,13 @@ public class Mihile extends Job {
         } else {
             padAmount = chr.getSkillStatValue(u, ADVANCED_ROYAL_GUARD);
         }
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        o1.nOption = 1;
+        o1.rOption = ROYAL_GUARD_BUFF;
+        o1.tOption = si.getValue(dot, slv);
+        tsm.putCharacterStatValue(NotDamaged, o1);
         o2.nOption = stacks;
         o2.xOption = stacks;
         o2.rOption = ROYAL_GUARD_BUFF;

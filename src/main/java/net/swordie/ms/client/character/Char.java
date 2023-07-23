@@ -4293,13 +4293,6 @@ public class Char {
 				cdInMillis = 5000;
 			}
 
-
-			// Customized  skill cooldowns
-			int fixedSkillCD = SkillConstants.getSkillCooldown(skillID);
-			if(fixedSkillCD != -1) {
-				cdInMillis = fixedSkillCD;
-			}
-
 			if (!hasSkillCDBypass() && cdInMillis > 0) {
 				addSkillCoolTime(skillID, Util.getCurrentTimeLong() + cdInMillis);
 				write(UserLocal.skillCooltimeSetM(skillID, cdInMillis));
