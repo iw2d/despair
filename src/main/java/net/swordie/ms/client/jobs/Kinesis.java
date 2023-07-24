@@ -1,4 +1,4 @@
-package net.swordie.ms.client.jobs.adventurer;
+package net.swordie.ms.client.jobs;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;

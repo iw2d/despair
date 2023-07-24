@@ -8,7 +8,7 @@ import net.swordie.ms.client.character.skills.*;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
-import net.swordie.ms.client.jobs.adventurer.BeastTamer;
+import net.swordie.ms.client.jobs.BeastTamer;
 import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
 import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
@@ -234,32 +234,29 @@ public class JobSkillHandler {
     }
 
     @Handler(op = InHeader.ZERO_TAG)
-    public static void handleZeroTag(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleZeroTag(Char chr, InPacket inPacket) {
         int newTF = inPacket.decodeInt();
         int oldTF = inPacket.decodeInt();
         chr.swapZeroState();
     }
 
     @Handler(op = InHeader.REQUEST_SET_BLESS_OF_DARKNESS)
-    public static void handleRequestSetBlessOfDarkness(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleRequestSetBlessOfDarkness(Char chr, InPacket inPacket) {
         if (JobConstants.isLuminous(chr.getJob())) {
             Luminous.changeBlackBlessingCount(chr, true);
         }
     }
 
     @Handler(op = InHeader.RW_MULTI_CHARGE_CANCEL_REQUEST)
-    public static void handleRWMultiChargeCancelRequest(Client c, InPacket inPacket) {
+    public static void handleRWMultiChargeCancelRequest(Char chr, InPacket inPacket) {
         byte unk = inPacket.decodeByte();
         int skillid = inPacket.decodeInt();
 
-        c.write(UserLocal.rwMultiChargeCancelRequest(unk, skillid));
+        chr.write(UserLocal.rwMultiChargeCancelRequest(unk, skillid));
     }
 
     @Handler(op = InHeader.FOX_MAN_ACTION_SET_USE_REQUEST)
-    public static void handleFoxManActionSetUseRequest(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleFoxManActionSetUseRequest(Char chr, InPacket inPacket) {
         if (!chr.hasSkill(Kanna.HAKU) && !chr.hasSkill(Kanna.HAKU_REBORN)) {
             return;
         }
@@ -280,8 +277,7 @@ public class JobSkillHandler {
     }
 
     @Handler(op = InHeader.USER_CREATE_HOLIDOM_REQUEST)
-    public static void handleUserCreateHolidomRequest(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleUserCreateHolidomRequest(Char chr, InPacket inPacket) {
         Field field = chr.getField();
 
         inPacket.decodeByte(); // 2
@@ -300,25 +296,28 @@ public class JobSkillHandler {
             return;
         }
         SkillInfo si = SkillData.getSkillInfoById(skillID);
-        chr.heal((int) (c.getChr().getMaxHP() / ((double) 100 / si.getValue(SkillStat.x, aa.getSlv()))), true);
+        chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(SkillStat.x, aa.getSlv()))), true);
         aa.setForce(aa.getForce() - 1);
         if (aa.getForce() <= 0) {
             field.removeLife(aa.getObjectId(), false);
         }
     }
 
+    @Handler(op = InHeader.REQUEST_INC_COMBO)
+    public static void handleRequestIncCombo(Char chr, InPacket inPacket) {
+        int skillId = inPacket.decodeInt();
+        // handled in Aran.handleAttack
+    }
+
     @Handler(op = InHeader.REQUEST_DEC_COMBO)
-    public static void handleRequestDecCombo(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleRequestDecCombo(Char chr, InPacket inPacket) {
         if (JobConstants.isAran(chr.getJob())) {
-            Aran aranJobHandler = ((Aran) c.getChr().getJobHandler());
-            aranJobHandler.setCombo(aranJobHandler.getCombo() - 10);
+            ((Aran) chr.getJobHandler()).handleDecCombo();
         }
     }
 
     @Handler(op = InHeader.SKILL_COMMAND_LOCK)
-    public static void handleSkillCommandLock(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleSkillCommandLock(Char chr, InPacket inPacket) {
         int skillID = inPacket.decodeInt();
         int questID = QuestConstants.SKILL_COMMAND_LOCK_ARAN;
         Quest quest = chr.getQuestManager().getQuestById(questID);

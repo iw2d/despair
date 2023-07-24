@@ -15,7 +15,6 @@ import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.adventurer.Beginner;
-import net.swordie.ms.client.jobs.adventurer.BeastTamer;
 import net.swordie.ms.client.jobs.adventurer.magician.*;
 import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
@@ -25,8 +24,6 @@ import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.legend.Phantom;
 import net.swordie.ms.client.jobs.legend.Shade;
 import net.swordie.ms.client.jobs.resistance.Xenon;
-import net.swordie.ms.client.party.Party;
-import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.UserLocal;
 import net.swordie.ms.connection.packet.UserRemote;
@@ -307,6 +304,15 @@ public abstract class Job {
 						break;
 				}
 			}
+		}
+	}
+
+	public void handleSkillPrepare(int prepareSkillId) {
+		TemporaryStatManager tsm = chr.getTemporaryStatManager();
+		int skillID = SkillConstants.getActualSkillIDfromSkillID(prepareSkillId);
+		SkillInfo si = SkillData.getSkillInfoById(skillID);
+		int slv = chr.getSkillLevel(skillID);
+		switch (prepareSkillId) {
 		}
 	}
 

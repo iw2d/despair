@@ -8,7 +8,7 @@ import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Zero;
-import net.swordie.ms.client.jobs.adventurer.BeastTamer;
+import net.swordie.ms.client.jobs.BeastTamer;
 import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
 import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 import net.swordie.ms.client.jobs.adventurer.thief.NightLord;
@@ -336,8 +336,8 @@ public class AffectedArea extends Life {
                 tsm.putCharacterStatValue(TerR, o2);
                 break;
             case Aran.MAHAS_DOMAIN:
-                chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(w, slv))));
-                chr.healMP((int) (chr.getMaxHP() / ((double) 100 / si.getValue(w, slv))));
+                chr.heal((int) (chr.getMaxHP() / (100D / si.getValue(w, slv))));
+                chr.healMP((int) (chr.getMaxHP() / (100D / si.getValue(w, slv))));
                 tsm.removeAllDebuffs();
                 break;
             case BeastTamer.PURR_ZONE:

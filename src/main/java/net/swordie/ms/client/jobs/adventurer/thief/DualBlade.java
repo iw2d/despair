@@ -191,12 +191,11 @@ public class DualBlade extends Thief {
                 tsm.sendSetStatPacket();
                 break;
             case UPPER_STAB:
-                field = chr.getField();
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = 1;
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    Mob mob = (Mob) field.getLifeByObjectID(mai.mobId);
+                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null || mob.isBoss()) {
                         continue;
                     }

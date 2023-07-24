@@ -2,6 +2,9 @@ package net.swordie.ms.constants;
 
 import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.client.jobs.BeastTamer;
+import net.swordie.ms.client.jobs.Kinesis;
+import net.swordie.ms.client.jobs.PinkBean;
 import net.swordie.ms.client.jobs.Zero;
 import net.swordie.ms.client.jobs.adventurer.*;
 import net.swordie.ms.client.jobs.adventurer.archer.*;
@@ -48,22 +51,21 @@ public class SkillConstants {
     public static final int MINING_SKILL = 92010000;
     public static final int HERBALISM_SKILL = 92000000;
 
-    public static final HashSet<Integer> KEYDOWN_SKILLS = new HashSet<>(
-            Arrays.asList(
-                    Shade.SPIRIT_INCARNATION,
-                    Shade.SPIRIT_FRENZY,
-                    BeastTamer.FISHY_SLAP,
-                    BeastTamer.TORNADO_FLIGHT,
-                    PinkBean.LETS_ROLL,
-                    Demon.VITALITY_VEIL,
-                    AngelicBuster.SOUL_RESONANCE,
-                    BlazeWizard.DRAGON_BLAZE,
-                    Phantom.TEMPEST,
-                    IceLightning.LIGHTNING_ORB,
-                    Jett.FALLING_STARS,
-                    Jett.BACKUP_BEATDOWN,
-                    AngelicBuster.SUPREME_SUPERNOVA)
-    );
+    public static final HashSet<Integer> KEYDOWN_SKILLS = new HashSet<>(Arrays.asList(
+            Shade.SPIRIT_INCARNATION,
+            Shade.SPIRIT_FRENZY,
+            BeastTamer.FISHY_SLAP,
+            BeastTamer.TORNADO_FLIGHT,
+            PinkBean.LETS_ROLL,
+            Demon.VITALITY_VEIL,
+            AngelicBuster.SOUL_RESONANCE,
+            BlazeWizard.DRAGON_BLAZE,
+            Phantom.TEMPEST,
+            IceLightning.LIGHTNING_ORB,
+            Jett.FALLING_STARS,
+            Jett.BACKUP_BEATDOWN,
+            AngelicBuster.SUPREME_SUPERNOVA
+    ));
 
     public static boolean isSkillNeedMasterLevel(int skillId) {
         // bool __cdecl is_skill_need_master_level(int) (0x00601370)
@@ -1667,6 +1669,7 @@ public class SkillConstants {
             case WindArcher.BOW_EXPERT:
             case NightWalker.THROWING_EXPERT:
             case ThunderBreaker.KNUCKLE_EXPERT:
+            case Aran.HIGH_MASTERY:
                 stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
                 break;
             case FirePoison.SPELL_MASTERY_FP:
@@ -1681,6 +1684,7 @@ public class SkillConstants {
             case DawnWarrior.SWORD_MASTERY:
             case WindArcher.BOW_MASTERY:
             case ThunderBreaker.KNUCKLE_MASTERY:
+            case Aran.POLEARM_MASTERY:
                 stats.put(BaseStat.acc, si.getValue(SkillStat.x, slv));
                 break;
             // class specific
@@ -1743,6 +1747,7 @@ public class SkillConstants {
                 stats.put(BaseStat.pad, si.getValue(SkillStat.padX, slv));
                 break;
             case Mihile.SOUL_ASYLUM:
+            case Aran.HIGH_DEFENSE:
                 stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.t, slv));
                 break;
         }

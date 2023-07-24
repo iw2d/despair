@@ -2118,7 +2118,7 @@ public class Mob extends Life {
         int reqHp = msi.getSkillStatIntValue(MobSkillStat.hp);
         int useLimit = ms.getUseLimit() > 0 ? ms.getUseLimit() : msi.getUseLimit();
         // skill exists, is off cooldown, and mob is below required hp percentage to cast skill
-        return msi != null && hasSkillOffCooldown(ms.getSkillID(), ms.getLevel()) && (reqHp == 0 || getHpPerc() < reqHp) && (useLimit == 0 || getSkillUseCount(ms) < useLimit)
+        return hasSkillOffCooldown(ms.getSkillID(), ms.getLevel()) && (reqHp == 0 || getHpPerc() < reqHp) && (useLimit == 0 || getSkillUseCount(ms) < useLimit)
                 && (getSkills().size() == 0 || getSkills().stream().noneMatch(s -> s.getSkillSN() == ms.getPreSkillIndex()) || getSkillUseCount(getSkills().stream().filter(s -> s.getSkillSN() == ms.getPreSkillIndex()).findFirst().orElse(null)) >= ms.getPreSkillCount())
                 && canUseSkillLogic(ms);
     }
@@ -2129,7 +2129,7 @@ public class Mob extends Life {
         MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(skillID, slv);
 
         if (skillID == MobSkillID.Undead.getVal()) {
-            // disable undead until two states are fixed
+            // TODO: disable undead until two states are fixed
             return false;
         }
 

@@ -5,6 +5,7 @@ import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.jobs.adventurer.pirate.Buccaneer;
 import net.swordie.ms.client.jobs.adventurer.warrior.Hero;
+import net.swordie.ms.client.jobs.legend.Aran;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.loaders.SkillData;
 
@@ -85,6 +86,28 @@ public class ToBaseStat {
             for (BaseStat bs : DICE_STAT_TYPE[roll2]) {
                 stats.put(bs, DICE_STAT_VALUE[roll2]);
             }
+        }
+    }
+
+    public static void comboAbilityBuff(Char chr, Option o, Map<BaseStat, Integer> stats) {
+        int stacks = o.nOption / 50;
+        if (chr.hasSkill(Aran.COMBO_ABILITY)) {
+            SkillInfo si = SkillData.getSkillInfoById(Aran.COMBO_ABILITY);
+            int slv = chr.getSkillLevel(Aran.COMBO_ABILITY);
+            int maxStacks = si.getValue(x, slv);
+            int actualStacks = Math.min(stacks, maxStacks);
+            stats.put(BaseStat.pad, actualStacks * si.getValue(y, slv));
+            stats.put(BaseStat.pdd, actualStacks * si.getValue(z, slv));
+            stats.put(BaseStat.mdd, actualStacks * si.getValue(z, slv));
+            stats.put(BaseStat.speed, actualStacks * si.getValue(w, slv));
+        }
+        if (chr.hasSkill(Aran.ADVANCED_COMBO_ABILITY)) {
+            SkillInfo si = SkillData.getSkillInfoById(Aran.ADVANCED_COMBO_ABILITY);
+            int slv = chr.getSkillLevel(Aran.ADVANCED_COMBO_ABILITY);
+            int maxStacks = si.getValue(x, slv);
+            int actualStacks = Math.min(stacks, maxStacks);
+            stats.put(BaseStat.pad, stats.getOrDefault(BaseStat.pad, 0) + actualStacks * si.getValue(z, slv));
+            stats.put(BaseStat.cr, actualStacks * si.getValue(y, slv));
         }
     }
 }

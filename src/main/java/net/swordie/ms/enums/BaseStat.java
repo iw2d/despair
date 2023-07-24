@@ -408,6 +408,9 @@ public enum BaseStat {
             case ComboCounter:
                 ToBaseStat.comboCounter(chr, o, stats);
                 break;
+            case ComboAbilityBuff:
+                ToBaseStat.comboAbilityBuff(chr, o, stats);
+                break;
             case MagicGuard:
                 stats.put(magicGuard, o.nOption);
                 break;

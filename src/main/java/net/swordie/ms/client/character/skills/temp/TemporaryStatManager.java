@@ -117,7 +117,7 @@ public class TemporaryStatManager {
                 return;
             }
         }
-        if(!indie) {
+        if (!indie) {
             List<Option> optList = new ArrayList<>();
             optList.add(option);
             if (hasStat(cts)) {

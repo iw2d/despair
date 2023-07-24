@@ -58,7 +58,8 @@ public class AttackHandler {
         }
         if (summonedAttack || multiAttack || chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass() || SkillConstants.isKeyDownSkill(skillID)) {
             byte slv = attackInfo.slv;
-            chr.dbgChatMsg("SkillID: " + skillID);
+            log.debug("AttackID: " + skillID);
+            chr.dbgChatMsg("AttackID: " + skillID);
             Job sourceJobHandler = chr.getJobHandler();
             SkillInfo si = SkillData.getSkillInfoById(skillID);
             if (si != null && si.getExtraSkillInfo().size() > 0) {

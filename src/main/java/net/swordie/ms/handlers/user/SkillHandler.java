@@ -399,11 +399,10 @@ public class SkillHandler {
         int skillId = inPacket.decodeInt();
         int startTime = inPacket.decodeInt();
         int unknownInt = inPacket.decodeInt();
-        if (!chr.hasSkill(skillId)) {
-            return;
-        }
-        Skill skill = chr.getSkill(skillId);
-        chr.getField().broadcastPacket(UserRemote.skillPrepare(chr, skillId, (byte) skill.getCurrentLevel()), chr);
+
+        log.debug("PrepareID: " + skillId);
+        chr.getJobHandler().handleSkillPrepare(skillId);
+        chr.getField().broadcastPacket(UserRemote.skillPrepare(chr, skillId, (byte) chr.getSkillLevel(skillId)), chr);
     }
 
     @Handler(op = InHeader.USER_SKILL_CANCEL_REQUEST)

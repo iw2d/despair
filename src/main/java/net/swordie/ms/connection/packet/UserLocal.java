@@ -593,6 +593,13 @@ public class UserLocal {
         return outPacket;
     }
 
+    public static OutPacket setSlowDown(int fallingSpeed, int fallingTime) {
+        OutPacket outPacket = new OutPacket(OutHeader.SET_SLOW_DOWN);
+        outPacket.encodeShort(fallingSpeed);
+        outPacket.encodeShort(fallingTime);
+        return outPacket;
+    }
+
     public static OutPacket b2BodyResult(short requestType, B2Body b2Body) {
         OutPacket outPacket = new OutPacket(OutHeader.B2_BODY_RESULT);
         Char chr = b2Body.getChr();
