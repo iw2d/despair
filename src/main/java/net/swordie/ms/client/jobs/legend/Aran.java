@@ -1,5 +1,6 @@
 package net.swordie.ms.client.jobs.legend;
 
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.info.HitInfo;
@@ -151,27 +152,30 @@ public class Aran extends Job {
             handleSnowCharge(attackInfo);
             handleDrain();
         }
+        // handle aero swing
+        if (!ServerConstants.CLIENT_SIDED_SKILL_HOOK) {
+            if (attackInfo.skillId == AERO_SWING_1) {
+                chr.write(UserLocal.setSlowDown(30, 360));
+            } else if (attackInfo.skillId == AERO_SWING_2 || attackInfo.skillId == SMASH_SWING_2_FINAL_BLOW) {
+                if (chr.getMoveAction() == 6 || chr.getMoveAction() == 7) {
+                    chr.write(UserLocal.setSlowDown(30, 300));
+                }
+            } else if (attackInfo.skillId == AERO_SWING_3 || attackInfo.skillId == FINAL_BLOW_SMASH_SWING_COMBO) {
+                if (chr.getMoveAction() == 6 || chr.getMoveAction() == 7) {
+                    chr.write(UserLocal.setSlowDown(30, 648));
+                }
+            }
+        }
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
         switch (attackInfo.skillId) {
-            case AERO_SWING_1:
-                chr.write(UserLocal.setSlowDown(30, 360));
-                // Fallthrough intended
             case SMASH_SWING_1:
+            case AERO_SWING_1:
                 handleSwingStudies();
                 break;
-            case SMASH_SWING_2_FINAL_BLOW:
-                if (chr.getMoveAction() == 6 || chr.getMoveAction() == 7) {
-                    chr.write(UserLocal.setSlowDown(30, 300));
-                }
-                break;
-            case FINAL_BLOW_SMASH_SWING_COMBO:
-                if (chr.getMoveAction() == 6 || chr.getMoveAction() == 7) {
-                    chr.write(UserLocal.setSlowDown(30, 648));
-                }
-                // Fallthrough intended
             case FINAL_BLOW_COMBO:
+            case FINAL_BLOW_SMASH_SWING_COMBO:
             case FINAL_CHARGE_COMBO:
                 o1.nOption = 1;
                 o1.rOption = FINAL_CHARGE;
