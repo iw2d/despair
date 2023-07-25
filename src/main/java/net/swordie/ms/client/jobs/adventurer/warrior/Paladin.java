@@ -31,7 +31,6 @@ import net.swordie.ms.world.field.Field;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -530,11 +529,11 @@ public class Paladin extends Warrior {
     }
 
     @Override
-    public void handleSkillRemove(Char chr, int skillID) {
+    public void handleRemoveSkill(int skillID) {
         if (skillID == PARASHOCK_GUARD && parashockGuardTimer != null && !parashockGuardTimer.isDone()) {
             parashockGuardTimer.cancel(true);
         }
-        super.handleSkillRemove(chr, skillID);
+        super.handleRemoveSkill(skillID);
     }
 
     @Override

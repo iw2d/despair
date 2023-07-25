@@ -1150,6 +1150,8 @@ public class SkillConstants {
             case DawnWarrior.SWORD_MASTERY:
             case WindArcher.BOW_MASTERY:
             case Mihile.SOUL_ASYLUM:
+            case Evan.MAGIC_AMPLIFICATION:
+            case Evan.DRAGON_FURY:
                 return true;
             default:
                 return false;
@@ -1658,6 +1660,7 @@ public class SkillConstants {
             case NightLord.CRITICAL_THROW:
             case DualBlade.SHARPNESS:
             case NightWalker.CRITICAL_THROW:
+            case Evan.CRITICAL_MAGIC:
                 stats.put(BaseStat.cr, si.getValue(SkillStat.prop, slv));
                 break;
             case Bowmaster.BOW_EXPERT:
@@ -1677,6 +1680,8 @@ public class SkillConstants {
             case Bishop.SPELL_MASTERY_BISH:
             case BlazeWizard.SPELL_CONTROL:
             case BlazeWizard.PURE_MAGIC:
+            case Evan.SPELL_MASTERY:
+            case Evan.MAGIC_MASTERY:
                 stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
                 break;
             case Corsair.GUN_MASTERY:
@@ -1749,6 +1754,15 @@ public class SkillConstants {
             case Mihile.SOUL_ASYLUM:
             case Aran.HIGH_DEFENSE:
                 stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.t, slv));
+                break;
+            case Evan.PARTNERS:
+                stats.remove(BaseStat.damR);
+                break;
+            case Evan.MAGIC_AMPLIFICATION:
+                stats.put(BaseStat.fd, si.getValue(SkillStat.z, slv));
+                break;
+            case Evan.DRAGON_FURY:
+                stats.put(BaseStat.madR, si.getValue(SkillStat.damage, slv));
                 break;
         }
     }

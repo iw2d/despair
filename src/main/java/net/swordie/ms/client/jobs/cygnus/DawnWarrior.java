@@ -428,11 +428,11 @@ public class DawnWarrior extends Noblesse {
     }
 
     @Override
-    public void handleSkillRemove(Char chr, int skillID) {
+    public void handleRemoveSkill(int skillID) {
         if (skillID == WILL_OF_STEEL && willOfSteelTimer != null && !willOfSteelTimer.isDone()) {
             willOfSteelTimer.cancel(true);
         }
-        super.handleSkillRemove(chr, skillID);
+        super.handleRemoveSkill(skillID);
     }
 
     @Override

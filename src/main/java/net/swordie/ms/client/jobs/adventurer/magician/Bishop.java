@@ -3,14 +3,12 @@ package net.swordie.ms.client.jobs.adventurer.magician;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.TownPortal;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
-import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
@@ -538,11 +536,11 @@ public class Bishop extends Magician {
     }
 
     @Override
-    public void handleSkillRemove(Char chr, int skillID) {
+    public void handleRemoveSkill(int skillID) {
         if (skillID == BLESSED_ENSEMBLE && blessedEmsembleTimer != null && !blessedEmsembleTimer.isDone()) {
             blessedEmsembleTimer.cancel(true);
         }
-        super.handleSkillRemove(chr, skillID);
+        super.handleRemoveSkill(skillID);
     }
 
     @Override

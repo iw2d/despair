@@ -2,7 +2,6 @@ package net.swordie.ms.client.jobs.adventurer.magician;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
@@ -27,7 +26,6 @@ import net.swordie.ms.world.field.Field;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -330,11 +328,11 @@ public class IceLightning extends Magician {
     }
 
     @Override
-    public void handleSkillRemove(Char chr, int skillID) {
+    public void handleRemoveSkill(int skillID) {
         if (skillID == ABSOLUTE_ZERO_AURA && absoluteZeroAuraTimer != null && !absoluteZeroAuraTimer.isDone()) {
             absoluteZeroAuraTimer.cancel(true);
         }
-        super.handleSkillRemove(chr, skillID);
+        super.handleRemoveSkill(skillID);
     }
 
     @Override

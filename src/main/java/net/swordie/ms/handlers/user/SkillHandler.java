@@ -26,7 +26,6 @@ import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.life.AffectedArea;
-import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.loaders.containerclasses.MakingSkillRecipe;
@@ -427,7 +426,7 @@ public class SkillHandler {
             tsm.sendResetStatPacket();
         }
 
-        chr.getJobHandler().handleSkillRemove(chr, skillId);
+        chr.getJobHandler().handleRemoveBuff(skillId);
     }
 
     @Handler(op = InHeader.USER_TEMPORARY_STAT_UPDATE_REQUEST)

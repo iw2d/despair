@@ -539,6 +539,15 @@ public class AngelicBuster extends Job {
     }
 
 
+    @Override
+    public void handleWarp() {
+        if (JobConstants.isAngelicBuster(chr.getJob())) {
+            chr.write(UserLocal.setDressChanged(false, true));
+        }
+        super.handleWarp();
+    }
+
+
 
     // Hit related methods ---------------------------------------------------------------------------------------------
 

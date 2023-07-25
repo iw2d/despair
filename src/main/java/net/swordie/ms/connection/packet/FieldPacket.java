@@ -12,6 +12,7 @@ import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.PsychicArea;
 import net.swordie.ms.client.character.skills.TownPortal;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
+import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.resistance.OpenGate;
 import net.swordie.ms.client.trunk.TrunkDlg;
 import net.swordie.ms.connection.OutPacket;
@@ -549,30 +550,30 @@ public class FieldPacket {
         return outPacket;
     }
 
-    public static OutPacket addWreckage(Char chr, Mob mob, int skillID, int debrisCount) {
+    public static OutPacket addWreckage(Char chr, Mob mob, int skillID, int debrisId, int debrisCount) {
         OutPacket outPacket = new OutPacket(OutHeader.ADD_WRECKAGE);
 
         outPacket.encodeInt(chr.getId());  //v2
         outPacket.encodePositionInt(mob.getPosition());
         outPacket.encodeInt(chr.getFieldID());  //v4
-        outPacket.encodeInt(1);  //evanWreckage.nIDx
+        outPacket.encodeInt(debrisId);  //evanWreckage.nIDx
         outPacket.encodeInt(skillID);  //nSkillID
         outPacket.encodeInt(1);  //nType
 
-        outPacket.encodeInt(debrisCount);  //Number on Skill Icon, # of Wreckages on map
+        outPacket.encodeInt(debrisCount);  // Number on Skill Icon, # of Wreckages on map
 
         return outPacket;
     }
 
-    public static OutPacket delWreckage(Char chr) {
+    public static OutPacket delWreckage(Char chr, List<Integer> removeList) {
         OutPacket outPacket = new OutPacket(OutHeader.DEL_WRECKAGE);
 
         outPacket.encodeInt(chr.getId()); //Char ID
-        outPacket.encodeInt(1); //Count
-        outPacket.encodeByte(true); //Unk Boolean
-
-        outPacket.encodeInt(1); //Unk
-
+        outPacket.encodeInt(removeList.size()); //Count
+        outPacket.encodeByte(chr.hasSkillOnCooldown(Evan.DARK_FOG)); // bDarkFogCooltime
+        for (int debrisId : removeList) {
+            outPacket.encodeInt(debrisId);
+        }
 
         return outPacket;
     }

@@ -466,14 +466,14 @@ public class Mihile extends Job {
     }
 
     @Override
-    public void handleSkillRemove(Char chr, int skillID) {
+    public void handleRemoveSkill(int skillID) {
         if (skillID == SELF_RECOVERY && selfRecoveryTimer != null && !selfRecoveryTimer.isDone()) {
             selfRecoveryTimer.cancel(true);
         }
         if (skillID == SOUL_LINK && soulLinkTimer != null && !soulLinkTimer.isDone()) {
             soulLinkTimer.cancel(true);
         }
-        super.handleSkillRemove(chr, skillID);
+        super.handleRemoveSkill(skillID);
     }
 
     @Override

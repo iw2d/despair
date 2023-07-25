@@ -32,7 +32,6 @@ import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
-import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.life.Summon;
@@ -49,7 +48,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
@@ -122,18 +120,11 @@ public abstract class Job {
 			MAPLERUNNER_DASH
 	};
 
-	public static final int[] RECOVERY_SKILL = new int[] {
-			Beginner.RECOVERY,
-			Evan.RECOVERY
-	};
-
-	private final int[] buffs = new int[] {
+	private static final int[] JOBLESS_BUFFS = new int[] {
 			BOSS_SLAYERS,
 			UNDETERRED,
 			FOR_THE_GUILD,
-			MAPLERUNNER_DASH,
-			Beginner.NIMBLE_FEET,
-			Beginner.RECOVERY
+			MAPLERUNNER_DASH
 	};
 
 	public Job(Char chr) {
@@ -214,7 +205,7 @@ public abstract class Job {
 		Option o1 = new Option();
 		Summon summon;
 		Field field;
-		if (isBuff(skillID)) {
+		if (isJoblessBuff(skillID)) {
 			handleJoblessBuff(chr, skillID, slv);
 		} else {
 			if (chr.hasSkill(skillID) && si.getVehicleId() > 0) {
@@ -302,67 +293,26 @@ public abstract class Job {
 						summon = Summon.getSummonBy(chr, skillID, (byte) slv);
 						field.spawnSummon(summon);
 						break;
+					// BEGINNER AND COMMON SKILLS
+					case Beginner.NIMBLE_FEET:
+					case Evan.NIMBLE_FEET:
+						o1.nOption = 5 + 5 * slv;
+						o1.rOption = skillID;
+						o1.tOption = 4 * slv;
+						tsm.putCharacterStatValue(Speed, o1);
+						chr.addSkillCooldown(skillID, 60 * 1000);
+						break;
+					case Beginner.RECOVERY:
+					case Evan.RECOVERY:
+						o1.nOption = 24 * slv;
+						o1.rOption = skillID;
+						o1.tOption = 30;
+						tsm.putCharacterStatValue(Regen, o1);
+						chr.addSkillCooldown(skillID, 10 * 60 * 1000);
+						break;
 				}
 			}
 		}
-	}
-
-	public void handleSkillPrepare(int prepareSkillId) {
-		TemporaryStatManager tsm = chr.getTemporaryStatManager();
-		int skillID = SkillConstants.getActualSkillIDfromSkillID(prepareSkillId);
-		SkillInfo si = SkillData.getSkillInfoById(skillID);
-		int slv = chr.getSkillLevel(skillID);
-		switch (prepareSkillId) {
-		}
-	}
-
-	public int alterCooldownSkill(int skillId) {
-		Skill skill = chr.getSkill(skillId);
-		if (skill == null) {
-			return -1;
-		}
-		SkillInfo si = SkillData.getSkillInfoById(skillId);
-		byte slv = (byte) skill.getCurrentLevel();
-		int cdInSec = si.getValue(SkillStat.cooltime, slv);
-		int cdInMillis = cdInSec > 0 ? cdInSec * 1000 : si.getValue(SkillStat.cooltimeMS, slv);
-		int cooldownReductionR = chr.getHyperPsdSkillsCooltimeR().getOrDefault(skillId, 0);
-		if (cooldownReductionR > 0) {
-			return (int) (cdInMillis - ((double) (cdInMillis * cooldownReductionR) / 100));
-		}
-		return -1;
-	}
-
-
-	/**
-	 * Gets called when Character receives a debuff from a Mob Skill
-	 *
-	 * @param chr
-	 * 		The Character
-	 */
-
-	public void handleMobDebuffSkill(Char chr) {
-
-	}
-
-	/**
-	 * Gets called when Character resists a debuff from a Mob Skill with their asr stat
-	 *
-	 * @param chr
-	 * 		The Character
-	 */
-
-	public void handleMobDebuffResist(Char chr) {
-
-	}
-
-	/**
-	 * Used for Classes that have timers, to cancel the timer after changing channel
-	 *
-	 * @param chr
-	 * 		The Character
-	 */
-	public void handleCancelTimer(Char chr) {
-
 	}
 
 	public void handleJoblessBuff(Char chr, int skillID, int slv) {
@@ -408,41 +358,11 @@ public abstract class Job {
 				o2.nValue = si.getValue(indieForceSpeed, slv);
 				tsm.putCharacterStatValue(IndieForceSpeed, o2);
 				break;
-			case Beginner.NIMBLE_FEET:
-			case Evan.NIMBLE_FEET:
-				o1.nOption = 5 + 5 * slv;
-				o1.rOption = skillID;
-				o1.tOption = 4 * slv;
-				tsm.putCharacterStatValue(Speed, o1);
-				chr.addSkillCooldown(skillID, 60000);
-				break;
-			case Beginner.RECOVERY:
-			case Evan.RECOVERY:
-				o1.nOption = 1;
-				o1.rOption = skillID;
-				o1.tOption = 30;
-				tsm.putCharacterStatValue(Restoration, o1);
-				recoveryInterval();
-				chr.addSkillCooldown(skillID, 600000);
-				break;
 			default:
 				sendStat = false;
 		}
 		if (sendStat) {
 			tsm.sendSetStatPacket();
-		}
-	}
-	public void recoveryInterval() {
-		for (int recoverySkill : RECOVERY_SKILL) {
-			if (chr.hasSkill(recoverySkill)) {
-				Skill skill = chr.getSkill(recoverySkill);
-				TemporaryStatManager tsm = chr.getTemporaryStatManager();
-				byte slv = (byte) skill.getCurrentLevel();
-				if (tsm.hasStat(Restoration)) {
-					chr.heal(24 * slv / 3);
-					EventManager.addEvent(this::recoveryInterval, 10, TimeUnit.SECONDS);
-				}
-			}
 		}
 	}
 
@@ -614,13 +534,64 @@ public abstract class Job {
 		}
 	}
 
-	public SkillInfo getInfo(int skillID) {
-		return SkillData.getSkillInfoById(skillID);
+	public void handleSkillPrepare(int prepareSkillId) {
+		TemporaryStatManager tsm = chr.getTemporaryStatManager();
+		int skillID = SkillConstants.getActualSkillIDfromSkillID(prepareSkillId);
+		SkillInfo si = SkillData.getSkillInfoById(skillID);
+		int slv = chr.getSkillLevel(skillID);
+		switch (prepareSkillId) {
+		}
 	}
 
-	protected Char getChar() {
-		return chr;
+	public int alterCooldownSkill(int skillId) {
+		Skill skill = chr.getSkill(skillId);
+		if (skill == null) {
+			return -1;
+		}
+		SkillInfo si = SkillData.getSkillInfoById(skillId);
+		byte slv = (byte) skill.getCurrentLevel();
+		int cdInSec = si.getValue(SkillStat.cooltime, slv);
+		int cdInMillis = cdInSec > 0 ? cdInSec * 1000 : si.getValue(SkillStat.cooltimeMS, slv);
+		int cooldownReductionR = chr.getHyperPsdSkillsCooltimeR().getOrDefault(skillId, 0);
+		if (cooldownReductionR > 0) {
+			return (int) (cdInMillis - ((double) (cdInMillis * cooldownReductionR) / 100));
+		}
+		return -1;
 	}
+
+
+	/**
+	 * Gets called when Character receives a debuff from a Mob Skill
+	 *
+	 * @param chr
+	 * 		The Character
+	 */
+
+	public void handleMobDebuffSkill(Char chr) {
+
+	}
+
+	/**
+	 * Gets called when Character resists a debuff from a Mob Skill with their asr stat
+	 *
+	 * @param chr
+	 * 		The Character
+	 */
+
+	public void handleMobDebuffResist(Char chr) {
+
+	}
+
+	/**
+	 * Used for Classes that have timers, to cancel the timer on logging out
+	 *
+	 * @param chr
+	 * 		The Character
+	 */
+	public void handleCancelTimer(Char chr) {
+
+	}
+
 
 	public int getFinalAttackSkill() {
 		return 0;
@@ -638,12 +609,17 @@ public abstract class Job {
 	/**
 	 * Called when a player is right-clicking a buff, requesting for it to be disabled.
 	 *
-	 * @param chr
-	 * 		The character
-	 * @param skillID
-	 * 		The skill that the player right-clicked
+	 * @param skillID The skill that the player right-clicked
 	 */
-	public void handleSkillRemove(Char chr, int skillID) {
+	public void handleRemoveBuff(int skillID) {
+
+	}
+
+	/**
+	 * Called when a player removes all points in a skill
+	 * @param skillID
+	 */
+	public void handleRemoveSkill(int skillID) {
 
 	}
 
@@ -667,6 +643,13 @@ public abstract class Job {
 	 * Called when client sends a USER_FORCE_ATOM_COLLISION packet
 	 */
 	public void handleForceAtomCollision(int forceAtomKey, int mobId) {
+
+	}
+
+	/**
+	 * Called when Character warps to another map
+	 */
+	public void handleWarp() {
 
 	}
 
@@ -768,8 +751,8 @@ public abstract class Job {
 		}
 	}
 
-	private boolean isBuff(int skillID) {
-		return Arrays.stream(buffs).anyMatch(b -> b == skillID);
+	private boolean isJoblessBuff(int skillID) {
+		return Arrays.stream(JOBLESS_BUFFS).anyMatch(b -> b == skillID);
 	}
 
 	public final int getBuffedSkillDuration(int duration) {

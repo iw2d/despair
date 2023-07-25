@@ -215,7 +215,7 @@ public class GameConstants {
     public static final int SILENT_CRUSADE_BOSS_COOLDOWN = 240; // minutes between silent crusade attempts (240 min = 4 hours)
 
     // Starforce
-    private static final int STARFORCE_LEVELS[][] = {
+    private static final int[][] STARFORCE_LEVELS = {
             { Integer.MAX_VALUE, -1 }, // per equip
             { 137, (ServerConstants.VERSION >= 197 ? 20 : 13) },
             { 127, (ServerConstants.VERSION >= 197 ? 15 : 12) },
@@ -224,7 +224,7 @@ public class GameConstants {
             { 95, 5 },
     };
 
-    private static final int STARFORCE_LEVELS_SUPERIOR[][] = {
+    private static final int[][] STARFORCE_LEVELS_SUPERIOR = {
             { Integer.MAX_VALUE, 15 },
             { 137, 12 },
             { 127, 10 },

@@ -81,9 +81,6 @@ public class Kanna extends Job {
         return JobConstants.isKanna(id);
     }
 
-    public void spawnHaku() {
-        chr.write(FieldPacket.enterFieldFoxMan(chr));
-    }
 
     public static void hakuFoxFire(Char chr) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -334,6 +331,13 @@ public class Kanna extends Job {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         tsm.removeStat(FireBarrier, false);
         tsm.sendResetStatPacket();
+    }
+
+    @Override
+    public void handleWarp() {
+        // spawn haku
+        chr.write(FieldPacket.enterFieldFoxMan(chr));
+        super.handleWarp();
     }
 
     // Character creation related methods ------------------------------------------------------------------------------

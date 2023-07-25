@@ -20,7 +20,6 @@ import net.swordie.ms.enums.TSIndex;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
-import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
 
@@ -355,14 +354,14 @@ public class Buccaneer extends Pirate {
     }
 
     @Override
-    public void handleSkillRemove(Char chr, int skillID) {
+    public void handleRemoveSkill(int skillID) {
         if (skillID == PERSERVERANCE && perseveranceTimer != null && !perseveranceTimer.isDone()) {
             perseveranceTimer.cancel(true);
         }
         if (skillID == STIMULATING_CONVERSATION && stimulatingConversationTimer != null && !stimulatingConversationTimer.isDone()) {
             stimulatingConversationTimer.cancel(true);
         }
-        super.handleSkillRemove(chr, skillID);
+        super.handleRemoveSkill(skillID);
     }
 
     @Override

@@ -1742,7 +1742,7 @@ public class Char {
 
 	/**
 	 * Adds a {@link Skill} to this Char. Changes the old Skill if the Char already has a Skill
-	 * with the same id. Removes the skill if the given skill's id is 0.
+	 * with the same id. Removes the skill if the given skill's current level is 0.
 	 *
 	 * @param skill The Skill this Char should get.
 	 */
@@ -1752,7 +1752,7 @@ public class Char {
 
 	/**
 	 * Adds a {@link Skill} to this Char. Changes the old Skill if the Char already has a Skill
-	 * with the same id. Removes the skill if the given skill's id is 0.
+	 * with the same id. Removes the skill if the given skill's current level is 0.
 	 *
 	 * @param skill The Skill this Char should get.
 	 * @param addRegardlessOfLevel if this is true, the skill will not be removed from the char, even if the cur level
@@ -1796,6 +1796,7 @@ public class Char {
 				removeFromBaseStatCache(skill);
 			}
 			getSkills().remove(skill);
+			getJobHandler().handleRemoveSkill(skillID);
 			getTemporaryStatManager().removeStatsBySkill(skillID);
 		}
 	}
@@ -2662,13 +2663,8 @@ public class Char {
 			}
 		}
 		toField.spawnLifesForChar(this);
+		getJobHandler().handleWarp();
 
-		if (JobConstants.isEvan(getJob()) && getJob() != JobConstants.JobEnum.EVAN.getJobId()) {
-			((Evan) getJobHandler()).spawnMir();
-		}
-		if (JobConstants.isKanna(getJob())) {
-			((Kanna) getJobHandler()).spawnHaku();
-		}
 		if (tsm.hasStat(IndieEmpty)) {
 			for (Iterator<Option> iterator = tsm.getCurrentStats().getOrDefault(IndieEmpty, new ArrayList<>()).iterator(); iterator.hasNext(); ) {
 				Summon summon = iterator.next().summon;
@@ -2727,10 +2723,6 @@ public class Char {
 		if (getFieldInstanceType() == CHANNEL) {
 			write(FieldPacket.setQuickMoveInfo(GameConstants.getQuickMoveInfos().stream().filter(qmi -> !qmi.isNoInstances() || getField().isChannelField()).collect(Collectors.toList())));
 		}
-		if (JobConstants.isAngelicBuster(getJob())) {
-			write(UserLocal.setDressChanged(false, true));
-		}
-
 		afterMigrate();
 	}
 

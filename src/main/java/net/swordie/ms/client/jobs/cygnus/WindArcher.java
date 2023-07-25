@@ -9,19 +9,14 @@ import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
-import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
-import net.swordie.ms.client.jobs.adventurer.archer.Marksman;
 import net.swordie.ms.connection.InPacket;
-import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.connection.packet.UserLocal;
-import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.AssistType;
 import net.swordie.ms.enums.ForceAtomEnum;
 import net.swordie.ms.enums.MoveAbility;
-import net.swordie.ms.life.Life;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
@@ -34,8 +29,6 @@ import net.swordie.ms.world.field.Field;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -469,12 +462,13 @@ public class WindArcher extends Noblesse {
     }
 
     @Override
-    public void handleSkillRemove(Char chr, int skillID) {
+    public void handleRemoveSkill(int skillID) {
         if (skillID == TRIFLING_WIND_I) {
             TemporaryStatManager tsm = chr.getTemporaryStatManager();
             tsm.removeStat(TriflingWhimOnOff, true);
             tsm.sendResetStatPacket();
         }
+        super.handleRemoveSkill(skillID);
     }
 
 
