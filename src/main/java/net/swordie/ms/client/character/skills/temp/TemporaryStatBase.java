@@ -39,7 +39,7 @@ public class TemporaryStatBase {
     }
 
     public int getExpireTerm() {
-        if(isDynamicTermSet()) {
+        if (isDynamicTermSet()) {
             return 1000 * expireTerm;
         }
         return Integer.MAX_VALUE;
@@ -63,6 +63,10 @@ public class TemporaryStatBase {
 
     public boolean isActive() {
         return getOption().nOption >= 10000;
+    }
+
+    public boolean hasExpired() {
+        return hasExpired(Util.getCurrentTime());
     }
 
     public boolean hasExpired(long time) {

@@ -8,8 +8,10 @@ import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
@@ -73,14 +75,22 @@ public class Evan extends Job {
     public static final int DRAGON_FURY = 22170074;
     public static final int MAGIC_MASTERY = 22170071;
 
-    //Returns
+    // Returns
     public static final int RETURN_FLASH = 22110013; // Return after Wind Skills (Mob Debuff)
     public static final int RETURN_DIVE = 22140013; // Return Dive (Buff)
     public static final int RETURN_FLAME = 22170064; // Return Flame (Flame  AoE)
     public static final int RETURN_FLAME_TILE = 22170093; // Return Flames Tile
 
+    // Dragon Attacks
+    public static final int DRAGON_FLASH = 22111012;
+    public static final int DRAGON_FLASH_3 = 22110022;
+    public static final int DRAGON_FLASH_4 = 22110023;
+    public static final int DRAGON_DIVE = 22141012;
+    public static final int DRAGON_DIVE_4 = 22140022;
+    public static final int DRAGON_BREATH = 22171063;
 
-    //Evan Attacks
+
+    // Evan Attacks
     public static final int MANA_BURST_I = 22001010;
     public static final int MANA_BURST_II = 22110010;
     public static final int MANA_BURST_III = 22140010;
@@ -97,11 +107,7 @@ public class Evan extends Job {
 
     private final Map<Integer, Position> debrisPos = new ConcurrentHashMap<>(); // ForceAtomKey : Position
     private final Lock debrisLock = new ReentrantLock();
-
-    private int prevSkill = 0;
     private Dragon dragon;
-    private int debrisCount = 0;
-    private Field oldField;
 
     private int[] addedSkills = new int[] {
             BACK_TO_NATURE,
@@ -147,12 +153,31 @@ public class Evan extends Job {
         if (hasHitMobs) {
             if (SkillConstants.isEvanFusionSkill(attackInfo.skillId)) {
                 handleDebris(attackInfo);
+                handlePartnerBuff();
             }
         }
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
         switch (attackInfo.skillId) {
+            case DRAGON_FLASH:
+            case DRAGON_FLASH_3:
+            case DRAGON_FLASH_4:
+                if (!chr.hasSkillOnCooldown(DRAGON_FLASH)) {
+                    chr.setSkillCooldown(DRAGON_FLASH, slv);
+                }
+                break;
+            case DRAGON_DIVE:
+            case DRAGON_DIVE_4:
+                if (!chr.hasSkillOnCooldown(DRAGON_DIVE)) {
+                    chr.setSkillCooldown(DRAGON_DIVE, slv);
+                }
+                break;
+            case DRAGON_BREATH:
+                if (!chr.hasSkillOnCooldown(DRAGON_BREATH)) {
+                    chr.setSkillCooldown(DRAGON_BREATH, slv);
+                }
+                break;
         }
 
         super.handleAttack(chr, attackInfo);
@@ -170,6 +195,7 @@ public class Evan extends Job {
         }
         SkillInfo si = SkillData.getSkillInfoById(skillId);
         int slv = chr.getSkillLevel(skillId);
+        int duration = si.getValue(time, slv);
         int maxDebris = si.getValue(x, slv);
         debrisLock.lock();
         try {
@@ -186,15 +212,15 @@ public class Evan extends Job {
                 int debrisId = chr.getNewForceAtomKey();
                 addedList.add(debrisId);
                 debrisPos.put(debrisId, mob.getPosition());
-                chr.write(FieldPacket.addWreckage(chr, mob, skillId, debrisId, curDebris));
+                chr.write(FieldPacket.addWreckage(chr, mob, skillId, duration, debrisId, curDebris));
             }
-            EventManager.addEvent(() -> handleRemoveDebris(addedList), si.getValue(time, slv), TimeUnit.MILLISECONDS);
+            EventManager.addEvent(() -> handleRemoveDebris(addedList, false), duration, TimeUnit.MILLISECONDS);
         } finally {
             debrisLock.unlock();
         }
     }
 
-    private void handleRemoveDebris(List<Integer> debrisList) {
+    private void handleRemoveDebris(List<Integer> debrisList, boolean sendPacket) {
         debrisLock.lock();
         try {
             List<Integer> removeList = new ArrayList<>();
@@ -204,7 +230,7 @@ public class Evan extends Job {
                 }
                 removeList.add(debrisId);
             }
-            if (removeList.size() > 0) {
+            if (sendPacket && removeList.size() > 0) {
                 chr.write(FieldPacket.delWreckage(chr, removeList));
             }
         } finally {
@@ -215,9 +241,8 @@ public class Evan extends Job {
     private void createMagicDebrisForceAtom(int skillId) {
         SkillInfo si = SkillData.getSkillInfoById(skillId);
         Rect rect = chr.getPosition().getRectAround(si.getFirstRect());
-        System.out.println(rect);
         List<Mob> targets =  chr.getField().getMobsInRect(rect);
-        if (targets.size() <= 0) {
+        if (targets.size() == 0) {
             return;
         }
         if (debrisPos.size() == 0) {
@@ -251,6 +276,21 @@ public class Evan extends Job {
         }
     }
 
+    private void handlePartnerBuff() {
+        if (!chr.hasSkill(PARTNERS)) {
+            return;
+        }
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        SkillInfo si = SkillData.getSkillInfoById(PARTNERS);
+        int slv = chr.getSkillLevel(PARTNERS);
+        Option o1 = new Option();
+        o1.nValue = si.getValue(indieDamR, slv);
+        o1.nReason = PARTNERS;
+        o1.tStart = Util.getCurrentTime();
+        o1.tTerm = si.getValue(time, slv);
+        tsm.putCharacterStatValue(IndieDamR, o1);
+    }
+
     @Override
     public int getFinalAttackSkill() {
         int skillId = 0;
@@ -277,7 +317,6 @@ public class Evan extends Job {
     public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
         super.handleSkill(chr, skillID, slv, inPacket);
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
         SkillInfo si = SkillData.getSkillInfoById(skillID);
 
         Option o1 = new Option();
@@ -285,41 +324,55 @@ public class Evan extends Job {
         Option o3 = new Option();
         Summon summon;
         Field field;
+        Rect rect;
         switch (skillID) {
             case BACK_TO_NATURE:
                 o1.nValue = si.getValue(x, slv);
                 Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
                 chr.warp(toField);
                 break;
+            case RETURN_FLASH:
+                rect = chr.getRectAround(si.getFirstRect());
+                if (!chr.isLeft()) {
+                    rect.horizontalFlipAround(chr.getPosition().getX());
+                }
+                o1.nOption = si.getValue(x, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                for (Mob mob : chr.getField().getMobsInRect(rect)) {
+                    if (mob == null) {
+                        continue;
+                    }
+                    mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
+                }
+                break;
+            case RETURN_DIVE:
+                o1.nReason = skillID;
+                o1.nValue = si.getValue(indieBooster, slv);
+                o1.tStart = Util.getCurrentTime();
+                o1.tTerm = si.getValue(time, slv);
+                if (chr.getParty() == null) {
+                    tsm.putCharacterStatValue(IndieBooster, o1);
+                } else {
+                    rect = chr.getRectAround(si.getFirstRect());
+                    List<PartyMember> partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
+                            .filter(pml -> pml.getChr().getHP() > 0)
+                            .toList();
+                    for (PartyMember partyMember : partyMembers) {
+                        Char partyChr = partyMember.getChr();
+                        TemporaryStatManager partyTsm = partyChr.getTemporaryStatManager();
+                        partyTsm.putCharacterStatValue(IndieBooster, o1);
+                        partyTsm.sendSetStatPacket();
+                    }
+                }
+                break;
             case RETURN_FLAME:
                 SkillInfo rft = SkillData.getSkillInfoById(RETURN_FLAME_TILE);
                 AffectedArea aa = AffectedArea.getPassiveAA(chr, RETURN_FLAME_TILE, slv);
                 aa.setMobOrigin((byte) 0);
                 aa.setPosition(chr.getPosition());
-                aa.setRect(aa.getPosition().getRectAround(rft.getRects().get(0)));
+                aa.setRect(aa.getPosition().getRectAround(rft.getFirstRect()));
                 chr.getField().spawnAffectedArea(aa);
-                break;
-            case RETURN_FLASH:
-                SkillInfo rflash = SkillData.getSkillInfoById(RETURN_FLASH);
-                Rect rect = new Rect(       //Skill itself doesn't give a Rect
-                        new Position(
-                                chr.getPosition().deepCopy().getX() - 300,
-                                chr.getPosition().deepCopy().getY() - 300),
-                        new Position(
-                                chr.getPosition().deepCopy().getX() + 300,
-                                chr.getPosition().deepCopy().getY() + 300)
-                );
-                for(Life life : chr.getField().getLifesInRect(rect)) {
-                    if(life instanceof Mob && ((Mob) life).getHp() > 0) {
-                        Mob mob = (Mob) life;
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        o1.nOption = rflash.getValue(x, slv);
-                        o1.rOption = skillID;
-                        o1.tOption = rflash.getValue(time, slv);
-                        mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
-
-                    }
-                }
                 break;
             case MAGIC_DEBRIS:
             case ENHANCED_MAGIC_DEBRIS:
@@ -339,13 +392,6 @@ public class Evan extends Job {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case RETURN_DIVE:
-                o1.nReason = skillID;
-                o1.nValue = 1; //si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieBooster, o1);
                 break;
             case ELEMENTAL_DECREASE:
                 o1.nOption = si.getValue(x, slv);
@@ -394,21 +440,29 @@ public class Evan extends Job {
                 field.spawnSummon(summon);
                 break;
             case DRAGON_MASTER:
-                o1.nOption = 1939007;
+                o1.nOption = 1;
                 o1.rOption = skillID;
-                tsb.setOption(o1);
-                tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
-                tsm.sendSetStatPacket();
-
-                //o1.nOption = 1;
-                //o1.rOption = DRAGON_MASTER;
-                //o1.tOption = 30;
-                //tsm.putCharacterStatValue(NewFlying, o1);
-                break;
-            case DRAGON_MASTER_2:
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(NotDamaged, o1);
+                o2.nOption = 1;
+                o2.rOption = skillID;
+                o2.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(NewFlying, o2);
+                TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicleExpire);
+                o3.nOption = 1939007;
+                o3.rOption = skillID;
+                tsb.setOption(o3);
+                tsb.setDynamicTermSet(true);
+                tsb.setExpireTerm(si.getValue(time, slv));
+                tsm.putCharacterStatValue(RideVehicleExpire, tsb.getOption());
                 break;
         }
         tsm.sendSetStatPacket();
+    }
+
+    @Override
+    public void handleRemoveCTS(CharacterTemporaryStat cts) {
+        super.handleRemoveCTS(cts);
     }
 
     @Override
@@ -418,7 +472,7 @@ public class Evan extends Job {
             getDragon().resetToPlayer();
         }
         // clear debris
-        handleRemoveDebris(debrisPos.keySet().stream().toList());
+        handleRemoveDebris(debrisPos.keySet().stream().toList(), true);
         super.handleWarp();
     }
 

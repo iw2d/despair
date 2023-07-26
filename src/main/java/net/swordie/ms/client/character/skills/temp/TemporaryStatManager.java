@@ -16,6 +16,7 @@ import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.LeaveType;
 import net.swordie.ms.enums.TSIndex;
@@ -97,6 +98,8 @@ public class TemporaryStatManager {
 
     public synchronized void putCharacterStatValue(CharacterTemporaryStat cts, Option option) {
         boolean indie = cts.isIndie();
+        TSIndex tsi = TSIndex.getTSEFromCTS(cts);
+        TemporaryStatBase tsb = tsi != null ? getTSBByTSIndex(tsi) : null;
         option.setTimeToMillis();
         SkillInfo skillinfo = SkillData.getSkillInfoById(indie ? option.nReason : option.rOption);
         if (skillinfo != null && !skillinfo.isNotIncBuffDuration()) {
@@ -133,11 +136,12 @@ public class TemporaryStatManager {
                 // System.out.printf("AddStat %s %d%n", stats.getKey(), stats.getValue());
                 addBaseStat(stats.getKey(), stats.getValue());
             }
-            if (option.tOption > 0) {
+            if (option.tOption > 0 || (tsi != null && !tsb.hasExpired() && tsb.getExpireTerm() != 0)) {
+                int delay = tsi != null ? tsb.getExpireTerm() : option.tOption;
                 if (getSchedules().containsKey(cts)) {
                     getSchedules().get(cts).cancel(false);
                 }
-                ScheduledFuture sf = EventManager.addEvent(() -> removeStat(cts, true), option.tOption);
+                ScheduledFuture sf = EventManager.addEvent(() -> removeStat(cts, true), delay);
                 getSchedules().put(cts, sf);
             }
         } else {
@@ -301,8 +305,8 @@ public class TemporaryStatManager {
 
     public void encodeForLocal(OutPacket outPacket) {
         int[] mask = getNewMask();
-        for(int i = 0; i < getNewMask().length; i++) {
-            outPacket.encodeInt(mask[i]);
+        for (int maskElem : mask) {
+            outPacket.encodeInt(maskElem);
         }
         List<CharacterTemporaryStat> orderedAndFilteredCtsList = getNewStats().keySet().stream()
                 .filter(cts -> cts.getOrder() != -1)
@@ -311,7 +315,7 @@ public class TemporaryStatManager {
         for (CharacterTemporaryStat cts : orderedAndFilteredCtsList) {
             if (cts.getOrder() != -1) {
                 Option o = getOption(cts);
-                if (cts.isEncodeInt()) {
+                if (cts.isEncodeInt() || SkillConstants.isEncode4Reason(o.rOption)) {
                     outPacket.encodeInt(o.nOption);
                 } else {
                     outPacket.encodeShort(o.nOption);
@@ -511,11 +515,14 @@ public class TemporaryStatManager {
             outPacket.encodeInt(getOption(Stigma).bOption);
         }
         for (int i = 0; i < TSIndex.values().length; i++) {
-            if(hasNewStat(TSIndex.getCTSFromTwoStatIndex(i))) {
+            if (hasNewStat(TSIndex.getCTSFromTwoStatIndex(i))) {
                 getTwoStates().get(i).encode(outPacket);
             }
         }
         encodeIndieTempStat(outPacket);
+        if (hasNewStat(DarkSight)) {
+            outPacket.encodeInt(getOption(DarkSight).mOption);
+        }
         if (hasNewStat(UsingScouter)) {
             outPacket.encodeInt(getOption(UsingScouter).nOption);
             outPacket.encodeInt(getOption(UsingScouter).xOption);

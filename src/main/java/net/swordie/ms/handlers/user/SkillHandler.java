@@ -144,32 +144,30 @@ public class SkillHandler {
         inPacket.decodeInt(); // crc
         int skillID = inPacket.decodeInt();
         byte slv = inPacket.decodeByte();
+        log.debug("SkillID: " + skillID);
+        chr.dbgChatMsg("SkillID: " + skillID);
         if (chr.applyBulletCon(skillID, slv, false) && chr.applyMpCon(skillID, slv) && (chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass())) {
-            chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skillID, slv, 0)));
-            log.debug("SkillID: " + skillID);
-            chr.dbgChatMsg("SkillID: " + skillID);
+            chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skillID, slv, 0)), chr);
             Job sourceJobHandler = c.getChr().getJobHandler();
             SkillInfo si = SkillData.getSkillInfoById(skillID);
             if (si != null && si.isMassSpell() && chr.getParty() != null) {
                 Rect r = si.getFirstRect();
                 if (r != null) {
-                    Rect rectAround = chr.getRectAround(r);
+                    Position pos = SkillConstants.isMassSpellEncodePosition(skillID) ? inPacket.decodePosition() : chr.getPosition();
+                    Rect rect = pos.getRectAround(r);
                     for (PartyMember pm : chr.getParty().getOnlineMembers()) {
-                        if (pm.getChr() != null
+                        if (pm.getChr() != null && pm.getChr() != chr
                                 && pm.getFieldID() == chr.getFieldID()
-                                && rectAround.hasPositionInside(pm.getChr().getPosition())) {
+                                && rect.hasPositionInside(pm.getChr().getPosition())) {
                             Char ptChr = pm.getChr();
                             Effect effect = Effect.skillAffected(skillID, slv, 0);
-                            if (ptChr != chr) { // Caster shouldn't get the Affected Skill Effect
-                                chr.getField().broadcastPacket(
-                                        UserRemote.effect(ptChr.getId(), effect)
-                                        , ptChr);
-                                ptChr.write(UserPacket.effect(effect));
-                            }
+                            chr.getField().broadcastPacket(UserRemote.effect(ptChr.getId(), effect), ptChr);
+                            ptChr.write(UserPacket.effect(effect));
                             sourceJobHandler.handleSkill(pm.getChr(), skillID, slv, inPacket);
                         }
                     }
                 }
+                sourceJobHandler.handleSkill(chr, skillID, slv, inPacket);
             } else {
                 sourceJobHandler.handleSkill(chr, skillID, slv, inPacket);
             }
@@ -405,8 +403,7 @@ public class SkillHandler {
     }
 
     @Handler(op = InHeader.USER_SKILL_CANCEL_REQUEST)
-    public static void handleTemporaryStatResetRequest(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleTemporaryStatResetRequest(Char chr, InPacket inPacket) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         int skillId = inPacket.decodeInt();
         tsm.removeStatsBySkill(skillId);

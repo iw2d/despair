@@ -446,7 +446,7 @@ public class Effect {
         return effect;
     }
 
-    public static Effect skillAffected(int skillID, byte slv, int hpGain) {
+    public static Effect skillAffected(int skillID, int slv, int hpGain) {
         Effect effect = new Effect();
 
         effect.setUserEffectType(SkillAffected);

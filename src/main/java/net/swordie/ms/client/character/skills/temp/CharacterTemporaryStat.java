@@ -567,11 +567,11 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Unk489(489),
     Unk490(490),
     Unk491(491),
+
     EnergyCharged(492),
     DashSpeed(493),
     DashJump(494),
     RideVehicle(495),
-
     PartyBooster(496),
     GuidedBullet(497),
     Undead(498),

@@ -46,6 +46,8 @@ public class AttackHandler {
             chr.dispose();
             return;
         }
+        log.debug("AttackID: " + skillID);
+        chr.dbgChatMsg("AttackID: " + skillID);
         boolean summonedAttack = attackInfo.attackHeader == OutHeader.SUMMONED_ATTACK;
         boolean multiAttack = SkillConstants.isMultiAttackCooldownSkill(skillID);
         if (!summonedAttack && !multiAttack) {
@@ -57,9 +59,7 @@ public class AttackHandler {
             }
         }
         if (summonedAttack || multiAttack || chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass() || SkillConstants.isKeyDownSkill(skillID)) {
-            byte slv = attackInfo.slv;
-            log.debug("AttackID: " + skillID);
-            chr.dbgChatMsg("AttackID: " + skillID);
+            int slv = attackInfo.slv;
             Job sourceJobHandler = chr.getJobHandler();
             SkillInfo si = SkillData.getSkillInfoById(skillID);
             if (si != null && si.getExtraSkillInfo().size() > 0) {

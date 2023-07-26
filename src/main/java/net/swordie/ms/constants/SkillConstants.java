@@ -844,6 +844,11 @@ public class SkillConstants {
         }
     }
 
+    public static boolean isEncode4Reason(int rOption) {
+        // NewFlying + NotDamaged are not normally ints, but are encoded as ints in this skill
+        return rOption == Evan.DRAGON_MASTER;
+    }
+
     public static boolean isShikigamiHauntingSkill(int skillID) {
         switch(skillID) {
             case 80001850:
@@ -1641,9 +1646,15 @@ public class SkillConstants {
         }
     }
 
-    public static boolean isKeydownCDSkill(int nSkillID)
-    {
-        return KEYDOWN_SKILLS.contains(nSkillID);
+    public static boolean isKeydownCDSkill(int skillId) {
+        return KEYDOWN_SKILLS.contains(skillId);
+    }
+
+    public static boolean isMassSpellEncodePosition(int skillId) {
+        switch (skillId) {
+            default:
+                return false;
+        }
     }
 
     public static void fixBaseStatsBySkill(Map<BaseStat, Integer> stats, SkillInfo si, int slv) {

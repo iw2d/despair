@@ -208,7 +208,7 @@ public abstract class Job {
 		if (isJoblessBuff(skillID)) {
 			handleJoblessBuff(chr, skillID, slv);
 		} else {
-			if (chr.hasSkill(skillID) && si.getVehicleId() > 0) {
+			if (chr.hasSkill(skillID) && si.getVehicleId() > 0 && skillID != Evan.DRAGON_MASTER) {
 				TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
 				if (tsm.hasStat(RideVehicle)) {
 					tsm.removeStat(RideVehicle, false);
@@ -544,19 +544,21 @@ public abstract class Job {
 	}
 
 	public int alterCooldownSkill(int skillId) {
-		Skill skill = chr.getSkill(skillId);
-		if (skill == null) {
+		if (!chr.hasSkill(skillId)) {
 			return -1;
 		}
 		SkillInfo si = SkillData.getSkillInfoById(skillId);
-		byte slv = (byte) skill.getCurrentLevel();
+		int slv = chr.getSkillLevel(skillId);
 		int cdInSec = si.getValue(SkillStat.cooltime, slv);
 		int cdInMillis = cdInSec > 0 ? cdInSec * 1000 : si.getValue(SkillStat.cooltimeMS, slv);
+		// apply cooltimeR BaseStat
+		cdInMillis = getBuffedSkillCooldown(cdInMillis);
+		// apply cooltimeR from hypers
 		int cooldownReductionR = chr.getHyperPsdSkillsCooltimeR().getOrDefault(skillId, 0);
 		if (cooldownReductionR > 0) {
-			return (int) (cdInMillis - ((double) (cdInMillis * cooldownReductionR) / 100));
+			cdInMillis = (int) (cdInMillis - ((double) (cdInMillis * cooldownReductionR) / 100));
 		}
-		return -1;
+		return cdInMillis;
 	}
 
 

@@ -550,12 +550,12 @@ public class FieldPacket {
         return outPacket;
     }
 
-    public static OutPacket addWreckage(Char chr, Mob mob, int skillID, int debrisId, int debrisCount) {
+    public static OutPacket addWreckage(Char chr, Mob mob, int skillID, int duration, int debrisId, int debrisCount) {
         OutPacket outPacket = new OutPacket(OutHeader.ADD_WRECKAGE);
 
         outPacket.encodeInt(chr.getId());  //v2
         outPacket.encodePositionInt(mob.getPosition());
-        outPacket.encodeInt(chr.getFieldID());  //v4
+        outPacket.encodeInt(duration);
         outPacket.encodeInt(debrisId);  //evanWreckage.nIDx
         outPacket.encodeInt(skillID);  //nSkillID
         outPacket.encodeInt(1);  //nType

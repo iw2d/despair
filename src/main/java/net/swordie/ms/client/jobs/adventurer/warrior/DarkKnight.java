@@ -471,11 +471,7 @@ public class DarkKnight extends Warrior {
         tsm.putCharacterStatValue(NotDamaged, o2);
         tsm.sendSetStatPacket();
 
-        int finalPactCooltime = getBuffedSkillCooldown(si.getValue(cooltime, slv));
-        if (chr.hasSkill(FINAL_PACT_COOLDOWN)) {
-            finalPactCooltime *= 0.9;
-        }
-        chr.addSkillCoolTime(FINAL_PACT_INFO, finalPactCooltime * 1000L);
+        chr.setSkillCooldown(FINAL_PACT_INFO, slv);
         chr.resetSkillCoolTime(GUNGNIR_DESCENT);
         chr.write(UserPacket.effect(Effect.showFinalPactEffect(FINAL_PACT, (byte) 1, 0, true))); // Manually broadcasting Effect packet, as FINAL PACT isn't actually ever called.
         chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.showFinalPactEffect(FINAL_PACT, (byte) 1, 0, true)));
