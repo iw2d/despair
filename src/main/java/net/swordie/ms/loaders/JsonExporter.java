@@ -2,6 +2,12 @@ package net.swordie.ms.loaders;
 
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.life.drop.DropInfo;
+import net.swordie.ms.life.mob.Mob;
+import net.swordie.ms.life.mob.MobStat;
+import net.swordie.ms.life.mob.skill.MobSkill;
+import net.swordie.ms.life.mob.skill.MobSkillID;
+import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.loaders.containerclasses.SkillStringInfo;
 import net.swordie.ms.util.Util;
 import org.json.JSONArray;
@@ -9,11 +15,26 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Stream;
 
 
 public class JsonExporter {
     private static final String DIR = System.getProperty("user.dir");
     private static final String JSON_DIR = DIR + "/json";
+
+    public static void main(String[] args) {
+        Util.makeDirIfAbsent(JSON_DIR);
+
+        SkillData.loadAllSkills();
+        StringData.loadSkillStrings();
+        // exportClasses();
+
+        StringData.loadMobStrings();
+        StringData.loadItemStrings();
+        exportBosses();
+
+        System.exit(0);
+    }
 
     private static String getClassGroup(short id) {
         if (JobConstants.isAdventurer(id)) {
@@ -48,19 +69,12 @@ public class JsonExporter {
         return "None";
     }
 
-    public static void main(String[] args) {
-        Util.makeDirIfAbsent(JSON_DIR);
-        exportClasses();
-    }
-
     public static void exportClasses() {
         String dir = JSON_DIR + "/classes";
         Util.makeDirIfAbsent(dir);
 
         JSONObject classesObject = new JSONObject();
 
-        SkillData.loadAllSkills();
-        StringData.loadSkillStrings();
         for (String jobName : JobConstants.JOB_TYPES.keySet()) {
             List<JobConstants.JobEnum> jobEnums = JobConstants.JOB_TYPES.get(jobName);
             JobConstants.JobEnum lastJob = jobEnums.get(jobEnums.size()-1);
@@ -162,5 +176,97 @@ public class JsonExporter {
             e.printStackTrace();
         }
         */
+    }
+
+    private static JSONObject loadBoss(String bossName, String difficulty, List<Integer> mobIds) {
+        JSONObject bossObject = new JSONObject();
+        bossObject.put("name", bossName);
+        bossObject.put("difficulty", difficulty);
+
+        // bodies
+        JSONArray mobArray = new JSONArray();
+        for (int mobId : mobIds) {
+            Mob mob = MobData.getMobDeepCopyById(mobId);
+
+            // info
+            JSONObject mobObject = new JSONObject();
+            mobObject.put("id", mob.getTemplateId());
+            mobObject.put("name", StringData.getMobStringById(mobId));
+            mobObject.put("level", mob.getLevel());
+            mobObject.put("hp", mob.getMaxHp());
+            mobObject.put("mp", mob.getMaxMp());
+            mobObject.put("exp", mob.getExp());
+            mobObject.put("pdr", mob.getPdr());
+            mobObject.put("mdr", mob.getMdr());
+
+            // drops
+            JSONArray dropArray = new JSONArray();
+            for (DropInfo di : DropData.getDropInfoByID(mobId)) {
+                int itemId = di.getItemID();
+                JSONObject dropObject = new JSONObject();
+                dropObject.put("id", itemId);
+                dropObject.put("name", StringData.getItemStringById(itemId));
+                dropObject.put("minQuant", di.getMinQuant());
+                dropObject.put("maxQuant", di.getMaxQuant());
+                dropObject.put("chance", di.getChance());
+                dropArray.put(dropObject);
+            }
+            mobObject.put("drops", dropArray);
+
+            // attacks / skills
+            JSONArray skillArray = new JSONArray();
+            Stream.concat(mob.getAttacks().stream(), mob.getSkills().stream()).forEach(skill -> {
+                int skillId = skill.getSkillID();
+                int slv = skill.getLevel();
+
+                JSONObject skillObject = new JSONObject();
+                skillObject.put("id", skillId);
+                skillObject.put("name", skillId == 0 ? "Attack" : MobSkillID.getMobSkillIDByVal(skillId).name());
+                skillObject.put("slv", slv);
+                skillObject.put("action", (skillId == 0 ? "attack" : "skill") + skill.getAction());
+
+                MobSkillInfo msi = SkillData.getMobSkillInfoByIdAndLevel(skillId, slv);
+                if (msi != null) {
+                    JSONObject skillStatObject = new JSONObject();
+                    msi.getMobSkillStats().forEach((ss, value) -> skillStatObject.put(ss.name(), value));
+                    skillObject.put("stat", skillStatObject);
+
+                    // summon mob IDs?
+                    JSONArray skillIntArray = new JSONArray();
+                    msi.getInts().forEach(skillInt -> skillIntArray.put(skillInt));
+                    skillObject.put("ints", skillIntArray);
+                }
+
+                skillArray.put(skillObject);
+            });
+            mobObject.put("skills", skillArray);
+
+            mobArray.put(mobObject);
+        }
+        bossObject.put("mobs", mobArray);
+
+        return bossObject;
+    }
+
+    private static void exportBoss(String dir, String bossName, String difficulty, List<Integer> mobIds) {
+        JSONObject bossObject = loadBoss(bossName, difficulty, mobIds);
+
+        String outputName = String.format("%s_%s", bossName.toLowerCase(), difficulty.toLowerCase());
+        File file = new File(String.format("%s/%s.json", dir, outputName));
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            bossObject.write(fileWriter);
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void exportBosses() {
+        String dir = JSON_DIR + "/bosses";
+        Util.makeDirIfAbsent(dir);
+
+        exportBoss(dir, "Lotus", "Normal", List.of(8950000, 8950001, 8950002));
+        exportBoss(dir, "Lotus", "Hard", List.of(8950100, 8950101, 8950102));
     }
 }

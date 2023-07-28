@@ -226,6 +226,7 @@ public class MobData {
         try (DataInputStream dataInputStream = new DataInputStream(new FileInputStream(file))) {
             mob = new Mob(dataInputStream.readInt());
             ForcedMobStat fms = mob.getForcedMobStat();
+            MobTemporaryStat mts = mob.getTemporaryStat();
             fms.setLevel(dataInputStream.readInt());
             mob.setFirstAttack(dataInputStream.readInt());
             Option bodyOpt = new Option();

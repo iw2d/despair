@@ -758,6 +758,9 @@ public class SkillData {
                         case "notDestroyByCollide":
                             msi.putMobSkillStat(MobSkillStat.notDestroyByCollide, value);
                             break;
+                        case "fixDamR":
+                            msi.putMobSkillStat(MobSkillStat.fixDamR, value);
+                            break;
                         case "effect":
                         case "mob":
                         case "mob0":
@@ -767,7 +770,6 @@ public class SkillData {
                         case "crash":
                         case "effectToUser":
                         case "affected_after":
-                        case "fixDamR":
                         case "limitMoveSkill":
                         case "tile":
                         case "footholdRect":
