@@ -420,7 +420,7 @@ public class Bishop extends Magician {
                     tsm.putCharacterStatValue(MAD, o3);
                 }
                 break;
-            case HOLY_SYMBOL: // fix for party buff is inside the wz, gotta add  <int name="massSpell" value="1"/>
+            case HOLY_SYMBOL:
                 o1.nOption = si.getValue(x, slv) + chr.getSkillStatValue(y, HOLY_SYMBOL_EXPERIENCE); // self only
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);

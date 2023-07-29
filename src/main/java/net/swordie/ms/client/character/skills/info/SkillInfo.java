@@ -4,6 +4,7 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.BodyPart;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.skills.SkillStat;
+import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
 import net.swordie.ms.client.jobs.adventurer.thief.Shadower;
 import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.constants.ItemConstants;
@@ -182,6 +183,10 @@ public class SkillInfo {
     }
 
     public boolean isMassSpell() {
+        // overrides
+        if (skillId == Bishop.HOLY_SYMBOL) {
+            return true;
+        }
         return massSpell;
     }
 

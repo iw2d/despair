@@ -1648,7 +1648,24 @@ public class SkillConstants {
     }
 
     public static boolean isMassSpellEncodePosition(int skillId) {
+        // Maple Warrior skills seem to encode position too but i am not going to test each one
         switch (skillId) {
+            case Hero.RAGE:
+            case DarkKnight.HYPER_BODY:
+            case FirePoison.MEDITATION_FP:
+            case IceLightning.MEDITATION_IL:
+            case Bishop.BLESS:
+            case Bishop.ADV_BLESSING:
+            case Bishop.HOLY_SYMBOL:
+            case Bowmaster.SHARP_EYES_BOW:
+            case Marksman.SHARP_EYES_XBOW:
+            case WindArcher.SHARP_EYES:
+            // WildHunter.SHARP_EYES: -> does not encode position f3
+            case Buccaneer.SPEED_INFUSION:
+            case ThunderBreaker.SPEED_INFUSION:
+            case Aran.MAHA_BLESSING:
+            case Mihile.RALLY:
+                return true;
             default:
                 return false;
         }
