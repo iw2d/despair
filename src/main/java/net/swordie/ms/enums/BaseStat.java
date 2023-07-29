@@ -542,6 +542,11 @@ public enum BaseStat {
                 slv = chr.getSkillLevel(o.rOption);
                 stats.put(fd, -si.getValue(SkillStat.y, slv));
                 break;
+            case AddAttackCount:
+                si = SkillData.getSkillInfoById(o.rOption);
+                slv = chr.getSkillLevel(o.rOption);
+                stats.put(fd, o.nOption * si.getValue(SkillStat.x, slv));
+                break;
             default:
                 stats.put(unk, o.nOption);
                 break;

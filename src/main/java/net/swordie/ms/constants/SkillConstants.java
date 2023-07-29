@@ -1684,6 +1684,7 @@ public class SkillConstants {
             case NightWalker.THROWING_EXPERT:
             case ThunderBreaker.KNUCKLE_EXPERT:
             case Aran.HIGH_MASTERY:
+            case Mercedes.DUAL_BOWGUNS_EXPERT:
                 stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
                 break;
             case FirePoison.SPELL_MASTERY_FP:
@@ -1701,6 +1702,7 @@ public class SkillConstants {
             case WindArcher.BOW_MASTERY:
             case ThunderBreaker.KNUCKLE_MASTERY:
             case Aran.POLEARM_MASTERY:
+            case Mercedes.DUAL_BOWGUNS_MASTERY:
                 stats.put(BaseStat.acc, si.getValue(SkillStat.x, slv));
                 break;
             // class specific

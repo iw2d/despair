@@ -438,14 +438,6 @@ public class FirePoison extends Magician {
     }
 
     @Override
-    public void handleRemoveSkill(int skillID) {
-        if (skillID == ELEMENTAL_DRAIN && elementalDrainTimer != null && !elementalDrainTimer.isDone()) {
-            elementalDrainTimer.cancel(true);
-        }
-        super.handleRemoveSkill(skillID);
-    }
-
-    @Override
     public void handleCancelTimer(Char chr) {
         if (elementalDrainTimer != null && !elementalDrainTimer.isDone()) {
             elementalDrainTimer.cancel(true);

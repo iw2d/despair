@@ -470,9 +470,6 @@ public class Mihile extends Job {
         if (skillID == SELF_RECOVERY && selfRecoveryTimer != null && !selfRecoveryTimer.isDone()) {
             selfRecoveryTimer.cancel(true);
         }
-        if (skillID == SOUL_LINK && soulLinkTimer != null && !soulLinkTimer.isDone()) {
-            soulLinkTimer.cancel(true);
-        }
         super.handleRemoveSkill(skillID);
     }
 

@@ -355,9 +355,6 @@ public class Buccaneer extends Pirate {
 
     @Override
     public void handleRemoveSkill(int skillID) {
-        if (skillID == PERSERVERANCE && perseveranceTimer != null && !perseveranceTimer.isDone()) {
-            perseveranceTimer.cancel(true);
-        }
         if (skillID == STIMULATING_CONVERSATION && stimulatingConversationTimer != null && !stimulatingConversationTimer.isDone()) {
             stimulatingConversationTimer.cancel(true);
         }
