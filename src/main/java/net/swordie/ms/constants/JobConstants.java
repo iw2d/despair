@@ -951,8 +951,20 @@ public class JobConstants {
         return jobId / 1000 == 1;
     }
 
+    public static boolean isLegend(short jobId) {
+        return jobId / 1000 == 2;
+    }
+
     public static boolean isResistance(short jobId) {
         return jobId / 1000 == 3;
+    }
+
+    public static boolean isSengoku(short jobId) {
+        return jobId / 1000 == 4;
+    }
+
+    public static boolean isNova(short jobId) {
+        return jobId / 1000 == 6;
     }
 
     public static boolean isLeader(short jobId) {

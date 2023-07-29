@@ -41,7 +41,6 @@ import net.swordie.ms.client.jobs.JobManager;
 import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.client.jobs.resistance.WildHunterInfo;
-import net.swordie.ms.client.jobs.sengoku.Kanna;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.client.party.PartyResult;
@@ -4021,9 +4020,9 @@ public class Char {
 			}
 			// Stat gained by set effects
 			stat += getSetBaseStats().getOrDefault(baseStat, 0);
-			// Handle DEXR, which only affects stat allocated by sp
-			if (baseStat.getSpStatRateVar() != null) {
-				stat += getStat(baseStat.toStat()) * (getTotalStat(baseStat.getSpStatRateVar()) / 100D);
+			// Handle basicStatR, which only affects stat allocated by sp (DEXR and BasicStatUp from Maple Warrior)
+			if (baseStat.getBasicStatRateVar() != null) {
+				stat += getStat(baseStat.toStat()) * (getTotalStat(baseStat.getBasicStatRateVar()) / 100D);
 			}
 			// Stat gained by the stat's corresponding rate value
 			if (baseStat.getRateVar() != null) {

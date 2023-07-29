@@ -16,11 +16,10 @@ import net.swordie.ms.client.jobs.adventurer.thief.*;
 import net.swordie.ms.client.jobs.adventurer.warrior.*;
 import net.swordie.ms.client.jobs.cygnus.*;
 import net.swordie.ms.client.jobs.legend.*;
-import net.swordie.ms.client.jobs.nova.AngelicBuster;
-import net.swordie.ms.client.jobs.nova.Kaiser;
+import net.swordie.ms.client.jobs.nova.*;
 import net.swordie.ms.client.jobs.resistance.*;
-import net.swordie.ms.client.jobs.sengoku.Hayato;
-import net.swordie.ms.client.jobs.sengoku.Kanna;
+import net.swordie.ms.client.jobs.sengoku.*;
+import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.*;
@@ -28,14 +27,16 @@ import net.swordie.ms.enums.*;
 import net.swordie.ms.life.*;
 import net.swordie.ms.life.mob.*;
 import net.swordie.ms.loaders.*;
-import net.swordie.ms.util.Util;
+import net.swordie.ms.util.*;
 import net.swordie.ms.world.field.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
@@ -188,6 +189,7 @@ public abstract class Job {
 	}
 
 	public void handleSkill(Char chr, int skillID, int slv, InPacket inPacket) {
+		this.handleJoblessbuff(chr, skillID, slv);
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
 		SkillInfo si = SkillData.getSkillInfoById(skillID);
 
@@ -328,11 +330,10 @@ public abstract class Job {
 			case Zero.RHINNES_PROTECTION:
 			case BeastTamer.MAPLE_GUARDIAN:
 			case Kinesis.PRESIDENTS_ORDERS:
-				o1.nReason = skillID;
-				o1.nValue = si.getValue(x, slv);
-				o1.tStart = Util.getCurrentTime();
-				o1.tTerm = si.getValue(time, slv);
-				tsm.putCharacterStatValue(IndieStatR, o1);
+				o1.nOption = si.getValue(x, slv);
+				o1.rOption = skillID;
+				o1.tOption = si.getValue(time, slv);
+				tsm.putCharacterStatValue(BasicStatUp, o1);
 				break;
 			// EPIC ADVENTURE ------------------------------------------------------------------------------------------
 			// Explorers
@@ -351,6 +352,9 @@ public abstract class Job {
 			case Corsair.EPIC_ADVENTURER_SAIR:
 			case Cannoneer.EPIC_ADVENTURER_CANNON:
 			case Jett.EPIC_ADVENTURER_JETT:
+				handleEpicAdventure(chr, skillID, slv, inPacket,
+						((Predicate<Short>) JobConstants::isAdventurer).or(JobConstants::isJett));
+				break;
 			// Cygnus
 			case DawnWarrior.GLORY_OF_THE_GUARDIANS_DW:
 			case BlazeWizard.GLORY_OF_THE_GUARDIANS_BW:
@@ -358,6 +362,9 @@ public abstract class Job {
 			case NightWalker.GLORY_OF_THE_GUARDIANS_NW:
 			case ThunderBreaker.GLORY_OF_THE_GUARDIANS_TB:
 			case Mihile.QUEEN_OF_TOMORROW:
+				handleEpicAdventure(chr, skillID, slv, inPacket,
+						((Predicate<Short>) JobConstants::isCygnusKnight).or(JobConstants::isMihile));
+				break;
 			// Heroes
 			case Aran.HEROIC_MEMORIES_ARAN:
 			case Evan.HEROIC_MEMORIES_EVAN:
@@ -365,34 +372,61 @@ public abstract class Job {
 			case Phantom.HEROIC_MEMORIES_PH:
 			case Shade.HEROIC_MEMORIES_SH:
 			case Luminous.HEROIC_MEMORIES_LUMI:
+				handleEpicAdventure(chr, skillID, slv, inPacket, JobConstants::isLegend);
+				break;
 			// Resistance
 			case BattleMage.FOR_LIBERTY_BAM:
 			case WildHunter.FOR_LIBERTY_WH:
 			case FOR_LIBERTY_MECH:
-			// case Xenon.ORBITAL_CATACLYSM: (attack)
+			// case Xenon.ORBITAL_CATACLYSM: (self)
 			case Blaster.FOR_LIBERTY_BLASTER:
 			case Demon.DEMONIC_FORTITUDE_DS:
 			case Demon.DEMONIC_FORTITUDE_DA:
-			// Nova
-			// Kaiser, AngelicBuster do not have Epic Adventure
+				handleEpicAdventure(chr, skillID, slv, inPacket, JobConstants::isResistance);
+				break;
+			// Nova : Kaiser, AngelicBuster do not have Epic Adventure
 			// Sengoku
 			case Hayato.PRINCESS_VOW_HAYATO:
 			case Kanna.PRINCESS_VOW_KANNA:
-			// Others
-			// Zero, BeastTamer, Kinesis do not have Epic Adventure
-				o1.nReason = skillID;
-				o1.nValue = si.getValue(indieDamR, slv);
-				o1.tStart = Util.getCurrentTime();
-				o1.tTerm = si.getValue(time, slv);
-				tsm.putCharacterStatValue(IndieDamR, o1);
-				o2.nReason = skillID;
-				o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-				o2.tStart = Util.getCurrentTime();
-				o2.tTerm = si.getValue(time, slv);
-				tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+				handleEpicAdventure(chr, skillID, slv, inPacket, JobConstants::isSengoku);
 				break;
+			// Others : Zero, BeastTamer, Kinesis do not have Epic Adventure
 		}
-		handleJoblessbuff(chr, skillID, slv);
+		tsm.sendSetStatPacket();
+	}
+
+	private void handleEpicAdventure(Char chr, int skillID, int slv, InPacket inPacket, Predicate<Short> pred) {
+		TemporaryStatManager tsm = chr.getTemporaryStatManager();
+		SkillInfo si = SkillData.getSkillInfoById(skillID);
+		Option o1 = new Option();
+		Option o2 = new Option();
+		o1.nReason = skillID;
+		o1.nValue = si.getValue(indieDamR, slv);
+		o1.tStart = Util.getCurrentTime();
+		o1.tTerm = si.getValue(time, slv);
+		o2.nReason = skillID;
+		o2.nValue = si.getValue(indieMaxDamageOverR, slv);
+		o2.tStart = Util.getCurrentTime();
+		o2.tTerm = si.getValue(time, slv);
+		if (chr.getParty() == null) {
+			tsm.putCharacterStatValue(IndieDamR, o1);
+			tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+			tsm.sendResetStatPacket();
+		} else {
+			Position pos = inPacket.decodePosition();
+			Rect rect = pos.getRectAround(si.getFirstRect());
+			List<PartyMember> partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
+					.filter(pml -> pml.getChr().getHP() > 0 &&
+							pred.test(pml.getChr().getJob()) // check job
+					)
+					.toList();
+			for (PartyMember partyMember : partyMembers) {
+				TemporaryStatManager partyTsm = partyMember.getChr().getTemporaryStatManager();
+				partyTsm.putCharacterStatValue(IndieDamR, o1);
+				partyTsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
+				partyTsm.sendSetStatPacket();
+			}
+		}
 	}
 
 	public void handleJoblessbuff(Char chr, int skillID, int slv) {

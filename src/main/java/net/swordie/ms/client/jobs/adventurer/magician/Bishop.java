@@ -228,11 +228,11 @@ public class Bishop extends Magician {
                 o1.nOption = 1;
                 o1.rOption = HEAVENS_DOOR;
                 o1.tOption = 0;
-                rect = attackInfo.getForcedPos().getRectAround(si.getFirstRect());
                 if (chr.getParty() == null) {
                     tsm.putCharacterStatValue(HeavensDoor, o1);
                     tsm.sendSetStatPacket();
                 } else {
+                    rect = attackInfo.getForcedPos().getRectAround(si.getFirstRect());
                     partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
                             .filter(pml -> pml.getChr().getHP() > 0)
                             .toList();

@@ -7,7 +7,6 @@ import net.swordie.ms.client.character.skills.GuidedBullet;
 import net.swordie.ms.client.character.skills.*;
 import net.swordie.ms.client.character.skills.PartyBooster;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
-import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.Summoned;
@@ -146,12 +145,12 @@ public class TemporaryStatManager {
             }
         } else {
             List<Option> optList;
-            if(hasStat(cts)) {
+            if (hasStat(cts)) {
                 optList = getCurrentStats().get(cts);
             } else {
                 optList = new ArrayList<>();
             }
-            if(optList.contains(option)) {
+            if (optList.contains(option)) {
                 // remove old option of the same skill
                 Option oldOption = getOptByCTSAndSkill(cts, option.nReason);
                 for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(chr, cts, oldOption).entrySet()) {

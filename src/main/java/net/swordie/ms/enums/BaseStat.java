@@ -8,9 +8,6 @@ import net.swordie.ms.client.character.skills.info.ToBaseStat;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
 import net.swordie.ms.client.jobs.adventurer.archer.Marksman;
-import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
-import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
-import net.swordie.ms.client.jobs.adventurer.magician.IceLightning;
 import net.swordie.ms.loaders.SkillData;
 
 import java.util.HashMap;
@@ -72,7 +69,10 @@ public enum BaseStat {
     dexLv,
     intLv,
     lukLv,
-    baseDexR, // from SkillStat.DEXR
+    basicStrR, // % of base stat
+    basicDexR,
+    basicIntR,
+    basicLukR,
     buffTimeR, // Buff Duration multiplier
     recoveryUp, // % increase in heal potion use
     mpconReduce,
@@ -108,10 +108,16 @@ public enum BaseStat {
         }
     }
 
-    public BaseStat getSpStatRateVar() {
+    public BaseStat getBasicStatRateVar() {
         switch (this) {
+            case str:
+                return basicStrR;
             case dex:
-                return baseDexR;
+                return basicDexR;
+            case inte:
+                return basicIntR;
+            case luk:
+                return basicLukR;
             default:
                 return null;
         }
@@ -341,7 +347,7 @@ public enum BaseStat {
                 stats.put(luk, o.nValue);
                 break;
             case DEXR:
-                stats.put(baseDexR, o.nOption);
+                stats.put(basicDexR, o.nOption);
                 break;
             case IndieStatR:
                 stats.put(strR, o.nValue);
@@ -395,7 +401,10 @@ public enum BaseStat {
                 stats.put(mesoR, o.nOption);
                 break;
             case BasicStatUp:
-                // TODO what exactly does this give?
+                stats.put(basicStrR, o.nOption);
+                stats.put(basicDexR, o.nOption);
+                stats.put(basicIntR, o.nOption);
+                stats.put(basicLukR, o.nOption);
                 break;
             case Stance:
                 stats.put(stance, o.nOption);
