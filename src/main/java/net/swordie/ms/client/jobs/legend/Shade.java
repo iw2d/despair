@@ -336,9 +336,6 @@ public class Shade extends Job {
             case FOX_SPIRITS_INIT:
                 createFoxSpiritForceAtom(skillID);
                 break;
-            case HEROS_WILL_SH:
-                tsm.removeAllDebuffs();
-                break;
             case FOX_SPIRITS:
                 o1.nOption = 1;
                 o1.rOption = skillID;
@@ -357,25 +354,6 @@ public class Shade extends Job {
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(SpiritGuard, o1);
                 spiritWardTimer = Util.getCurrentTimeLong() + (si.getValue(time, slv) * 1000);
-                break;
-            case MAPLE_WARRIOR_SH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case HEROIC_MEMORIES_SH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case SPIRIT_BOND_MAX:
                 o1.nReason = skillID;

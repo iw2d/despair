@@ -44,7 +44,6 @@ public class Demon extends Job {
     //Demon Skills
     public static final int DARK_WINDS = 30010110;
     public static final int DEMONIC_BLOOD = 30010185;
-    public static final int SECRET_ASSEMBLY = 30001281;
 
 
     //Demon Slayer
@@ -137,12 +136,12 @@ public class Demon extends Job {
 
 
     private int[] addedSkillsDS = new int[] {
-            SECRET_ASSEMBLY,
+            Citizen.SECRET_ASSEMBLY,
             CURSE_OF_FURY,
     };
 
     private int[] addedSkillsDA = new int[] {
-            SECRET_ASSEMBLY,
+            Citizen.SECRET_ASSEMBLY,
             EXCEED,
             BLOOD_PACT,
             HYPER_POTION_MASTERY,
@@ -786,27 +785,6 @@ public class Demon extends Job {
                     diabolicRecoveryTimer.cancel(true);
                 }
                 diabolicRecoveryHPRecovery();
-                break;
-            case MAPLE_WARRIOR_DA:
-            case MAPLE_WARRIOR_DS:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case DEMONIC_FORTITUDE_DS:
-            case DEMONIC_FORTITUDE_DA:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case FORBIDDEN_CONTRACT:
                 o1.nReason = skillID;

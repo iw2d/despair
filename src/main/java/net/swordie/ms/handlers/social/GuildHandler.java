@@ -267,7 +267,7 @@ public class GuildHandler {
                 }
                 SkillInfo si = SkillData.getSkillInfoById(skillID);
                 chr.getSkillCoolTimes().put(skillID, Util.getCurrentTimeLong() + 1000 * si.getValue(SkillStat.cooltime, gs.getLevel()));
-                chr.getJobHandler().handleJoblessBuff(chr, skillID, (byte) gs.getLevel());
+                chr.getJobHandler().handleGuildBuff(chr, skillID, (byte) gs.getLevel());
                 break;
             case Req_Search:
                 byte generalSearch = inPacket.decodeByte();

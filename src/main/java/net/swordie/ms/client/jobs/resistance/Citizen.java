@@ -23,6 +23,7 @@ public class Citizen extends Job {
     public static final int CRYSTAL_THROW = 30001000;
     public static final int INFILTRATE = 30001001;
     public static final int POTION_MASTERY = 30000002;
+    public static final int SECRET_ASSEMBLY = 30001281;
 
     private int[] addedSkills = new int[] {
             CRYSTAL_THROW,

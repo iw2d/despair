@@ -396,11 +396,6 @@ public class Zero extends Job {
                 summon.setMoveAbility(MoveAbility.FixVMove);
                 chr.getField().spawnSummon(summon);
                 break;
-            case TEMPLE_RECALL:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case TIME_DISTORTION:
                 AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
                 aa.setMobOrigin((byte) 0);
@@ -484,14 +479,6 @@ public class Zero extends Job {
                     tsm.putCharacterStatValue(ZeroAuraSpd, o6);
                 }
                 break;
-            case RHINNES_PROTECTION:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
-
             case TIME_HOLDING:
                 o1.nOption = 1;
                 o1.rOption = skillID;

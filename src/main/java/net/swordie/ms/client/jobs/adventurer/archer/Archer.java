@@ -25,7 +25,6 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Archer extends Beginner {
-    public static final int MAPLE_RETURN = 1281;
     public static final int CRITICAL_SHOT = 3000001;
 
     private int[] addedSkills = new int[] {
@@ -92,15 +91,6 @@ public class Archer extends Beginner {
         Summon summon;
         Field field;
         switch(skillID) {
-            case MAPLE_RETURN:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
-            case Bowmaster.HEROS_WILL_BM:
-            case Marksman.HEROS_WILL_MM:
-                tsm.removeAllDebuffs();
-                break;
             case Bowmaster.SOUL_ARROW_BOW:
             case Marksman.SOUL_ARROW_XBOW:
                 o1.nOption = si.getValue(x, slv);
@@ -156,27 +146,6 @@ public class Archer extends Beginner {
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IllusionStep, o2);
-                break;
-            case Bowmaster.MAPLE_WARRIOR_BOW:
-            case Marksman.MAPLE_WARRIOR_XBOW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case Bowmaster.EPIC_ADVENTURE_BOW:
-            case Marksman.EPIC_ADVENTURE_XBOW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
         }
         tsm.sendSetStatPacket();

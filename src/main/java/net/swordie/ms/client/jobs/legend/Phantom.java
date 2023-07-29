@@ -345,19 +345,11 @@ public class Phantom extends Job {
             case VOL_DAME:
                 stealBuffVolDame();
                 break;
-            case TO_THE_SKIES:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case JUDGMENT_DRAW_1:
             case JUDGMENT_DRAW_2:
                 createCarteForceAtomByJudgmentDraw();
                 giveJudgmentDrawBuff(skillID);
                 resetCardStack();
-                break;
-            case HEROS_WILL_PH:
-                tsm.removeAllDebuffs();
                 break;
             case GHOSTWALK:
                 o1.nOption = si.getValue(x, slv);
@@ -419,25 +411,6 @@ public class Phantom extends Job {
                 o2.tOption = si.getValue(time, slv);
                 o2.bOption = 1;
                 tsm.putCharacterStatValue(IgnoreMobpdpR, o2);
-                break;
-            case MAPLE_WARRIOR_PH:
-                o1.nValue = si.getValue(x, slv);
-                o1.nReason = skillID;
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case HEROIC_MEMORIES_PH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
         }
         tsm.sendSetStatPacket();

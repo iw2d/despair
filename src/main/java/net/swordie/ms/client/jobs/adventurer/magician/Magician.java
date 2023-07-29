@@ -31,7 +31,6 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Magician extends Beginner {
-    public static final int MAPLE_RETURN = 1281;
     public static final int TELEPORT = 2001009;
     public static final int MAGIC_GUARD = 2001002;
 
@@ -180,16 +179,6 @@ public class Magician extends Beginner {
         Summon summon;
         Field field;
         switch (skillID) {
-            case MAPLE_RETURN:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
-            case FirePoison.HEROS_WILL_FP:
-            case IceLightning.HEROS_WILL_IL:
-            case Bishop.HEROS_WILL_BISH:
-                tsm.removeAllDebuffs();
-                break;
             case MAGIC_GUARD:
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
@@ -260,29 +249,6 @@ public class Magician extends Beginner {
                 summon.setFlyMob(true);
                 summon.setMoveAbility(MoveAbility.Walk);
                 field.spawnSummon(summon);
-                break;
-            case FirePoison.MAPLE_WARRIOR_FP:
-            case IceLightning.MAPLE_WARRIOR_IL:
-            case Bishop.MAPLE_WARRIOR_BISH:
-                o1.nValue = si.getValue(x, slv);
-                o1.nReason = skillID;
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case FirePoison.EPIC_ADVENTURE_FP:
-            case IceLightning.EPIC_ADVENTURE_IL:
-            case Bishop.EPIC_ADVENTURE_BISH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
         }
         tsm.sendSetStatPacket();

@@ -343,7 +343,6 @@ public class Luminous extends Job {
             case ECLIPSE:
             case SUNFIRE:
             case CHANGE_LIGHT_DARK:
-
                 lm.changeMode();
                 o1.nOption = 1;
                 o1.rOption = EQUILIBRIUM;
@@ -352,9 +351,6 @@ public class Luminous extends Job {
                 equilibriumTimer = EventManager.addEvent(this::changeMode, getMoreEquilibriumTime(), TimeUnit.SECONDS);
                 chr.resetSkillCoolTime(ENDER);
                 chr.resetSkillCoolTime(DEATH_SCYTHE);
-                break;
-            case HEROS_WILL_LUMI:
-                tsm.removeAllDebuffs();
                 break;
             case MAGIC_BOOSTER:
                 o1.nOption = si.getValue(x, slv);
@@ -401,13 +397,6 @@ public class Luminous extends Job {
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(ElementalReset, o1);
                 break;
-            case MAPLE_WARRIOR_LUMI:
-                o1.nValue = si.getValue(x, slv);
-                o1.nReason = skillID;
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
             case EQUALIZE:
                 lm.changeMode();
                 o1.nOption = 1;
@@ -416,18 +405,6 @@ public class Luminous extends Job {
                 equilibriumTimer = EventManager.addEvent(this::changeMode, getMoreEquilibriumTime(), TimeUnit.SECONDS);
                 chr.resetSkillCoolTime(ENDER);
                 chr.resetSkillCoolTime(DEATH_SCYTHE);
-                break;
-            case HEROIC_MEMORIES_LUMI:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
         }
         tsm.sendSetStatPacket();

@@ -450,9 +450,6 @@ public class Hayato extends Job {
         Option o4 = new Option();
         Option o5 = new Option();
         switch(skillID) {
-            case AKATSUKI_BLOSSOMS:
-                tsm.removeAllDebuffs();
-                break;
             case QUICK_DRAW:
                 if(tsm.getOption(HayatoStance).nOption == 0) {
                     if(swordEnergy < 150) {
@@ -524,13 +521,6 @@ public class Hayato extends Job {
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(TerR, o1);
                 break;
-            case AKATSUKI_HERO_HAYATO:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
             case EYE_FOR_AN_EYE:
                 if(tsm.hasStatBySkillId(skillID)) {
                     tsm.removeStatsBySkill(skillID);
@@ -539,18 +529,6 @@ public class Hayato extends Job {
                     o1.rOption = skillID;
                     tsm.putCharacterStatValue(EyeForEye, o1);
                 }
-                break;
-            case PRINCESS_VOW_HAYATO:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOver, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOver, o2);
                 break;
             case GOD_OF_BLADES:
                 o1.nReason = skillID;

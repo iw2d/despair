@@ -27,9 +27,6 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Blaster extends Citizen {
-
-    public static final int SECRET_ASSEMBLY = 30001281;
-
     public static final int HAMMER_SMASH = 37111000;
     public static final int HAMMER_SMASH_CHARGE = 37110001;
     public static final int ARM_CANNON_BOOST = 37101003;
@@ -384,11 +381,6 @@ public class Blaster extends Citizen {
         Option o2 = new Option();
         Option o3 = new Option();
         switch(skillID) {
-            case SECRET_ASSEMBLY:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case REVOLVING_CANNON_RELOAD:
                 reloadCylinder();
                 break;
@@ -404,33 +396,11 @@ public class Blaster extends Citizen {
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(RWBarrierHeal, o1);
                 break;
-            case HEROS_WILL_BLASTER:
-                tsm.removeAllDebuffs();
-                break;
             case ARM_CANNON_BOOST:
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case MAPLE_WARRIOR_BLASTER:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case FOR_LIBERTY_BLASTER:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case CANNON_OVERDRIVE:
                 o1.nOption = 1;

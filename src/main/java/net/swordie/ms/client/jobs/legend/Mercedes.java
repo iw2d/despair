@@ -314,9 +314,6 @@ public class Mercedes extends Job {
         Summon summon;
         Field field;
         switch(skillID) {
-            case HEROS_WILL_MERC:
-                tsm.removeAllDebuffs();
-                break;
             case DUAL_BOWGUNS_BOOST:
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
@@ -358,25 +355,6 @@ public class Mercedes extends Job {
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePADR, o2);
-                break;
-            case MAPLE_WARRIOR_MERC:
-                o1.nValue = si.getValue(x, slv);
-                o1.nReason = skillID;
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case HEROIC_MEMORIES_MERC:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case ELVISH_BLESSING:
                 o1.nValue = si.getValue(indiePad, slv);

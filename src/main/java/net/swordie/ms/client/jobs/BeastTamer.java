@@ -555,11 +555,6 @@ public class BeastTamer extends Job {
         Summon summon;
         Field field;
         switch (skillID) {
-            case HOMEWARD_BOUND:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case EKA_EXPRESS: //TODO Eka Express Skill
                 Field townField = FieldData.getFieldById(chr.getField().getReturnMap());
                 int portalX = townField.getPortalByName("tp").getX();
@@ -622,13 +617,6 @@ public class BeastTamer extends Job {
                         tsm.sendResetStatPacket();
                     }
                 }
-                break;
-            case MAPLE_GUARDIAN:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
 
             //Bear Mode

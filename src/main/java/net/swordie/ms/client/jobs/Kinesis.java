@@ -55,8 +55,9 @@ public class Kinesis extends Job {
     public static final int ULTIMATE_TRAINWRECK = 142111007;
     public static final int KINETIC_COMBO = 142110011;
     public static final int MIND_BREAK = 142121004;
+    public static final int CLEAR_MIND = 142121007;
     public static final int ULTIMATE_PSYCHIC_SHOT = 142120002;
-    public static final int ULTIMATE_BPM = 142120002;
+    public static final int ULTIMATE_BPM = 142121005;
     public static final int PRESIDENTS_ORDERS = 142121016;
     public static final int PSYCHIC_CHARGER = 142121008;
     public static final int TELEPATH_TACTICS = 142121006;
@@ -244,11 +245,6 @@ public class Kinesis extends Job {
                 int add = (MAX_PP - getPp()) / 2;
                 addPP(add);
                 break;
-            case RETURN_KINESIS:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case ESP_BOOSTER:
                 o1.nValue = si.getValue(indieBooster, slv);
                 o1.nReason = skillID;
@@ -292,13 +288,6 @@ public class Kinesis extends Job {
                 o1.tStart = curTime;
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMADR, o1);
-                break;
-            case PRESIDENTS_ORDERS:
-                o1.nValue = si.getValue(x, slv);
-                o1.nReason = skillID;
-                o1.tStart = curTime;
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case TELEPATH_TACTICS:
                 o1.nValue = si.getValue(indieMad, slv);

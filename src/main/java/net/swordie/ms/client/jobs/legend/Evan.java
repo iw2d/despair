@@ -326,11 +326,6 @@ public class Evan extends Job {
         Field field;
         Rect rect;
         switch (skillID) {
-            case BACK_TO_NATURE:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case RETURN_FLASH:
                 rect = chr.getRectAround(si.getFirstRect());
                 if (!chr.isLeft()) {
@@ -378,9 +373,6 @@ public class Evan extends Job {
             case ENHANCED_MAGIC_DEBRIS:
                 createMagicDebrisForceAtom(skillID);
                 break;
-            case HEROS_WILL_EVAN:
-                tsm.removeAllDebuffs();
-                break;
             case MAGIC_GUARD:
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
@@ -412,25 +404,6 @@ public class Evan extends Job {
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(EPDD, o3);
-                break;
-            case MAPLE_WARRIOR_EVAN:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case HEROIC_MEMORIES_EVAN:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case SUMMON_ONYX_DRAGON:
                 summon = Summon.getSummonBy(chr, skillID, slv);

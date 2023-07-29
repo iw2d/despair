@@ -26,8 +26,6 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Thief extends Beginner {
-    public static final int MAPLE_RETURN = 1281;
-
     public static final int HASTE = 4001005; //Buff
     public static final int DARK_SIGHT = 4001003; //Buff
 
@@ -160,11 +158,6 @@ public class Thief extends Beginner {
         Summon summon;
         Field field;
         switch (skillID) {
-            case MAPLE_RETURN:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case HASTE:
             case DualBlade.SELF_HASTE:
                 o1.nOption = si.getValue(speed, slv);
@@ -198,15 +191,6 @@ public class Thief extends Beginner {
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(ShadowPartner, o1);
                 break;
-            case NightLord.MAPLE_WARRIOR_NL:
-            case Shadower.MAPLE_WARRIOR_SHAD:
-            case DualBlade.MAPLE_WARRIOR_DB:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
             case NightLord.DARK_FLARE_NL:
             case Shadower.DARK_FLARE_SHAD:
                 summon = Summon.getSummonBy(chr, skillID, slv);
@@ -215,25 +199,6 @@ public class Thief extends Beginner {
                 summon.setMoveAction((byte) 0);
                 summon.setMoveAbility(MoveAbility.Stop);
                 field.spawnSummon(summon);
-                break;
-            case NightLord.EPIC_ADVENTURE_NL:
-            case Shadower.EPIC_ADVENTURE_SHAD:
-            case DualBlade.EPIC_ADVENTURE_DB:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-            case NightLord.HEROS_WILL_NL:
-            case Shadower.HEROS_WILL_SHAD:
-            case DualBlade.HEROS_WILL_DB:
-                tsm.removeAllDebuffs();
                 break;
         }
         tsm.sendSetStatPacket();

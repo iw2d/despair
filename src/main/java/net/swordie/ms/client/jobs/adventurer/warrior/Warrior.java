@@ -28,9 +28,6 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Warrior extends Beginner {
-
-    public static final int MAPLE_RETURN = 1281;
-
     private int[] addedSkills = new int[]{
             MAPLE_RETURN,
     };
@@ -86,11 +83,6 @@ public class Warrior extends Beginner {
         Option o3 = new Option();
         Option o4 = new Option();
         switch (skillID) {
-            case MAPLE_RETURN:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case Hero.MAGIC_CRASH_HERO:
             case Paladin.MAGIC_CRASH_PALADIN:
             case DarkKnight.MAGIC_CRASH_DRK:
@@ -113,11 +105,6 @@ public class Warrior extends Beginner {
                     }
                 }
                 break;
-            case Hero.HEROS_WILL_HERO:
-            case Paladin.HEROS_WILL_PALADIN:
-            case DarkKnight.HEROS_WILL_DRK:
-                tsm.removeAllDebuffs();
-                break;
             case Hero.WEAPON_BOOSTER_FIGHTER:
             case Paladin.WEAPON_BOOSTER_PAGE:
             case DarkKnight.WEAPON_BOOSTER_SPEARMAN:
@@ -125,29 +112,6 @@ public class Warrior extends Beginner {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case Hero.MAPLE_WARRIOR_HERO:
-            case Paladin.MAPLE_WARRIOR_PALADIN:
-            case DarkKnight.MAPLE_WARRIOR_DARK_KNIGHT:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case Hero.EPIC_ADVENTURE_HERO:
-            case Paladin.EPIC_ADVENTURE_PALA:
-            case DarkKnight.EPIC_ADVENTURE_DRK:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
         }
         tsm.sendSetStatPacket();

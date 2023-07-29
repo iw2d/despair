@@ -28,7 +28,6 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Pirate extends Beginner {
-    public static final int MAPLE_RETURN = 1281;
     public static final int DASH = 5001005; //Buff
 
     private int[] addedSkills = new int[] {
@@ -84,16 +83,6 @@ public class Pirate extends Beginner {
         Option o2 = new Option();
         Option o3 = new Option();
         switch (skillID) {
-            case MAPLE_RETURN:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
-            case Buccaneer.HEROS_WILL_BUCC:
-            case Corsair.HEROS_WILL_SAIR:
-            case Cannoneer.HEROS_WILL_CANNON:
-                tsm.removeAllDebuffs();
-                break;
             case DASH:
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
@@ -111,15 +100,6 @@ public class Pirate extends Beginner {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case Buccaneer.MAPLE_WARRIOR_BUCC:
-            case Corsair.MAPLE_WARRIOR_SAIR:
-            case Cannoneer.MAPLE_WARRIOR_CANNON:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case Buccaneer.ROLL_OF_THE_DICE_BUCC:
             case Corsair.ROLL_OF_THE_DICE_SAIR:
@@ -192,20 +172,6 @@ public class Pirate extends Beginner {
 
                 tsm.throwDice(roll1, roll2);
                 tsm.putCharacterStatValue(Dice, o1);
-                break;
-            case Buccaneer.EPIC_ADVENTURER_BUCC:
-            case Corsair.EPIC_ADVENTURER_SAIR:
-            case Cannoneer.EPIC_ADVENTURER_CANNON:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
         }
         tsm.sendSetStatPacket();

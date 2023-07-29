@@ -120,26 +120,11 @@ public class Jett extends Job {
         Summon summon;
         Field field;
         switch (skillID) {
-            case RETURN_TO_SPACESHIP:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
-            case HEROS_WILL_JETT:
-                tsm.removeAllDebuffs();
-                break;
             case GALACTIC_MIGHT:
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Booster, o1);
-                break;
-            case MAPLE_WARRIOR_JETT:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case BOUNTY_CHASER:
                 o1.nReason = skillID;
@@ -182,18 +167,6 @@ public class Jett extends Job {
                 o3.tStart = Util.getCurrentTime();
                 o3.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieCr, o3);
-                break;
-            case EPIC_ADVENTURER_JETT:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case BIONIC_MAXIMIZER:
                 o1.nReason = skillID;

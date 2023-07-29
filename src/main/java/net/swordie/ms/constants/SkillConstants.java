@@ -2,10 +2,7 @@ package net.swordie.ms.constants;
 
 import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
-import net.swordie.ms.client.jobs.BeastTamer;
-import net.swordie.ms.client.jobs.Kinesis;
-import net.swordie.ms.client.jobs.PinkBean;
-import net.swordie.ms.client.jobs.Zero;
+import net.swordie.ms.client.jobs.*;
 import net.swordie.ms.client.jobs.adventurer.*;
 import net.swordie.ms.client.jobs.adventurer.archer.*;
 import net.swordie.ms.client.jobs.adventurer.magician.*;
@@ -15,9 +12,7 @@ import net.swordie.ms.client.jobs.adventurer.warrior.*;
 import net.swordie.ms.client.jobs.cygnus.*;
 import net.swordie.ms.client.jobs.legend.*;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
-import net.swordie.ms.client.jobs.resistance.Blaster;
-import net.swordie.ms.client.jobs.resistance.Demon;
-import net.swordie.ms.client.jobs.resistance.Mechanic;
+import net.swordie.ms.client.jobs.resistance.*;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.BeastTamerBeasts;
 import net.swordie.ms.loaders.SkillData;
@@ -1270,25 +1265,27 @@ public class SkillConstants {
 
     public static boolean isHomeTeleportSkill(int skillId) {
         switch (skillId) {
-            case Warrior.MAPLE_RETURN: // All Adventurers
+            case Beginner.MAPLE_RETURN:
             // case DualBlade.RETURN:
             case Jett.RETURN_TO_SPACESHIP:
-            case BeastTamer.HOMEWARD_BOUND:
-            case Kinesis.RETURN_KINESIS:
-            case DawnWarrior.IMPERIAL_RECALL: // All KoC
+            case Noblesse.IMPERIAL_RECALL:
+            case Mihile.IMPERIAL_RECALL:
             case Aran.RETURN_TO_RIEN:
             case Evan.BACK_TO_NATURE:
                 // Mercedes
-                // Luminous
             case Phantom.TO_THE_SKIES:
                 // Shade
-            case AngelicBuster.DAY_DREAMER:
+                // Luminous
+            case Citizen.SECRET_ASSEMBLY:
+            case Xenon.PROMESSA_ESCAPE:
+                // Demon
                 // Kaiser
-            case Demon.SECRET_ASSEMBLY: // All Resistance
+            case AngelicBuster.DAY_DREAMER:
                 // Hayato
                 // Kanna
             case Zero.TEMPLE_RECALL:
-
+            case BeastTamer.HOMEWARD_BOUND:
+            case Kinesis.RETURN_KINESIS:
                 return true;
             default:
                 return false;

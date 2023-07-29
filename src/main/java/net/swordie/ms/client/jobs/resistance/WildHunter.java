@@ -68,7 +68,6 @@ public class WildHunter extends Citizen {
 
 
 
-    public static final int SECRET_ASSEMBLY = 30001281;
     public static final int CAPTURE = 30001061;
     public static final int CALL_OF_THE_HUNTER = 30001062;
 
@@ -338,11 +337,6 @@ public class WildHunter extends Citizen {
                 lastUsedSkill = skillID;
                 chr.write(UserLocal.jaguarSkill(skillID));
                 break;
-            case SECRET_ASSEMBLY:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case HUNTING_ASSISTANT_UNIT:
                 aa = AffectedArea.getPassiveAA(chr, skillID, slv);
                 aa.setMobOrigin((byte) 0);
@@ -355,9 +349,6 @@ public class WildHunter extends Citizen {
                 aa.setFlip(!chr.isLeft());
                 aa.setDelay((short) 4);
                 chr.getField().spawnAffectedAreaAndRemoveOld(aa);
-                break;
-            case HEROS_WILL_WH:
-                tsm.removeAllDebuffs();
                 break;
             case CAPTURE:
                 int mobID = inPacket.decodeInt();
@@ -509,27 +500,6 @@ public class WildHunter extends Citizen {
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(SharpEyes, o1);
                 break;
-            case MAPLE_WARRIOR_WH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-
-            case FOR_LIBERTY_WH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
-
             case SILENT_RAMPAGE:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);

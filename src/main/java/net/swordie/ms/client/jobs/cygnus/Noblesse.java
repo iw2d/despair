@@ -10,14 +10,8 @@ import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
-import net.swordie.ms.life.Summon;
 import net.swordie.ms.loaders.SkillData;
-import net.swordie.ms.util.Util;
-import net.swordie.ms.world.field.Field;
 
-import static net.swordie.ms.client.character.skills.SkillStat.*;
-import static net.swordie.ms.client.character.skills.SkillStat.indieMaxDamageOverR;
-import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
 
 /**
  * Created on 12/14/2017.
@@ -72,38 +66,6 @@ public class Noblesse extends Job {
         Option o1 = new Option();
         Option o2 = new Option();
         switch (skillID) {
-            case IMPERIAL_RECALL:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
-            case DawnWarrior.CALL_OF_CYGNUS_DW:
-            case BlazeWizard.CALL_OF_CYGNUS_BW:
-            case WindArcher.CALL_OF_CYGNUS_WA:
-            case NightWalker.CALL_OF_CYGNUS_NW:
-            case ThunderBreaker.CALL_OF_CYGNUS_TB:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
-            case DawnWarrior.GLORY_OF_THE_GUARDIANS_DW:
-            case BlazeWizard.GLORY_OF_THE_GUARDIANS_BW:
-            case WindArcher.GLORY_OF_THE_GUARDIANS_WA:
-            case NightWalker.GLORY_OF_THE_GUARDIANS_NW:
-            case ThunderBreaker.GLORY_OF_THE_GUARDIANS_TB:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
         }
         tsm.sendSetStatPacket();
     }

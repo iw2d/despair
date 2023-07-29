@@ -453,14 +453,6 @@ public class AngelicBuster extends Job {
                 createSoulSeekerForceAtom();
                 createSoulSeekerForceAtom();
                 break;
-            case DAY_DREAMER:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
-            case NOVA_TEMPERANCE_AB:
-                tsm.removeAllDebuffs();
-                break;
             case MELODY_CROSS:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieBooster, slv);
@@ -494,30 +486,11 @@ public class AngelicBuster extends Job {
                 o2.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IncCriticalDamMin, o2);
                 break;
-            case NOVA_WARRIOR_AB:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
             case SOUL_SEEKER_EXPERT:
                 o1.nOption = 1;
                 o1.rOption = skillID;
                 o1.tOption = 0;
                 tsm.putCharacterStatValue(AngelicBursterSoulSeeker, o1);
-                break;
-            case PRETTY_EXALTATION:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieIgnoreMobpdpR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieBDR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieBDR, o2);
                 break;
             case FINAL_CONTRACT:
                 o1.nOption = si.getValue(x, slv);

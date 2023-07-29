@@ -45,7 +45,6 @@ public class Mechanic extends Citizen {
 
     public static final int MECH_VEHICLE = 1932016;
 
-    public static final int SECRET_ASSEMBLY = 30001281;
     public static final int MECHANIC_DASH = 30001068;
     public static final int HIDDEN_PEACE = 30000227;
 
@@ -314,11 +313,6 @@ public class Mechanic extends Citizen {
         Summon summon;
         Field field;
         switch (skillID) {
-            case SECRET_ASSEMBLY:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case OPEN_PORTAL_GX9:
                 field = chr.getField();
                 int duration = si.getValue(time, slv);
@@ -341,9 +335,6 @@ public class Mechanic extends Citizen {
                 } else if (tsm.hasStat(Mechanic) && tsm.getOption(Mechanic).nOption == 1) {
                     createTankMechRocketForceAtom();
                 }
-                break;
-            case HEROS_WILL_MECH:
-                tsm.removeAllDebuffs();
                 break;
             case ROCK_N_SHOCK:
                 summon = Summon.getSummonBy(chr, skillID, slv);
@@ -463,13 +454,6 @@ public class Mechanic extends Citizen {
                 tsm.throwDice(random, randomDD);
                 tsm.putCharacterStatValue(Dice, o1);
                 break;
-            case MAPLE_WARRIOR_MECH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
             case ENHANCED_SUPPORT_UNIT:
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(z, slv);
@@ -478,7 +462,6 @@ public class Mechanic extends Citizen {
                 tsm.putCharacterStatValue(IndieDamR, o2);
                 // Fallthrough intended
             case SUPPORT_UNIT_HEX:
-
                 summon = Summon.getSummonBy(chr, skillID, slv);
                 field = chr.getField();
                 summon.setFlyMob(false);
@@ -512,18 +495,6 @@ public class Mechanic extends Citizen {
                     botsNTotsTimer.cancel(true);
                 }
                 botsNTotsTimer = EventManager.addEvent(() -> spawnBotsNTotsSubSummons(summon), 3, TimeUnit.SECONDS);
-                break;
-            case FOR_LIBERTY_MECH:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
             case FULL_SPREAD:
                 o1.nOption = 1;

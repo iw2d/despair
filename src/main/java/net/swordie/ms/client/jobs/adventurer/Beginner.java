@@ -18,6 +18,7 @@ public class Beginner extends Job {
     public static final int RECOVERY = 1001;
     public static final int NIMBLE_FEET = 1002;
     public static final int THREE_SNAILS = 1000;
+    public static final int MAPLE_RETURN = 1281;
 
     private int[] addedSkills = new int[] {
         RECOVERY,

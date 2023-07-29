@@ -345,19 +345,11 @@ public class Xenon extends Job {
             case EMERGENCY_RESUPPLY:
                 incrementSupply(si.getValue(x, slv));
                 break;
-            case PROMESSA_ESCAPE:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case PINPOINT_SALVO:
                 o1.nOption = supply--;
                 tsm.putCharacterStatValue(SurplusSupply, o1);
                 updateSupply();
                 createPinPointSalvoForceAtom();
-                break;
-            case HEROS_WILL_XENON:
-                tsm.removeAllDebuffs();
                 break;
             case CIRCUIT_SURGE:
                 o1.nReason = skillID;
@@ -421,13 +413,6 @@ public class Xenon extends Job {
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(BdR, o2);
-                break;
-            case MAPLE_WARRIOR_XENON:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case AMARANTH_GENERATOR:
                 o1.nOption = 1;

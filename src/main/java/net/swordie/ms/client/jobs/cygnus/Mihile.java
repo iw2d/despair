@@ -417,25 +417,6 @@ public class Mihile extends Job {
                 o2.rOption = skillID;
                 tsm.putCharacterStatValue(EnrageCrDamMin, o2);
                 break;
-            case CALL_OF_CYGNUS_MIHILE:
-                o1.nValue = si.getValue(x, slv);
-                o1.nReason = skillID;
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case QUEEN_OF_TOMORROW:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
-                break;
             case SACRED_CUBE:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
@@ -467,8 +448,8 @@ public class Mihile extends Job {
 
     @Override
     public void handleRemoveSkill(int skillID) {
-        if (skillID == SELF_RECOVERY && selfRecoveryTimer != null && !selfRecoveryTimer.isDone()) {
-            selfRecoveryTimer.cancel(true);
+        if (skillID == SOUL_LINK && soulLinkTimer != null && !soulLinkTimer.isDone()) {
+            soulLinkTimer.cancel(true);
         }
         super.handleRemoveSkill(skillID);
     }

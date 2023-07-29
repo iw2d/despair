@@ -417,20 +417,12 @@ public class Aran extends Job {
             case ADRENALINE_BURST:
                 setCombo(1000);
                 break;
-            case RETURN_TO_RIEN:
-                o1.nValue = si.getValue(x, slv);
-                Field toField = chr.getOrCreateFieldByCurrentInstanceType(o1.nValue);
-                chr.warp(toField);
-                break;
             case MAHAS_DOMAIN:
                 AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
                 aa.setMobOrigin((byte) 0);
                 aa.setPosition(inPacket.decodePosition());
                 aa.setRect(aa.getPosition().getRectAround(si.getFirstRect()));
                 chr.getField().spawnAffectedArea(aa);
-                break;
-            case HEROS_WILL_ARAN:
-                tsm.removeAllDebuffs();
                 break;
             case POLEARM_BOOSTER:
                 o1.nOption = si.getValue(x, slv);
@@ -473,25 +465,6 @@ public class Aran extends Job {
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o2);
-                break;
-            case MAPLE_WARRIOR_ARAN:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
-                break;
-            case HEROIC_MEMORIES_ARAN:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 break;
         }
         tsm.sendSetStatPacket();

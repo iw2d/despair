@@ -525,9 +525,6 @@ public class Kaiser extends Job {
         StopForceAtom stopForceAtom = new StopForceAtom();
         int weaponID = item.getItemId();
         switch (skillID) {
-            case NOVA_TEMPERANCE_KAISER:
-                tsm.removeAllDebuffs();
-                break;
             case REALIGN_ATTACKER_MODE:
                 if (tsm.hasStatBySkillId(skillID)) {
                     tsm.removeStatsBySkill(skillID);
@@ -566,13 +563,6 @@ public class Kaiser extends Job {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(DamageReduce, o1);
-                break;
-            case NOVA_WARRIOR_KAISER:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1);
                 break;
             case TEMPEST_BLADES_THREE:
                 if (tsm.getOption(StopForceAtomInfo).nOption != 1 && tsm.hasStat(StopForceAtomInfo)) {

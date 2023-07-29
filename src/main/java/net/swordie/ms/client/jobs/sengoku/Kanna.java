@@ -247,9 +247,6 @@ public class Kanna extends Job {
                 tsm.putCharacterStatValue(IndieDamR, o1); //Indie
                 tsm.sendSetStatPacket();
                 break;
-            case BLOSSOMING_DAWN:
-                tsm.removeAllDebuffs();
-                break;
             case HAKU_REBORN:
                 o1.nOption = 0;
                 o1.rOption = skillID;
@@ -266,25 +263,6 @@ public class Kanna extends Job {
                 chr.getField().setKishin(true);
 
                 Summon.summonKishin(chr, slv);
-                break;
-            case AKATUSKI_HERO_KANNA:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(x, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieStatR, o1); //Indie
-                break;
-            case PRINCESS_VOW_KANNA:
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOver, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOver, o2);
                 break;
             case BLACKHEARTED_CURSE:
                 o1.nOption = 1;
