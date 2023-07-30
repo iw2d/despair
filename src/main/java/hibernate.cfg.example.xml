@@ -3,45 +3,48 @@
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-        <property name="hibernate.dialect">
-            org.hibernate.dialect.MySQLDialect
-        </property>
-        <property name="hibernate.connection.driver_class">
-            com.mysql.cj.jdbc.Driver
-        </property>
         <property name="hibernate.connection.provider_class">
-            org.hibernate.connection.C3P0ConnectionProvider
+            org.hibernate.hikaricp.internal.HikariCPConnectionProvider
         </property>
-        <property name="hibernate.current_session_context_class">
-            thread
+        <property name="hibernate.hikari.dataSourceClassName">
+            com.mysql.cj.jdbc.MysqlDataSource
         </property>
-
-        <property name="hibernate.c3p0.acquire_increment">
-            1
-        </property>
-        <property name="hibernate.c3p0.min_size">
-            5
-        </property>
-        <property name="hibernate.c3p0.max_size">
-            20
-        </property>
-        <property name="hibernate.c3p0.max_statements">
-            50
-        </property>
-        <property name="hibernate.c3p0.timeout">
-            1800
-        </property>
-
-        <property name="hibernate.connection.url">
+        <property name="hibernate.hikari.dataSource.url">
             jdbc:mysql://127.0.0.1:3306/swordie?autoReconnect=true&amp;useSSL=false&amp;allowPublicKeyRetrieval=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC
         </property>
-        <property name="hibernate.connection.username">
+        <property name="hibernate.hikari.dataSource.user">
             username
         </property>
-        <property name="hibernate.connection.password">
+        <property name="hibernate.hikari.dataSource.password">
             password
         </property>
 
+        <property name="hibernate.hikari.dataSource.cachePrepStmts">
+            true
+        </property>
+        <property name="hibernate.hikari.dataSource.prepStmtCacheSize">
+            256
+        </property>
+        <property name="hibernate.hikari.dataSource.prepStmtCacheSqlLimit">
+            2048
+        </property>
+        <property name="hibernate.hikari.dataSource.useServerPrepStmts">
+            true
+        </property>
+
+        <property name="hibernate.hikari.minimumIdle">
+            5
+        </property>
+        <property name="hibernate.hikari.maximumPoolSize">
+            20
+        </property>
+        <property name="hibernate.hikari.idleTimeout">
+            1800
+        </property>
+
+        <property name="hibernate.current_session_context_class">
+            thread
+        </property>
         <property name="hibernate.enable_lazy_load_no_trans">
             true
         </property>
