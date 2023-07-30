@@ -243,28 +243,9 @@ public class Shadower extends Thief {
         if (!chr.hasSkill(FLIP_THE_COIN)) {
             return;
         }
-        if (ServerConstants.MAKE_ATTACK_INFO_PACKET_HOOK) {
-            boolean hasCrit = attackInfo.mobAttackInfo.stream()
-                    .anyMatch(mai -> {
-                        for (int i = 0; i < mai.crits.length; i++) {
-                            if (mai.crits[i]) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
-            if (!hasCrit) {
-                return;
-            }
-        } else {
-            TemporaryStatManager tsm = chr.getTemporaryStatManager();
-            int totalCrit = chr.getBaseStats().get(BaseStat.cr);
-            totalCrit += tsm.getOption(CriticalBuff).nOption + tsm.getOption(CriticalGrowing).nOption;
-            if (!Util.succeedProp(totalCrit)) {
-                return;
-            }
+        if (attackInfo.didCrit(chr)) {
+            chr.write(WvsContext.flipTheCoinEnabled((byte) 1));
         }
-        chr.write(WvsContext.flipTheCoinEnabled((byte) 1));
     }
 
 
@@ -371,19 +352,15 @@ public class Shadower extends Thief {
             return;
         }
         Rect rect = new Rect(
-                new Position(
-                        chr.getPosition().getX() - 800,
-                        chr.getPosition().getY() - 800),
-                new Position(
-                        chr.getPosition().getX() + 800,
-                        chr.getPosition().getY() + 800)
+                chr.getPosition().getX() - 800, chr.getPosition().getY() - 800,
+                chr.getPosition().getX() + 800, chr.getPosition().getY() + 800
         );
         List<Mob> targets = chr.getField().getMobsInRect(rect);
         if (targets.size() == 0) {
             return;
         }
         Field field = chr.getField();
-        ForceAtomEnum atomEnum = ForceAtomEnum.FLYING_MESO;
+        ForceAtomEnum fae = ForceAtomEnum.FLYING_MESO;
         List<ForceAtomInfo> faiList = new ArrayList<>();
         List<Integer> targetList = new ArrayList<>();
         int angleStart = Util.getRandom((360 / dropCount)-1);
@@ -394,13 +371,13 @@ public class Shadower extends Thief {
                 continue;
             }
             int angle = (360 / dropCount) * i;
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), atomEnum.getInc(), 45, 4,
+            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), fae.getInc(), 45, 4,
                     angleStart + angle, 0, Util.getCurrentTime(), 1, 0, chr.getPosition().delta(drop.getPosition()));
             faiList.add(forceAtomInfo);
             targetList.add(target.getObjectId());
             field.removeDrop(drop.getObjectId(), 0, true, -1);
         }
-        chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), atomEnum.getForceAtomType(),
+        chr.getField().broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), fae.getForceAtomType(),
                 true, targetList, MESO_EXPLOSION_ATOM, faiList, null, 0, 0,
                 null, 0, null));
     }

@@ -12,10 +12,13 @@ import net.swordie.ms.client.character.keys.FuncKeyMap;
 import net.swordie.ms.client.character.potential.CharacterPotential;
 import net.swordie.ms.client.character.potential.CharacterPotentialMan;
 import net.swordie.ms.client.character.runestones.RuneStone;
+import net.swordie.ms.client.character.skills.Option;
+import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
 import net.swordie.ms.client.jobs.legend.Evan;
+import net.swordie.ms.client.jobs.legend.Phantom;
 import net.swordie.ms.client.jobs.legend.Shade;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
 import net.swordie.ms.client.jobs.nova.Kaiser;
@@ -588,16 +591,15 @@ public class UserHandler {
     }
 
     @Handler(op = InHeader.GATHER_REQUEST)
-    public static void handleGatherRequest(Client c, InPacket inPacket) {
+    public static void handleGatherRequest(Char chr, InPacket inPacket) {
         int lifeId = inPacket.decodeInt();
-        c.write(UserLocal.gatherRequestResult(lifeId, true));
+        chr.write(UserLocal.gatherRequestResult(lifeId, true));
     }
 
     @Handler(op = InHeader.GATHER_END_NOTICE)
-    public static void handleGatherEndNotice(Client c, InPacket inPacket) {
+    public static void handleGatherEndNotice(Char chr, InPacket inPacket) {
         boolean success = false;
         int lifeId = inPacket.decodeInt();
-        Char chr = c.getChr();
         Reactor reactor = (Reactor) chr.getField().getLifeByObjectID(lifeId);
         ReactorType type = GameConstants.getReactorType(reactor.getTemplateId());
         if (type == null) {
@@ -609,6 +611,15 @@ public class UserHandler {
             success = Util.succeedProp(successChance);
         }
         reactor.die(success);
-        c.write(UserPacket.gatherResult(chr.getId(), success));
+        chr.write(UserPacket.gatherResult(chr.getId(), success));
+    }
+
+    @Handler(op = InHeader.TRY_REGISTER_TELEPORT)
+    public static void tryRegisterTeleport(Char chr, InPacket inPacket) {
+        int skillId = inPacket.decodeInt();
+        if (skillId == Phantom.SHROUD_WALK) {
+            // store teleport count
+            chr.getTemporaryStatManager().getOption(CharacterTemporaryStat.Invisible).nOption++;
+        }
     }
 }

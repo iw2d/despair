@@ -1,12 +1,17 @@
 package net.swordie.ms.client.character.skills.info;
 
+import net.swordie.ms.ServerConstants;
+import net.swordie.ms.client.character.Char;
+import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
+import net.swordie.ms.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class AttackInfo {
     public byte fieldKey;
@@ -94,5 +99,22 @@ public class AttackInfo {
 
     public Position getForcedPos() {
         return new Position(forcedX, forcedY);
+    }
+
+    public boolean didCrit(Char chr) {
+        if (ServerConstants.MAKE_ATTACK_INFO_PACKET_HOOK) {
+            for (MobAttackInfo mai : this.mobAttackInfo) {
+                for (int i = 0; i < mai.crits.length; i++) {
+                    if (mai.crits[i]) {
+                        return true;
+                    }
+                }
+            }
+        } else {
+            if (Util.succeedProp(chr.getTotalStat(BaseStat.cr))) {
+                return true;
+            }
+        }
+        return false;
     }
 }

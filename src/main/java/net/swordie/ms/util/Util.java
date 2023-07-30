@@ -161,7 +161,7 @@ public class Util {
             end = start;
             start = temp;
         }
-        return start + new Random().nextInt(end - start);
+        return start + getRandom(end - start);
     }
 
     /**

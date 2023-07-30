@@ -110,5 +110,26 @@ public class ToBaseStat {
             stats.put(BaseStat.cr, actualStacks * si.getValue(y, slv));
         }
     }
+
+    public static void judgement(Char chr, Option o, Map<BaseStat, Integer> stats) {
+        switch (o.nOption) {
+            case 1:
+                stats.put(BaseStat.cr, o.xOption);
+                break;
+            case 2:
+                stats.put(BaseStat.dropR, o.xOption);
+                break;
+            case 3:
+                stats.put(BaseStat.asr, o.xOption);
+                stats.put(BaseStat.ter, o.xOption);
+                break;
+            case 4:
+                stats.put(BaseStat.pddR, o.xOption); // removed
+                break;
+            case 5:
+                // drain handled in Phantom.handleAttack
+                break;
+        }
+    }
 }
 

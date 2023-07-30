@@ -164,37 +164,21 @@ public class Cannoneer extends Pirate {
         if (!chr.hasSkill(MONKEY_WAVE)) {
             return;
         }
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (ServerConstants.MAKE_ATTACK_INFO_PACKET_HOOK) {
-            boolean hasCrit = attackInfo.mobAttackInfo.stream()
-                    .anyMatch(mai -> {
-                        for (int i = 0; i < mai.crits.length; i++) {
-                            if (mai.crits[i]) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
-            if (!hasCrit) {
-                return;
-            }
-        } else {
-            int totalCrit = chr.getBaseStats().get(BaseStat.cr);
-            totalCrit += tsm.getOption(CriticalBuff).nOption;
-            if (!Util.succeedProp(totalCrit)) {
-                return;
-            }
+        if (!attackInfo.didCrit(chr)) {
+            return;
         }
         SkillInfo si = SkillData.getSkillInfoById(MONKEY_WAVE_IMMEDIATE);
         int slv = chr.getSkillLevel(MONKEY_WAVE);
-        if (Util.succeedProp(si.getValue(prop, slv))) {
-            Option o1 = new Option();
-            o1.nOption = 1;
-            o1.rOption = MONKEY_WAVE_IMMEDIATE;
-            o1.tOption = si.getValue(time, slv);
-            tsm.putCharacterStatValue(KeyDownTimeIgnore, o1);
-            tsm.sendSetStatPacket();
+        if (!Util.succeedProp(si.getValue(prop, slv))) {
+            return;
         }
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        Option o1 = new Option();
+        o1.nOption = 1;
+        o1.rOption = MONKEY_WAVE_IMMEDIATE;
+        o1.tOption = si.getValue(time, slv);
+        tsm.putCharacterStatValue(KeyDownTimeIgnore, o1);
+        tsm.sendSetStatPacket();
     }
 
     private void applyBarrelRouletteDebuffOnMob(AttackInfo attackInfo) {

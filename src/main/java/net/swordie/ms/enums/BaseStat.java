@@ -556,6 +556,9 @@ public enum BaseStat {
                 slv = chr.getSkillLevel(o.rOption);
                 stats.put(fd, o.nOption * si.getValue(SkillStat.x, slv));
                 break;
+            case Judgement:
+                ToBaseStat.judgement(chr, o, stats);
+                break;
             default:
                 stats.put(unk, o.nOption);
                 break;

@@ -12,7 +12,10 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
+import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.FieldPacket;
+import net.swordie.ms.connection.packet.UserPacket;
+import net.swordie.ms.connection.packet.UserRemote;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
@@ -500,7 +503,6 @@ public class NightWalker extends Noblesse {
             case DARKNESS_ASCENDING:
                 o1.nOption = 1;
                 o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(ReviveOnce, o1);
                 chr.resetSkillCoolTime(skillID);
                 break;
@@ -600,6 +602,8 @@ public class NightWalker extends Noblesse {
         tsm.removeStatsBySkill(DARKNESS_ASCENDING);
         tsm.sendResetStatPacket();
         chr.chatMessage("You have been revived by Darkness Ascending.");
+        chr.write(UserPacket.effect(Effect.skillSpecial(DARKNESS_ASCENDING)));
+        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillSpecial(DARKNESS_ASCENDING)), chr);
         chr.setSkillCooldown(DARKNESS_ASCENDING, chr.getSkillLevel(DARKNESS_ASCENDING));
     }
 }

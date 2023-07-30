@@ -4,6 +4,7 @@ import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.quest.Quest;
 import net.swordie.ms.client.jobs.cygnus.DawnWarrior;
+import net.swordie.ms.client.jobs.legend.Phantom;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
 import net.swordie.ms.client.jobs.resistance.Xenon;
 import net.swordie.ms.connection.InPacket;
@@ -49,12 +50,8 @@ import net.swordie.ms.world.field.fieldeffect.FieldEffect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import static net.swordie.ms.client.jobs.legend.Phantom.GHOSTWALK;
 
 public class MobHandler {
 
@@ -243,7 +240,7 @@ public class MobHandler {
             if (mob.getBanType() == 1) {
                 if (mob.getTemplateId() == 9300498 || mob.getTemplateId() == 9300507) {
                     // Special handling for Phantom Tutorial Ghostwalk
-                    if (chr.getTemporaryStatManager().hasStatBySkillId(GHOSTWALK)) {
+                    if (chr.getTemporaryStatManager().hasStatBySkillId(Phantom.GHOSTWALK)) {
                         return;
                     }
                 }

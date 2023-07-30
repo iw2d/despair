@@ -95,14 +95,16 @@ public class Bishop extends Magician {
     // Buff related methods --------------------------------------------------------------------------------------------
 
     private void changeBlessedCount() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        int skillId = getBlessedSkill();
-        Party party = chr.getParty();
-
-        if (skillId <= 0 || party == null) {
+        int skillId = 0;
+        if (chr.hasSkill(BLESSED_HARMONY)) {
+            skillId = BLESSED_HARMONY;
+        } else if (chr.hasSkill(BLESSED_ENSEMBLE)) {
+            skillId = BLESSED_ENSEMBLE;
+        }
+        if (skillId == 0 || chr.getParty() == null) {
             return;
         }
-
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
         SkillInfo si = SkillData.getSkillInfoById(skillId);
         int slv = chr.getSkillLevel(skillId);
 
@@ -110,10 +112,17 @@ public class Bishop extends Magician {
         int count = partyMembers.size();
         int bishCount = (int) partyMembers.stream().filter(pm -> JobConstants.isBishop(pm.getChr().getJob())).count();
         if (count > 0) {
+            // compare and send stat packet only if update is required
+            Option oldO1 = tsm.getOptByCTSAndSkill(BlessEnsenble, BLESSED_ENSEMBLE);
+            Option oldO2 = tsm.getOptByCTSAndSkill(IndieEXP, BLESSED_ENSEMBLE);
+
             Option o1 = new Option();
             o1.nOption = count * si.getValue(x, slv);
             o1.rOption = BLESSED_ENSEMBLE;
             tsm.putCharacterStatValue(BlessEnsenble, o1);
+            if (oldO1 == null || oldO1.nOption != o1.nOption) {
+                tsm.sendSetStatPacket();
+            }
 
             if (bishCount > 0) {
                 Option o2 = new Option();
@@ -121,22 +130,14 @@ public class Bishop extends Magician {
                 o2.nReason = BLESSED_ENSEMBLE;
                 o2.tStart = Util.getCurrentTime();
                 tsm.putCharacterStatValue(IndieEXP, o2);
+                if (oldO2 == null || oldO2.nValue != o2.nValue) {
+                    tsm.sendSetStatPacket();
+                }
             }
-            tsm.sendSetStatPacket();
         } else if (tsm.hasStat(BlessEnsenble)) {
             tsm.removeStat(BlessEnsenble, false);
             tsm.sendResetStatPacket();
         }
-    }
-
-    private int getBlessedSkill() {
-        if (chr.hasSkill(BLESSED_HARMONY)) {
-            return BLESSED_HARMONY;
-        }
-        if (chr.hasSkill(BLESSED_ENSEMBLE)) {
-            return BLESSED_ENSEMBLE;
-        }
-        return 0;
     }
 
 

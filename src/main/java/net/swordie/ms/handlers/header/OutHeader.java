@@ -1291,7 +1291,8 @@ public enum OutHeader {
             ANDROID_MOVE,
             MESSAGE,
             TEMPORARY_STAT_SET,
-            B2_BODY_RESULT
+            B2_BODY_RESULT,
+            REMOTE_RECEIVE_HP
     );
 
     private short value;
