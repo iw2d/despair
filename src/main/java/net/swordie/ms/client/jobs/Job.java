@@ -656,6 +656,7 @@ public abstract class Job {
 			// Global - Heaven's Door (Bishop)
 			if (tsm.hasStat(HeavensDoor)) {
 				Bishop.reviveByHeavensDoor(chr);
+				return;
 			}
 
 			// Global - Shade Link Skill (Shade)
@@ -666,38 +667,45 @@ public abstract class Job {
 			// Class Revives ----------------------------------------
 
 			// Dark Knight - Final Pact
-			else if (JobConstants.isDarkKnight(chr.getJob()) && chr.hasSkill(DarkKnight.FINAL_PACT_INFO)) {
+			else if (JobConstants.isDarkKnight(chr.getJob()) && chr.hasSkill(DarkKnight.FINAL_PACT_INFO) && !chr.hasSkillOnCooldown(DarkKnight.FINAL_PACT_INFO)) {
 				((DarkKnight) chr.getJobHandler()).reviveByFinalPact();
+				return;
 			}
 
 			// Night Walker - Darkness Ascending
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, NightWalker.DARKNESS_ASCENDING) != null ) {
 				((NightWalker) chr.getJobHandler()).reviveByDarknessAscending();
+				return;
 			}
 
 			// Blaze Wizard - Phoenix Run
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, BlazeWizard.PHOENIX_RUN) != null) {
 				((BlazeWizard) chr.getJobHandler()).reviveByPhoenixRun();
+				return;
 			}
 
 			// Shade - Summon Other Spirit
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, Shade.SUMMON_OTHER_SPIRIT) != null) {
 				((Shade) chr.getJobHandler()).reviveBySummonOtherSpirit();
+				return;
 			}
 
 			// Beast Tamer - Bear Reborn		TODO
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, BeastTamer.BEAR_REBORN) != null) {
 				((BeastTamer) chr.getJobHandler()).reviveByBearReborn();
+				return;
 			}
 
 			// Zero - Rewind
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, Zero.REWIND) != null) {
 				((Zero) chr.getJobHandler()).reviveByRewind();
+				return;
 			}
 
 			// Phantom - Final Feint
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, Phantom.FINAL_FEINT) != null) {
 				((Phantom) chr.getJobHandler()).reviveByFinalFeint();
+				return;
 			}
 
 

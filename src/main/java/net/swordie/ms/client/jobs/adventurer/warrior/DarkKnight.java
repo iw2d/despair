@@ -446,10 +446,6 @@ public class DarkKnight extends Warrior {
 
     public void reviveByFinalPact() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (!chr.hasSkill(FINAL_PACT_INFO) || chr.hasSkillOnCooldown(FINAL_PACT_INFO)) {
-            return;
-        }
-
         SkillInfo si = SkillData.getSkillInfoById(FINAL_PACT_INFO);
         int slv = chr.getSkillLevel(FINAL_PACT_INFO);
 
