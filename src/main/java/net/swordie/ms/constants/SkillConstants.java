@@ -769,10 +769,18 @@ public class SkillConstants {
             case Blaster.REVOLVING_CANNON_2:
             case Blaster.REVOLVING_CANNON_3:
                 return Blaster.REVOLVING_CANNON;
+
             case Kinesis.PSYCHIC_ASSAULT_DOWN:
                 return Kinesis.PSYCHIC_ASSAULT_FWD;
             case Kinesis.PSYCHIC_BLAST_DOWN:
                 return Kinesis.PSYCHIC_BLAST_FWD;
+
+            case Shade.GROUND_POUND_SECOND:
+                return Shade.GROUND_POUND_FIRST;
+            case 25120001:
+            case 25120002:
+            case Shade.BOMB_PUNCH_FINAL:
+                return Shade.BOMB_PUNCH;
             default:
                 return skillID;
         }
@@ -1717,6 +1725,7 @@ public class SkillConstants {
             case ThunderBreaker.KNUCKLE_MASTERY:
             case Aran.POLEARM_MASTERY:
             case Mercedes.DUAL_BOWGUNS_MASTERY:
+            case Shade.KNUCKLE_MASTERY:
                 stats.put(BaseStat.acc, si.getValue(SkillStat.x, slv));
                 break;
             // class specific

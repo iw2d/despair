@@ -26,6 +26,7 @@ import net.swordie.ms.constants.*;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.life.*;
 import net.swordie.ms.life.mob.*;
+import net.swordie.ms.life.mob.skill.BurnedInfo;
 import net.swordie.ms.loaders.*;
 import net.swordie.ms.util.*;
 import net.swordie.ms.world.field.Field;
@@ -214,6 +215,13 @@ public abstract class Job {
 				o1.tOption = 30;
 				tsm.putCharacterStatValue(Regen, o1);
 				chr.addSkillCooldown(skillID, 10 * 60 * 1000);
+				break;
+			// LINK SKILLS ---------------------------------------------------------------------------------------------
+			case Shade.CLOSE_CALL:
+			case Shade.CLOSE_CALL_LINK:
+				o1.nOption = 1;
+				o1.rOption = skillID;
+				tsm.putCharacterStatValue(PreReviveOnce, o1);
 				break;
 			// RETURN SKILLS -------------------------------------------------------------------------------------------
 			case Beginner.MAPLE_RETURN:
@@ -660,8 +668,11 @@ public abstract class Job {
 			}
 
 			// Global - Shade Link Skill (Shade)
-			// TODO
-
+			else if (tsm.hasStat(PreReviveOnce)) {
+				if (Shade.tryReviveByCloseCall(chr)) {
+					return;
+				}
+			}
 
 
 			// Class Revives ----------------------------------------
@@ -836,9 +847,19 @@ public abstract class Job {
 	}
 
 	/**
-	 * Handled when a mob dies
+	 * Called every time a mob should take burn damage
 	 *
-	 * @param mob The Mob that has died.
+	 * @param mob The mob taking burn damage
+	 * @param bi The BurnedInfo object containing info about damage, skill etc.
+	 */
+	public void handleMobBurn(Mob mob, BurnedInfo bi) {
+
+	}
+
+	/**
+	 * Called when a mob dies
+	 *
+	 * @param mob The Mob that has died
 	 */
 	public void handleMobDeath(Mob mob) {
 

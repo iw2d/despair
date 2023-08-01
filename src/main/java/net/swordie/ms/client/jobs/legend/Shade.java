@@ -16,9 +16,12 @@ import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.ForceAtomEnum;
 import net.swordie.ms.life.AffectedArea;
+import net.swordie.ms.life.Life;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
+import net.swordie.ms.life.mob.skill.BurnedInfo;
+import net.swordie.ms.loaders.MobData;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
@@ -26,6 +29,7 @@ import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -34,15 +38,20 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Shade extends Job {
+    public static final int CLOSE_CALL = 20050286;
+    public static final int CLOSE_CALL_LINK = 80000169;
+
     public static final int SPIRIT_BOND_I = 20050285;
     public static final int FOX_TROT = 20051284;
 
+    public static final int KNUCKLE_MASTERY = 25100106;
     public static final int FOX_SPIRITS = 25101009; //Buff (ON/OFF)
-    public static final int FOX_SPIRITS_INIT = 25100009;
+    public static final int FOX_SPIRIT_MASTERY = 25100009;
     public static final int FOX_SPIRITS_ATOM = 25100010;
     public static final int FOX_SPIRITS_ATOM_2 = 25120115; //Upgrade
-    public static final int GROUND_POUND_FIRST = 25101000; //Special Attack (Slow Debuff)
-    public static final int GROUND_POUND_SECOND = 25100001; //Special Attack (Slow Debuff)
+    public static final int GROUND_POUND_FIRST = 25101000;
+    public static final int GROUND_POUND_SECOND = 25100001;
+    public static final int GROUND_POUND_SHOCKWAVE = 25100002;
 
     public static final int SUMMON_OTHER_SPIRIT = 25111209; //Passive Buff (Icon)
     public static final int SPIRIT_TRAP = 25111206; //Tile
@@ -58,6 +67,7 @@ public class Shade extends Job {
     public static final int HEROS_WILL_SH = 25121211;
     public static final int SPIRIT_FRENZY = 25111005;
 
+    public static final int FIRE_FOX_SPIRITS_REPEATED = 25120153;
     public static final int HEROIC_MEMORIES_SH = 25121132;
     public static final int SPIRIT_BOND_MAX = 25121131;
     public static final int SPIRIT_INCARNATION = 25121030;
@@ -67,11 +77,12 @@ public class Shade extends Job {
             SPIRIT_BOND_I,
     };
 
-    private long spiritWardTimer;
+    private Map<Integer, Integer> foxBounceMap = new ConcurrentHashMap<>();
+
 
     public Shade(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
             for (int id : addedSkills) {
                 if (!chr.hasSkill(id)) {
                     Skill skill = SkillData.getSkillDeepCopyById(id);
@@ -99,207 +110,134 @@ public class Shade extends Job {
         int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
         if (hasHitMobs) {
-            if (attackInfo.skillId == FOX_SPIRITS_ATOM || attackInfo.skillId == FOX_SPIRITS_ATOM_2) {
-                recreateFoxSpiritForceAtom(attackInfo);
-            }
-            applyWeakenOnMob(attackInfo, slv);
-            deathMarkDoTHeal(attackInfo);
+            handleWeaken(attackInfo);
         }
-
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
+        Field field;
         switch (attackInfo.skillId) {
-            case GROUND_POUND_FIRST:
-            case GROUND_POUND_SECOND:
+            case BOMB_PUNCH_FINAL:
+                o1.nOption = 1;
+                o1.rOption = BOMB_PUNCH_FINAL;
+                o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if (mob == null) {
+                    if (mob == null || mob.isBoss()) {
                         continue;
                     }
-                    MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = -si.getValue(y, slv);
-                    o1.rOption = skillID;
-                    o1.tOption = si.getValue(time, slv);
-                    mts.addStatOptionsAndBroadcast(MobStat.Speed, o1);
-                }
-                break;
-            case BOMB_PUNCH_FINAL:
-                SkillInfo bpi = SkillData.getSkillInfoById(BOMB_PUNCH);
-                byte bombPunchslv = (byte) chr.getSkill(BOMB_PUNCH).getCurrentLevel();
-                if (Util.succeedProp(bpi.getValue(prop, bombPunchslv))) {
-                    for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                        Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                        if (mob == null) {
-                            continue;
-                        }
-                        if (!mob.isBoss()) {
-                            MobTemporaryStat mts = mob.getTemporaryStat();
-                            o1.nOption = 1;
-                            o1.rOption = BOMB_PUNCH;
-                            o1.tOption = bpi.getValue(time, bombPunchslv);
-                            mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                        }
+                    if (Util.succeedProp(si.getValue(prop, slv))) {
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
                 }
                 break;
             case DEATH_MARK:
-                int healrate = si.getValue(x, slv);
-                chr.heal((int) (chr.getMaxHP() / ((double)100 / healrate)));
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(dotTime, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
                     }
-                    MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = 1;
-                    o1.rOption = skillID;
-                    o1.tOption = si.getValue(dotTime, slv);
-                    mts.addStatOptionsAndBroadcast(MobStat.DebuffHealing, o1);
-                    mts.createAndAddBurnedInfo(chr, skillID, slv);
+                    mob.getTemporaryStat().createAndAddBurnedInfo(chr, skillID, slv);
                 }
                 break;
-            case SOUL_SPLITTER:     // TODO
-                int duration = si.getValue(time, slv); //Split Duration & Timer on when to removeLife
-                for(MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if (mob == null) {
+            case SOUL_SPLITTER:
+                field = chr.getField();
+                for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
+                    Mob parent = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+                    if (parent == null) {
                         continue;
                     }
-
-                    //Spawns soul split mob
-                    if(!mob.isSplit()) {
-                        mob.soulSplitMob(chr, mob, duration, skillID);
+                    MobTemporaryStat mts = parent.getTemporaryStat();
+                    if (parent.isSplit() ||
+                            Arrays.stream(mai.damages).sum() > parent.getHp() ||
+                            mts.hasCurrentMobStat(MobStat.SeperateSoulP) ||
+                            mts.hasCurrentMobStat(MobStat.SeperateSoulC)) {
+                        continue;
                     }
+                    // Parent
+                    o1.nOption = si.getValue(z, slv);
+                    o1.tOption = si.getValue(time, slv);
+                    o1.uOption = skillID;
+                    // Child
+                    o2.nOption = si.getValue(x, slv);
+                    o2.tOption = si.getValue(time, slv);
+
+                    Mob child = MobData.getMobDeepCopyById(parent.getTemplateId());
+                    child.setPosition(parent.getPosition());
+                    child.setMaxHp(parent.getMaxHp());
+                    child.setMaxMp(parent.getMaxMp());
+                    child.setHp(parent.getHp());
+                    child.setMp(parent.getMp());
+                    child.setNotRespawnable(true);
+                    child.setField(field);
+                    child.setSplit(true);
+                    field.spawnLife(child, null);
+
+                    o1.rOption = child.getObjectId();
+                    mts.addStatOptionsAndBroadcast(MobStat.SeperateSoulP, o1);
+                    o2.rOption = parent.getObjectId();
+                    child.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.SeperateSoulC, o2);
                 }
                 break;
             case SPIRIT_INCARNATION:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(NotDamaged, o1);
-                tsm.sendSetStatPacket();
-                chr.dispose();
+                if (!tsm.hasStatBySkillId(skillID)) {
+                    o1.nOption = 1;
+                    o1.rOption = skillID;
+                    o1.tOption = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(NotDamaged, o1);
+                    tsm.sendSetStatPacket();
+                }
                 break;
         }
         super.handleAttack(chr, attackInfo);
     }
 
-
-    private void createFoxSpiritForceAtom(int skillID) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (tsm.hasStat(HiddenPossession)) {
-            SkillInfo si = SkillData.getSkillInfoById(FOX_SPIRITS);
-            Field field = chr.getField();
-            Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
-            List<Mob> mobs = chr.getField().getMobsInRect(rect);
-            if(mobs.size() <= 0) {
-                return;
-            }
-            Mob mob = Util.getRandomFromCollection(mobs);
-            int mobID = mob.getObjectId();
-
-            int atomid = FOX_SPIRITS_ATOM;
-            int inc = ForceAtomEnum.RABBIT_ORB.getInc();
-            int type = ForceAtomEnum.RABBIT_ORB.getForceAtomType();
-
-            if(skillID == FIRE_FOX_SPIRIT_MASTERY) {
-                atomid = FOX_SPIRITS_ATOM_2;
-                inc = ForceAtomEnum.FLAMING_RABBIT_ORB.getInc();
-                type = ForceAtomEnum.FLAMING_RABBIT_ORB.getForceAtomType();
-            }
-            ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 15, 7,
-                    305, 400, Util.getCurrentTime(), 1, 0,
-                    new Position(chr.isLeft() ? 0 : -50, -50));
-            field.broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), type,
-                    true, mobID, atomid, forceAtomInfo, new Rect(), 0, 300,
-                    mob.getPosition(), atomid, mob.getPosition()));
+    private void handleWeaken(AttackInfo attackInfo) {
+        if (!chr.hasSkill(WEAKEN)) {
+            return;
         }
-    }
-
-    private void recreateFoxSpiritForceAtom(AttackInfo attackInfo) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        SkillInfo si = SkillData.getSkillInfoById(FOX_SPIRITS_ATOM);
-        int anglenum = new Random().nextInt(360);
+        SkillInfo si = SkillData.getSkillInfoById(WEAKEN);
+        int slv = chr.getSkillLevel(WEAKEN);
+        int proc = si.getValue(prop, slv);
+        int duration = si.getValue(time, slv);
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        o1.nOption = si.getValue(x, slv);
+        o1.rOption = WEAKEN;
+        o1.tOption = duration;
+        o2.nOption = -si.getValue(y, slv);
+        o2.rOption = WEAKEN;
+        o2.tOption = duration;
+        o3.nOption = -si.getValue(z, slv);
+        o3.rOption = WEAKEN;
+        o3.tOption = duration;
         for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
             Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
             if (mob == null) {
                 continue;
             }
-            int TW1prop = 70;  // Recreation %
-            if (Util.succeedProp(TW1prop)) {
-                int mobID = mai.mobId;
-                if(chr.hasSkill(FIRE_FOX_SPIRIT_MASTERY)) {
-                    int inc = ForceAtomEnum.FLAMING_RABBIT_ORB_RECREATION.getInc(); //4th Job
-                    int type = ForceAtomEnum.FLAMING_RABBIT_ORB_RECREATION.getForceAtomType(); //4th Job
-                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 25, 4,
-                            anglenum, 100, Util.getCurrentTime(), 1, 0,
-                            new Position());
-                    chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
-                            true, mobID, FOX_SPIRITS_ATOM_2, forceAtomInfo, new Rect(), 0, 300,
-                            mob.getPosition(), FOX_SPIRITS_ATOM_2, mob.getPosition()));
-                } else {
-                    int inc = ForceAtomEnum.RABBIT_ORB_RECREATION.getInc();
-                    int type = ForceAtomEnum.RABBIT_ORB_RECREATION.getForceAtomType();
-                    ForceAtomInfo forceAtomInfo = new ForceAtomInfo(chr.getNewForceAtomKey(), inc, 25, 4,
-                            anglenum, 100, Util.getCurrentTime(), 1, 0,
-                            new Position());
-                    chr.getField().broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), mobID, type,
-                            true, mobID, FOX_SPIRITS_ATOM, forceAtomInfo, new Rect(), 0, 300,
-                            mob.getPosition(), FOX_SPIRITS_ATOM, mob.getPosition()));
-                }
-            }
-        }
-    }
-
-    public void applyWeakenOnMob(AttackInfo attackInfo, int slv) {
-        if(chr.hasSkill(WEAKEN)) {
-            Option o1 = new Option();
-            Option o2 = new Option();
-            Option o3 = new Option();
-            SkillInfo si = SkillData.getSkillInfoById(WEAKEN);
-            for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                if (Util.succeedProp(si.getValue(prop, slv))) {
-                    Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if (mob == null) {
-                        continue;
-                    }
-                    MobTemporaryStat mts = mob.getTemporaryStat();
-                    o1.nOption = si.getValue(x, slv);
-                    o1.rOption = WEAKEN;
-                    o1.tOption = si.getValue(time, slv);
-                    mts.addStatOptionsAndBroadcast(MobStat.Weakness, o1);
-                    o2.nOption = si.getValue(y, slv);
-                    o2.rOption = WEAKEN;
-                    o2.tOption = si.getValue(time, slv);
-                    mts.addStatOptionsAndBroadcast(MobStat.ACC, o2);
-                    o3.nOption = si.getValue(z, slv);
-                    o3.rOption = WEAKEN;
-                    o3.tOption = si.getValue(time, slv);
-                    mts.addStatOptionsAndBroadcast(MobStat.EVA, o3);
-                }
-            }
-        }
-    }
-
-    public void deathMarkDoTHeal(AttackInfo attackInfo) {
-        Skill skill = chr.getSkill(DEATH_MARK);
-        if (skill != null) {
-            byte slv = (byte) skill.getCurrentLevel();
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            int healrate = si.getValue(x, slv);
-            for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                if (mob == null) {
-                    continue;
-                }
+            if (Util.succeedProp(proc)) {
                 MobTemporaryStat mts = mob.getTemporaryStat();
-                if (mts.hasBurnFromSkillAndOwner(DEATH_MARK, chr.getId())) {
-                    long totaldmg = Arrays.stream(mai.damages).sum();
-                    chr.heal((int) (chr.getMaxHP() / ((double) 100 / healrate)));
-                }
+                mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o1);
+                mts.addStatOptionsAndBroadcast(MobStat.ACC, o2);
+                mts.addStatOptionsAndBroadcast(MobStat.EVA, o3);
             }
         }
+    }
+
+    @Override
+    public void handleMobBurn(Mob mob, BurnedInfo bi) {
+        if (bi.getSkillId() == DEATH_MARK) {
+            if (chr.getHP() > 0) {
+                int healRate = chr.getSkillStatValue(x, DEATH_MARK);
+                chr.heal((int) (bi.getDamage() * healRate / 100D));
+            }
+        }
+        super.handleMobBurn(mob, bi);
     }
 
     @Override
@@ -323,37 +261,54 @@ public class Shade extends Job {
         Option o4 = new Option();
         Option o5 = new Option();
         switch (skillID) {
+            case GROUND_POUND_SHOCKWAVE:
+                o1.nOption = -si.getValue(y, slv);
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                Rect rect = chr.getRectAround(si.getFirstRect());
+                if (!chr.isLeft()) {
+                    rect = rect.horizontalFlipAround(chr.getPosition().getX());
+                }
+                for (Life life : chr.getField().getLifesInRect(rect)) {
+                    if (life instanceof Mob && ((Mob) life).getHp() > 0) {
+                        Mob mob = (Mob) life;
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Speed, o1);
+                    }
+                }
+                break;
             case SPIRIT_TRAP:
-                SkillInfo fci = SkillData.getSkillInfoById(skillID);
                 AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
                 aa.setMobOrigin((byte) 0);
-                aa.setPosition(chr.getPosition());
-                aa.setRect(aa.getPosition().getRectAround(fci.getRects().get(0)));
+                aa.setPosition(inPacket.decodePosition());
+                aa.setRect(aa.getPosition().getRectAround(si.getFirstRect()));
                 aa.setDelay((short) 4);
                 chr.getField().spawnAffectedArea(aa);
                 break;
             case FIRE_FOX_SPIRIT_MASTERY:
-            case FOX_SPIRITS_INIT:
+            case FOX_SPIRIT_MASTERY:
                 createFoxSpiritForceAtom(skillID);
                 break;
             case FOX_SPIRITS:
-                o1.nOption = 1;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(HiddenPossession, o1);
+                if (tsm.hasStat(HiddenPossession)) {
+                    tsm.removeStat(HiddenPossession, false);
+                    tsm.sendResetStatPacket();
+                } else {
+                    o1.nOption = 1;
+                    o1.rOption = skillID;
+                    tsm.putCharacterStatValue(HiddenPossession, o1);
+                }
                 break;
             case SUMMON_OTHER_SPIRIT:
                 o1.nOption = 1;
                 o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(ReviveOnce, o1);
+                chr.resetSkillCoolTime(skillID);
                 break;
             case SPIRIT_WARD:
-                o1.nOption = 3;
+                o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(SpiritGuard, o1);
-                spiritWardTimer = Util.getCurrentTimeLong() + (si.getValue(time, slv) * 1000);
                 break;
             case SPIRIT_BOND_MAX:
                 o1.nReason = skillID;
@@ -372,7 +327,7 @@ public class Shade extends Job {
                 o3.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBDR, o3);
                 o4.nReason = skillID;
-                o4.nValue = -1; //Booster
+                o4.nValue = si.getValue(indieBooster, slv);
                 o4.tStart = Util.getCurrentTime();
                 o4.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieBooster, o4);
@@ -386,6 +341,93 @@ public class Shade extends Job {
         tsm.sendSetStatPacket();
     }
 
+    private int getFoxMaxBounce() {
+        if (chr.hasSkill(FIRE_FOX_SPIRIT_MASTERY)) {
+            return chr.getSkillStatValue(y, FIRE_FOX_SPIRIT_MASTERY) +
+                    chr.getSkillStatValue(z, FIRE_FOX_SPIRITS_REPEATED);
+        } else {
+            return chr.getSkillStatValue(y, FOX_SPIRIT_MASTERY);
+        }
+    }
+
+    private void createFoxSpiritForceAtom(int skillId) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (!tsm.hasStat(HiddenPossession)) {
+            return;
+        }
+        SkillInfo si = SkillData.getSkillInfoById(skillId);
+        Field field = chr.getField();
+        Position pos = chr.getPosition();
+        Rect rect = pos.getRectAround(si.getFirstRect());
+        Mob target = Util.getRandomFromCollection(field.getMobsInRect(rect));
+        if (target == null) {
+            return;
+        }
+        // create force atom
+        int forceAtomKey = chr.getNewForceAtomKey();
+        foxBounceMap.put(forceAtomKey, getFoxMaxBounce() - 1);
+        int atomSkillId = chr.hasSkill(FIRE_FOX_SPIRIT_MASTERY) ? FOX_SPIRITS_ATOM_2 : FOX_SPIRITS_ATOM;
+        ForceAtomEnum fae = chr.hasSkill(FIRE_FOX_SPIRIT_MASTERY) ? ForceAtomEnum.FLAMING_RABBIT_ORB : ForceAtomEnum.RABBIT_ORB;
+        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(forceAtomKey, fae.getInc(), 15, 30,
+                305, 0, Util.getCurrentTime(), 1, 0,
+                new Position(-10, -10));
+        field.broadcastPacket(FieldPacket.createForceAtom(false, 0, chr.getId(), fae.getForceAtomType(),
+                true, target.getObjectId(), atomSkillId, forceAtomInfo, null, 0, 40,
+                null, 0, pos));
+    }
+
+    @Override
+    public void handleForceAtomCollision(int forceAtomKey, int mobId) {
+        // handle fox bouncing
+        Integer bouncesLeft = foxBounceMap.remove(forceAtomKey);
+        if (bouncesLeft == null || bouncesLeft <= 0) {
+            return;
+        }
+        // get source mob
+        Field field = chr.getField();
+        Mob source = (Mob) field.getLifeByObjectID(mobId);
+        if (source == null) {
+            return;
+        }
+        // get target mob
+        Position pos = source.getPosition();
+        Rect rect = new Rect( // set bounce range to 500
+                pos.getX() - 500, pos.getY() - 500,
+                pos.getX() + 500, pos.getY() + 500
+        );
+        Mob target = Util.getRandomFromCollection(field.getMobsInRect(rect));
+        if (target == null) {
+            return;
+        }
+        // create force atom
+        int atomSkillId = chr.hasSkill(FIRE_FOX_SPIRIT_MASTERY) ? FOX_SPIRITS_ATOM_2 : FOX_SPIRITS_ATOM;
+        ForceAtomEnum fae = chr.hasSkill(FIRE_FOX_SPIRIT_MASTERY) ? ForceAtomEnum.FLAMING_RABBIT_ORB_RECREATION : ForceAtomEnum.RABBIT_ORB_RECREATION;
+        ForceAtomInfo forceAtomInfo = new ForceAtomInfo(forceAtomKey, fae.getInc(), 40, 6,
+                305, 0, Util.getCurrentTime(), 1, 0,
+                new Position(-10, -10));
+        field.broadcastPacket(FieldPacket.createForceAtom(true, chr.getId(), source.getObjectId(), fae.getForceAtomType(),
+                true, target.getObjectId(), atomSkillId, forceAtomInfo, null, 0, 40,
+                null, 0, pos));
+        foxBounceMap.put(forceAtomKey, bouncesLeft - 1);
+    }
+
+    private void deductSpiritWard() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        int count = tsm.getOption(SpiritGuard).nOption;
+        count--;
+        if (count <= 0) {
+            tsm.removeStat(SpiritGuard, false);
+            tsm.sendResetStatPacket();
+        } else {
+            Option o1 = new Option();
+            o1.nOption = count;
+            o1.rOption = SPIRIT_WARD;
+            o1.tOption = tsm.getRemainingTime(SpiritGuard, SPIRIT_WARD);
+            o1.setInMillis(true);
+            tsm.putCharacterStatValue(SpiritGuard, o1);
+            tsm.sendSetStatPacket();
+        }
+    }
 
 
     // Hit related methods ---------------------------------------------------------------------------------------------
@@ -393,7 +435,7 @@ public class Shade extends Job {
     @Override
     public void handleHit(Char chr, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if(tsm.hasStat(SpiritGuard) && hitInfo.hpDamage > 0) {
+        if (tsm.hasStat(SpiritGuard) && hitInfo.hpDamage > 0) {
             deductSpiritWard();
             hitInfo.hpDamage = 0;
             hitInfo.mpDamage = 0;
@@ -401,42 +443,15 @@ public class Shade extends Job {
         super.handleHit(chr, hitInfo);
     }
 
-    private void deductSpiritWard() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if(!chr.hasSkill(SPIRIT_WARD)) {
-            return;
-        }
-        Skill skill = chr.getSkill(SPIRIT_WARD);
-        Option o = new Option();
-        if (tsm.hasStat(SpiritGuard)) {
-            int spiritWardCount = tsm.getOption(SpiritGuard).nOption;
-
-            if(spiritWardCount > 0) {
-                spiritWardCount--;
-            }
-
-            if(spiritWardCount <= 0) {
-                tsm.removeStatsBySkill(skill.getSkillId());
-                tsm.sendResetStatPacket();
-            } else {
-                o.setInMillis(true);
-                o.nOption = spiritWardCount;
-                o.rOption = skill.getSkillId();
-                o.tOption = (int) (spiritWardTimer - Util.getCurrentTimeLong());
-                tsm.putCharacterStatValue(SpiritGuard, o);
-                tsm.sendSetStatPacket();
-            }
-        }
-    }
-
     @Override
     public void handleMobDebuffSkill(Char chr) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if(tsm.hasStat(SpiritGuard)) {
+        if (tsm.hasStat(SpiritGuard)) {
             tsm.removeAllDebuffs();
             deductSpiritWard();
+            return;
         }
-
+        super.handleMobDebuffSkill(chr);
     }
 
     public void reviveBySummonOtherSpirit() {
@@ -446,10 +461,32 @@ public class Shade extends Job {
         tsm.sendResetStatPacket();
         chr.chatMessage("You have been revived by Summon Other Spirit.");
         chr.write(UserPacket.effect(Effect.skillSpecial(SUMMON_OTHER_SPIRIT)));
-        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillSpecial(SUMMON_OTHER_SPIRIT)));
+        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillSpecial(SUMMON_OTHER_SPIRIT)), chr);
 
         chr.write(UserPacket.effect(Effect.skillUse(25111211, (byte) 1, 0)));
-        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(25111211, (byte) 1, 0)));
+        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(25111211, (byte) 1, 0)), chr);
+
+        Option o1 = new Option();
+        o1.nOption = 1;
+        o1.rOption = SUMMON_OTHER_SPIRIT;
+        o1.tOption = chr.getSkillStatValue(y, SUMMON_OTHER_SPIRIT);
+        tsm.putCharacterStatValue(NotDamaged, o1);
+        tsm.sendSetStatPacket();
+        chr.setSkillCooldown(SUMMON_OTHER_SPIRIT, chr.getSkillLevel(SUMMON_OTHER_SPIRIT));
+    }
+
+    public static boolean tryReviveByCloseCall(Char chr) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        int skillId = tsm.getOption(PreReviveOnce).rOption;
+        int proc = chr.getSkillStatValue(prop, skillId);
+        if (!Util.succeedProp(proc)) {
+            return false;
+        }
+        tsm.removeStatsBySkill(skillId);
+        chr.chatMessage("You have survived a fatal attack with Close Call.");
+        chr.write(UserPacket.effect(Effect.skillUse(CLOSE_CALL, (byte) 1, 0)));
+        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(CLOSE_CALL, (byte) 1, 0)), chr);
+        return true;
     }
 
     // Character creation related methods ------------------------------------------------------------------------------

@@ -12,7 +12,7 @@ public class BurnedInfo {
     private int startTime;
     private int lastUpdate;
     private Char chr;
-    private long damage;
+    private int damage;
 
     public BurnedInfo deepCopy() {
         BurnedInfo copy = new BurnedInfo();
@@ -49,11 +49,11 @@ public class BurnedInfo {
         this.skillId = skillId;
     }
 
-    public long getDamage() {
+    public int getDamage() {
         return damage;
     }
 
-    public void setDamage(long damage) {
+    public void setDamage(int damage) {
         this.damage = damage;
     }
 

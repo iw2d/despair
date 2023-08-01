@@ -246,10 +246,12 @@ public class AffectedArea extends Life {
                 }
                 break;
             case Shade.SPIRIT_TRAP:
-                o.nOption = 1;
-                o.rOption = skillID;
-                o.tOption = si.getValue(time, slv);
-                mts.addStatOptionsAndBroadcast(MobStat.Freeze, o);
+                if (!mts.hasCurrentMobStat(MobStat.Freeze)) {
+                    o.nOption = 1;
+                    o.rOption = skillID;
+                    o.tOption = si.getValue(time, slv);
+                    mts.addStatOptionsAndBroadcast(MobStat.Freeze, o);
+                }
                 break;
             case NightLord.FRAILTY_CURSE:
                 if (!mob.isBoss() || chr.hasSkill(NightLord.FRAILTY_CURSE_BOSS_RUSH)) {

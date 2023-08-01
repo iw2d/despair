@@ -5,7 +5,6 @@ import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
-import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.BattleRecordMan;
 import net.swordie.ms.life.mob.skill.BurnedInfo;
@@ -13,7 +12,6 @@ import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.connection.packet.MobPool;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.util.Util;
-import net.swordie.ms.util.container.Tuple;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,9 +20,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
-import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.life.mob.MobStat.*;
 
 
@@ -717,7 +713,7 @@ public class MobTemporaryStat {
 			if (toRefresh) {
 				sf = EventManager.addEvent(() -> removeBurnedInfo(ebi, true), duration);
 				burn = EventManager.addFixedRateEvent(
-						() -> getMob().damage(ebi.getChr(), ebi.getDamage()), ebi.getAttackDelay() + ebi.getInterval(), ebi.getInterval(), ebi.getDotCount());
+						() -> burnDamage(ebi.getChr(), getMob(), ebi), ebi.getAttackDelay() + ebi.getInterval(), ebi.getInterval(), ebi.getDotCount());
 				getBurnCancelSchedules().put(ebi, sf);
 				getBurnSchedules().put(ebi, burn);
 			}
@@ -727,7 +723,7 @@ public class MobTemporaryStat {
 		bi.setCharacterId(chr.getId());
 		bi.setChr(chr);
 		bi.setSkillId(skillId);
-		bi.setDamage(dotDmg == 0 ? 0 : chr.getDamageCalc().calcPDamageForPvM(skillId, slv, dotDmg));
+		bi.setDamage((int) (dotDmg == 0 ? 0 : chr.getDamageCalc().calcPDamageForPvM(skillId, slv, dotDmg)));
 		bi.setInterval(dotInterval * 1000);
 		bi.setDotCount(duration / bi.getInterval());
 		bi.setAttackDelay(0);
@@ -744,9 +740,14 @@ public class MobTemporaryStat {
 		addStatOptionsAndBroadcast(MobStat.BurnedInfo, o);
 		ScheduledFuture sf = EventManager.addEvent(() -> removeBurnedInfo(bi, true), duration);
 		ScheduledFuture burn = EventManager.addFixedRateEvent(
-				() -> getMob().damage(chr, bi.getDamage()), bi.getAttackDelay() + bi.getInterval(), bi.getInterval(), bi.getDotCount());
+				() -> burnDamage(chr, getMob(), bi), bi.getAttackDelay() + bi.getInterval(), bi.getInterval(), bi.getDotCount());
 		getBurnCancelSchedules().put(bi, sf);
 		getBurnSchedules().put(bi, burn);
+	}
+
+	public void burnDamage(Char chr, Mob mob, BurnedInfo bi) {
+		mob.damage(chr, bi.getDamage());
+		chr.getJobHandler().handleMobBurn(mob, bi);
 	}
 
 	public Map<BurnedInfo, ScheduledFuture> getBurnCancelSchedules() {

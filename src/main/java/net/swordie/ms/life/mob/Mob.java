@@ -4,6 +4,7 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.ExpIncreaseInfo;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.skills.Option;
+import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
@@ -40,6 +41,7 @@ import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.Foothold;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
 
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -1243,11 +1245,17 @@ public class Mob extends Life {
      * @param totalDamage the total damage that should be applied to the mob
      */
     public void damage(Char damageDealer, long totalDamage) {
+        if (isSplit() && getOriginMob() != null) {
+            getOriginMob().damage(damageDealer, totalDamage);
+        }
         addDamage(damageDealer, totalDamage);
         long maxHP = getMaxHp();
         long oldHp = getHp();
         long newHp = oldHp - totalDamage;
         setHp(newHp);
+        if (getCopyMob() != null) {
+            getCopyMob().setHp(newHp);
+        }
         double percDamage = ((double) newHp / maxHP);
         newHp = newHp > Integer.MAX_VALUE ? Integer.MAX_VALUE : newHp;
         doOneTimeEvent(oldHp, newHp, maxHP);
@@ -1280,10 +1288,13 @@ public class Mob extends Life {
         Field field = getField();
         getField().broadcastPacket(MobPool.leaveField(getObjectId(), DeathType.ANIMATION_DEATH));
         getField().removeLife(getObjectId());
+        distributeExp();
+        if (getCopyMob() != null) {
+            getCopyMob().die(false);
+        }
         if (isSplit()) {
             return;
         }
-        distributeExp();
         if (drops) {
             dropDrops(); // xd
         }
@@ -1529,9 +1540,15 @@ public class Mob extends Life {
     }
 
     public void soulSplitMob(Char chr, Mob origin, int duration, int skillID) {
+        MobTemporaryStat mts = origin.getTemporaryStat();
+        Option o1 = new Option();
+        o1.nOption = 1;
+        o1.rOption = skillID;
+        o1.tOption = duration;
+        mts.addStatOptionsAndBroadcast(MobStat.SeperateSoulP, o1);
+
         Field field = chr.getField();
         Position position = origin.getPosition();
-
         Mob copy = MobData.getMobDeepCopyById(origin.getTemplateId());
         copy.setSplit(true);
         copy.setPosition(position);
@@ -1542,22 +1559,17 @@ public class Mob extends Life {
         copy.setNotRespawnable(true);
         copy.setField(field);
 
-        copy.setSplitLink(origin.getObjectId());
-        //copy.setDrops(null);
-
         field.spawnLife(copy, null);
 
+        copy.setSplitLink(origin.getObjectId());
+        origin.setSplitLink(copy.getObjectId());
+
         MobTemporaryStat mtsCopy = copy.getTemporaryStat();
-        Option o1 = new Option();
         Option o2 = new Option();
-        o2.nOption = 1;
+        o2.nOption = chr.getSkillStatValue(SkillStat.x, skillID);
         o2.rOption = skillID;
         o2.tOption = duration;
-        mtsCopy.addStatOptions(MobStat.Freeze, o2);
-        o1.nOption = 1;
-        o1.rOption = skillID;
-        o1.tOption = duration;
-        mtsCopy.addStatOptionsAndBroadcast(MobStat.TrueSight, o1);
+        mtsCopy.addStatOptionsAndBroadcast(MobStat.SeperateSoulC, o2);
         EventManager.addEvent(() -> removeSoulSplitLife(chr, origin, copy), duration, TimeUnit.SECONDS);
     }
 
@@ -2055,6 +2067,49 @@ public class Mob extends Life {
 
     public void setMobSpawnerId(int mobSpawnerId) {
         this.mobSpawnerId = mobSpawnerId;
+    }
+
+    public Mob getOriginMob() {
+        if (getTemporaryStat().hasCurrentMobStat(MobStat.SeperateSoulC)) {
+            return (Mob) getField().getLifeByObjectID(getTemporaryStat().getCurrentOptionsByMobStat(MobStat.SeperateSoulC).rOption);
+        }
+        return null;
+    }
+
+    public Mob getCopyMob() {
+        if (getTemporaryStat().hasCurrentMobStat(MobStat.SeperateSoulP)) {
+            return (Mob) getField().getLifeByObjectID(getTemporaryStat().getCurrentOptionsByMobStat(MobStat.SeperateSoulP).rOption);
+        }
+        return null;
+    }
+
+    public String getMobInfo() {
+        int mesos = 0;
+        for (DropInfo di : getDrops()) {
+            if (di.isMoney()) {
+                mesos = di.getMoney();
+                break;
+            }
+        }
+        Char controller = getField().getLifeToControllers().getOrDefault(this, null);
+        return String.format("Mob ID: %s | Template ID: %s | Level: %d | HP: %s/%s " +
+                        "| MP: %s/%s | Left: %s | PDR: %s | MDR: %s " +
+                        "| Controller: %s | Exp : %s | NX: %s | Mesos: %s",
+                NumberFormat.getNumberInstance(Locale.US).format(getObjectId()),
+                NumberFormat.getNumberInstance(Locale.US).format(getTemplateId()),
+                getLevel(),
+                NumberFormat.getNumberInstance(Locale.US).format(getHp()),
+                NumberFormat.getNumberInstance(Locale.US).format(getMaxHp()),
+                NumberFormat.getNumberInstance(Locale.US).format(getMp()),
+                NumberFormat.getNumberInstance(Locale.US).format(getMaxMp()),
+                isLeft(),
+                getPdr(),
+                getMdr(),
+                controller == null ? "null" : controller.getName(),
+                getForcedMobStat().getExp(),
+                getNxDropAmount(),
+                mesos
+        );
     }
 
     public Map<String, Object> getProperties() {
