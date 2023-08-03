@@ -1352,6 +1352,7 @@ public class SkillConstants {
             case 5711021:
             case 22171063:
             case 22141012:
+            case DualBlade.ASURAS_ANGER:
             case IceLightning.THUNDER_STORM:
             case IceLightning.FROZEN_ORB:
             case Bowmaster.ARROW_PLATTER:
