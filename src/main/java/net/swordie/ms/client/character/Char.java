@@ -39,8 +39,8 @@ import net.swordie.ms.client.guild.result.GuildResult;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.JobManager;
 import net.swordie.ms.client.jobs.legend.Evan;
-import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.client.jobs.resistance.WildHunterInfo;
+import net.swordie.ms.client.jobs.resistance.demon.DemonAvenger;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.client.party.PartyResult;
@@ -1996,7 +1996,7 @@ public class Char {
 			case mhp:
 				cs.setMaxHp(amount);
 				if (JobConstants.isDemonAvenger(getJob())) {
-					((Demon) getJobHandler()).sendHpUpdate();
+					((DemonAvenger) getJobHandler()).sendHpUpdate();
 				}
 				break;
 			case mp:
@@ -2327,7 +2327,7 @@ public class Char {
             getTemporaryStatManager().removeStatsBySkill(getTemporaryStatManager().getOption(RepeatEffect).rOption);
 		}
 		if (JobConstants.isDemonAvenger(getJob())) {
-			((Demon) getJobHandler()).sendHpUpdate();
+			((DemonAvenger) getJobHandler()).sendHpUpdate();
 		}
 		if (ItemConstants.isAndroid(itemID) || ItemConstants.isMechanicalHeart(itemID)) {
 			if (getAndroid() != null) {
@@ -2400,7 +2400,7 @@ public class Char {
 		getField().broadcastPacket(UserRemote.avatarModified(this, maskValue, (byte) 0), this);
 		initSoulMP();
 		if (JobConstants.isDemonAvenger(getJob())) {
-			((Demon) getJobHandler()).sendHpUpdate();
+			((DemonAvenger) getJobHandler()).sendHpUpdate();
 		}
 		// check android status
 		if (ItemConstants.isAndroid(itemID) || ItemConstants.isMechanicalHeart(itemID)) {

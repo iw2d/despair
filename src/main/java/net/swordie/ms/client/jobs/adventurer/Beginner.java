@@ -58,8 +58,7 @@ public class Beginner extends Job {
 
     @Override
     public boolean isHandlerOfJob(short id) {
-        JobConstants.JobEnum job = JobConstants.JobEnum.getJobById(id);
-        return job == JobConstants.JobEnum.BEGINNER;
+        return JobConstants.JobEnum.getJobById(id) == JobConstants.JobEnum.BEGINNER;
     }
 
     @Override

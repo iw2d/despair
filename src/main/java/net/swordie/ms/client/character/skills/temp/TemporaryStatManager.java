@@ -8,7 +8,7 @@ import net.swordie.ms.client.character.skills.*;
 import net.swordie.ms.client.character.skills.PartyBooster;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.jobs.legend.Luminous;
-import net.swordie.ms.client.jobs.resistance.Demon;
+import net.swordie.ms.client.jobs.resistance.demon.DemonAvenger;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.Summoned;
 import net.swordie.ms.connection.packet.UserRemote;
@@ -176,7 +176,7 @@ public class TemporaryStatManager {
             }
         }
         if (cts != LifeTidal && JobConstants.isDemonAvenger(chr.getJob())) {
-            ((Demon) chr.getJobHandler()).sendHpUpdate();
+            ((DemonAvenger) chr.getJobHandler()).sendHpUpdate();
         }
     }
 
@@ -222,7 +222,7 @@ public class TemporaryStatManager {
             ((Luminous) chr.getJobHandler()).handleRemoveLarkness(opt.rOption);
         }
         if (JobConstants.isDemonAvenger(chr.getJob())) {
-            ((Demon) chr.getJobHandler()).sendHpUpdate();
+            ((DemonAvenger) chr.getJobHandler()).sendHpUpdate();
         }
     }
 

@@ -11,8 +11,8 @@ import net.swordie.ms.client.jobs.nova.AngelicBuster;
 import net.swordie.ms.client.jobs.nova.Kaiser;
 import net.swordie.ms.client.jobs.resistance.BattleMage;
 import net.swordie.ms.client.jobs.resistance.Blaster;
-import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.client.jobs.resistance.WildHunter;
+import net.swordie.ms.client.jobs.resistance.demon.DemonSlayer;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.TextEffectType;
@@ -56,7 +56,7 @@ public class Effect {
                 int skillID = getArg1();
                 outPacket.encodeInt(getArg1()); // skill id
                 outPacket.encodeByte(getArg2()); // slv
-                if (skillID == Demon.RAVEN_STORM || skillID == Shade.DEATH_MARK) {
+                if (skillID == DemonSlayer.RAVEN_STORM || skillID == Shade.DEATH_MARK) {
                     outPacket.encodeInt(getArg3()); // nDelta
                 }
                 break;

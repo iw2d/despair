@@ -15,8 +15,8 @@ import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.legend.Aran;
 import net.swordie.ms.client.jobs.legend.Luminous;
 import net.swordie.ms.client.jobs.nova.Kaiser;
-import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.client.jobs.resistance.WildHunterInfo;
+import net.swordie.ms.client.jobs.resistance.demon.DemonAvenger;
 import net.swordie.ms.client.jobs.sengoku.Kanna;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
@@ -373,7 +373,7 @@ public class JobSkillHandler {
     @Handler(op = InHeader.REQUEST_SET_HP_BASE_DAMAGE)
     public static void handleRequestSetHpBaseDamage(Char chr, InPacket inPacket) {
         if (JobConstants.isDemonAvenger(chr.getJob())) {
-            ((Demon) chr.getJobHandler()).sendHpUpdate();
+            ((DemonAvenger) chr.getJobHandler()).sendHpUpdate();
         }
     }
 

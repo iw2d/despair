@@ -47,8 +47,8 @@ public class JobConstants {
             Map.entry("Luminious", List.of(LUMINOUS, LUMINOUS1, LUMINOUS2, LUMINOUS3, LUMINOUS4)),
             Map.entry("Shade", List.of(SHADE, SHADE1, SHADE2, SHADE3, SHADE4)),
 
-            Map.entry("Demon Slayer", List.of(DEMON_SLAYER, DEMON_SLAYER1, DEMON_SLAYER2, DEMON_SLAYER3, DEMON_SLAYER4)),
-            Map.entry("Demon Avenger", List.of(DEMON_SLAYER, DEMON_AVENGER1, DEMON_AVENGER2, DEMON_AVENGER3, DEMON_AVENGER4)),
+            Map.entry("Demon Slayer", List.of(DEMON, DEMON_SLAYER1, DEMON_SLAYER2, DEMON_SLAYER3, DEMON_SLAYER4)),
+            Map.entry("Demon Avenger", List.of(DEMON, DEMON_AVENGER1, DEMON_AVENGER2, DEMON_AVENGER3, DEMON_AVENGER4)),
             Map.entry("Battle Mage", List.of(CITIZEN, BATTLE_MAGE_1, BATTLE_MAGE_2, BATTLE_MAGE_3, BATTLE_MAGE_4)),
             Map.entry("Wild Hunter", List.of(CITIZEN, WILD_HUNTER_1, WILD_HUNTER_2, WILD_HUNTER_3, WILD_HUNTER_4)),
             Map.entry("Mechanic", List.of(CITIZEN, MECHANIC_1, MECHANIC_2, MECHANIC_3, MECHANIC_4)),
@@ -434,7 +434,7 @@ public class JobConstants {
         LUMINOUS3(2711, 2004),
         LUMINOUS4(2712, 2004),
         CITIZEN(3000, 3000),
-        DEMON_SLAYER(3001, 3001),
+        DEMON(3001, 3001),
         XENON(3002, 3002),
         DEMON_SLAYER1(3100, 3001),
         DEMON_SLAYER2(3110, 3001),
@@ -737,7 +737,7 @@ public class JobConstants {
                 case LUMINOUS4:
                     wts.add(WeaponType.ShiningRod);
                     break;
-                case DEMON_SLAYER:
+                case DEMON:
                     wts.add(WeaponType.OneHandedAxe);
                     wts.add(WeaponType.OneHandedMace);
                     wts.add(WeaponType.Desperado);
@@ -836,7 +836,7 @@ public class JobConstants {
         ARAN(3, JobFlag.ENABLED, JobEnum.LEGEND),
         EVAN(4, JobFlag.ENABLED, JobEnum.EVAN),
         MERCEDES(5, JobFlag.ENABLED, JobEnum.MERCEDES),
-        DEMON(6, JobFlag.ENABLED, JobEnum.DEMON_SLAYER),
+        DEMON(6, JobFlag.ENABLED, JobEnum.DEMON),
         PHANTOM(7, JobFlag.ENABLED, JobEnum.PHANTOM),
         DUAL_BLADE(8, JobFlag.ENABLED, JobEnum.BEGINNER),
         MIHILE(9, JobFlag.ENABLED, JobEnum.NAMELESS_WARDEN),

@@ -13,6 +13,7 @@ import net.swordie.ms.client.jobs.cygnus.*;
 import net.swordie.ms.client.jobs.legend.*;
 import net.swordie.ms.client.jobs.nova.AngelicBuster;
 import net.swordie.ms.client.jobs.resistance.*;
+import net.swordie.ms.client.jobs.resistance.demon.*;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.BeastTamerBeasts;
 import net.swordie.ms.loaders.SkillData;
@@ -52,7 +53,7 @@ public class SkillConstants {
             BeastTamer.FISHY_SLAP,
             BeastTamer.TORNADO_FLIGHT,
             PinkBean.LETS_ROLL,
-            Demon.VITALITY_VEIL,
+            DemonAvenger.VITALITY_VEIL,
             AngelicBuster.SOUL_RESONANCE,
             BlazeWizard.DRAGON_BLAZE,
             Phantom.TEMPEST,
@@ -1360,7 +1361,7 @@ public class SkillConstants {
             case BlazeWizard.CATACLYSM:
             case ThunderBreaker.GALE:
             case ThunderBreaker.TYPHOON:
-            case Demon.DEMON_CRY:
+            case DemonSlayer.DEMON_CRY:
             case Mechanic.DISTORTION_BOMB:
             case AngelicBuster.SUPREME_SUPERNOVA:
             case Blaster.BALLISTIC_HURRICANE:
@@ -1434,7 +1435,7 @@ public class SkillConstants {
             return JobConstants.JobEnum.PHANTOM.getJobId();
         }
         if (JobConstants.isDemon(job)) {
-            return JobConstants.JobEnum.DEMON_SLAYER.getJobId();
+            return JobConstants.JobEnum.DEMON.getJobId();
         }
         if (JobConstants.isMihile(job)) {
             return JobConstants.JobEnum.NAMELESS_WARDEN.getJobId();

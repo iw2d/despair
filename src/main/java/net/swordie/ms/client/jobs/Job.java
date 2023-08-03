@@ -18,6 +18,7 @@ import net.swordie.ms.client.jobs.cygnus.*;
 import net.swordie.ms.client.jobs.legend.*;
 import net.swordie.ms.client.jobs.nova.*;
 import net.swordie.ms.client.jobs.resistance.*;
+import net.swordie.ms.client.jobs.resistance.demon.*;
 import net.swordie.ms.client.jobs.sengoku.*;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
@@ -326,8 +327,8 @@ public abstract class Job {
 			case MAPLE_WARRIOR_MECH:
 			case Xenon.MAPLE_WARRIOR_XENON:
 			case Blaster.MAPLE_WARRIOR_BLASTER:
-			case Demon.MAPLE_WARRIOR_DA:
-			case Demon.MAPLE_WARRIOR_DS:
+			case DemonAvenger.MAPLE_WARRIOR_DA:
+			case DemonSlayer.MAPLE_WARRIOR_DS:
 			// Nova
 			case Kaiser.NOVA_WARRIOR_KAISER:
 			case AngelicBuster.NOVA_WARRIOR_AB:
@@ -388,8 +389,8 @@ public abstract class Job {
 			case FOR_LIBERTY_MECH:
 			// case Xenon.ORBITAL_CATACLYSM: (self)
 			case Blaster.FOR_LIBERTY_BLASTER:
-			case Demon.DEMONIC_FORTITUDE_DS:
-			case Demon.DEMONIC_FORTITUDE_DA:
+			case DemonSlayer.DEMONIC_FORTITUDE_DS:
+			case DemonAvenger.DEMONIC_FORTITUDE_DA:
 				handleEpicAdventure(chr, skillID, slv, inPacket, JobConstants::isResistance);
 				break;
 			// Nova : Kaiser, AngelicBuster do not have Epic Adventure

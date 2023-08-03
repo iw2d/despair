@@ -11,6 +11,9 @@ import net.swordie.ms.client.jobs.cygnus.*;
 import net.swordie.ms.client.jobs.legend.*;
 import net.swordie.ms.client.jobs.nova.*;
 import net.swordie.ms.client.jobs.resistance.*;
+import net.swordie.ms.client.jobs.resistance.demon.Demon;
+import net.swordie.ms.client.jobs.resistance.demon.DemonAvenger;
+import net.swordie.ms.client.jobs.resistance.demon.DemonSlayer;
 import net.swordie.ms.client.jobs.sengoku.*;
 
 import java.lang.reflect.InvocationTargetException;
@@ -41,9 +44,6 @@ public class JobManager {
             Corsair.class,
             Cannoneer.class,
             Jett.class,
-            BeastTamer.class,
-            Kinesis.class,
-            PinkBean.class,
 
             BlazeWizard.class,
             DawnWarrior.class,
@@ -61,21 +61,26 @@ public class JobManager {
             Phantom.class,
             Shade.class,
 
-            AngelicBuster.class,
-            Kaiser.class,
-
+            Demon.class,
+            DemonSlayer.class,
+            DemonAvenger.class,
             Citizen.class,
             BattleMage.class,
             Blaster.class,
-            Demon.class,
             Mechanic.class,
             WildHunter.class,
             Xenon.class,
 
+            AngelicBuster.class,
+            Kaiser.class,
+
             Hayato.class,
             Kanna.class,
 
-            Zero.class
+            BeastTamer.class,
+            Kinesis.class,
+            Zero.class,
+            PinkBean.class,
     };
 
     public static Job getJobById(short id, Char chr) {
