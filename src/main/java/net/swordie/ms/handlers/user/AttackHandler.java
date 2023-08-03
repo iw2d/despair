@@ -460,8 +460,7 @@ public class AttackHandler {
             if (skillID == 27121052 || skillID == 80001837) {
                 ai.x = inPacket.decodeShort();
                 ai.y = inPacket.decodeShort();
-            }
-            if (header == InHeader.USER_MAGIC_ATTACK && skillID != 32111016 && !SkillConstants.isKinesisPsychicAreaSkill(skillID)) {
+            } else if (header == InHeader.USER_MAGIC_ATTACK && skillID != 32111016 && !SkillConstants.isKinesisPsychicAreaSkill(skillID)) {
                 short forcedX = inPacket.decodeShort();
                 short forcedY = inPacket.decodeShort();
                 boolean dragon = inPacket.decodeByte() != 0;

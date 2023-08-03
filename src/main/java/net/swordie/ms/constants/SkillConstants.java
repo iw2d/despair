@@ -1160,6 +1160,7 @@ public class SkillConstants {
             case Mihile.SOUL_ASYLUM:
             case Evan.MAGIC_AMPLIFICATION:
             case Evan.DRAGON_FURY:
+            case Luminous.SPELL_MASTERY:
                 return true;
             default:
                 return false;
@@ -1673,6 +1674,7 @@ public class SkillConstants {
             case ThunderBreaker.SPEED_INFUSION:
             case Aran.MAHA_BLESSING:
             case Mihile.RALLY:
+            case Luminous.PHOTIC_MEDITATION:
                 return true;
             default:
                 return false;
@@ -1716,6 +1718,8 @@ public class SkillConstants {
             case BlazeWizard.PURE_MAGIC:
             case Evan.SPELL_MASTERY:
             case Evan.MAGIC_MASTERY:
+            case Luminous.SPELL_MASTERY:
+            case Luminous.MAGIC_MASTERY:
                 stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
                 break;
             case Corsair.GUN_MASTERY:
@@ -1799,6 +1803,9 @@ public class SkillConstants {
                 break;
             case Evan.DRAGON_FURY:
                 stats.put(BaseStat.madR, si.getValue(SkillStat.damage, slv));
+                break;
+            case Luminous.STANDARD_MAGIC_GUARD:
+                stats.put(BaseStat.magicGuard, si.getValue(SkillStat.x, slv));
                 break;
         }
     }

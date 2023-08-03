@@ -4740,11 +4740,7 @@ public class Char {
 	 */
 	public boolean applyMpCon(int skillID, byte slv) {
 		int curMp = getStat(Stat.mp);
-		SkillInfo si = SkillData.getSkillInfoById(skillID);
-		if (si == null) {
-			return true;
-		}
-		int mpCon = si.getValue(SkillStat.mpCon, slv);
+		int mpCon = getJobHandler().getMpCon(skillID, slv);
 		boolean hasEnough = curMp >= mpCon;
 		if (hasEnough) {
 			addStatAndSendPacket(Stat.mp, -mpCon);

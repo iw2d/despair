@@ -988,6 +988,17 @@ public abstract class Job {
 		return Arrays.stream(JOBLESS_BUFFS).anyMatch(b -> b == skillID);
 	}
 
+	public int getMpCon(int skillId, int slv) {
+		SkillInfo si = SkillData.getSkillInfoById(skillId);
+		if (si == null) {
+			return 0;
+		}
+		int mpCon = si.getValue(SkillStat.mpCon, slv);
+		mpCon += (int) (mpCon * (chr.getTotalStat(BaseStat.costMpR) / 100D));
+		mpCon -= (int) (mpCon * (chr.getTotalStat(BaseStat.mpConReduce) / 100D));
+		return mpCon;
+	}
+
 	public final int getBuffedSkillDuration(int duration) {
 		return (int) ((double) duration * (chr.getTotalStat(BaseStat.buffTimeR) / 100D));
 	}

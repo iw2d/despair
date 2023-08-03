@@ -69,11 +69,6 @@ public class Archer extends Beginner {
         super.handleAttack(chr, attackInfo);
     }
 
-    @Override
-    public void handleRemoveCTS(CharacterTemporaryStat cts) {
-        super.handleRemoveCTS(cts);
-    }
-
 
     // Skill related methods -------------------------------------------------------------------------------------------
 

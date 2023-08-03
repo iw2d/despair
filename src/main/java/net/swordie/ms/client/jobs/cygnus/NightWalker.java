@@ -587,6 +587,13 @@ public class NightWalker extends Noblesse {
         super.handleRemoveCTS(cts);
     }
 
+    @Override
+    public void handleWarp() {
+        // clear bounce map
+        batBounceMap.clear();
+        super.handleWarp();
+    }
+
 
 
     // Hit related methods ---------------------------------------------------------------------------------------------

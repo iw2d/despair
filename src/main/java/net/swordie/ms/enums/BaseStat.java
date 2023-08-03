@@ -75,7 +75,8 @@ public enum BaseStat {
     basicLukR,
     buffTimeR, // Buff Duration multiplier
     recoveryUp, // % increase in heal potion use
-    mpconReduce,
+    costMpR,
+    mpConReduce,
     reduceCooltime,
     padLv,
     madLv,
@@ -452,9 +453,6 @@ public enum BaseStat {
             case EMMP:
                 stats.put(mmp, o.nOption);
                 break;
-            case BlessOfDarkness:
-                // TODO
-                break;
             case IndieScriptBuff:
                 stats.put(buffTimeR, o.nValue);
                 break;
@@ -508,7 +506,7 @@ public enum BaseStat {
                 stats.put(pdd, si.getValue(SkillStat.z, o.nOption));
                 stats.put(mdd, si.getValue(SkillStat.u, o.nOption));
                 stats.put(acc, si.getValue(SkillStat.v, o.nOption));
-                stats.put(mpconReduce, si.getValue(SkillStat.mpConReduce, o.nOption));
+                stats.put(mpConReduce, si.getValue(SkillStat.mpConReduce, o.nOption));
                 stats.put(bd, o.xOption);
                 break;
             case VengeanceOfAngel:
@@ -558,6 +556,19 @@ public enum BaseStat {
                 break;
             case Judgement:
                 ToBaseStat.judgement(chr, o, stats);
+                break;
+            case BlessOfDarkness:
+                ToBaseStat.blessOfDarkness(chr, o, stats);
+                break;
+            case StackBuff:
+                stats.put(damR, o.nOption);
+                break;
+            case LifeTidal:
+                if (o.nOption == 1) {
+                    stats.put(damR, o.mOption);
+                } else if (o.nOption == 2) {
+                    stats.put(cr, o.mOption);
+                }
                 break;
             default:
                 stats.put(unk, o.nOption);

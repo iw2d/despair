@@ -6,6 +6,7 @@ import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.jobs.adventurer.pirate.Buccaneer;
 import net.swordie.ms.client.jobs.adventurer.warrior.Hero;
 import net.swordie.ms.client.jobs.legend.Aran;
+import net.swordie.ms.client.jobs.legend.Luminous;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.loaders.SkillData;
 
@@ -129,6 +130,21 @@ public class ToBaseStat {
             case 5:
                 // drain handled in Phantom.handleAttack
                 break;
+        }
+    }
+
+    public static void blessOfDarkness(Char chr, Option o, Map<BaseStat, Integer> stats) {
+        if (o.rOption != Luminous.BLACK_BLESSING) {
+            return;
+        }
+        SkillInfo si = SkillData.getSkillInfoById(Luminous.BLACK_BLESSING);
+        int slv = chr.getSkillLevel(Luminous.BLACK_BLESSING);
+        if (o.nOption == 1) {
+            stats.put(BaseStat.mad, si.getValue(u, slv));
+        } else if (o.nOption == 2) {
+            stats.put(BaseStat.mad, si.getValue(y, slv));
+        } else if (o.nOption == 3) {
+            stats.put(BaseStat.mad, si.getValue(y, slv));
         }
     }
 }

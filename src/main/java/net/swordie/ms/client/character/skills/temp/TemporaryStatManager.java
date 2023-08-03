@@ -7,6 +7,7 @@ import net.swordie.ms.client.character.skills.GuidedBullet;
 import net.swordie.ms.client.character.skills.*;
 import net.swordie.ms.client.character.skills.PartyBooster;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
+import net.swordie.ms.client.jobs.legend.Luminous;
 import net.swordie.ms.client.jobs.resistance.Demon;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.Summoned;
@@ -196,7 +197,7 @@ public class TemporaryStatManager {
         if (!hasStat(cts)) {
             return;
         }
-        if(cts == CombatOrders) {
+        if (cts == CombatOrders) {
             chr.setCombatOrders(0);
         }
 
@@ -216,6 +217,9 @@ public class TemporaryStatManager {
             getSchedules().get(cts).cancel(false);
         } else {
             getSchedules().remove(cts);
+        }
+        if (JobConstants.isLuminous(chr.getJob()) && cts == Larkness) {
+            ((Luminous) chr.getJobHandler()).handleRemoveLarkness(opt.rOption);
         }
         if (JobConstants.isDemonAvenger(chr.getJob())) {
             ((Demon) chr.getJobHandler()).sendHpUpdate();
@@ -379,10 +383,11 @@ public class TemporaryStatManager {
             outPacket.encodeByte(getOption(AntiMagicShell).bOption);
         }
         if (hasNewStat(Larkness)) {
-            getLarknessManager().getDarkInfo().encode(outPacket);
-            getLarknessManager().getLightInfo().encode(outPacket);
+            outPacket.encodeInt(0);
+            outPacket.encodeInt(0);
+            outPacket.encodeInt(0);
+            outPacket.encodeInt(0);
             getLarknessManager().encode(outPacket);
-
         }
         if (hasNewStat(IgnoreTargetDEF)) {
             outPacket.encodeInt(getOption(IgnoreTargetDEF).mOption);

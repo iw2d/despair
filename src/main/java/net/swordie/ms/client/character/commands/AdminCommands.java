@@ -491,6 +491,18 @@ public class AdminCommands {
         }
     }
 
+    @Command(names = {"larkness"}, requiredType = Tester)
+    public static class Larkness extends AdminCommand {
+        public static void execute(Char chr, String[] args) {
+            TemporaryStatManager tsm = chr.getTemporaryStatManager();
+            if (tsm.getLarknessManager() != null) {
+                tsm.getLarknessManager().setDarkFeathers(5);
+                tsm.getLarknessManager().setLightFeathers(5);
+                tsm.getLarknessManager().updateInfo();
+            }
+        }
+    }
+
     @Command(names = {"np", "nearestportal"}, requiredType = Tester)
     public static class NP extends AdminCommand {
         public static void execute(Char chr, String[] args) {
@@ -1511,6 +1523,8 @@ public class AdminCommands {
             int[] mageEquips = new int[]{
                     1382000,
                     1372000,
+                    1212000,
+                    1352400,
                     1552000,
                     1252000,
                     1262000,

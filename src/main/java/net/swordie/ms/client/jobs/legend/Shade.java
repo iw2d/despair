@@ -454,6 +454,13 @@ public class Shade extends Job {
         super.handleMobDebuffSkill(chr);
     }
 
+    @Override
+    public void handleWarp() {
+        // clear bounce map
+        foxBounceMap.clear();
+        super.handleWarp();
+    }
+
     public void reviveBySummonOtherSpirit() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         chr.heal(chr.getMaxHP());

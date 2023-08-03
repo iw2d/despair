@@ -196,7 +196,7 @@ public class Magician extends Beginner {
             case FirePoison.MEDITATION_FP:
             case IceLightning.MEDITATION_IL:
                 o1.nValue = si.getValue(indieMad, slv);
-                o1.nReason = skillID;
+                o1.nReason = FirePoison.MEDITATION_FP; // fp/il meditation should not stack
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieMAD, o1);
