@@ -33,6 +33,8 @@ public class SkillInfo {
     private int rootId;
     private int maxLevel;
     private int currentLevel;
+    private String actionName = "";
+    private int actionDelay;
     private Map<SkillStat, String> skillStatInfo = new HashMap<>();
     private boolean invisible;
     private int masterLevel;
@@ -86,6 +88,22 @@ public class SkillInfo {
 
     public void setCurrentLevel(int currentLevel) {
         this.currentLevel = currentLevel;
+    }
+
+    public String getActionName() {
+        return actionName;
+    }
+
+    public void setActionName(String actionName) {
+        this.actionName = actionName;
+    }
+
+    public int getActionDelay() {
+        return actionDelay;
+    }
+
+    public void setActionDelay(int actionDelay) {
+        this.actionDelay = actionDelay;
     }
 
     public Map<SkillStat, String> getSkillStatInfo() {

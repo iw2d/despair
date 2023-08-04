@@ -4,8 +4,6 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.life.drop.DropInfo;
 import net.swordie.ms.life.mob.Mob;
-import net.swordie.ms.life.mob.MobStat;
-import net.swordie.ms.life.mob.skill.MobSkill;
 import net.swordie.ms.life.mob.skill.MobSkillID;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.loaders.containerclasses.SkillStringInfo;
@@ -27,7 +25,7 @@ public class JsonExporter {
 
         SkillData.loadAllSkills();
         StringData.loadSkillStrings();
-        // exportClasses();
+        exportClasses();
 
         StringData.loadMobStrings();
         StringData.loadItemStrings();
@@ -116,6 +114,8 @@ public class JsonExporter {
                     skillObject.put("desc", ssi.getDesc());
                     skillObject.put("h", ssi.getH());
                     skillObject.put("type", si.getType());
+                    skillObject.put("action", si.getActionName());
+                    skillObject.put("delay", si.getActionDelay());
                     skillObject.put("invisible", si.isInvisible());
                     skillObject.put("maxLevel", si.getMaxLevel());
                     skillObject.put("massSpell", si.isMassSpell());

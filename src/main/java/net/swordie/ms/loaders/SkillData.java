@@ -40,6 +40,8 @@ public class SkillData {
                 dataOutputStream.writeInt(si.getMaxLevel());
                 dataOutputStream.writeInt(si.getMasterLevel());
                 dataOutputStream.writeInt(si.getFixLevel());
+                dataOutputStream.writeUTF(si.getActionName());
+                dataOutputStream.writeInt(si.getActionDelay());
                 dataOutputStream.writeBoolean(si.isInvisible());
                 dataOutputStream.writeBoolean(si.isMassSpell());
                 dataOutputStream.writeInt(si.getType());
@@ -127,6 +129,8 @@ public class SkillData {
             skillInfo.setMaxLevel(dataInputStream.readInt());
             skillInfo.setMasterLevel(dataInputStream.readInt());
             skillInfo.setFixLevel(dataInputStream.readInt());
+            skillInfo.setActionName(dataInputStream.readUTF());
+            skillInfo.setActionDelay(dataInputStream.readInt());
             skillInfo.setInvisible(dataInputStream.readBoolean());
             skillInfo.setMassSpell(dataInputStream.readBoolean());
             skillInfo.setType(dataInputStream.readInt());
@@ -185,7 +189,48 @@ public class SkillData {
         }
     }
 
+    private static Map<String, Integer> getActionDelaysFromWz() {
+        Map<String, Integer> actionDelayMap = new HashMap<>();
+        String wzDir = ServerConstants.WZ_DIR + "/Character.wz";
+        File dir = new File(wzDir);
+        File[] files = dir.listFiles();
+        for (File file : files) {
+            if (!file.getName().contains("2000.img")) {
+                continue;
+            }
+            Node node = XMLApi.getRoot(file);
+            if (node == null) {
+                continue;
+            }
+            List<Node> nodes = XMLApi.getAllChildren(node);
+            for (Node mainNode : nodes) {
+                List<Node> actionNodes = XMLApi.getAllChildren(mainNode);
+                for (Node actionNode : actionNodes) {
+                    Map<String, String> attributes = XMLApi.getAttributes(actionNode);
+                    String actionName = attributes.get("name");
+                    int actionDelay = 0;
+                    for (Node frameNode : XMLApi.getAllChildren(actionNode)) {
+                        Node delayNode = XMLApi.getFirstChildByNameBF(frameNode, "delay");
+                        if (delayNode == null) {
+                            break;
+                        }
+                        Map<String, String> delayAttr = XMLApi.getAttributes(delayNode);
+                        int frameDelay = Integer.parseInt(delayAttr.get("value"));
+                        if (frameDelay > 0) {
+                            actionDelay += frameDelay;
+                        }
+                    }
+                    if (actionDelay > 0) {
+                        actionDelayMap.put(actionName, actionDelay);
+                    }
+                }
+            }
+        }
+        return actionDelayMap;
+    }
+
     private static void loadSkillsFromWz() {
+        Map<String, Integer> actionDelayMap = getActionDelaysFromWz();
         String wzDir = ServerConstants.WZ_DIR + "/Skill.wz";
         File dir = new File(wzDir);
         File[] files = dir.listFiles();
@@ -233,6 +278,16 @@ public class SkillData {
                                 intVal = Integer.parseInt(mainValue);
                             }
                             switch (mainName) {
+                                case "action":
+                                    for (Node actionNode : XMLApi.getAllChildren(mainLevelNode)) {
+                                        Map<String, String> actionAttr = XMLApi.getAttributes(actionNode);
+                                        String nodeName = actionAttr.get("name");
+                                        if (nodeName.equals("0")) {
+                                            skill.setActionName(actionAttr.get("value"));
+                                            skill.setActionDelay(actionDelayMap.getOrDefault(skill.getActionName(), 0));
+                                        }
+                                    }
+                                    break;
                                 case "masterLevel":
                                     skill.setMasterLevel(intVal);
                                     break;
