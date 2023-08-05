@@ -76,7 +76,7 @@ public class RoomHandler {
                 }
                 tradeRoom = chr.getTradeRoom();
                 if (tradeRoom == null) {
-                    chr.chatMessage("You are currently not trading.");
+                    chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("You are currently not trading.")));
                     return;
                 }
                 Item offer = item.deepCopy();
@@ -98,7 +98,7 @@ public class RoomHandler {
                 long money = inPacket.decodeLong();
                 tradeRoom = chr.getTradeRoom();
                 if (tradeRoom == null) {
-                    chr.chatMessage("You are currently not trading.");
+                    chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("You are currently not trading.")));
                     return;
                 }
                 if (money < 0 || money > chr.getMoney()) {
@@ -127,8 +127,10 @@ public class RoomHandler {
                         other.write(MiniRoomPacket.TradingRoom.tradeComplete());
                     } else {
                         tradeRoom.cancelTrade();
-                        tradeRoom.getChr().write(MiniRoomPacket.TradingRoom.tradeCancel());
-                        tradeRoom.getOther().write(MiniRoomPacket.TradingRoom.tradeCancel());
+                        tradeRoom.getChr().write(MiniRoomPacket.TradingRoom.tradeCancel(0));
+                        tradeRoom.getChr().write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Trade unsuccessful.")));
+                        tradeRoom.getOther().write(MiniRoomPacket.TradingRoom.tradeCancel(0));
+                        tradeRoom.getOther().write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Trade unsuccessful.")));
                     }
                     chr.setTradeRoom(null);
                     other.setTradeRoom(null);
@@ -147,7 +149,7 @@ public class RoomHandler {
                     merchant = chr.getVisitingmerchant();
                     merchant.broadCastPacket(MiniRoomPacket.chat(merchant.getVisitors().indexOf(chr), msgWithName));
                 } else {
-                    chr.chatMessage("You are currently not in a room.");
+                    chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("You are currently not in a room.")));
                 }
                 break;
             case EnterBase:
@@ -158,51 +160,57 @@ public class RoomHandler {
                     if (life instanceof Merchant) {
                         merchant = (Merchant) life;
                         if (!merchant.getOpen()) {
-                            chr.chatMessage("This shop is under maintenance");
+                            chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("This shop is in maintenance, please come by later.")));
                             return;
                         } else if (merchant.getVisitors().size() >= GameConstants.MAX_MERCHANT_VISITORS) {
-                            chr.chatMessage("Shop is full");
+                            chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("This shop has reached it's maximum capacity, please come by later.")));
                         } else {
                             merchant.addVisitor(chr);
                             chr.setVisitingmerchant(merchant);
                             chr.getClient().write(MiniRoomPacket.EntrustedShop.enterMerchant(chr, merchant, false));
                         }
+                    } else {
+                        chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("The other player has already closed the trade.")));
                     }
-                    return;
+                } else {
+                    chr.write(MiniRoomPacket.TradingRoom.enterTrade(tradeRoom, chr));
+                    other = tradeRoom.getOtherChar(chr); // initiator
+                    other.write(MiniRoomPacket.enter(0, chr));
                 }
-                chr.write(MiniRoomPacket.TradingRoom.enterTrade(tradeRoom, chr));
-                other = tradeRoom.getOtherChar(chr); // initiator
-                other.write(MiniRoomPacket.TradingRoom.enterTrade(tradeRoom, other));
                 break;
             case InviteStatic:
                 int charID = inPacket.decodeInt();
                 other = chr.getField().getCharByID(charID);
                 if (other == null) {
-                    chr.chatMessage("Could not find that player.");
+                    chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Could not find player.")));
                     return;
                 }
                 if (other.getTradeRoom() != null) {
-                    chr.chatMessage("That player is already trading.");
+                    chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("The other player is already trading with someone else.")));
                     return;
                 }
                 other.write(MiniRoomPacket.TradingRoom.inviteTrade(chr));
                 tradeRoom = new TradeRoom(chr, other);
                 chr.setTradeRoom(tradeRoom);
                 other.setTradeRoom(tradeRoom);
+                chr.write(MiniRoomPacket.TradingRoom.startTrade(chr));
                 break;
             case InviteResultStatic: // always decline?
                 tradeRoom = chr.getTradeRoom();
                 if (tradeRoom != null) {
                     other = tradeRoom.getOtherChar(chr);
-                    other.chatMessage(String.format("%s has declined your trade invite.", chr.getName()));
+                    other.write(MiniRoomPacket.TradingRoom.tradeCancel(1));
+                    other.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage(chr.getName() + " has declined your trade request.")));
                     other.setTradeRoom(null);
+                    chr.setTradeRoom(null);
                 }
                 break;
             case Leave:
                 tradeRoom = chr.getTradeRoom();
                 if (tradeRoom != null) {
                     tradeRoom.cancelTrade();
-                    tradeRoom.getOtherChar(chr).write(MiniRoomPacket.TradingRoom.tradeCancel());
+                    tradeRoom.getOtherChar(chr).write(MiniRoomPacket.TradingRoom.tradeCancel(0));
+                    tradeRoom.getOtherChar(chr).write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("The other player has canceled the trade.")));
                 }
                 if (chr.getVisitingmerchant() != null) {
                     chr.getVisitingmerchant().removeVisitor(chr);
@@ -219,11 +227,11 @@ public class RoomHandler {
                 } else {
                     // Merchant
                     if (chr.getMerchant() != null) {
-                        chr.chatMessage("You already have a merchant open.");
+                        chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("You already have a store open.")));
                         return;
                     }
                     if (chr.getAccount().getEmployeeTrunk().getMoney() > 0 || !chr.getAccount().getEmployeeTrunk().getItems().isEmpty()) {
-                        chr.chatMessage("You must retrieve your items from Fredrick before opening a merchant.");
+                        chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("You must retrieve your items from Fredrick before opening a merchant.")));
                         return;
                     }
                     String text = inPacket.decodeString();
@@ -231,7 +239,7 @@ public class RoomHandler {
                     slot = inPacket.decodeByte();
                     inPacket.decodeByte(); //tick
                     inPacket.decodeInt();  //tock
-                    int itemid = chr.getCashInventory().getItemBySlot(slot).getItemId();
+                    int itemId = chr.getCashInventory().getItemBySlot(slot).getItemId();
                     merchant = new Merchant(0);
                     merchant.setStartTime(Util.getCurrentTimeLong());
                     merchant.setPosition(chr.getPosition());
@@ -239,7 +247,7 @@ public class RoomHandler {
                     merchant.setOwnerName(chr.getName());
                     merchant.setOpen(false);
                     merchant.setMessage(text);
-                    merchant.setItemID(itemid);
+                    merchant.setItemID(itemId);
                     merchant.setFh(chr.getFoothold());
                     merchant.setWorldId(chr.getWorld().getWorldId());
                     merchant.setEmployeeTrunk(chr.getAccount().getEmployeeTrunk());
@@ -292,6 +300,7 @@ public class RoomHandler {
                 int totalQuantity = bundles * perBundle;
                 if (item == null) {
                     chr.getOffenseManager().addOffense("Tried to add a non-existing item to store.");
+                    return;
                 }
                 if (totalQuantity > 0 && totalQuantity <= item.getQuantity() && merchant.getItems().size() < GameConstants.MAX_MERCHANT_SLOTS) {
                     Item itemCopy = item.deepCopy();
@@ -314,7 +323,7 @@ public class RoomHandler {
                     return;
                 }
                 chr.getMerchant().closeMerchant();
-                chr.getClient().write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Please visit fredrick for your items.")));
+                chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Please visit fredrick for your items.")));
                 chr.setMerchant(null);
                 chr.getItemsFromEmployeeTrunk();
                 break;
@@ -347,12 +356,12 @@ public class RoomHandler {
                     return;
                 }
                 item = merchantItem.item;
-                long amount = merchantItem.bundles * item.getQuantity();
+                int amount = merchantItem.bundles * item.getQuantity();
                 if (amount <= 0 || amount > 32767) {
                     return;
                 }
                 Item newCopy = item.deepCopy();
-                newCopy.setQuantity((int) amount);
+                newCopy.setQuantity(amount);
                 if (!chr.getInventoryByType(newCopy.getInvType()).canPickUp(newCopy)) {
                     return;
                 }
@@ -366,7 +375,7 @@ public class RoomHandler {
                 chr.getMerchant().tidyMerchant(chr);
                 break;
             default:
-                log.error(String.format("Unhandled miniroom type %s", mra));
+                log.error(String.format("Unhandled miniroom action %s", mra));
         }
     }
 

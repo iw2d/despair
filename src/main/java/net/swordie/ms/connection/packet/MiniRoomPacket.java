@@ -13,7 +13,7 @@ import net.swordie.ms.life.Merchant.BoughtItem;
 import net.swordie.ms.life.Merchant.Merchant;
 import net.swordie.ms.life.Merchant.MerchantItem;
 
-import java.util.List;
+import java.util.Map;
 
 public class MiniRoomPacket {
 
@@ -27,18 +27,18 @@ public class MiniRoomPacket {
         return outPacket;
     }
 
-    public static OutPacket enterResult(MiniRoomType miniRoomType, int maxUsers, int myPosition, List<Char> users) {
+    public static OutPacket enterResult(MiniRoomType miniRoomType, int maxUsers, int myPosition, Map<Integer, Char> users) {
         OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
         outPacket.encodeByte(MiniRoomAction.EnterResultStatic.getVal());
         outPacket.encodeByte(miniRoomType.getVal());
         outPacket.encodeByte(maxUsers);
         outPacket.encodeByte(myPosition);
-        for (int i = 0; i < users.size(); i++) {
-            Char chr = users.get(i);
+        for (Integer user : users.keySet()) {
+            Char chr = users.get(user);
             if (chr == null) {
                 continue;
             }
-            outPacket.encodeByte(i);
+            outPacket.encodeByte(user);
             chr.getAvatarData().getAvatarLook().encode(outPacket);
             outPacket.encodeString(chr.getName());
             outPacket.encodeShort(chr.getJob());
@@ -91,12 +91,24 @@ public class MiniRoomPacket {
 
     public static class TradingRoom extends MiniRoomPacket {
 
+        public static OutPacket startTrade(Char chr) {
+            return MiniRoomPacket.enterResult(
+                    MiniRoomType.TRADING_ROOM,
+                    2,
+                    1,
+                    Map.of(1, chr)
+            );
+        }
+
         public static OutPacket enterTrade(TradeRoom tradeRoom, Char chr) {
             return MiniRoomPacket.enterResult(
                     MiniRoomType.TRADING_ROOM,
                     2,
                     1,
-                    List.of(tradeRoom.getOtherChar(chr), chr)
+                    Map.of(
+                            0, tradeRoom.getOtherChar(chr),
+                            1, chr
+                    )
             );
         }
 
@@ -139,8 +151,8 @@ public class MiniRoomPacket {
             return outPacket;
         }
 
-        public static OutPacket tradeCancel() {
-            OutPacket outPacket = MiniRoomPacket.leave(0);
+        public static OutPacket tradeCancel(int leaveUser) {
+            OutPacket outPacket = MiniRoomPacket.leave(leaveUser);
             outPacket.encodeByte(RoomLeaveType.TRLeave_TradeFail_Denied.getVal());
             return outPacket;
         }
