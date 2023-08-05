@@ -1,8 +1,6 @@
 package net.swordie.ms.client.character;
 
 import net.swordie.ms.client.character.items.Item;
-import net.swordie.ms.connection.OutPacket;
-import net.swordie.ms.connection.packet.MiniroomPacket;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.util.container.Tuple;
 

@@ -5,7 +5,7 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
-import net.swordie.ms.connection.packet.MiniroomPacket;
+import net.swordie.ms.connection.packet.MiniRoomPacket;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.util.Util;
@@ -66,7 +66,7 @@ public class Merchant extends Life {
         }
         int newCharSlot = visitors.size();
         for (int k = 0; k < visitors.size(); k++) {
-            visitors.get(k).write(MiniroomPacket.shopVisitorAdd(visitor, newCharSlot));
+            visitors.get(k).write(MiniRoomPacket.enter(newCharSlot, visitor));
         }
         visitors.add(visitor);
     }
@@ -75,9 +75,9 @@ public class Merchant extends Life {
         visitor.setVisitingmerchant(null);
         int slot = visitors.indexOf(visitor) + 1;
         visitors.remove(visitor);
-        visitor.getClient().write(MiniroomPacket.shopVisitorRemove(visitor, slot));
+        visitor.getClient().write(MiniRoomPacket.leave(slot));
         for (Char visitor1 : visitors) {
-            visitor1.getClient().write(MiniroomPacket.shopVisitorRemove(visitor, slot));
+            visitor1.getClient().write(MiniRoomPacket.leave(slot));
         }
     }
 
@@ -194,7 +194,7 @@ public class Merchant extends Life {
     public void broadcastSpawnPacket(Char onlyChar) {
         Field field = getField();
         for (Char chr : field.getChars()) {
-            chr.write(MiniroomPacket.openShop(this));
+            chr.write(MiniRoomPacket.EntrustedShop.openMerchant(this));
         }
     }
 
@@ -220,7 +220,7 @@ public class Merchant extends Life {
             DatabaseManager.deleteFromDB(merchantItem);
         }
 
-        chr.getClient().write(MiniroomPacket.shopItemUpdate(chr.getMerchant()));
+        chr.getClient().write(MiniRoomPacket.EntrustedShop.updateMerchant(chr.getMerchant()));
     }
 
     public void buyItem(Char customer, int itemPos, short quantity) {
@@ -239,7 +239,7 @@ public class Merchant extends Life {
         customer.addItemToInventory(itemCopy);
 
         for (Char visitor1 : visitors) {
-            visitor1.getClient().write(MiniroomPacket.shopItemUpdate(this));
+            visitor1.getClient().write(MiniRoomPacket.EntrustedShop.updateMerchant(this));
         }
         addBoughtItem(itemToBuy.item, price, customer.getName());
 
@@ -252,7 +252,7 @@ public class Merchant extends Life {
     public void broadcastLeavePacket() {
         Field field = getField();
         for (Char chr : field.getChars()) {
-            field.broadcastPacket(MiniroomPacket.destroyShop(this));
+            field.broadcastPacket(MiniRoomPacket.EntrustedShop.closeMerchant(this));
         }
     }
 
@@ -286,7 +286,7 @@ public class Merchant extends Life {
         setOpen(false);
         Server.getInstance().getWorldById(getWorldId()).getMerchants().remove(this);
         getField().removeLife(this);
-        getField().broadcastPacket(MiniroomPacket.destroyShop(this));
+        getField().broadcastPacket(MiniRoomPacket.EntrustedShop.closeMerchant(this));
     }
 
     public void broadCastPacket(OutPacket outPacket) {

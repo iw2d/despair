@@ -1757,6 +1757,40 @@ public class AdminCommands {
         }
     }
 
+    @Command(names = {"openui"}, requiredType = Admin)
+    public static class OpenUI extends AdminCommand {
+        public static void execute(Char chr, String[] args) {
+            if (args.length < 1 || !Util.isNumber(args[1])) {
+                chr.chatMessage("Usage: !openui <UIType ID>");
+                return;
+            }
+            int uiId = Integer.parseInt(args[1]);
+            UIType uiType = UIType.getByVal(uiId);
+            if (uiType == null) {
+                chr.chatMessage("Unknown UIType ID " + args[1]);
+                return;
+            }
+            chr.write(FieldPacket.openUI(uiType));
+        }
+    }
+
+    @Command(names = {"closeui"}, requiredType = Admin)
+    public static class CloseUI extends AdminCommand {
+        public static void execute(Char chr, String[] args) {
+            if (args.length < 1 || !Util.isNumber(args[1])) {
+                chr.chatMessage("Usage: !closeui <UIType ID>");
+                return;
+            }
+            int uiId = Integer.parseInt(args[1]);
+            UIType uiType = UIType.getByVal(uiId);
+            if (uiType == null) {
+                chr.chatMessage("Unknown UIType ID " + args[1]);
+                return;
+            }
+            chr.write(FieldPacket.closeUI(uiType));
+        }
+    }
+
     @Command(names = {"reloadcs"}, requiredType = Admin)
     public static class ReloadCS extends AdminCommand {
 
