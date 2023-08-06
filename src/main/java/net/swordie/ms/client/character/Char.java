@@ -3561,11 +3561,6 @@ public class Char {
 		if (getField().getForcedReturn() != GameConstants.NO_MAP_ID) {
 			setFieldID(getField().getForcedReturn());
 		}
-		if (getTradeRoom() != null) {
-			Char other = getTradeRoom().getOther();
-			getTradeRoom().cancelTrade();
-			other.chatMessage("Your trade partner disconnected.");
-		}
 		getScriptManager().getScripts().values().forEach(ScriptInfo::reset);
 		getWorld().getConnectedChatClients().remove(getAccId());
 		setOnline(false);

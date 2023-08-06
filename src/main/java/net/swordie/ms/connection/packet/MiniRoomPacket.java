@@ -91,9 +91,9 @@ public class MiniRoomPacket {
 
     public static class TradingRoom extends MiniRoomPacket {
 
-        public static OutPacket startTrade(Char chr) {
+        public static OutPacket startTrade(TradeRoom tradeRoom, Char chr) {
             return MiniRoomPacket.enterResult(
-                    MiniRoomType.TRADING_ROOM,
+                    tradeRoom.isCash() ? MiniRoomType.CASH_TRADING_ROOM : MiniRoomType.TRADING_ROOM,
                     2,
                     1,
                     Map.of(1, chr)
@@ -102,7 +102,7 @@ public class MiniRoomPacket {
 
         public static OutPacket enterTrade(TradeRoom tradeRoom, Char chr) {
             return MiniRoomPacket.enterResult(
-                    MiniRoomType.TRADING_ROOM,
+                    tradeRoom.isCash() ? MiniRoomType.CASH_TRADING_ROOM : MiniRoomType.TRADING_ROOM,
                     2,
                     1,
                     Map.of(
@@ -112,8 +112,11 @@ public class MiniRoomPacket {
             );
         }
 
-        public static OutPacket inviteTrade(Char chr) {
-            return MiniRoomPacket.invite(MiniRoomType.TRADING_ROOM, chr);
+        public static OutPacket inviteTrade(TradeRoom tradeRoom, Char chr) {
+            return MiniRoomPacket.invite(
+                    tradeRoom.isCash() ? MiniRoomType.CASH_TRADING_ROOM : MiniRoomType.TRADING_ROOM,
+                    chr
+            );
         }
 
         public static OutPacket putItem(int user, int position, Item item) {
@@ -153,7 +156,7 @@ public class MiniRoomPacket {
 
         public static OutPacket tradeCancel(int leaveUser) {
             OutPacket outPacket = MiniRoomPacket.leave(leaveUser);
-            outPacket.encodeByte(RoomLeaveType.TRLeave_TradeFail_Denied.getVal());
+            outPacket.encodeByte(RoomLeaveType.MRLeave_HostOut.getVal()); // this shows no message for both normal and cash trading room
             return outPacket;
         }
 

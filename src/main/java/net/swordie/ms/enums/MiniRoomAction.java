@@ -38,8 +38,8 @@ public enum MiniRoomAction {
     Leave(28),
 
     CheckSSN2(30),
-
-    OwnerEnterMerchant(31),
+    CheckPIC(31),
+    OwnerEnterMerchant(32),
     AddItem1(33),
     AddItem2(34),
     AddItem3(35),

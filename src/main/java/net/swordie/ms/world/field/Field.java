@@ -1,6 +1,7 @@
 package net.swordie.ms.world.field;
 
 import net.swordie.ms.client.Client;
+import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.runestones.RuneStone;
@@ -578,6 +579,13 @@ public class Field {
     }
 
     public void removeChar(Char chr) {
+        // cancel trade
+        if (chr.getTradeRoom() != null) {
+            Char other = chr.getTradeRoom().getOtherChar(chr);
+            chr.getTradeRoom().cancelTrade();
+            other.write(MiniRoomPacket.TradingRoom.tradeCancel(1));
+            other.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Could not find player.")));
+        }
         // remove char's dragon
         Dragon dragon = chr.getDragon();
         if (dragon != null) {

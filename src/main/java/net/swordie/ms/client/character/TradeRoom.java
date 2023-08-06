@@ -16,12 +16,21 @@ public class TradeRoom {
     private Set<Char> confirmedPlayers = new HashSet<>();
     private Char other;
     private Char chr;
+    private boolean cash;
 
     public TradeRoom(Char chr, Char other) {
         this.chr = chr;
         offeredItems.put(chr, new ArrayList<>());
         this.other = other;
         offeredItems.put(other, new ArrayList<>());
+    }
+
+    public boolean isCash() {
+        return cash;
+    }
+
+    public void setCash(boolean cash) {
+        this.cash = cash;
     }
 
     public Char getOther() {

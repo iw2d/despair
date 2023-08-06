@@ -14,10 +14,7 @@ import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.MiniRoomPacket;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.GameConstants;
-import net.swordie.ms.enums.InvType;
-import net.swordie.ms.enums.MiniRoomAction;
-import net.swordie.ms.enums.PopularityResultType;
-import net.swordie.ms.enums.Stat;
+import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
@@ -30,6 +27,7 @@ import net.swordie.ms.world.World;
 import net.swordie.ms.world.field.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +44,7 @@ public class RoomHandler {
             return;
         }
         chr.dispose();
-        byte action = inPacket.decodeByte(); // MiniRoom Action value
+        byte action = inPacket.decodeByte(); // MiniRoomAction value
         MiniRoomAction mra = MiniRoomAction.getByVal(action);
         if (mra == null) {
             log.error(String.format("Unknown miniroom action %d", action));
@@ -55,6 +53,9 @@ public class RoomHandler {
         TradeRoom tradeRoom;
         Merchant merchant;
         byte slot;
+        int charID;
+        Char other;
+        Item item;
         switch (mra) {
             case PlaceItem:
             case PlaceItem_2:
@@ -65,7 +66,7 @@ public class RoomHandler {
                 short quantity = inPacket.decodeShort();
                 byte tradeSlot = inPacket.decodeByte(); // trade window slot number
 
-                Item item = chr.getInventoryByType(InvType.getInvTypeByVal(invType)).getItemBySlot(bagIndex);
+                item = chr.getInventoryByType(InvType.getInvTypeByVal(invType)).getItemBySlot(bagIndex);
                 if (item.getQuantity() < quantity) {
                     chr.getOffenseManager().addOffense(String.format("Character {%d} tried to trade an item {%d} with a higher quantity {%s} than the item has {%d}.", chr.getId(), item.getItemId(), quantity, item.getQuantity()));
                     return;
@@ -87,7 +88,7 @@ public class RoomHandler {
                     chr.consumeItem(item);
                     tradeRoom.addItem(chr, tradeSlot, offer);
                 }
-                Char other = tradeRoom.getOtherChar(chr);
+                other = tradeRoom.getOtherChar(chr);
                 chr.write(MiniRoomPacket.TradingRoom.putItem(0, tradeSlot, offer));
                 other.write(MiniRoomPacket.TradingRoom.putItem(1, tradeSlot, offer));
                 break;
@@ -179,7 +180,7 @@ public class RoomHandler {
                 }
                 break;
             case InviteStatic:
-                int charID = inPacket.decodeInt();
+                charID = inPacket.decodeInt();
                 other = chr.getField().getCharByID(charID);
                 if (other == null) {
                     chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Could not find player.")));
@@ -189,11 +190,11 @@ public class RoomHandler {
                     chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("The other player is already trading with someone else.")));
                     return;
                 }
-                other.write(MiniRoomPacket.TradingRoom.inviteTrade(chr));
                 tradeRoom = new TradeRoom(chr, other);
                 chr.setTradeRoom(tradeRoom);
                 other.setTradeRoom(tradeRoom);
-                chr.write(MiniRoomPacket.TradingRoom.startTrade(chr));
+                other.write(MiniRoomPacket.TradingRoom.inviteTrade(tradeRoom, chr));
+                chr.write(MiniRoomPacket.TradingRoom.startTrade(tradeRoom, chr));
                 break;
             case InviteResultStatic: // always decline?
                 tradeRoom = chr.getTradeRoom();
@@ -221,45 +222,115 @@ public class RoomHandler {
                 // just an ack by the client?
                 break;
             case Create:
-                final byte type = inPacket.decodeByte();
-                if (type == 4) {
-                    // handled in InviteStatic
+                byte type = inPacket.decodeByte();
+                MiniRoomType mrt = MiniRoomType.getByVal(type);
+                if (mrt == null) {
+                    log.error(String.format("Unknown miniroom type %d", type));
+                    return;
+                }
+                switch (mrt) {
+                    case TRADING_ROOM:
+                    case CASH_TRADING_ROOM:
+                        // handled in InviteStatic and CheckPIC
+                        break;
+                    case PERSONAL_SHOP:
+                    case ENTRUSTED_SHOP:
+                        // Merchant
+                        if (chr.getMerchant() != null) {
+                            chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("You already have a store open.")));
+                            return;
+                        }
+                        if (chr.getAccount().getEmployeeTrunk().getMoney() > 0 || !chr.getAccount().getEmployeeTrunk().getItems().isEmpty()) {
+                            chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("You must retrieve your items from Fredrick before opening a merchant.")));
+                            return;
+                        }
+                        String text = inPacket.decodeString();
+                        inPacket.decodeByte(); //tick
+                        slot = inPacket.decodeByte();
+                        inPacket.decodeByte(); //tick
+                        inPacket.decodeInt();  //tock
+                        int itemId = chr.getCashInventory().getItemBySlot(slot).getItemId();
+                        merchant = new Merchant(0);
+                        merchant.setStartTime(Util.getCurrentTimeLong());
+                        merchant.setPosition(chr.getPosition());
+                        merchant.setOwnerID(chr.getId());
+                        merchant.setOwnerName(chr.getName());
+                        merchant.setOpen(false);
+                        merchant.setMessage(text);
+                        merchant.setItemID(itemId);
+                        merchant.setFh(chr.getFoothold());
+                        merchant.setWorldId(chr.getWorld().getWorldId());
+                        merchant.setEmployeeTrunk(chr.getAccount().getEmployeeTrunk());
+                        chr.setMerchant(merchant);
+                        merchant.setField(chr.getField());
+                        chr.getField().addLife(merchant);
+                        chr.getWorld().getMerchants().add(merchant);
+                        chr.getClient().write(MiniRoomPacket.EntrustedShop.enterMerchant(chr, chr.getMerchant(), true));
+                        break;
+                    default:
+                        log.error(String.format("Tried to create unhandled miniRoomType : %s", mrt.name()));
+                        break;
+                }
+                break;
+            case CheckPIC:
+                byte checkPicAction = inPacket.decodeByte();
+                if (checkPicAction == 16) {
+                    // MiniRoomAction.Create
+                    byte checkPicType = inPacket.decodeByte(); // 7 - MiniRoomType.CASH_TRADING_ROOM
+                    if (checkPicType != 7) {
+                        log.error(String.format("Unknown CheckPIC MiniRoomType %d", checkPicType));
+                        return;
+                    }
+                    String picInput = inPacket.decodeString();
+                    if (!BCrypt.checkpw(picInput, chr.getUser().getPic())) {
+                        chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Your PIC is incorrect.")));
+                        return;
+                    }
+                    charID = inPacket.decodeInt();
+                    other = chr.getField().getCharByID(charID);
+                    if (other == null) {
+                        chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Could not find player.")));
+                        return;
+                    }
+                    if (other.getTradeRoom() != null) {
+                        chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("The other player is already trading with someone else.")));
+                        return;
+                    }
+                    tradeRoom = new TradeRoom(chr, other);
+                    tradeRoom.setCash(true);
+                    chr.setTradeRoom(tradeRoom);
+                    other.setTradeRoom(tradeRoom);
+                    chr.write(MiniRoomPacket.TradingRoom.startTrade(tradeRoom, chr));
+                    other.write(MiniRoomPacket.TradingRoom.inviteTrade(tradeRoom, chr));
+                } else if (checkPicAction == 19) {
+                    // MiniRoomAction.EnterBase
+                    tradeRoom = chr.getTradeRoom();
+                    if (tradeRoom == null) {
+                        chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("The other player has already closed the trade.")));
+                        return;
+                    }
+                    other = tradeRoom.getOtherChar(chr); // initiator
+                    byte checkPicType = inPacket.decodeByte(); // 7 - MiniRoomType.CASH_TRADING_ROOM
+                    if (checkPicType != 7) {
+                        log.error(String.format("Unknown CheckPIC MiniRoomType %d", checkPicType));
+                        return;
+                    }
+                    String picInput = inPacket.decodeString();
+                    if (!BCrypt.checkpw(picInput, chr.getUser().getPic())) {
+                        chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Your PIC is incorrect.")));
+                        other.write(MiniRoomPacket.TradingRoom.tradeCancel(1));
+                        other.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage(chr.getName() + " has declined your trade request.")));
+                        other.setTradeRoom(null);
+                        chr.setTradeRoom(null);
+                        return;
+                    }
+                    chr.write(MiniRoomPacket.TradingRoom.enterTrade(tradeRoom, chr));
+                    other.write(MiniRoomPacket.enter(0, chr));
                 } else {
-                    // Merchant
-                    if (chr.getMerchant() != null) {
-                        chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("You already have a store open.")));
-                        return;
-                    }
-                    if (chr.getAccount().getEmployeeTrunk().getMoney() > 0 || !chr.getAccount().getEmployeeTrunk().getItems().isEmpty()) {
-                        chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("You must retrieve your items from Fredrick before opening a merchant.")));
-                        return;
-                    }
-                    String text = inPacket.decodeString();
-                    inPacket.decodeByte(); //tick
-                    slot = inPacket.decodeByte();
-                    inPacket.decodeByte(); //tick
-                    inPacket.decodeInt();  //tock
-                    int itemId = chr.getCashInventory().getItemBySlot(slot).getItemId();
-                    merchant = new Merchant(0);
-                    merchant.setStartTime(Util.getCurrentTimeLong());
-                    merchant.setPosition(chr.getPosition());
-                    merchant.setOwnerID(chr.getId());
-                    merchant.setOwnerName(chr.getName());
-                    merchant.setOpen(false);
-                    merchant.setMessage(text);
-                    merchant.setItemID(itemId);
-                    merchant.setFh(chr.getFoothold());
-                    merchant.setWorldId(chr.getWorld().getWorldId());
-                    merchant.setEmployeeTrunk(chr.getAccount().getEmployeeTrunk());
-                    chr.setMerchant(merchant);
-                    merchant.setField(chr.getField());
-                    chr.getField().addLife(merchant);
-                    chr.getWorld().getMerchants().add(merchant);
-                    chr.getClient().write(MiniRoomPacket.EntrustedShop.enterMerchant(chr, chr.getMerchant(), true));
+                    log.error(String.format("Unknown CheckPIC MiniRoomAction %d", checkPicAction));
                 }
                 break;
             case OwnerEnterMerchant:
-                //
                 inPacket.decodeByte();
                 inPacket.decodeByte(); // type?
                 String pic = inPacket.decodeString();
@@ -276,7 +347,6 @@ public class RoomHandler {
                     }
                     chr.getClient().write(MiniRoomPacket.EntrustedShop.enterMerchant(chr, chr.getMerchant(), false));
                 }
-                //
                 break;
             case Open1:
             case Open2:
