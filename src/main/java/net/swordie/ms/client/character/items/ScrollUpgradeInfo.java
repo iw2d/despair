@@ -61,7 +61,7 @@ public class ScrollUpgradeInfo implements Encodable {
         switch (getType()) {
             case Normal:
                 int chance = getChance();
-                if (equip.hasAttribute(EquipAttribute.LuckyDay)) {
+                if (equip.hasAttribute(ItemAttribute.LuckyDay)) {
                     chance += 10;
                 }
                 success = Util.succeedProp(chance);
@@ -74,12 +74,12 @@ public class ScrollUpgradeInfo implements Encodable {
                     equip.addStat(EquipBaseStat.tuc, -1);
                     equip.addStat(EquipBaseStat.cuc, 1);
                 } else {
-                    if (!equip.hasAttribute(EquipAttribute.UpgradeCountProtection)) {
+                    if (!equip.hasAttribute(ItemAttribute.UpgradeCountProtection)) {
                         equip.addStat(EquipBaseStat.tuc, -1);
                     }
                 }
-                equip.removeAttribute(EquipAttribute.LuckyDay);
-                equip.removeAttribute(EquipAttribute.UpgradeCountProtection);
+                equip.removeAttribute(ItemAttribute.LuckyDay);
+                equip.removeAttribute(ItemAttribute.UpgradeCountProtection);
                 break;
             case CleanSlate:
                 success = Util.succeedProp(getChance());

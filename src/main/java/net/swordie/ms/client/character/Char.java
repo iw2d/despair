@@ -2351,13 +2351,13 @@ public class Char {
 			equip.setTradeBlock(true);
 			equip.setEquipTradeBlock(false);
 			equip.setEquippedDate(FileTime.currentTime());
-			equip.addAttribute(EquipAttribute.Untradable);
+			equip.addAttribute(ItemAttribute.Untradable);
 		}
 		if (equip.getCharmEXP() > 0) {
 			addStatAndSendPacket(Stat.charmEXP, equip.getCharmEXP());
 			equip.setCharmEXP(0);
 			equip.setiCraft((short) 0);
-			equip.addAttribute(EquipAttribute.NoNonCombatStatGain);
+			equip.addAttribute(ItemAttribute.NoNonCombatStatGain);
 		}
 		AvatarLook al = getAvatarData().getAvatarLook();
 		int itemID = item.getItemId();
@@ -2373,9 +2373,9 @@ public class Char {
 				hairEquips.add(itemID);
 			}
 		}
-		if (!equip.hasAttribute(EquipAttribute.NoNonCombatStatGain) && equip.getCharmEXP() != 0) {
+		if (!equip.hasAttribute(ItemAttribute.NoNonCombatStatGain) && equip.getCharmEXP() != 0) {
 			addStatAndSendPacket(Stat.charmEXP, equip.getCharmEXP());
-			equip.addAttribute(EquipAttribute.NoNonCombatStatGain);
+			equip.addAttribute(ItemAttribute.NoNonCombatStatGain);
 		}
 		List<Skill> skills = new ArrayList<>();
         for (ItemSkill itemSkill : ItemData.getEquipById(equip.getItemId()).getItemSkills()) {
@@ -3011,9 +3011,9 @@ public class Char {
 			} else if (getInventoryByType(item.getInvType()).canPickUp(item)) {
 				if (item instanceof Equip) {
 					Equip equip = (Equip) item;
-					if (equip.hasAttribute(EquipAttribute.UntradableAfterTransaction)) {
-						equip.removeAttribute(EquipAttribute.UntradableAfterTransaction);
-						equip.addAttribute(EquipAttribute.Untradable);
+					if (equip.hasAttribute(ItemAttribute.UntradableAfterTransaction)) {
+						equip.removeAttribute(ItemAttribute.UntradableAfterTransaction);
+						equip.addAttribute(ItemAttribute.Untradable);
 					}
 				}
 				addItemToInventory(item);

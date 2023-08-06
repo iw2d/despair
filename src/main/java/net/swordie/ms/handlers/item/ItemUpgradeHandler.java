@@ -14,7 +14,6 @@ import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.QuestConstants;
 import net.swordie.ms.enums.*;
-import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.handlers.header.OutHeader;
@@ -211,20 +210,20 @@ public class ItemUpgradeHandler {
             case 2532003: // Safety Scroll
             case 2532004: // Pet Safety Scroll
             case 2532005: // Safety Scroll
-                equip.addAttribute(EquipAttribute.UpgradeCountProtection);
+                equip.addAttribute(ItemAttribute.UpgradeCountProtection);
                 break;
             case 2530000: // Lucky Day
             case 2530002: // Lucky Day
             case 2530003: // Pet Lucky Day
             case 2530004: // Lucky Day
             case 2530006: // Pet Lucky Day
-                equip.addAttribute(EquipAttribute.LuckyDay);
+                equip.addAttribute(ItemAttribute.LuckyDay);
                 break;
             case 2531000: // Protection Scroll
             case 2531001:
             case 2531004:
             case 2531005:
-                equip.addAttribute(EquipAttribute.ProtectionScroll);
+                equip.addAttribute(ItemAttribute.ProtectionScroll);
                 break;
         }
         c.write(FieldPacket.showItemUpgradeEffect(chr.getId(), true, false, scrollID, equip.getItemId(), false));

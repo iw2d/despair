@@ -30,7 +30,6 @@ public class PetItem extends Item {
     @Convert(converter = FileTimeConverter.class)
     private FileTime dateDead;
     private int remainLife;
-    private short attribute;
     private byte activeState;
     private int autoBuffSkill;
     private int petHue;
@@ -51,7 +50,7 @@ public class PetItem extends Item {
         outPacket.encodeShort(getPetAttribute());
         outPacket.encodeShort(getPetSkill());
         outPacket.encodeInt(getRemainLife());
-        outPacket.encodeShort(getAttribute());
+        outPacket.encodeShort(hasAttribute(ItemAttribute.KarmaUse) ? 1 : 0);
         outPacket.encodeByte(getActiveState());
         outPacket.encodeInt(getAutoBuffSkill());
         outPacket.encodeInt(getPetHue());
@@ -122,14 +121,6 @@ public class PetItem extends Item {
         this.remainLife = remainLife;
     }
 
-    public short getAttribute() {
-        return attribute;
-    }
-
-    public void setAttribute(short attribute) {
-        this.attribute = attribute;
-    }
-
     public byte getActiveState() {
         return activeState;
     }
@@ -190,7 +181,6 @@ public class PetItem extends Item {
         petItem.setPetSkill(getPetSkill());
         petItem.setDateDead(getDateDead().deepCopy());
         petItem.setRemainLife(getRemainLife());
-        petItem.setAttribute(getAttribute());
         petItem.setActiveState(getActiveState());
         petItem.setAutoBuffSkill(getAutoBuffSkill());
         petItem.setPetHue(getPetHue());

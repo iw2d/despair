@@ -152,6 +152,7 @@ create table items (
     type int,
     iscash boolean,
     quantity int,
+    attribute smallint,
     owner varchar(255),
     primary key (id)
 );
@@ -175,7 +176,6 @@ create table petitems (
     petskill int,
     datedead datetime(3),
     remainlife int,
-    attribute smallint,
     activestate tinyint,
     autobuffskill int,
     pethue int,
@@ -209,7 +209,6 @@ create table equips (
     icraft smallint,
     ispeed smallint,
     ijump smallint,
-    attribute smallint,
     leveluptype smallint,
     level smallint,
     exp smallint,

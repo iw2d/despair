@@ -46,7 +46,6 @@ public class Equip extends Item {
     private short iCraft;
     private short iSpeed;
     private short iJump;
-    private short attribute;
     private short levelUpType;
     private short level;
     private short exp;
@@ -404,20 +403,6 @@ public class Equip extends Item {
 
     public void setiJump(short iJump) {
         this.iJump = iJump;
-    }
-
-    public short getAttribute() {
-        return attribute;
-    }
-
-    public void setAttribute(short attribute) {
-        this.attribute = attribute;
-    }
-
-    public void addAttribute(EquipAttribute ea) {
-        short attr = getAttribute();
-        attr |= ea.getVal();
-        setAttribute(attr);
     }
 
     public short getLevelUpType() {
@@ -1612,21 +1597,8 @@ public class Equip extends Item {
         setBaseStat(stat, newStat);
     }
 
-    public boolean hasAttribute(EquipAttribute equipAttribute) {
-        return (getAttribute() & equipAttribute.getVal()) != 0;
-    }
-
     public boolean hasSpecialAttribute(EquipSpecialAttribute equipSpecialAttribute) {
         return (getSpecialAttribute() & equipSpecialAttribute.getVal()) != 0;
-    }
-
-    public void removeAttribute(EquipAttribute equipAttribute) {
-        if (!hasAttribute(equipAttribute)) {
-            return;
-        }
-        short attr = getAttribute();
-        attr ^= equipAttribute.getVal();
-        setAttribute(attr);
     }
 
     public void removeSpecialAttribute(EquipSpecialAttribute equipSpecialAttribute) {
@@ -1930,7 +1902,7 @@ public class Equip extends Item {
 
     @Override
     public boolean isTradable() {
-        return !hasAttribute(EquipAttribute.Untradable);
+        return !hasAttribute(ItemAttribute.Untradable);
     }
 
     public void applyInnocenceScroll() {
@@ -2185,20 +2157,20 @@ public class Equip extends Item {
             } else {
                 if (curse > 0) {
                     boom = Util.succeedProp(curse);
-                    if (boom && !hasAttribute(EquipAttribute.ProtectionScroll)) {
+                    if (boom && !hasAttribute(ItemAttribute.ProtectionScroll)) {
                         chr.consumeItem(this);
                     } else {
                         boom = false;
                     }
                 }
-                if (useTuc && !hasAttribute(EquipAttribute.UpgradeCountProtection)) {
+                if (useTuc && !hasAttribute(ItemAttribute.UpgradeCountProtection)) {
                     addStat(EquipBaseStat.tuc, -1);
                 }
             }
-            removeAttribute(EquipAttribute.ProtectionScroll);
-            removeAttribute(EquipAttribute.LuckyDay);
+            removeAttribute(ItemAttribute.ProtectionScroll);
+            removeAttribute(ItemAttribute.LuckyDay);
             if (useTuc) {
-                removeAttribute(EquipAttribute.UpgradeCountProtection);
+                removeAttribute(ItemAttribute.UpgradeCountProtection);
             }
             chr.write(FieldPacket.showItemUpgradeEffect(chr.getId(), success, false, scrollID, getItemId(), boom));
             if (!boom) {

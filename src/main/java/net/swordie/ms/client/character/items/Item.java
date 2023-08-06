@@ -44,6 +44,7 @@ public class Item implements Serializable, Encodable {
     protected Type type;
     protected boolean isCash;
     protected int quantity;
+    protected short attribute;
     private String owner = "";
 
     public boolean isTradable() {
@@ -130,6 +131,7 @@ public class Item implements Serializable, Encodable {
         item.setType(getType());
         item.setOwner(getOwner());
         item.setQuantity(getQuantity());
+        item.setAttribute(getAttribute());
         return item;
     }
 
@@ -178,7 +180,7 @@ public class Item implements Serializable, Encodable {
         if (getType() == Type.ITEM) {
             outPacket.encodeShort(getQuantity()); // nQuantity
             outPacket.encodeString(getOwner()); // sOwner
-            outPacket.encodeShort(0); // flag
+            outPacket.encodeShort(getAttribute()); // nAttribute
             if (ItemConstants.isThrowingStar(getItemId()) || ItemConstants.isBullet(getItemId()) ||
                     ItemConstants.isFamiliar(getItemId())) {
                 outPacket.encodeLong(getId());
@@ -216,6 +218,33 @@ public class Item implements Serializable, Encodable {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public short getAttribute() {
+        return attribute;
+    }
+
+    public void setAttribute(short attribute) {
+        this.attribute = attribute;
+    }
+
+    public void addAttribute(ItemAttribute ea) {
+        short attr = getAttribute();
+        attr |= ea.getVal();
+        setAttribute(attr);
+    }
+
+    public boolean hasAttribute(ItemAttribute itemAttribute) {
+        return (getAttribute() & itemAttribute.getVal()) != 0;
+    }
+
+    public void removeAttribute(ItemAttribute itemAttribute) {
+        if (!hasAttribute(itemAttribute)) {
+            return;
+        }
+        short attr = getAttribute();
+        attr ^= itemAttribute.getVal();
+        setAttribute(attr);
     }
 
     @Override

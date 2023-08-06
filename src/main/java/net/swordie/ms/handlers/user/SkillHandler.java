@@ -7,7 +7,7 @@ import net.swordie.ms.client.character.b2body.B2Body;
 import net.swordie.ms.client.character.damage.DamageSkinSaveData;
 import net.swordie.ms.client.character.damage.DamageSkinType;
 import net.swordie.ms.client.character.items.Equip;
-import net.swordie.ms.client.character.items.EquipAttribute;
+import net.swordie.ms.client.character.items.ItemAttribute;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.quest.Quest;
 import net.swordie.ms.client.character.quest.QuestManager;
@@ -335,9 +335,12 @@ public class SkillHandler {
             crafted.setQuantity(target.getCount());
             result = MakingSkillResult.SUCESS_COOL;
             if (ItemConstants.isEquip(target.getItemID())) {
-                ((Equip) crafted).addAttribute(EquipAttribute.Crafted);
+                crafted.addAttribute(ItemAttribute.Crafted);
                 crafted.setOwner(chr.getName());
                 crafted.setQuantity(1);// equipment shouldn't be more than one
+            } else {
+                crafted.addAttribute(ItemAttribute.CraftedUse);
+                crafted.setOwner(chr.getName());
             }
             if (msr.getExpiredPeriod() > 0) {
                 crafted.setDateExpire(FileTime.fromLong(Util.getCurrentTimeLong() + ((long) msr.getExpiredPeriod() * 60 * 1000)));
