@@ -1,5 +1,7 @@
 package net.swordie.ms.client.character.items;
 
+import net.swordie.ms.constants.ItemConstants;
+
 /**
  * Item flags shared with Equip flags
  * Created on 1/25/2018.
@@ -32,6 +34,20 @@ public enum ItemAttribute {
 
     public int getVal() {
         return val;
+    }
+
+    public static void handleTradeAttribute(Item item) {
+        if (ItemConstants.isEquip(item.getItemId())) {
+            if (item.hasAttribute(ItemAttribute.UntradableAfterTransaction)) {
+                item.removeAttribute(ItemAttribute.UntradableAfterTransaction);
+                item.addAttribute(ItemAttribute.Untradable);
+            }
+        } else {
+            if (item.hasAttribute(ItemAttribute.KarmaUse)) {
+                item.removeAttribute(ItemAttribute.KarmaUse);
+                item.addAttribute(ItemAttribute.Untradable);
+            }
+        }
     }
 
 }

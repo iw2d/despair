@@ -10,7 +10,6 @@ import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Triple;
-import net.swordie.ms.world.event.PinkZakumEvent;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -726,9 +725,40 @@ public class GameConstants {
         }
     }
 
-    public static long applyTax(long money) {
-        // 5% global tax starting from v180ish
-        return Math.round(money * 0.95);
+    public static long tradeTax(long meso) {
+        if (meso >= 100_000_000L) {
+            return Math.round(meso * 0.94);
+        } else if (meso >= 25_000_000L) {
+            return Math.round(meso * 0.95);
+        } else if (meso >= 10_000_000L) {
+            return Math.round(meso * 0.96);
+        } else if (meso >= 5_000_000L) {
+            return Math.round(meso * 0.97);
+        } else if (meso >= 1_000_000L) {
+            return Math.round(meso * 0.982);
+        } else if (meso >= 100_000L) {
+            return Math.round(meso * 0.992);
+        } else {
+            return meso;
+        }
+    }
+
+    public static long merchantTax(long meso) {
+        if (meso >= 100_000_000L) {
+            return Math.round(meso * 0.97);
+        } else if (meso >= 25_000_000L) {
+            return Math.round(meso * 0.975);
+        } else if (meso >= 10_000_000L) {
+            return Math.round(meso * 0.98);
+        } else if (meso >= 5_000_000L) {
+            return Math.round(meso * 0.985);
+        } else if (meso >= 1_000_000L) {
+            return Math.round(meso * 0.991);
+        } else if (meso >= 100_000L) {
+            return Math.round(meso * 0.996);
+        } else {
+            return meso;
+        }
     }
 
     public static int getExpRequiredForNextGuildLevel(int curLevel) {

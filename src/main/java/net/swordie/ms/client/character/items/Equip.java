@@ -1168,7 +1168,7 @@ public class Equip extends Item {
         outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME)); // ftEquipped
         outPacket.encodeInt(-1); // nPrevBonusExpRate
         // GW_CashItemOption::Decode
-        outPacket.encodeLong(isCash() ? 0 : getId()); // cash sn already encoded in the super's encode
+        outPacket.encodeLong(getId());
         outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME)); // ftDateExpire
         outPacket.encodeInt(getGrade());
         for (int i = 0; i < 3; i++) {

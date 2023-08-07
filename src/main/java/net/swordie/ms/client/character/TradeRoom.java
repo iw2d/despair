@@ -1,6 +1,8 @@
 package net.swordie.ms.client.character;
 
 import net.swordie.ms.client.character.items.Item;
+import net.swordie.ms.client.character.items.ItemAttribute;
+import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.util.container.Tuple;
 
@@ -92,34 +94,32 @@ public class TradeRoom {
     public boolean completeTrade() {
         Char chr = getChr();
         Char other = getOther();
-        // Ugly, but eh
         // Check if the characters have enough space for all the items
-        List<Item> items = new ArrayList<>();
-        for (Tuple<Integer, Item> entry : getOfferedItems().get(other)) {
-            items.add(entry.getRight());
-        }
-        if (!chr.canHold(items)) {
+        List<Item> itemsForChr = getOfferedItems().get(other).stream().map(Tuple::getRight).toList();
+        if (!chr.canHold(itemsForChr)) {
             chr.chatMessage("You do not have enough inventory space.");
             other.chatMessage(chr.getName() + " does not have enough inventory space.");
             return false;
         }
-        for (Tuple<Integer, Item> entry : getOfferedItems().get(chr)) {
-            items.add(entry.getRight());
-        }
-        if (!other.canHold(items)) {
+        List<Item> itemsForOther = getOfferedItems().get(chr).stream().map(Tuple::getRight).toList();
+        if (!other.canHold(itemsForOther)) {
             other.chatMessage("You do not have enough inventory space.");
             chr.chatMessage(chr.getName() + " does not have enough inventory space.");
             return false;
         }
         // Add all the items + money
-        for (Tuple<Integer, Item> entry : getOfferedItems().get(chr)) {
-            other.addItemToInventory(entry.getRight());
+        for (Item item : itemsForChr) {
+            ItemAttribute.handleTradeAttribute(item);
+            chr.addItemToInventory(item);
         }
-        other.addMoney(GameConstants.applyTax(getMoney(chr)));
-        for (Tuple<Integer, Item> entry : getOfferedItems().get(other)) {
-            chr.addItemToInventory(entry.getRight());
+        chr.addMoney(GameConstants.tradeTax(getMoney(other)));
+        for (Item item : itemsForOther) {
+            ItemAttribute.handleTradeAttribute(item);
+            other.addItemToInventory(item);
         }
-        chr.addMoney(GameConstants.applyTax(getMoney(other)));
+        other.addMoney(GameConstants.tradeTax(getMoney(chr)));
+        DatabaseManager.saveToDB(chr);
+        DatabaseManager.saveToDB(other);
         return true;
     }
 

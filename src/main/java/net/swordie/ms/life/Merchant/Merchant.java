@@ -3,6 +3,7 @@ package net.swordie.ms.life.Merchant;
 import net.swordie.ms.Server;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Item;
+import net.swordie.ms.client.character.items.ItemAttribute;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.connection.packet.MiniRoomPacket;
@@ -219,21 +220,22 @@ public class Merchant extends Life {
         for (MerchantItem merchantItem : itemsToRemove) {
             DatabaseManager.deleteFromDB(merchantItem);
         }
-
         chr.getClient().write(MiniRoomPacket.EntrustedShop.updateMerchant(chr.getMerchant()));
     }
 
     public void buyItem(Char customer, int itemPos, short quantity) {
-        long price = quantity * getItems().get(itemPos).price;
+        long price = quantity * (long) getItems().get(itemPos).price;
+        long taxedPrice = GameConstants.merchantTax(price);
         MerchantItem itemToBuy = getItems().get(itemPos);
         Item itemCopy = itemToBuy.item.deepCopy();
-        if (customer.getMoney() < price || !customer.getInventoryByType(itemCopy.getInvType()).canPickUp(itemCopy) || !canAddMoney(price)) { //customer does not have enough mesos or cannot hold item, merchant can't hold that much mesos
+        ItemAttribute.handleTradeAttribute(itemCopy);
+        if (customer.getMoney() < price || !customer.getInventoryByType(itemCopy.getInvType()).canPickUp(itemCopy) || !canAddMoney(taxedPrice)) { //customer does not have enough mesos or cannot hold item, merchant can't hold that much mesos
             return;
         }
         EmployeeTrunk ownersEmployeeTrunk = getEmployeeTrunk();
         itemToBuy.bundles -= quantity;
-        addMesos(price);
-        ownersEmployeeTrunk.addMoney(price);
+        addMesos(taxedPrice);
+        ownersEmployeeTrunk.addMoney(taxedPrice);
         customer.deductMoney(price);
         itemCopy.setQuantity(quantity * itemToBuy.item.getQuantity());
         customer.addItemToInventory(itemCopy);

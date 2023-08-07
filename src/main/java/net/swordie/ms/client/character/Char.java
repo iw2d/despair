@@ -91,6 +91,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -3009,13 +3010,7 @@ public class Char {
 				getScriptManager().startScript(itemID, script, ScriptType.Item);
 				return true;
 			} else if (getInventoryByType(item.getInvType()).canPickUp(item)) {
-				if (item instanceof Equip) {
-					Equip equip = (Equip) item;
-					if (equip.hasAttribute(ItemAttribute.UntradableAfterTransaction)) {
-						equip.removeAttribute(ItemAttribute.UntradableAfterTransaction);
-						equip.addAttribute(ItemAttribute.Untradable);
-					}
-				}
+				ItemAttribute.handleTradeAttribute(item);
 				addItemToInventory(item);
 				write(WvsContext.dropPickupMessage(item, (short) item.getQuantity()));
 				return true;
@@ -3704,7 +3699,15 @@ public class Char {
 	 * @return whether or not this Char can hold the list of items
 	 */
 	public boolean canHold(List<Item> items) {
-		return canHold(items, deepCopyForInvCheck());
+		List<Item> itemsCopy = new ArrayList<>();
+		for (Item item : items) {
+			if (item instanceof PetItem) {
+				itemsCopy.add(ItemData.getItemDeepCopy(item.getItemId())); // item.deepCopy cannot be used on pets, still putting it in different if state because other items can have quantity
+			} else {
+				itemsCopy.add(item.deepCopy());
+			}
+		}
+		return canHold(itemsCopy, deepCopyForInvCheck());
 	}
 
 	private boolean canHold(List<Item> items, Char deepCopiedChar) {

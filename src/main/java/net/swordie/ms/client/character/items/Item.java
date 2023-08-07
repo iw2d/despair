@@ -30,7 +30,7 @@ public class Item implements Serializable, Encodable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private long id = -1;
     protected int itemId;
     protected int bagIndex;
     protected long cashItemSerialNumber;
