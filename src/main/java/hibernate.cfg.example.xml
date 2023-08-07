@@ -7,29 +7,16 @@
             org.hibernate.hikaricp.internal.HikariCPConnectionProvider
         </property>
         <property name="hibernate.hikari.dataSourceClassName">
-            com.mysql.cj.jdbc.MysqlDataSource
+            org.mariadb.jdbc.MariaDbDataSource
         </property>
         <property name="hibernate.hikari.dataSource.url">
-            jdbc:mysql://127.0.0.1:3306/swordie?autoReconnect=true&amp;useSSL=false&amp;allowPublicKeyRetrieval=true&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC
+            jdbc:mariadb://127.0.0.1:3306/swordie?sslMode=disable&amp;timezone=auto&amp;useServerPrepStmts=true
         </property>
         <property name="hibernate.hikari.dataSource.user">
             username
         </property>
         <property name="hibernate.hikari.dataSource.password">
             password
-        </property>
-
-        <property name="hibernate.hikari.dataSource.cachePrepStmts">
-            true
-        </property>
-        <property name="hibernate.hikari.dataSource.prepStmtCacheSize">
-            256
-        </property>
-        <property name="hibernate.hikari.dataSource.prepStmtCacheSqlLimit">
-            2048
-        </property>
-        <property name="hibernate.hikari.dataSource.useServerPrepStmts">
-            true
         </property>
 
         <property name="hibernate.hikari.minimumIdle">

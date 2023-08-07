@@ -874,4 +874,4 @@ create table friends (
     primary key (id)
 );
 
-insert into `users` (`name`, `password`, `accounttype`, `chatunblockdate`, `pic`, `characterslots`) values ('admin', 'admin', '4', '0', '000000', '40');
+insert into `users` (`name`, `password`, `accounttype`, `chatunblockdate`, `characterslots`) values ('admin', 'admin', '4', '0', '40');

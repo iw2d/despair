@@ -261,7 +261,7 @@ public class User {
     public PicStatus getPicStatus() {
         PicStatus picStatus;
         String pic = getPic();
-        if(pic == null || pic.length() == 0) {
+        if (pic == null || pic.length() == 0) {
             picStatus = PicStatus.CREATE_PIC;
         } else {
             picStatus = PicStatus.ENTER_PIC;

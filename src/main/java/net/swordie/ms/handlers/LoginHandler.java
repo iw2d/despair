@@ -108,6 +108,10 @@ public class LoginHandler {
 
     }
 
+    @Handler(op = InHeader.LOGIN_BASIC_INFO)
+    public static void handleLoginBasicInfo(Client c, InPacket inPacket) {
+    }
+
     @Handler(op = InHeader.CHECK_LOGIN_AUTH_INFO)
     public static void handleCheckLoginAuthInfo(Client c, InPacket inPacket) {
         byte sid = inPacket.decodeByte();
@@ -198,33 +202,83 @@ public class LoginHandler {
 
     @Handler(op = InHeader.SELECT_WORLD)
     public static void handleSelectWorld(Client c, InPacket inPacket) {
-        byte somethingThatIsTwo = inPacket.decodeByte();
-        byte worldId = inPacket.decodeByte();
-        byte channel = (byte) (inPacket.decodeByte() + 1);
-        byte code = 0; // success code
-        User user = c.getUser();
-        Account account = user.getAccountByWorldId(worldId);
-        World world = Server.getInstance().getWorldById(worldId);
+        byte type = inPacket.decodeByte();
+        if (type == 1) {
+            String authInfo = inPacket.decodeString();
+            byte[] machineID = inPacket.decodeArr(16);
+            inPacket.decodeInt();
+            inPacket.decodeByte();
+            byte worldId = inPacket.decodeByte();
+            byte channel = (byte) (inPacket.decodeByte() + 1);
 
-        if (!Server.getInstance().isOnline()) {
-            c.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Server is offline.")));
-            return;
-        }
-
-        if (user != null && world != null && world.getChannelById(channel) != null) {
-            if (account == null) {
-                account = new Account(user, worldId);
-                DatabaseManager.saveToDB(account); // assign id
-                user.addAccount(account);
-                DatabaseManager.saveToDB(user); // add to user's list of accounts
+            User user = User.getFromDBByName(authInfo);
+            if (user == null) {
+                c.write(Login.checkPasswordResult(false, LoginType.NotRegistered, null));
+                return;
             }
-            c.setAccount(account);
-            c.setWorldId(worldId);
-            c.setChannel(channel);
-            c.write(Login.selectWorldResult(c.getUser(), c.getAccount(), code,
-                    Server.getInstance().getWorldById(worldId).isReboot() ? "reboot" : "normal", false));
+            c.setUser(user);
+            c.setMachineID(machineID);
+
+            Account account = user.getAccountByWorldId(worldId);
+            World world = Server.getInstance().getWorldById(worldId);
+
+            if (!Server.getInstance().isOnline()) {
+                c.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Server is offline.")));
+                return;
+            }
+
+            if (user != null && world != null && world.getChannelById(channel) != null) {
+                if (account == null) {
+                    account = new Account(user, worldId);
+                    DatabaseManager.saveToDB(account); // assign id
+                    user.addAccount(account);
+                    DatabaseManager.saveToDB(user); // add to user's list of accounts
+                }
+                user.setCurrentAcc(account);
+                account.setUser(user);
+                c.write(Login.sendAccountInfo(user));
+                c.setAccount(account);
+                c.setWorldId(worldId);
+                c.setChannel(channel);
+                c.write(Login.selectWorldResult(c.getUser(), c.getAccount(), (byte) 0,
+                        Server.getInstance().getWorldById(worldId).isReboot() ? "reboot" : "normal", false));
+            } else {
+                c.write(Login.selectCharacterResult(LoginType.UnauthorizedUser, (byte) 0, 0, 0));
+            }
+        } else if (type == 2) {
+            // logged in through CHECK_LOGIN_INFO
+            byte worldId = inPacket.decodeByte();
+            byte channel = (byte) (inPacket.decodeByte() + 1);
+            byte code = 0; // success code
+            User user = c.getUser();
+            Account account = user.getAccountByWorldId(worldId);
+            World world = Server.getInstance().getWorldById(worldId);
+
+            if (!Server.getInstance().isOnline()) {
+                c.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Server is offline.")));
+                return;
+            }
+
+            if (user != null && world != null && world.getChannelById(channel) != null) {
+                if (account == null) {
+                    account = new Account(user, worldId);
+                    DatabaseManager.saveToDB(account); // assign id
+                    user.addAccount(account);
+                    DatabaseManager.saveToDB(user); // add to user's list of accounts
+                }
+                user.setCurrentAcc(account);
+                account.setUser(user);
+                c.setAccount(account);
+                c.setWorldId(worldId);
+                c.setChannel(channel);
+                c.write(Login.selectWorldResult(c.getUser(), c.getAccount(), code,
+                        Server.getInstance().getWorldById(worldId).isReboot() ? "reboot" : "normal", false));
+            } else {
+                c.write(Login.selectCharacterResult(LoginType.UnauthorizedUser, (byte) 0, 0, 0));
+            }
         } else {
-            c.write(Login.selectCharacterResult(LoginType.UnauthorizedUser, (byte) 0, 0, 0));
+            c.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Error while logging in.")));
+            return;
         }
     }
 

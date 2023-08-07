@@ -122,7 +122,7 @@ public class Login {
 
     public static OutPacket sendWorldInformation(World world, Set<Tuple<Position, String>> stringInfos) {
         // CLogin::OnWorldInformation
-        OutPacket outPacket = new OutPacket(OutHeader.WORLD_INFORMATION.getValue());
+        OutPacket outPacket = new OutPacket(OutHeader.WORLD_INFORMATION);
 
         outPacket.encodeByte(world.getWorldId());
         outPacket.encodeString(world.getName());
@@ -164,7 +164,7 @@ public class Login {
     public static OutPacket sendAccountInfo(User user) {
         OutPacket outPacket = new OutPacket(OutHeader.ACCOUNT_INFO_RESULT);
 
-        outPacket.encodeByte(0); // succeed
+        outPacket.encodeByte(LoginType.Success.getValue());
         outPacket.encodeInt(user.getId());
         outPacket.encodeByte(user.getGender());
         outPacket.encodeByte(user.getGradeCode());
@@ -245,7 +245,7 @@ public class Login {
             }
         }
         outPacket.encodeByte(user.getPicStatus().getVal()); // bLoginOpt
-        outPacket.encodeByte(false); // bQuerySSNOnCreateNewCharacter
+        outPacket.encodeByte(true); // bQuerySSNOnCreateNewCharacter
         outPacket.encodeInt(user.getCharacterSlots());
         outPacket.encodeInt(0); // buying char slots
         outPacket.encodeInt(-1); // nEventNewCharJob
