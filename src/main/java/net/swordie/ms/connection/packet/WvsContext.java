@@ -6,6 +6,7 @@ import net.swordie.ms.client.character.cards.CharacterCard;
 import net.swordie.ms.client.character.info.ExpIncreaseInfo;
 import net.swordie.ms.client.character.info.ZeroInfo;
 import net.swordie.ms.client.character.items.Equip;
+import net.swordie.ms.client.character.items.InvOp;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.items.MemorialCubeInfo;
 import net.swordie.ms.client.character.potential.CharacterPotential;
@@ -24,7 +25,6 @@ import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.client.party.PartyResult;
 import net.swordie.ms.connection.OutPacket;
-import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.util.AntiMacro;
@@ -153,51 +153,55 @@ public class WvsContext {
 
     public static OutPacket inventoryOperation(boolean exclRequestSent, boolean notRemoveAddInfo, InventoryOperation type, short oldPos, short newPos,
                                                int bagPos, Item item) {
-        // logic like this in packets :(
-        InvType invType = item.getInvType();
-        if ((oldPos > 0 && newPos < 0 && invType == EQUIPPED) || (invType == EQUIPPED && oldPos < 0)) {
-            invType = InvType.EQUIP;
-        }
+        return inventoryOperation(
+                exclRequestSent,
+                notRemoveAddInfo,
+                Collections.singletonList(new InvOp(type, item, oldPos, newPos, bagPos))
+        );
+    }
 
+    public static OutPacket inventoryOperation(boolean exclRequestSent, boolean notRemoveAddInfo, List<InvOp> invOps) {
         OutPacket outPacket = new OutPacket(OutHeader.INVENTORY_OPERATION);
 
         outPacket.encodeByte(exclRequestSent);
-        outPacket.encodeByte(1); // size
+        outPacket.encodeByte(invOps.size());
         outPacket.encodeByte(notRemoveAddInfo);
 
-        outPacket.encodeByte(type.getVal());
-        outPacket.encodeByte(invType.getVal());
-        outPacket.encodeShort(oldPos);
-        switch (type) {
-            case Add:
-                item.encode(outPacket);
-                break;
-            case UpdateQuantity:
-                outPacket.encodeShort(item.getQuantity());
-                break;
-            case Move:
-                outPacket.encodeShort(newPos);
-                if (invType == InvType.EQUIP && (oldPos < 0 || newPos < 0)) {
-                    outPacket.encodeByte(item.getCashItemSerialNumber() > 0);
-                }
-                break;
-            case Remove:
-                outPacket.encodeByte(0);
-                break;
-            case ItemExp:
-                outPacket.encodeLong(((Equip) item).getExp());
-                break;
-            case UpdateBagPos:
-                outPacket.encodeInt(bagPos);
-                break;
-            case UpdateBagQuantity:
-                outPacket.encodeShort(newPos);
-                break;
-            case BagNewItem:
-                item.encode(outPacket);
-                break;
-            case BagRemoveSlot:
-                break;
+        for (InvOp op : invOps) {
+            outPacket.encodeByte(op.getOp().getVal());
+            outPacket.encodeByte(op.getInvType().getVal());
+            outPacket.encodeShort(op.getOldPos());
+            switch (op.getOp()) {
+                case Add:
+                    op.getItem().encode(outPacket);
+                    break;
+                case UpdateQuantity:
+                    outPacket.encodeShort(op.getItem().getQuantity());
+                    break;
+                case Move:
+                    outPacket.encodeShort(op.getNewPos());
+                    if (op.getInvType() == InvType.EQUIP && (op.getOldPos() < 0 || op.getNewPos() < 0)) {
+                        outPacket.encodeByte(op.getItem().getCashItemSerialNumber() > 0);
+                    }
+                    break;
+                case Remove:
+                    outPacket.encodeByte(0);
+                    break;
+                case ItemExp:
+                    outPacket.encodeLong(((Equip) op.getItem()).getExp());
+                    break;
+                case UpdateBagPos:
+                    outPacket.encodeInt(op.getBagPos());
+                    break;
+                case UpdateBagQuantity:
+                    outPacket.encodeShort(op.getNewPos());
+                    break;
+                case BagNewItem:
+                    op.getItem().encode(outPacket);
+                    break;
+                case BagRemoveSlot:
+                    break;
+            }
         }
         return outPacket;
     }

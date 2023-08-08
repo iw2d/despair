@@ -1,8 +1,8 @@
 package net.swordie.ms.handlers.item;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.BodyPart;
+import net.swordie.ms.client.character.items.InvOp;
 import net.swordie.ms.client.character.items.Inventory;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.InPacket;
@@ -12,25 +12,22 @@ import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.FieldOption;
 import net.swordie.ms.enums.InvType;
-import net.swordie.ms.enums.InventoryOperation;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.loaders.ItemData;
+import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.Foothold;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static net.swordie.ms.enums.InvType.EQUIP;
 import static net.swordie.ms.enums.InvType.EQUIPPED;
 import static net.swordie.ms.enums.InventoryOperation.*;
-import static net.swordie.ms.enums.InventoryOperation.Move;
 
 public class InventoryHandler {
 
@@ -38,8 +35,7 @@ public class InventoryHandler {
 
 
     @Handler(op = InHeader.USER_CHANGE_SLOT_POSITION_REQUEST)
-    public static void handleUserChangeSlotPositionRequest(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleUserChangeSlotPositionRequest(Char chr, InPacket inPacket) {
         inPacket.decodeInt(); // update tick
         InvType invType = InvType.getInvTypeByVal(inPacket.decodeByte());
         short oldPos = inPacket.decodeShort();
@@ -91,16 +87,38 @@ public class InventoryHandler {
             chr.getField().drop(drop, chr.getPosition(), new Position(x, fh.getYFromX(x)));
             drop.setCanBePickedUpByPet(false);
             if (fullDrop) {
-                c.write(WvsContext.inventoryOperation(true, false, Remove,
+                chr.write(WvsContext.inventoryOperation(true, false, Remove,
                         oldPos, newPos, 0, item));
             } else {
-                c.write(WvsContext.inventoryOperation(true, false, UpdateQuantity,
+                chr.write(WvsContext.inventoryOperation(true, false, UpdateQuantity,
                         oldPos, newPos, 0, item));
             }
         } else {
             Item swapItem = chr.getInventoryByType(invTypeTo).getItemBySlot(newPos);
-            if (swapItem != null) {
-//                log.debug("SwapItem before: " + swapItem);
+            if (swapItem != null && item.getItemId() == swapItem.getItemId()) {
+                // handle stacking items
+                ItemInfo ii = ItemData.getItemInfoByID(swapItem.getItemId());
+                if (ii != null && ii.getSlotMax() > 1 && swapItem.getQuantity() < ii.getSlotMax()) {
+                    int newQuantity = item.getQuantity() + swapItem.getQuantity();
+                    if (newQuantity > ii.getSlotMax()) {
+                        // modify both quantities
+                        item.setQuantity(newQuantity - ii.getSlotMax());
+                        swapItem.setQuantity(ii.getSlotMax());
+                        chr.write(WvsContext.inventoryOperation(true, false, List.of(
+                                new InvOp(UpdateQuantity, item, oldPos, (short) 0, 0),
+                                new InvOp(UpdateQuantity, swapItem, newPos, (short) 0, 0)
+                        )));
+                    } else {
+                        // remove item and merge into swapItem
+                        chr.getInventoryByType(invTypeFrom).removeItem(item);
+                        swapItem.setQuantity(newQuantity);
+                        chr.write(WvsContext.inventoryOperation(true, false, List.of(
+                                new InvOp(Remove, item, oldPos, (short) 0, 0),
+                                new InvOp(UpdateQuantity, swapItem, newPos, (short) 0, 0)
+                        )));
+                    }
+                    return;
+                }
             }
             item.setBagIndex(newPos);
             int beforeSizeOn = chr.getEquippedInventory().getItems().size();
@@ -124,16 +142,14 @@ public class InventoryHandler {
             int afterSizeOn = chr.getEquippedInventory().getItems().size();
             int afterSize = chr.getEquipInventory().getItems().size();
             if (afterSize + afterSizeOn != beforeSize + beforeSizeOn) {
-                throw new RuntimeException("Data duplication!");
+                chr.getOffenseManager().addOffense(String.format("Character %d tried to duplicate item.", chr.getId()));
+                chr.dispose();
+                return;
             }
-            c.write(WvsContext.inventoryOperation(true, false, Move, oldPos, newPos,
+            chr.write(WvsContext.inventoryOperation(true, false, Move, oldPos, newPos,
                     0, item));
             item.updateToChar(chr);
-//            log.debug("Item before: " + itemBefore);
-//            log.debug("Item before: " + item);
         }
-//        log.debug("Equipped after: " + chr.getEquippedInventory());
-//        log.debug("Equip after: " + chr.getEquipInventory());
         chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
         if (newPos < 0
                 && -newPos >= BodyPart.APBase.getVal() && -newPos < BodyPart.APEnd.getVal()
@@ -144,50 +160,96 @@ public class InventoryHandler {
     }
 
     @Handler(op = InHeader.USER_GATHER_ITEM_REQUEST)
-    public static void handleUserGatherItemRequest(Client c, InPacket inPacket) {
+    public static void handleUserGatherItemRequest(Char chr, InPacket inPacket) {
         inPacket.decodeInt(); // tick
         InvType invType = InvType.getInvTypeByVal(inPacket.decodeByte());
-        Char chr = c.getChr();
         Inventory inv = chr.getInventoryByType(invType);
-        List<Item> items = new ArrayList<>(inv.getItems());
-        items.sort(Comparator.comparingInt(Item::getBagIndex));
-        for (Item item : items) {
-            int firstSlot = inv.getFirstOpenSlot();
-            if (firstSlot < item.getBagIndex()) {
-                short oldPos = (short) item.getBagIndex();
-                item.setBagIndex(firstSlot);
-                chr.write(WvsContext.inventoryOperation(true, false, InventoryOperation.Move,
-                        oldPos, (short) item.getBagIndex(), 0, item));
+        // gather stackable items
+        Map<Integer, List<Item>> stackable = new HashMap<>();
+        for (Item item : inv.getItems()) {
+            ItemInfo ii = ItemData.getItemInfoByID(item.getItemId());
+            if (ii == null || ii.getSlotMax() <= 1) {
+                continue;
             }
-
+            if (!stackable.containsKey(item.getItemId())) {
+                stackable.put(item.getItemId(), new ArrayList<>());
+            }
+            stackable.get(item.getItemId()).add(item);
         }
-        c.write(WvsContext.gatherItemResult(invType.getVal()));
+        // gather required inventory updates
+        List<InvOp> updates = new ArrayList<>();
+        for (int itemId : stackable.keySet()) {
+            List<Item> items = stackable.get(itemId);
+            if (items.size() <= 1) {
+                continue;
+            }
+            ItemInfo ii = ItemData.getItemInfoByID(itemId);
+            int slotMax = ii.getSlotMax();
+            // stack the items
+            items.sort(Comparator.comparingInt(Item::getBagIndex));
+            int total = items.stream().mapToInt(Item::getQuantity).sum();
+            for (Item item : items) {
+                if (total > slotMax) {
+                    item.setQuantity(slotMax);
+                    updates.add(new InvOp(UpdateQuantity, item, (short) item.getBagIndex(), (short) 0, 0));
+                    total -= slotMax;
+                } else {
+                    if (total > 0) {
+                        item.setQuantity(total);
+                        updates.add(new InvOp(UpdateQuantity, item, (short) item.getBagIndex(), (short) 0, 0));
+                        total = 0;
+                    } else {
+                        inv.removeItem(item);
+                        updates.add(new InvOp(Remove, item, (short) item.getBagIndex(), (short) 0, 0));
+                    }
+                }
+            }
+        }
+        chr.write(WvsContext.inventoryOperation(true, false, updates));
+        chr.write(WvsContext.gatherItemResult(invType.getVal()));
         chr.dispose();
     }
 
     @Handler(op = InHeader.USER_SORT_ITEM_REQUEST)
-    public static void handleUserSortItemRequest(Client c, InPacket inPacket) {
+    public static void handleUserSortItemRequest(Char chr, InPacket inPacket) {
         inPacket.decodeInt(); // tick
         InvType invType = InvType.getInvTypeByVal(inPacket.decodeByte());
-        Char chr = c.getChr();
         Inventory inv = chr.getInventoryByType(invType);
-        List<Item> items = new ArrayList<>(inv.getItems());
-        items.sort(Comparator.comparingInt(Item::getItemId));
-        for (Item item : items) {
-            if (item.getBagIndex() != items.indexOf(item) + 1) {
-                chr.write(WvsContext.inventoryOperation(true, false, InventoryOperation.Remove,
-                        (short) item.getBagIndex(), (short) 0, -1, item));
+        // inventory as an array for sorting
+        Item[] inventory = new Item[GameConstants.MAX_INVENTORY_SLOTS];
+        for (Item item : inv.getItems()) {
+            inventory[item.getBagIndex() - 1] = item;
+        }
+        // selection sort to find required swaps
+        List<InvOp> swaps = new ArrayList<>();
+        for (int i = 0; i < inventory.length - 1; i++) {
+            int minIndex = i;
+            for (int j = i + 1; j < inventory.length; j++) {
+                if (inventory[j] == null) {
+                    continue;
+                }
+                // consolidate, sort by id (increasing) and quantity (decreasing)
+                if (inventory[minIndex] == null ||
+                        inventory[j].getItemId() < inventory[minIndex].getItemId() ||
+                        (inventory[j].getItemId() == inventory[minIndex].getItemId() &&
+                                inventory[j].getQuantity() > inventory[minIndex].getQuantity())) {
+                    minIndex = j;
+                }
+            }
+            Item tmp = inventory[minIndex];
+            inventory[minIndex] = inventory[i];
+            inventory[i] = tmp;
+            swaps.add(new InvOp(Move, invType, (short) (minIndex + 1), (short) (i + 1), 0)); // bag indices are 1-based
+        }
+        // apply bagIndex
+        for (int i = 0; i < inventory.length - 1; i++) {
+            if (inventory[i] != null) {
+                inventory[i].setBagIndex(i + 1);
             }
         }
-        for (Item item : items) {
-            int index = items.indexOf(item) + 1;
-            if (item.getBagIndex() != index) {
-                item.setBagIndex(index);
-                chr.write(WvsContext.inventoryOperation(true, false, InventoryOperation.Add,
-                        (short) item.getBagIndex(), (short) 0, -1, item));
-            }
-        }
-        c.write(WvsContext.sortItemResult(invType.getVal()));
+        // write packet
+        chr.write(WvsContext.inventoryOperation(true, false, swaps));
+        chr.write(WvsContext.sortItemResult(invType.getVal()));
         chr.dispose();
     }
 }

@@ -113,7 +113,7 @@ public class CashShopHandler {
                     case 26: // Equip
                         if (account.getNxCredit() >= cost1) {
                             account.deductNXCredit(cost1);
-                            chr.getInventoryByType(InvType.getInvTypeByString("equip")).addSlots((byte) 8);
+                            chr.getInventoryByType(InvType.EQUIP).addSlots((byte) 8);
                             CashShopItem csi1 = cs.getItemByPosition(25); // client's pos starts at 1
                             CashItemInfo cii1 = csi1.toCashItemInfo(account, chr);
                             Item item1 = cii1.getItem();
@@ -126,7 +126,7 @@ public class CashShopHandler {
                     case 27: // Use
                         if (account.getNxCredit() >= cost1) {
                             account.deductNXCredit(cost1);
-                            chr.getInventoryByType(InvType.getInvTypeByString("use")).addSlots((byte) 8);
+                            chr.getInventoryByType(InvType.CONSUME).addSlots((byte) 8);
                             CashShopItem csi1 = cs.getItemByPosition(26); // client's pos starts at 1
                             CashItemInfo cii1 = csi1.toCashItemInfo(account, chr);
                             Item item1 = cii1.getItem();
@@ -136,10 +136,10 @@ public class CashShopHandler {
                             notEnoughMoney1 = true;
                         }
                         break;
-                    case 28: // Etc
+                    case 28: // Etc ?
                         if (account.getNxCredit() >= cost1) {
                             account.deductNXCredit(cost1);
-                            chr.getInventoryByType(InvType.getInvTypeByString("install")).addSlots((byte) 8);
+                            chr.getInventoryByType(InvType.INSTALL).addSlots((byte) 8);
                             CashShopItem csi1 = cs.getItemByPosition(27); // client's pos starts at 1
                             CashItemInfo cii1 = csi1.toCashItemInfo(account, chr);
                             Item item1 = cii1.getItem();
@@ -149,10 +149,10 @@ public class CashShopHandler {
                             notEnoughMoney1 = true;
                         }
                         break;
-                    case 29: // Install
+                    case 29: // Install ?
                         if (account.getNxCredit() >= cost1) {
                             account.deductNXCredit(cost1);
-                            chr.getInventoryByType(InvType.getInvTypeByString("etc")).addSlots((byte) 8);
+                            chr.getInventoryByType(InvType.ETC).addSlots((byte) 8);
                             CashShopItem csi1 = cs.getItemByPosition(28); // client's pos starts at 1
                             CashItemInfo cii1 = csi1.toCashItemInfo(account, chr);
                             Item item1 = cii1.getItem();
