@@ -375,7 +375,6 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
 
     Translucence(320),
     PoseType(321),
-    PoseTypeBool(321),
     LightOfSpirit(322),
     ElementSoul(323),
     GlimmeringTime(324),
@@ -666,7 +665,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             MichaelSoulLink, KinesisPsychicEnergeShield, BladeStance, Fever, AdrenalinBoost, RWBarrier, RWMagnumBlow,
             Stigma, Unk456, BeastMode, TeamRoar, HayatoStance, HayatoBooster, HayatoStanceBonus, HayatoPAD, HayatoHPR,
             HayatoMPR, HayatoCr, HayatoBoss, Stance, BattoujutsuAdvance, Unk478, BlackHeartedCurse, EyeForEye, Unk458,
-            Unk483, Unk487, Unk488, Unk489, Unk491, Unk460, PoseTypeBool
+            Unk483, Unk487, Unk488, Unk489, Unk491, Unk460
     );
 
 
@@ -844,12 +843,6 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case FireBomb:
             case SurplusSupply:
             case AntiMagicShell:
-            case PoseType:
-            case ZeroAuraStr:
-            case ZeroAuraSpd:
-            case BMageAura:
-            case AdrenalinBoost:
-            case Unk460:
                 return true;
             default:
                 return false;
@@ -906,7 +899,6 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case VengeanceOfAngel:
             case FullSoulMP:
             case AntiMagicShellBool:
-            case PoseTypeBool:
                 return true;
             default:
                 return false;

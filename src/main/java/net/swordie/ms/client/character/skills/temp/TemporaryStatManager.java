@@ -606,16 +606,18 @@ public class TemporaryStatManager {
                         outPacket.encodeInt(o.xOption);
                         break;
                     case AntiMagicShell:
-                    case PoseTypeBool:
                         outPacket.encodeByte(o.bOption);
                         break;
                 }
             }
         }
+        Set<CharacterTemporaryStat> ctsSet = collection.keySet();
+        if (ctsSet.contains(PoseType)) {
+            outPacket.encodeByte(collection.get(PoseType).get(0).bOption);
+        }
         outPacket.encodeByte(getDefenseAtt());
         outPacket.encodeByte(getDefenseState());
         outPacket.encodeByte(getPvpDamage());
-        Set<CharacterTemporaryStat> ctsSet = collection.keySet();
         if (ctsSet.contains(ZeroAuraStr)) {
             outPacket.encodeByte(collection.get(ZeroAuraStr).get(0).bOption);
         }
