@@ -218,6 +218,7 @@ public class TemporaryStatManager {
         } else {
             getSchedules().remove(cts);
         }
+        // handlers for after stat is removed
         if (JobConstants.isLuminous(chr.getJob()) && cts == Larkness) {
             ((Luminous) chr.getJobHandler()).handleRemoveLarkness(opt.rOption);
         }

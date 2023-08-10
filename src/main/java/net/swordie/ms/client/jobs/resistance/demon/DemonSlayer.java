@@ -9,7 +9,6 @@ import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
-import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.party.PartyMember;
@@ -20,10 +19,7 @@ import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.connection.packet.UserRemote;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
-import net.swordie.ms.enums.BaseStat;
-import net.swordie.ms.enums.ForceAtomEnum;
 import net.swordie.ms.handlers.EventManager;
-import net.swordie.ms.life.Life;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
@@ -114,7 +110,7 @@ public class DemonSlayer extends Job {
     }
 
 
-    public void maxFury() {
+    private void maxFury() {
         if (chr.hasSkill(MAX_FURY) && chr.getHP() > 0) {
             chr.healMP(chr.getSkillStatValue(y, MAX_FURY));
         }
@@ -198,7 +194,7 @@ public class DemonSlayer extends Job {
                     mts.addStatOptions(MobStat.PDR, o1);
                     mts.addStatOptions(MobStat.MAD, o1);
                     mts.addStatOptions(MobStat.MDR, o1);
-                    mts.addStatOptionsAndBroadcast(MobStat.ACC, o2);
+                    mts.addStatOptions(MobStat.ACC, o2);
                     mts.addStatOptionsAndBroadcast(MobStat.Treasure, o3);
                 }
                 break;

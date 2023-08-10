@@ -1163,6 +1163,7 @@ public class SkillConstants {
             case Evan.DRAGON_FURY:
             case Luminous.SPELL_MASTERY:
             case DemonSlayer.OBSIDIAN_SKIN:
+            // case DemonAvenger.DEFENSE_EXPERTISE:
                 return true;
             default:
                 return false;
@@ -1352,6 +1353,8 @@ public class SkillConstants {
         switch (skillID) {
             case 5311010: // Cannoneer.MONKEY_FURY
             case DemonSlayer.DARK_METAMORPHOSIS:
+            case DemonAvenger.VITALITY_VEIL:
+            case DemonAvenger.NETHER_SHIELD:
             case Jett.FALLING_STARS:
             case Evan.DRAGON_BREATH:
             case Evan.DRAGON_DIVE:

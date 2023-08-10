@@ -218,7 +218,14 @@ public class DamageCalc {
     }
 
     private double calcBaseDamageByHp(int rawHp, int totalHp, int str, int pad, double finalDamage) {
-        return ((int) (rawHp / 3.5) + 0.8 * ((int) ((totalHp - rawHp) / 3.5)) + str) / 100.0 * (pad * finalDamage);
+        // calc_base_damage2
+        double v7 = pad * finalDamage;
+        int v8 = (int) ((double) (str + rawHp / 7) / 100D * v7 + 0.5);
+        int v9 = 0;
+        if (totalHp - rawHp > 0) {
+            v9 = (int) (v7 * ((double) ((totalHp - rawHp) / 7D) / 100D) * 0.8 + 0.5);
+        }
+        return v8 + v9;
     }
 
     public void checkDamage(AttackInfo attackInfo) {

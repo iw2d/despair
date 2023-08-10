@@ -528,7 +528,7 @@ public class NightWalker extends Noblesse {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(ShadowIllusion, o1);
-                for(int i = skillID; i < skillID + 3; i++) {
+                for (int i = skillID; i < skillID + 3; i++) {
                     summon = Summon.getSummonBy(chr, i, slv);
                     field = chr.getField();
                     summon.setFlyMob(false);
