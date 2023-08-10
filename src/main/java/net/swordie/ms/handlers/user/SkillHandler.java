@@ -6,7 +6,6 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.b2body.B2Body;
 import net.swordie.ms.client.character.damage.DamageSkinSaveData;
 import net.swordie.ms.client.character.damage.DamageSkinType;
-import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.client.character.items.ItemAttribute;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.quest.Quest;
@@ -146,7 +145,7 @@ public class SkillHandler {
         byte slv = inPacket.decodeByte();
         log.debug("SkillID: " + skillID);
         chr.dbgChatMsg("SkillID: " + skillID);
-        if (chr.applyBulletCon(skillID, slv, false) && chr.applyMpCon(skillID, slv) && (chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass())) {
+        if (chr.applyBulletCon(skillID, slv, false) && chr.applyHpMpCon(skillID, slv) && (chr.checkAndSetSkillCooltime(skillID) || chr.hasSkillCDBypass())) {
             chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skillID, slv, 0)), chr);
             Job sourceJobHandler = c.getChr().getJobHandler();
             SkillInfo si = SkillData.getSkillInfoById(skillID);

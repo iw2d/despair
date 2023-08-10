@@ -104,8 +104,8 @@ public class Mercedes extends Job {
                     chr.addSkill(skill);
                 }
             }
+            elvenHealingTimer = EventManager.addFixedRateEvent(this::elvenHealing, 4000, 4000);
         }
-        elvenHealingTimer = EventManager.addFixedRateEvent(this::elvenHealing, 4000, 4000);
     }
 
     @Override

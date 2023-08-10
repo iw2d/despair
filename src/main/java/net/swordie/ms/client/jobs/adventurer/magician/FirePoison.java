@@ -74,7 +74,9 @@ public class FirePoison extends Magician {
 
     public FirePoison(Char chr) {
         super(chr);
-        elementalDrainTimer = EventManager.addFixedRateEvent(this::elementalDrain, 2000, 2000);
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
+            elementalDrainTimer = EventManager.addFixedRateEvent(this::elementalDrain, 2000, 2000);
+        }
     }
 
     @Override

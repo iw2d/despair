@@ -82,7 +82,9 @@ public class Bishop extends Magician {
 
     public Bishop(Char chr) {
         super(chr);
-        blessedEmsembleTimer = EventManager.addFixedRateEvent(this::changeBlessedCount, 2000, 2000);
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
+            blessedEmsembleTimer = EventManager.addFixedRateEvent(this::changeBlessedCount, 2000, 2000);
+        }
     }
 
     @Override

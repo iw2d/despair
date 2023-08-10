@@ -61,7 +61,9 @@ public class Hero extends Warrior {
 
     public Hero(Char chr) {
         super(chr);
-        selfRecoveryTimer = EventManager.addFixedRateEvent(this::selfRecovery, 4000, 4000);
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
+            selfRecoveryTimer = EventManager.addFixedRateEvent(this::selfRecovery, 4000, 4000);
+        }
     }
 
     @Override

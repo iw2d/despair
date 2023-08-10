@@ -78,10 +78,9 @@ public class Shadower extends Thief {
 
     public Shadower(Char chr) {
         super(chr);
-        if (critGrowthTimer != null && !critGrowthTimer.isDone()) {
-            critGrowthTimer.cancel(true);
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
+            critGrowthTimer = EventManager.addFixedRateEvent(this::incrementCritGrowing, 2000, 2000); // 4200013 subTime
         }
-        critGrowthTimer = EventManager.addFixedRateEvent(this::incrementCritGrowing, 2000, 2000); // 4200013 subTime
     }
 
     @Override

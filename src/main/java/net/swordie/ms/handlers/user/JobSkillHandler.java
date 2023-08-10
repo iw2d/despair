@@ -186,7 +186,7 @@ public class JobSkillHandler {
         byte slv = inPacket.decodeByte();
         short dir = inPacket.decodeShort();
 
-        chr.applyMpCon(skillID, slv);
+        chr.applyHpMpCon(skillID, slv);
         SkillInfo si = SkillData.getSkillInfoById(skillID);
         int range = si.getValue(SkillStat.range, slv);
         ForceAtomEnum fae;

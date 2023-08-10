@@ -1162,6 +1162,7 @@ public class SkillConstants {
             case Evan.MAGIC_AMPLIFICATION:
             case Evan.DRAGON_FURY:
             case Luminous.SPELL_MASTERY:
+            case DemonSlayer.OBSIDIAN_SKIN:
                 return true;
             default:
                 return false;
@@ -1349,19 +1350,16 @@ public class SkillConstants {
 
     public static boolean isMultiAttackCooldownSkill(int skillID) {
         switch (skillID) {
-            case 5311010:
-            case 5711021:
-            case 22171063:
-            case 22141012:
+            case 5311010: // Cannoneer.MONKEY_FURY
+            case DemonSlayer.DARK_METAMORPHOSIS:
+            case Jett.FALLING_STARS:
+            case Evan.DRAGON_BREATH:
+            case Evan.DRAGON_DIVE:
             case DualBlade.ASURAS_ANGER:
             case IceLightning.THUNDER_STORM:
             case IceLightning.FROZEN_ORB:
             case Bowmaster.ARROW_PLATTER:
             case Shadower.SHADOW_VEIL:
-            case BlazeWizard.CATACLYSM:
-            case ThunderBreaker.GALE:
-            case ThunderBreaker.TYPHOON:
-            case DemonSlayer.DEMON_CRY:
             case Mechanic.DISTORTION_BOMB:
             case AngelicBuster.SUPREME_SUPERNOVA:
             case Blaster.BALLISTIC_HURRICANE:
@@ -1732,7 +1730,13 @@ public class SkillConstants {
             case Aran.POLEARM_MASTERY:
             case Mercedes.DUAL_BOWGUNS_MASTERY:
             case Shade.KNUCKLE_MASTERY:
+            case DemonSlayer.WEAPON_MASTERY:
                 stats.put(BaseStat.acc, si.getValue(SkillStat.x, slv));
+                break;
+            case Mihile.SOUL_ASYLUM:
+            case Aran.HIGH_DEFENSE:
+            case DemonSlayer.OBSIDIAN_SKIN:
+                stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.t, slv));
                 break;
             // class specific
             case Hero.ADVANCED_COMBO:
@@ -1792,10 +1796,6 @@ public class SkillConstants {
             case Mihile.RALLY:
                 stats.clear(); // active effect
                 stats.put(BaseStat.pad, si.getValue(SkillStat.padX, slv));
-                break;
-            case Mihile.SOUL_ASYLUM:
-            case Aran.HIGH_DEFENSE:
-                stats.put(BaseStat.dmgReduce, si.getValue(SkillStat.t, slv));
                 break;
             case Evan.PARTNERS:
                 stats.remove(BaseStat.damR);

@@ -8,7 +8,6 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
-import net.swordie.ms.client.jobs.cygnus.NightWalker;
 import net.swordie.ms.client.jobs.resistance.Mechanic;
 import net.swordie.ms.client.jobs.sengoku.Kanna;
 import net.swordie.ms.client.party.PartyMember;
@@ -54,7 +53,7 @@ public class AttackHandler {
             if (!chr.applyBulletCon(attackInfo.skillId, attackInfo.slv, attackInfo.isExJablin)) {
                 return;
             }
-            if (!attackInfo.isExJablin && !chr.applyMpCon(attackInfo.skillId, attackInfo.slv)) {
+            if (!attackInfo.isExJablin && !chr.applyHpMpCon(attackInfo.skillId, attackInfo.slv)) {
                 return;
             }
         }

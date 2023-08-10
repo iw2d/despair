@@ -91,7 +91,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -4731,16 +4730,19 @@ public class Char {
     }
 
 	/**
-	 * Applies the mp consumption of a skill.
+	 * Applies the hp and mp consumption of a skill.
 	 * @param skillID the skill's id
 	 * @param slv the current skill level
 	 * @return whether the consumption was successful (unsuccessful = not enough mp)
 	 */
-	public boolean applyMpCon(int skillID, byte slv) {
+	public boolean applyHpMpCon(int skillID, byte slv) {
+		int curHp = getStat(Stat.hp);
 		int curMp = getStat(Stat.mp);
+		int hpCon = getJobHandler().getHpCon(skillID, slv);
 		int mpCon = getJobHandler().getMpCon(skillID, slv);
-		boolean hasEnough = curMp >= mpCon;
+		boolean hasEnough = curHp > hpCon && curMp >= mpCon;
 		if (hasEnough) {
+			addStatAndSendPacket(Stat.hp, -hpCon);
 			addStatAndSendPacket(Stat.mp, -mpCon);
 		}
 		return hasEnough;

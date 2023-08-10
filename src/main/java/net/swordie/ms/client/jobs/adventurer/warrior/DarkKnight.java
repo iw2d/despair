@@ -429,14 +429,13 @@ public class DarkKnight extends Warrior {
             int slv = skill.getCurrentLevel();
             SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
             int proc = si.getValue(prop, slv);
-            int cd = 1000 * si.getValue(cooltime, slv);
             int heal = si.getValue(x, slv);
             if (chr.hasSkill(EVIL_EYE) && tsm.hasStatBySkillId(EVIL_EYE) && chr.getHP() > 0) {
-                if (cd + evilEyeRevenge < Util.getCurrentTimeLong()) {
+                if (evilEyeRevenge < Util.getCurrentTimeLong()) {
                     if (Util.succeedProp(proc)) {
                         chr.write(Summoned.summonBeholderRevengeAttack(evilEye, hitInfo.mobID));
                         chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)), true);
-                        evilEyeRevenge = Util.getCurrentTimeLong();
+                        evilEyeRevenge = Util.getCurrentTimeLong() + (si.getValue(cooltime, slv) * 1000L);
                     }
                 }
             }
