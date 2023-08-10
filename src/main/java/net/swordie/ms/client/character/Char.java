@@ -3645,6 +3645,17 @@ public class Char {
 	}
 
 	public int getBulletIDForAttack() {
+		// Dummy bullet IDs for Jett (0x00DCE1F0)
+		switch (JobConstants.JobEnum.getJobById(getJob())) {
+			case JETT1:
+				return 2330010;
+			case JETT2:
+				return 2330011;
+			case JETT3:
+				return 2330012;
+			case JETT4:
+				return 2330013;
+		}
 		return bulletIDForAttack;
 	}
 
@@ -4010,7 +4021,7 @@ public class Char {
 			}
 			// Stat gained by bullet
 			if (getBulletIDForAttack() > 0 && !getTemporaryStatManager().hasStat(CharacterTemporaryStat.SoulArrow)) {
-				ItemInfo ii = ItemData.getItemInfoByID(bulletIDForAttack);
+				ItemInfo ii = ItemData.getItemInfoByID(getBulletIDForAttack());
 				if (ii != null) {
 					stat += ii.getBaseStat(baseStat);
 				}
