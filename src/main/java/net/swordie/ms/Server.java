@@ -3,7 +3,10 @@ package net.swordie.ms;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.User;
 import net.swordie.ms.client.character.BroadcastMsg;
+import net.swordie.ms.connection.api.ApiAcceptor;
+import net.swordie.ms.connection.api.ApiHandler;
 import net.swordie.ms.connection.crypto.MapleCrypto;
+import net.swordie.ms.connection.crypto.SSL;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.connection.netty.ChannelAcceptor;
 import net.swordie.ms.connection.netty.ChannelHandler;
@@ -73,25 +76,27 @@ public class Server extends Properties {
 		}
 		StringData.load();
 		FieldData.loadWorldMap();
-		ChannelHandler.initHandlers(false);
 		SkillData.loadAllSkills();
 		FieldData.loadNPCFromSQL();
+		MonsterCollectionData.loadFromSQL();
 
-		ShutDownTask shutDownTask = new ShutDownTask();
-		shutDownTask.start();
-
-		log.info("Finished loading custom NPCs in " + (Util.getCurrentTimeLong() - startNow) + "ms");
+		log.info("Finished loading data in " + (Util.getCurrentTimeLong() - startNow) + "ms");
 
 		MapleCrypto.initialize(ServerConstants.VERSION);
+		SSL.initialize();
+
+		ChannelHandler.initHandlers(false);
+		ApiHandler.initHandlers();
+
+		new Thread(new ApiAcceptor()).start();
 		new Thread(new LoginAcceptor()).start();
 		new Thread(new ChatAcceptor()).start();
-		worldList.add(new World(ServerConfig.WORLD_ID, ServerConfig.SERVER_NAME, GameConstants.CHANNELS_PER_WORLD, ServerConfig.EVENT_MSG));
+
 		long startCashShop = Util.getCurrentTimeLong();
 		initCashShop();
 		log.info("Loaded Cash Shop in " + (Util.getCurrentTimeLong() - startCashShop) + "ms");
 
-		MonsterCollectionData.loadFromSQL();
-
+		worldList.add(new World(ServerConfig.WORLD_ID, ServerConfig.SERVER_NAME, GameConstants.CHANNELS_PER_WORLD, ServerConfig.EVENT_MSG));
 		for (World world : getWorlds()) {
 			for (Channel channel : world.getChannels()) {
 				ChannelAcceptor ca = new ChannelAcceptor();
@@ -104,8 +109,10 @@ public class Server extends Properties {
 			// inits the script engine
 			log.info(String.format("Starting script engine for %s", ScriptManagerImpl.SCRIPT_ENGINE_NAME));
 		}).start();
-
 		setOnline(true);
+
+		ShutDownTask shutDownTask = new ShutDownTask();
+		shutDownTask.start();
 	}
 
 	private void checkAndCreateDat() {
@@ -178,7 +185,7 @@ public class Server extends Properties {
 
 	public void initCashShop() {
 		cashShop = new CashShop();
-		try(Session session = DatabaseManager.getSession()) {
+		try (Session session = DatabaseManager.getSession()) {
 			Transaction transaction = session.beginTransaction();
 
 			Query query = session.createQuery("FROM CashShopCategory");

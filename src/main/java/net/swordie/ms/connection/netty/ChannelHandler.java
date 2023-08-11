@@ -117,39 +117,38 @@ public class ChannelHandler extends SimpleChannelInboundHandler<InPacket> {
         if (!InHeader.isSpamHeader(InHeader.getInHeaderByOp(op))) {
             log.debug(String.format("[In]\t| %s, %d/0x%s\t| %s", InHeader.getInHeaderByOp(op), op, Integer.toHexString(op).toUpperCase(), inPacket));
         }
-        Runnable handlePacket = () -> {
-            Method method = handlers.get(inHeader);
-            try {
-                if (method == null) {
-                    handleUnknown(inPacket, op);
-                } else {
-                    Class clazz = method.getParameterTypes()[0];
-                    try {
-                        if (method.getParameterTypes().length == 3) {
-                            method.invoke(this, chr, inPacket, inHeader);
-                        } else if (clazz == Client.class) {
-                            method.invoke(this, c, inPacket);
-                        } else if (clazz == Char.class) {
-                            method.invoke(this, chr, inPacket);
-                        } else {
-                            log.error("Unhandled first param type of handler " + method.getName() + ", type = " + clazz);
-                        }
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } finally {
-                inPacket.release();
-            }
-        };
-
         if (chr != null && chr.getPacketDelay() > 0) {
-            ctx.executor().schedule(handlePacket,chr.getPacketDelay(), TimeUnit.MILLISECONDS);
+            ctx.executor().schedule(() -> handlePacket(inPacket, inHeader, c, chr), chr.getPacketDelay(), TimeUnit.MILLISECONDS);
         } else {
-            handlePacket.run();
+            handlePacket(inPacket, inHeader, c, chr);
         }
     }
 
+    private void handlePacket(InPacket inPacket, InHeader inHeader, Client c, Char chr) {
+        Method method = handlers.get(inHeader);
+        try {
+            if (method == null) {
+                handleUnknown(inPacket, inHeader.getValue());
+            } else {
+                Class clazz = method.getParameterTypes()[0];
+                try {
+                    if (method.getParameterTypes().length == 3) {
+                        method.invoke(this, chr, inPacket, inHeader);
+                    } else if (clazz == Client.class) {
+                        method.invoke(this, c, inPacket);
+                    } else if (clazz == Char.class) {
+                        method.invoke(this, chr, inPacket);
+                    } else {
+                        log.error("Unhandled first param type of handler " + method.getName() + ", type = " + clazz);
+                    }
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+        } finally {
+            inPacket.release();
+        }
+    }
 
     private void handleUnknown(InPacket inPacket, short opCode) {
         if (!InHeader.isSpamHeader(InHeader.getInHeaderByOp(opCode))) {

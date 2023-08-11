@@ -10,7 +10,8 @@ public class ServerConstants {
 	public static final byte LOCALE = 8;
 	public static final String WZ_DIR = DIR + "/WZ";
 	public static final String DAT_DIR = DIR + "/dat";
-	public static final int MAX_CHARACTERS = JobConstants.LoginJob.values().length * 3;
+	public static final int START_CHARACTERS = 8;
+	public static final int MAX_CHARACTERS = JobConstants.LoginJob.values().length;
 	public static final String SCRIPT_DIR = DIR + "/scripts";
 	public static final String RESOURCES_DIR = DIR + "/resources";
 	public static final String HANDLERS_DIR = DIR + "/src/main/java/net/swordie/ms/handlers";
@@ -20,6 +21,11 @@ public class ServerConstants {
 	public static final short CHAT_PORT = 8483;
 	public static final int API_PORT = 8482;
 	public static final int BCRYPT_ITERATIONS = 10;
+
+	// SSL
+	public static final String SSL_KEYSTORE_PATH = RESOURCES_DIR + "/keystore.jks";
+	public static final String SSL_KEY_PASSWORD = "changeme";
+	public static final String SSL_STORE_PASSWORD = "changeme";
 
 	// Client Hooks
 	public static final boolean MAKE_ATTACK_INFO_PACKET_HOOK = true; // PACKETMAKER::MakeAttackInfoPacket(a, oPacket) (0x0178A800)

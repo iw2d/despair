@@ -1,9 +1,6 @@
 package net.swordie.ms.handlers.header;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public enum InHeader {
 
@@ -1022,7 +1019,7 @@ public enum InHeader {
     NO(1140),
     ;
 
-    private static List<InHeader> spam = Arrays.asList(
+    private static Set<InHeader> spam = Set.of(
             UPDATE_CLIENT_ENVIRONMENT,
             PONG,
             WVS_SET_UP_STEP,

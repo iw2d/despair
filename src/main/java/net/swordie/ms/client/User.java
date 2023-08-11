@@ -1,6 +1,7 @@
 package net.swordie.ms.client;
 
 import net.swordie.ms.Server;
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.anticheat.OffenseManager;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.db.DatabaseManager;
@@ -10,6 +11,7 @@ import net.swordie.ms.enums.PicStatus;
 import net.swordie.ms.util.FileTime;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -67,13 +69,14 @@ public class User {
     private Char currentChr;
     @Transient
     private Account currentAcc;
+    private String email;
+    private String lastLoginIp;
 
     public User() {
     }
 
-    public User(String name, String password) {
+    public User(String name) {
         this.name = name;
-        this.password = password;
         this.accountType = AccountType.Player;
         this.creationDate = FileTime.currentTime();
         this.accounts = new HashSet<>();
@@ -85,7 +88,11 @@ public class User {
     }
 
     public static User getFromDBByName(String username) {
-        return (User) DatabaseManager.getObjFromDB(User.class, username);
+        return (User) DatabaseManager.getObjFromDB(User.class, "name", username);
+    }
+
+    public static User getFromDBByEmail(String email) {
+        return (User) DatabaseManager.getObjFromDB(User.class, "email", email);
     }
 
     public int getId() {
@@ -110,6 +117,26 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setHashedPassword(String password) {
+        setPassword(BCrypt.hashpw(password, BCrypt.gensalt(ServerConstants.BCRYPT_ITERATIONS)));
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getLastLoginIp() {
+        return lastLoginIp;
+    }
+
+    public void setLastLoginIp(String lastLoginIp) {
+        this.lastLoginIp = lastLoginIp;
     }
 
     public AccountType getAccountType() {

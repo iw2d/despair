@@ -1,30 +1,23 @@
-package net.swordie.ms.connection.netty;
+package net.swordie.ms.connection.api;
 
-import net.swordie.ms.client.Client;
-import net.swordie.ms.ServerConstants;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import net.swordie.ms.connection.crypto.MapleCrypto;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
+import net.swordie.ms.ServerConstants;
+import net.swordie.ms.connection.crypto.SSL;
 import org.apache.logging.log4j.LogManager;
-import net.swordie.ms.connection.packet.Login;
-import net.swordie.ms.handlers.EventManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
+public class ApiAcceptor implements Runnable {
+    private static final Logger log = LogManager.getLogger(ApiAcceptor.class);
 
-import static net.swordie.ms.connection.netty.NettyClient.CLIENT_KEY;
-
-/**
- * Created by Tim on 2/18/2017.
- */
-public class LoginAcceptor implements Runnable{
-
-    public static Map<String, Channel> channelPool = new HashMap<>();
-    private static final Logger log = LogManager.getRootLogger();
     @Override
     public void run() {
         // Taken from http://netty.io/wiki/user-guide-for-4.x.html
@@ -39,22 +32,10 @@ public class LoginAcceptor implements Runnable{
 
                 @Override
                 protected void initChannel(SocketChannel ch) {
-
-                    ch.pipeline().addLast(new PacketDecoder(), new ChannelHandler(true), new PacketEncoder());
-
-                    byte[] siv = new byte[]{70, 114, 30, 82};
-                    byte[] riv = new byte[]{82, 48, 25, 115};
-
-                    Client c = new Client(ch, siv, riv);
-                    c.write(Login.sendConnect(riv, siv));
-
-                    channelPool.put(c.getIP(), ch);
-
-
-                    ch.attr(CLIENT_KEY).set(c);
-                    ch.attr(Client.CRYPTO_KEY).set(new MapleCrypto());
-
-                    EventManager.addFixedRateEvent(c::sendPing, 0, 10000);
+                    ch.pipeline().addLast("ssl", SSL.createHandler());
+                    ch.pipeline().addLast("codec", new HttpServerCodec());
+                    ch.pipeline().addLast("aggregator", new HttpObjectAggregator(1048576));
+                    ch.pipeline().addLast("handler", new ApiHandler());
                 }
             });
 
@@ -62,8 +43,8 @@ public class LoginAcceptor implements Runnable{
             b.childOption(ChannelOption.SO_KEEPALIVE, true);
 
             // Bind and start to accept incoming connections.
-            ChannelFuture f = b.bind(ServerConstants.LOGIN_PORT).sync();
-            log.info(String.format("Login listening on port %d", ServerConstants.LOGIN_PORT));
+            ChannelFuture f = b.bind(ServerConstants.API_PORT).sync();
+            log.info(String.format("API listening on port %d", ServerConstants.API_PORT));
 
             // Wait until the server socket is closed.
             // In this example, this does not happen, but you can do that to gracefully

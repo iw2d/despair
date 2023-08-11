@@ -1,7 +1,6 @@
 package net.swordie.ms.handlers.header;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created on 2/18/2017.
@@ -1265,7 +1264,7 @@ public enum OutHeader {
     ;
 
 
-    private static List<OutHeader> spam = Arrays.asList(
+    private static Set<OutHeader> spam = Set.of(
             ALIVE_REQ,
             PRIVATE_SERVER_PACKET,
             MOB_CONTROL_ACK,
@@ -1297,6 +1296,14 @@ public enum OutHeader {
 
     private short value;
 
+    private final static Map<Short, OutHeader> opToHeaderMap = new HashMap<>();
+
+    static {
+        for (OutHeader oh : values()) {
+            opToHeaderMap.put(oh.getValue(), oh);
+        }
+    }
+
     OutHeader(int value) {
         this.value = (short) value;
     }
@@ -1306,12 +1313,7 @@ public enum OutHeader {
     }
 
     public static OutHeader getOutHeaderByOp(int op) {
-        for (OutHeader outHeader : OutHeader.values()) {
-            if (outHeader.getValue() == op) {
-                return outHeader;
-            }
-        }
-        return null;
+        return opToHeaderMap.getOrDefault((short) op, null);
     }
 
     public static boolean isSpamHeader(OutHeader outHeader) {

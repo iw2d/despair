@@ -793,8 +793,8 @@ create table monster_collection_rewards (
 
 create table users (
 	id int not null auto_increment,
-    banExpireDate datetime(3),
-    banReason varchar(255),
+    banexpiredate datetime(3),
+    banreason varchar(255),
     offensemanager int,
     votepoints int default 0,
     donationpoints int default 0,
@@ -802,8 +802,10 @@ create table users (
     nxPrepaid int default 0,
 	name varchar(255),
 	password varchar(255),
+	email varchar(255),
 	pic varchar(255),
 	mac varchar(255),
+	lastloginip varchar(255),
 	accounttype int default 0,
 	age int default 0,
 	vipgrade int default 0,
@@ -820,7 +822,6 @@ create table users (
 	creationdate datetime(3),
     primary key (id),
     foreign key (offensemanager) references offense_managers(id)
-    
 );
 
 create table accounts (

@@ -151,7 +151,7 @@ public class LoginHandler {
                     c.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage(banMsg)));
                 } else {
                     if (!hashed) {
-                        user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(ServerConstants.BCRYPT_ITERATIONS)));
+                        user.setHashedPassword(user.getPassword());
                         // if a user has an assigned pic, hash it
                         if (user.getPic() != null && user.getPic().length() >= 6 && !Util.isStringBCrypt(user.getPic())) {
                             user.setPic(BCrypt.hashpw(user.getPic(), BCrypt.gensalt(ServerConstants.BCRYPT_ITERATIONS)));
@@ -235,6 +235,7 @@ public class LoginHandler {
                     DatabaseManager.saveToDB(user); // add to user's list of accounts
                 }
                 user.setCurrentAcc(account);
+                user.setLastLoginIp(c.getIP());
                 account.setUser(user);
                 c.write(Login.sendAccountInfo(user));
                 c.setAccount(account);
@@ -267,6 +268,7 @@ public class LoginHandler {
                     DatabaseManager.saveToDB(user); // add to user's list of accounts
                 }
                 user.setCurrentAcc(account);
+                user.setLastLoginIp(c.getIP());
                 account.setUser(user);
                 c.setAccount(account);
                 c.setWorldId(worldId);
