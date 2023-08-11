@@ -46,21 +46,6 @@ public class DamageCalc {
         this.chr = chr;
     }
 
-    public long calcPDamageForPvM(int skillID, int slv, int dotDmg) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        WeaponType weaponType = chr.getEquippedWeaponType();
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        double mult = (si == null ? 100 : dotDmg) / 100D;
-        mult = mult == 0 ? si.getValue(SkillStat.damage, slv) / 100D : mult;
-        BaseStat mainStat = GameConstants.getMainStatForJob(chr.getJob());
-        BaseStat secStat = GameConstants.getSecStatByMainStat(mainStat);
-        BaseStat attStat = mainStat == inte ? mad : pad;
-        Map<BaseStat, Integer> basicStats = chr.getTotalBasicStats();
-        int setBaseDamage = tsm.hasStat(SetBaseDamage) ? tsm.getOption(SetBaseDamage).nOption : 0;
-        double damage = calcDamageByWT(weaponType, basicStats, setBaseDamage, skillID);
-        return Math.round(damage * mult);
-    }
-
     public double getMinBaseDamage() {
         int totalMastery = chr.getTotalStat(mastery);
         if (chr.getEquippedWeaponType() == WeaponType.Barehand) {
@@ -198,7 +183,7 @@ public class DamageCalc {
                         dmg = calcBaseDamage(stats.get(str), stats.get(dex), 0, stats.get(pad), jobConst + 1.7);
                         break;
                     case Desperado:
-                        // calcDamageByHp, first arg is raw hp, 2nd is
+                        // calcDamageByHp, first arg is raw stat hp, 2nd is total hp
                         dmg = calcBaseDamageByHp(chr.getStat(Stat.mhp), stats.get(mhp), stats.get(str), stats.get(pad), jobConst + 1.3);
                         break;
                 }
@@ -209,15 +194,17 @@ public class DamageCalc {
         return dmg;
     }
 
-    private double calcHybridBaseDamage(int stat1, int stat2, int stat3, int stat4, int pad, double finalDamage) {
-        return (stat1 * 3.5 + stat2 * 3.5 + stat3 * 3.5 + stat4) / 100.0 * (pad * finalDamage);
+    private int calcHybridBaseDamage(int stat1, int stat2, int stat3, int stat4, int pad, double finalDamage) {
+        // calc_hybrid_base_damage
+        return (int) (((double) stat1 * 3.5 + (double) stat2 * 3.5 + (double) stat3 * 3.5 + (double) stat4) / 100D * ((double) pad * finalDamage) + 0.5);
     }
 
-    private double calcBaseDamage(int mainStat, int secStat, int tertStat, int pad, double finalDamage) {
-        return (tertStat + secStat + 4 * mainStat) / 100.0 * (pad * finalDamage);
+    private int calcBaseDamage(int mainStat, int secStat, int tertStat, int pad, double finalDamage) {
+        // calc_base_damage
+        return (int) ((double) (tertStat + secStat + 4 * mainStat) / 100D * ((double) pad * finalDamage) + 0.5);
     }
 
-    private double calcBaseDamageByHp(int rawHp, int totalHp, int str, int pad, double finalDamage) {
+    private int calcBaseDamageByHp(int rawHp, int totalHp, int str, int pad, double finalDamage) {
         // calc_base_damage2
         double v7 = pad * finalDamage;
         int v8 = (int) ((double) (str + rawHp / 7) / 100D * v7 + 0.5);

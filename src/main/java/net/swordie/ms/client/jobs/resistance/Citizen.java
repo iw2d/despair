@@ -48,6 +48,11 @@ public class Citizen extends Job {
     }
 
     @Override
+    public boolean isHandlerOfJob(short id) {
+        return id == JobConstants.JobEnum.CITIZEN.getJobId();
+    }
+
+    @Override
     public void handleAttack(Char chr, AttackInfo attackInfo) {
         super.handleAttack(chr, attackInfo);
     }
@@ -84,11 +89,6 @@ public class Citizen extends Job {
     public void setCharCreationStats(Char chr) {
         super.setCharCreationStats(chr);
         chr.getAvatarData().getCharacterStat().setPosMap(931000000);
-    }
-
-    @Override
-    public boolean isHandlerOfJob(short id) {
-        return id == JobConstants.JobEnum.CITIZEN.getJobId();
     }
 
     @Override

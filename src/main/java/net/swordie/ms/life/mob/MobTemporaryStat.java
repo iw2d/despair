@@ -723,7 +723,7 @@ public class MobTemporaryStat {
 		bi.setCharacterId(chr.getId());
 		bi.setChr(chr);
 		bi.setSkillId(skillId);
-		bi.setDamage((int) (dotDmg == 0 ? 0 : chr.getDamageCalc().calcPDamageForPvM(skillId, slv, dotDmg)));
+		bi.setDamage((int) (chr.getDamageCalc().getMaxBaseDamage() * ((double) dotDmg / 100D)));
 		bi.setInterval(dotInterval * 1000);
 		bi.setDotCount(duration / bi.getInterval());
 		bi.setAttackDelay(0);

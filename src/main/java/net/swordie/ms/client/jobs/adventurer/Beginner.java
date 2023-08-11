@@ -28,7 +28,7 @@ public class Beginner extends Job {
 
     public Beginner(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && JobConstants.isAdventurer(chr.getJob())) {
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
             for (int id : addedSkills) {
                 if (!chr.hasSkill(id)) {
                     Skill skill = SkillData.getSkillDeepCopyById(id);
