@@ -101,6 +101,12 @@ public final class MapleCrypto {
         rVersion = (short) (((v >>> 8) & 0xFF) | ((v << 8) & 0xFF00));
     }
 
+    public static void initializeForClient(short v) {
+        gVersion = v;
+        sVersion = (short) (((v >>> 8) & 0xFF) | ((v << 8) & 0xFF00));
+        rVersion = (short) ((((0xFFFF - v) >>> 8) & 0xFF) | (((0xFFFF - v) << 8) & 0xFF00));
+    }
+
     /**
      * Cryptography segment of MapleAESOFB.
      *

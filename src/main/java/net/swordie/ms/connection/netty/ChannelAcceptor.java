@@ -40,7 +40,6 @@ public class ChannelAcceptor implements Runnable {
                     byte[] riv = new byte[]{82, 48, 25, 115};
 
                     Client c = new Client(ch, siv, riv);
-                    // remove after debug stage
                     c.write(Login.sendConnect(riv, siv));
 
                     ch.attr(CLIENT_KEY).set(c);

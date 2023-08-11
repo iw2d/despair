@@ -1299,9 +1299,9 @@ public enum OutHeader {
     private final static Map<Short, OutHeader> opToHeaderMap = new HashMap<>();
 
     static {
-        for (OutHeader oh : values()) {
-            opToHeaderMap.put(oh.getValue(), oh);
-        }
+        Arrays.stream(values())
+                .sorted(Collections.reverseOrder())
+                .forEach(oh -> opToHeaderMap.put(oh.getValue(), oh));
     }
 
     OutHeader(int value) {
