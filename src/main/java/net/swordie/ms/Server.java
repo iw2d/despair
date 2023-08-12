@@ -74,6 +74,9 @@ public class Server extends Properties {
 		} catch (IllegalAccessException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
+		DatabaseManager.getSession();
+		log.info("Loaded database connection in " + (Util.getCurrentTimeLong() - startNow) + "ms");
+
 		StringData.load();
 		FieldData.loadWorldMap();
 		SkillData.loadAllSkills();

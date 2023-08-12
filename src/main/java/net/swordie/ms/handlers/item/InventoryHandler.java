@@ -95,7 +95,8 @@ public class InventoryHandler {
             }
         } else {
             Item swapItem = chr.getInventoryByType(invTypeTo).getItemBySlot(newPos);
-            if (swapItem != null && item.getItemId() == swapItem.getItemId()) {
+            if (swapItem != null && item.getItemId() == swapItem.getItemId() &&
+                    !ItemConstants.isThrowingStar(item.getItemId()) && !ItemConstants.isBullet(item.getItemId())) {
                 // handle stacking items
                 ItemInfo ii = ItemData.getItemInfoByID(swapItem.getItemId());
                 if (ii != null && ii.getSlotMax() > 1 && swapItem.getQuantity() < ii.getSlotMax()) {
@@ -168,7 +169,8 @@ public class InventoryHandler {
         Map<Integer, List<Item>> stackable = new HashMap<>();
         for (Item item : inv.getItems()) {
             ItemInfo ii = ItemData.getItemInfoByID(item.getItemId());
-            if (ii == null || ii.getSlotMax() <= 1) {
+            if (ii == null || ii.getSlotMax() <= 1 ||
+                    ItemConstants.isThrowingStar(item.getItemId()) || ItemConstants.isBullet(item.getItemId())) {
                 continue;
             }
             if (!stackable.containsKey(item.getItemId())) {

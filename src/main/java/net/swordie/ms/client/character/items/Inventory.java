@@ -149,8 +149,8 @@ public class Inventory {
 
     public Item getItemByItemIDAndStackable(int itemId) {
         ItemInfo ii = ItemData.getItemInfoByID(itemId);
-        if (ii == null) {
-            return getItemByItemID(itemId);
+        if (ii == null || ItemConstants.isThrowingStar(itemId) || ItemConstants.isBullet(itemId)) {
+            return null;
         }
         return getItems().stream()
                 .filter(item -> item.getItemId() == itemId && item.getQuantity() < ii.getSlotMax())
