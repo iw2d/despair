@@ -64,27 +64,6 @@ public class AttackHandler {
             if (si != null && si.getExtraSkillInfo().size() > 0) {
                 chr.getField().broadcastPacket(FieldPacket.registerExtraSkill(chr.getPosition(), skillID, si.getExtraSkillInfo().keySet(), attackInfo.left));
             }
-            if (si != null && si.isMassSpell() && chr.getParty() != null) {
-                Rect r = si.getFirstRect();
-                if (r != null) {
-                    Rect rectAround = chr.getRectAround(r);
-                    for (PartyMember pm : chr.getParty().getOnlineMembers()) {
-                        if (pm.getChr() != null && pm.getChr().getField() == chr.getField()
-                                && rectAround.hasPositionInside(pm.getChr().getPosition())) {
-                            Char ptChr = pm.getChr();
-                            Effect effect = Effect.skillAffected(skillID, slv, 0);
-                            if (ptChr != chr) {  // Caster shouldn't get the Affected Skill Effect
-                                chr.getField().broadcastPacket(
-                                        UserRemote.effect(ptChr.getId(), effect)
-                                        , ptChr);
-                                ptChr.write(UserPacket.effect(effect));
-                                sourceJobHandler.handleAttack(chr, attackInfo);
-                            }
-
-                        }
-                    }
-                }
-            }
             sourceJobHandler.handleAttack(chr, attackInfo);
             if (attackInfo.attackHeader != null) {
                 switch (attackInfo.attackHeader) {

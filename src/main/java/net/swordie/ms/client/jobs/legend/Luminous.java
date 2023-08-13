@@ -151,10 +151,10 @@ public class Luminous extends Job {
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
         if (hasHitMobs) {
             handleDarkCresendo();
+            handleLarknessHeal(attackInfo.skillId);
         }
         handleLunarTide(); // TODO: create and use callback for HP/MP update
         handleLarknessGauge(attackInfo.skillId);
-        handleLarknessHeal(attackInfo.skillId);
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -172,10 +172,16 @@ public class Luminous extends Job {
                 }
                 break;
             case RAY_OF_REDEMPTION:
+                // NOTE: this also goes through SkillHandler, but doesn't get executed because the cooldown is set by AttackHandler
                 Rect rect = attackInfo.getForcedPos().getRectAround(si.getFirstRect());
+                if (!attackInfo.left) {
+                    rect = rect.horizontalFlipAround(attackInfo.getForcedPos().getX());
+                }
                 int healRate = (int) (chr.getDamageCalc().getMaxBaseDamage() * (si.getValue(hp, slv)) / 100D);
                 if (chr.getParty() == null) {
                     chr.heal(!tsm.hasStat(CharacterTemporaryStat.Undead) ? healRate : -healRate, true);
+                    chr.write(UserPacket.effect(Effect.skillAffected(skillID, slv, 0)));
+                    chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffected(skillID, slv, 0)), chr);
                 } else {
                     List<PartyMember> partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
                             .filter(pml -> pml.getChr().getHP() > 0)
@@ -184,6 +190,8 @@ public class Luminous extends Job {
                         Char partyChr = partyMember.getChr();
                         partyChr.heal(!partyChr.getTemporaryStatManager().hasStat(CharacterTemporaryStat.Undead)
                                 ? healRate / partyMembers.size() : -healRate / partyMembers.size(), true);
+                        partyChr.write(UserPacket.effect(Effect.skillAffected(skillID, slv, 0)));
+                        partyChr.getField().broadcastPacket(UserRemote.effect(partyChr.getId(), Effect.skillAffected(skillID, slv, 0)), partyChr);
                     }
                 }
                 break;

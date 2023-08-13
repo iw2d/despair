@@ -154,6 +154,9 @@ public class SkillHandler {
                 if (r != null) {
                     Position pos = SkillConstants.isMassSpellEncodePosition(skillID) ? inPacket.decodePosition() : chr.getPosition();
                     Rect rect = pos.getRectAround(r);
+                    if (!chr.isLeft()) {
+                        rect = rect.horizontalFlipAround(pos.getX());
+                    }
                     for (PartyMember pm : chr.getParty().getOnlineMembers()) {
                         if (pm.getChr() != null && pm.getChr() != chr
                                 && pm.getFieldID() == chr.getFieldID()
