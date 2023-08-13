@@ -7,6 +7,7 @@ import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.skill.MobSkillID;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.loaders.containerclasses.SkillStringInfo;
+import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -128,6 +129,18 @@ public class JsonExporter {
                     JSONObject skillStatObject = new JSONObject();
                     si.getSkillStatInfo().forEach((ss, value) -> skillStatObject.put(ss.name(), value));
                     skillObject.put("stat", skillStatObject);
+                    if (si.getRects().size() > 0) {
+                        JSONArray skillRectList = new JSONArray();
+                        for (Rect rect : si.getRects()) {
+                            JSONObject rectObject = new JSONObject();
+                            rectObject.put("left", rect.getLeft());
+                            rectObject.put("right", rect.getRight());
+                            rectObject.put("top", rect.getTop());
+                            rectObject.put("bottom", rect.getBottom());
+                            skillRectList.put(rectObject);
+                        }
+                        skillObject.put("rect", skillRectList);
+                    }
 
                     if (si.getHyper() > 0) {
                         hyperSkillArray.put(skillObject);
