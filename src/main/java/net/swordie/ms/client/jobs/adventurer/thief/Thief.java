@@ -29,21 +29,8 @@ public class Thief extends Beginner {
     public static final int HASTE = 4001005; //Buff
     public static final int DARK_SIGHT = 4001003; //Buff
 
-    private int[] addedSkills = new int[] {
-            MAPLE_RETURN,
-    };
-
     public Thief(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob()) && chr.getSubJob() == 0) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override

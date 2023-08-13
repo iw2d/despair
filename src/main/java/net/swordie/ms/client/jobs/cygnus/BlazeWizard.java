@@ -77,24 +77,10 @@ public class BlazeWizard extends Noblesse {
     public static final int GRAND_FLAME_ELEMENT = 12110024;
     public static final int FINAL_FLAME_ELEMENT = 12120007;
 
-    private int[] addedSkills = new int[] {
-            IMPERIAL_RECALL
-    };
-
     private FlashFire flashFire;
-
 
     public BlazeWizard(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override

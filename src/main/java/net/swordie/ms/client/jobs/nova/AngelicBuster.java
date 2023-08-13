@@ -94,29 +94,11 @@ public class AngelicBuster extends Job {
     public static final int AFFINITY_HEART_III = 65110006;
     public static final int AFFINITY_HEART_IV = 65120006;
 
-
-    private int[] addedSkills = new int[] {
-            DRESS_UP,
-            SOUL_BUSTER,
-            HYPER_COORDINATE,
-            GRAPPLING_HEART,
-            DAY_DREAMER,
-    };
-
     private int affinityHeartIIcounter = 0;
     private int affinityHeartIIIcounter = 0;
 
     public AngelicBuster(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override
@@ -549,4 +531,15 @@ public class AngelicBuster extends Job {
         chr.getEquippedInventory().addItem(secondary);
     }
 
+    @Override
+    public void handleSetJob(short jobId) {
+        if (JobConstants.isAngelicBuster(jobId)) {
+            chr.addSkill(DRESS_UP, 1, 1);
+            chr.addSkill(SOUL_BUSTER, 1, 1);
+            chr.addSkill(HYPER_COORDINATE, 1, 1);
+            chr.addSkill(GRAPPLING_HEART, 1, 1);
+            chr.addSkill(DAY_DREAMER, 1, 1);
+        }
+        super.handleSetJob(jobId);
+    }
 }

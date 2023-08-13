@@ -44,7 +44,7 @@ public class JobConstants {
             Map.entry("Evan", List.of(EVAN, EVAN1, EVAN2, EVAN3, EVAN4)),
             Map.entry("Mercedes", List.of(MERCEDES, MERCEDES1, MERCEDES2, MERCEDES3, MERCEDES4)),
             Map.entry("Phantom", List.of(PHANTOM, PHANTOM1, PHANTOM2, PHANTOM3, PHANTOM4)),
-            Map.entry("Luminious", List.of(LUMINOUS, LUMINOUS1, LUMINOUS2, LUMINOUS3, LUMINOUS4)),
+            Map.entry("Luminous", List.of(LUMINOUS, LUMINOUS1, LUMINOUS2, LUMINOUS3, LUMINOUS4)),
             Map.entry("Shade", List.of(SHADE, SHADE1, SHADE2, SHADE3, SHADE4)),
 
             Map.entry("Demon Slayer", List.of(DEMON, DEMON_SLAYER1, DEMON_SLAYER2, DEMON_SLAYER3, DEMON_SLAYER4)),

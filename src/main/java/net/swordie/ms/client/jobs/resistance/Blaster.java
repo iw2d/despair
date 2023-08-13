@@ -80,25 +80,12 @@ public class Blaster extends Citizen {
     public static final int WEAVING = 37111003;
     public static final int BOBBING = 37101001;
 
-    private int[] addedSkills = new int[] {
-            SECRET_ASSEMBLY,
-    };
-
     private int gauge = 0;
     private int ammo = getMaxAmmo();
     private int lastAttack = 0;
 
     public Blaster(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override

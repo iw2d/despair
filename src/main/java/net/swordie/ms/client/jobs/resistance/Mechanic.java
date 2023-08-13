@@ -17,6 +17,7 @@ import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
+import net.swordie.ms.life.Dragon;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
@@ -76,11 +77,6 @@ public class Mechanic extends Citizen {
     public static final int FULL_SPREAD = 35121055;
     public static final int DISTORTION_BOMB = 35121052;
 
-    private int[] addedSkills = new int[] {
-            SECRET_ASSEMBLY,
-            MECHANIC_DASH,
-            HIDDEN_PEACE,
-    };
 
     private int[] homingBeacon = new int[] {
             HOMING_BEACON,
@@ -94,15 +90,6 @@ public class Mechanic extends Citizen {
 
     public Mechanic(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override
@@ -513,5 +500,15 @@ public class Mechanic extends Citizen {
     @Override
     public void handleHit(Char chr, HitInfo hitInfo) {
         super.handleHit(chr, hitInfo);
+    }
+
+
+    @Override
+    public void handleSetJob(short jobId) {
+        if (jobId == JobConstants.JobEnum.MECHANIC_1.getJobId()) {
+            chr.addSkill(MECHANIC_DASH, 1, 1);
+            chr.addSkill(HIDDEN_PEACE, 1, 1);
+        }
+        super.handleSetJob(jobId);
     }
 }

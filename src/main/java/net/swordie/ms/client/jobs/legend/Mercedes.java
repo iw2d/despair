@@ -86,24 +86,11 @@ public class Mercedes extends Job {
             ELEMENTAL_KNIGHTS_PURPLE
     );
 
-    private int[] addedSkills = new int[] {
-            ELVEN_GRACE,
-            UPDRAFT,
-            ELVEN_HEALING
-    };
-
     private ScheduledFuture elvenHealingTimer;
 
     public Mercedes(Char chr) {
         super(chr);
         if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
             elvenHealingTimer = EventManager.addFixedRateEvent(this::elvenHealing, 4000, 4000);
         }
     }
@@ -434,4 +421,13 @@ public class Mercedes extends Job {
         chr.write(WvsContext.statChanged(stats));
     }
 
+    @Override
+    public void handleSetJob(short jobId) {
+        if (JobConstants.isMercedes(jobId)) {
+            chr.addSkill(ELVEN_GRACE, 1, 1);
+            chr.addSkill(UPDRAFT, 1, 1);
+            chr.addSkill(ELVEN_HEALING, 1, 1);
+        }
+        super.handleSetJob(jobId);
+    }
 }

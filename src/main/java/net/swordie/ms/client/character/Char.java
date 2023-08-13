@@ -1734,10 +1734,7 @@ public class Char {
 		}
 		skill.setCurrentLevel(currentLevel);
 		skill.setMasterLevel(masterLevel);
-		List<Skill> list = new ArrayList<>();
-		list.add(skill);
 		addSkill(skill);
-		write(WvsContext.changeSkillRecordResult(list, true, false, false, false));
 	}
 
 	/**
@@ -1780,8 +1777,13 @@ public class Char {
 			oldSkill.setMasterLevel(skill.getMasterLevel());
 		}
 		// Change cache accordingly
-		if (isPassive && isChanged) {
-			addToBaseStatCache(skill);
+		if (isChanged) {
+			// update cache if passive
+			if (isPassive) {
+				addToBaseStatCache(skill);
+			}
+			// notify client
+			write(WvsContext.changeSkillRecordResult(Collections.singletonList(skill), true, false, false, false));
 		}
 	}
 

@@ -83,16 +83,6 @@ public class Zero extends Job {
     public static final int IMMUNE_BARRIER = 101120109;
     public static final int ARMOR_SPLIT = 101110103;
 
-    private int[] addedSkills = new int[] {
-            DUAL_COMBAT,
-            DUAL_COMBAT_2,
-            TEMPLE_RECALL,
-            RESOLUTION_TIME,
-            BURST_STEP,
-            BURST_JUMP,
-            BURST_LEAP,
-    };
-
     private int doubleTimePrevSkill = 0;
 
     public static int getAlphaOrBetaSkill(int skillID) {
@@ -154,14 +144,7 @@ public class Zero extends Job {
 
     public Zero(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
             if (chr.getZeroInfo() == null) {
                 chr.initZeroInfo();
             }
@@ -602,6 +585,20 @@ public class Zero extends Job {
         stats.put(Stat.ap, (short) chr.getStat(Stat.ap));
         stats.put(Stat.sp, chr.getAvatarData().getCharacterStat().getExtendSP());
         chr.write(WvsContext.statChanged(stats));
+    }
+
+    @Override
+    public void handleSetJob(short jobId) {
+        if (JobConstants.isZero(jobId)) {
+            chr.addSkill(DUAL_COMBAT, 1, 1);
+            chr.addSkill(DUAL_COMBAT_2, 1, 1);
+            chr.addSkill(TEMPLE_RECALL, 1, 1);
+            chr.addSkill(RESOLUTION_TIME, 1, 1);
+            chr.addSkill(BURST_STEP, 1, 1);
+            chr.addSkill(BURST_JUMP, 1, 1);
+            chr.addSkill(BURST_LEAP, 1, 1);
+        }
+        super.handleSetJob(jobId);
     }
 
     @Override

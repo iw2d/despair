@@ -34,23 +34,10 @@ public class Magician extends Beginner {
     public static final int TELEPORT = 2001009;
     public static final int MAGIC_GUARD = 2001002;
 
-    private int[] addedSkills = new int[]{
-            MAPLE_RETURN,
-    };
-
     private ScheduledFuture infinityTimer;
 
     public Magician(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override

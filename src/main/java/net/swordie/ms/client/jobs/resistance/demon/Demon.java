@@ -23,23 +23,8 @@ public class Demon extends Job {
     public static final int DARK_WINDS = 30010110;
     public static final int DEMONIC_BLOOD = 30010185;
 
-
-    private int[] addedSkills = new int[] {
-            DARK_WINDS,
-            DEMONIC_BLOOD,
-    };
-
     public Demon(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && JobConstants.isDemon(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override
@@ -109,4 +94,12 @@ public class Demon extends Job {
         chr.getAvatarData().getCharacterStat().setPosMap(927000000);
     }
 
+    @Override
+    public void handleSetJob(short jobId) {
+        if (JobConstants.isDemon(jobId)) {
+            chr.addSkill(DARK_WINDS, 1, 1);
+            chr.addSkill(DEMONIC_BLOOD, 1, 1);
+        }
+        super.handleSetJob(jobId);
+    }
 }

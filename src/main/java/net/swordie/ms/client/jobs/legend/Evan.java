@@ -48,6 +48,7 @@ public class Evan extends Job {
 
     public static final int INHERITED_WILL = 20010194;
     public static final int BACK_TO_NATURE = 20011293;
+    public static final int THREE_SNAILS = 20011000;
     public static final int RECOVERY = 20011001; // Buff
     public static final int NIMBLE_FEET = 20011002; // Buff
 
@@ -107,21 +108,8 @@ public class Evan extends Job {
     private final Lock debrisLock = new ReentrantLock();
     private Dragon dragon;
 
-    private int[] addedSkills = new int[] {
-            BACK_TO_NATURE,
-    };
-
     public Evan(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override
@@ -468,11 +456,17 @@ public class Evan extends Job {
 
     @Override
     public void handleSetJob(short jobId) {
-        if (jobId != JobConstants.JobEnum.EVAN.getJobId()) {
+        if (jobId == JobConstants.JobEnum.EVAN.getJobId()) {
+            chr.addSkill(THREE_SNAILS, 0, 3);
+            chr.addSkill(RECOVERY, 0, 3);
+            chr.addSkill(NIMBLE_FEET, 0, 3);
+        } else {
+            // spawn/update dragon
             Dragon dragon = getDragon();
             dragon.resetToPlayer();
             chr.getField().spawnLife(dragon, null);
         }
+        super.handleSetJob(jobId);
     }
 
     @Override

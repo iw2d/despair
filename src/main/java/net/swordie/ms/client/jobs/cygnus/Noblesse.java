@@ -17,6 +17,9 @@ import net.swordie.ms.loaders.SkillData;
  * Created on 12/14/2017.
  */
 public class Noblesse extends Job {
+    public static final int THREE_SNAILS = 10001000;
+    public static final int RECOVERY = 10001001;
+    public static final int NIMBLE_FEET = 10001002;
     public static final int IMPERIAL_RECALL = 10001245;
     public static final int ELEMENTAL_SLASH = 10001244;
     public static final int ELEMENTAL_SHIFT_BASE = 10000252;
@@ -25,26 +28,8 @@ public class Noblesse extends Job {
     public static final int ELEMENTAL_EXPERT = 10000250; // given with 4th job
     public static final int NOBLE_MIND = 10000202;
 
-    private int[] addedSkills = {
-            ELEMENTAL_SLASH,
-            ELEMENTAL_SHIFT_BASE,
-            ELEMENTAL_SHIFT_HIGH,
-            ELEMENTAL_SHIFT_FLASH
-    };
-
     public Noblesse(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    if (skill != null) {
-                        skill.setCurrentLevel(1);
-                        chr.addSkill(skill);
-                    }
-                }
-            }
-        }
     }
 
     @Override
@@ -85,5 +70,19 @@ public class Noblesse extends Job {
     public void setCharCreationStats(Char chr) {
         super.setCharCreationStats(chr);
         chr.getAvatarData().getCharacterStat().setPosMap(130030000);
+    }
+
+    @Override
+    public void handleSetJob(short jobId) {
+        if (JobConstants.JobEnum.getJobById(jobId) == JobConstants.JobEnum.NOBLESSE) {
+            chr.addSkill(THREE_SNAILS, 0, 3);
+            chr.addSkill(RECOVERY, 0, 3);
+            chr.addSkill(NIMBLE_FEET, 0, 3);
+            chr.addSkill(ELEMENTAL_SLASH, 1, 1);
+            chr.addSkill(ELEMENTAL_SHIFT_BASE, 1, 1);
+            chr.addSkill(ELEMENTAL_SHIFT_HIGH, 1, 1);
+            chr.addSkill(ELEMENTAL_SHIFT_FLASH, 1, 1);
+        }
+        super.handleSetJob(jobId);
     }
 }

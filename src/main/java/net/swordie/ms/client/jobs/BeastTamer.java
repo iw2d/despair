@@ -105,14 +105,6 @@ public class BeastTamer extends Job {
     //Hyper
     public static final int TEAM_ROAR = 112121056;
 
-    private int[] addedSkills = new int[]{
-            BEAR_MODE,
-            SNOW_LEOPARD_MODE,
-            HAWK_MODE,
-            CAT_MODE,
-            HOMEWARD_BOUND,
-    };
-
     private static int[] bearBuffs = new int[]{
             BEAR_ASSAULT,
     };
@@ -166,15 +158,6 @@ public class BeastTamer extends Job {
 
     public BeastTamer(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override
@@ -785,5 +768,18 @@ public class BeastTamer extends Job {
         CharacterStat cs = chr.getAvatarData().getCharacterStat();
         cs.setPosMap(866101000);
         cs.setJob(11212);
+    }
+
+    @Override
+    public void handleSetJob(short jobId) {
+        if (JobConstants.isBeastTamer(jobId)) {
+            // TODO: tutorial questline to give these skills
+            chr.addSkill(BEAR_MODE, 1, 1);
+            chr.addSkill(SNOW_LEOPARD_MODE, 1, 1);
+            chr.addSkill(HAWK_MODE, 1, 1);
+            chr.addSkill(CAT_MODE, 1, 1);
+            chr.addSkill(HOMEWARD_BOUND, 1, 1);
+        }
+        super.handleSetJob(jobId);
     }
 }

@@ -102,10 +102,6 @@ public class WildHunter extends Citizen {
     public static final int SILENT_RAMPAGE = 33121054;
     public static final int JAGUAR_RAMPAGE = 33121255;
 
-    private int[] addedSkills = new int[] {
-            SECRET_ASSEMBLY,
-    };
-
     private int[] jaguarSummons = new int[] {
             SUMMON_JAGUAR_GREY,
             SUMMON_JAGUAR_YELLOW,
@@ -125,14 +121,6 @@ public class WildHunter extends Citizen {
         if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
             if (chr.getWildHunterInfo() == null) {
                 chr.setWildHunterInfo(new WildHunterInfo());
-            }
-            for (int id : addedSkills) {
-                Skill skill = chr.getSkill(id);
-                if (!chr.hasSkill(id) || skill.getCurrentLevel() != skill.getMaxLevel()) {
-                    skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMaxLevel());
-                    chr.addSkill(skill);
-                }
             }
         }
     }

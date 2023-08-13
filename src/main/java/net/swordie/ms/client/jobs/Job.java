@@ -112,22 +112,8 @@ public abstract class Job {
 			MAPLERUNNER_DASH
 	};
 
-	private static final int[] JOBLESS_BUFFS = new int[] {
-			BOSS_SLAYERS,
-			UNDETERRED,
-			FOR_THE_GUILD,
-			MAPLERUNNER_DASH
-	};
-
 	public Job(Char chr) {
 		this.chr = chr;
-		if (chr.getId() != 0 && chr.getWorld().isReboot()) {
-			if (!chr.hasSkill(REBOOT)) {
-				Skill skill = SkillData.getSkillDeepCopyById(REBOOT);
-				skill.setCurrentLevel(1);
-				chr.addSkill(skill);
-			}
-		}
 	}
 
 	public abstract boolean isHandlerOfJob(short id);
@@ -438,7 +424,7 @@ public abstract class Job {
 		}
 	}
 
-	public void handleJoblessbuff(Char chr, int skillID, int slv) {
+	private void handleJoblessbuff(Char chr, int skillID, int slv) {
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
 		SkillInfo si = SkillData.getSkillInfoById(skillID);
 
@@ -944,12 +930,6 @@ public abstract class Job {
 		chr.write(WvsContext.statChanged(stats));
 		chr.heal(chr.getMaxHP());
 		chr.healMP(chr.getMaxMP());
-
-		if (chr.getWorld().isReboot()) {
-			Skill skill = SkillData.getSkillDeepCopyById(REBOOT2);
-			skill.setCurrentLevel(level);
-			chr.addSkill(skill);
-		}
 		switch (level) {
 			case 10: {
 				String message = "#b[Guide] 1st Job Advancement#k\r\n\r\n";
@@ -992,10 +972,6 @@ public abstract class Job {
 				break;
 			}
 		}
-	}
-
-	private boolean isJoblessBuff(int skillID) {
-		return Arrays.stream(JOBLESS_BUFFS).anyMatch(b -> b == skillID);
 	}
 
 	public int getHpCon(int skillId, int slv) {

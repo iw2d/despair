@@ -20,25 +20,13 @@ public class Beginner extends Job {
     public static final int THREE_SNAILS = 1000;
     public static final int MAPLE_RETURN = 1281;
 
-    private int[] addedSkills = new int[] {
-        RECOVERY,
-        NIMBLE_FEET,
-        THREE_SNAILS
-    };
-
     public Beginner(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setRootId(0);
-                    skill.setMasterLevel(3);
-                    skill.setMaxLevel(3);
-                    chr.addSkill(skill);
-                }
-            }
-        }
+    }
+
+    @Override
+    public boolean isHandlerOfJob(short id) {
+        return JobConstants.JobEnum.getJobById(id) == JobConstants.JobEnum.BEGINNER;
     }
 
     @Override
@@ -57,11 +45,6 @@ public class Beginner extends Job {
     }
 
     @Override
-    public boolean isHandlerOfJob(short id) {
-        return JobConstants.JobEnum.getJobById(id) == JobConstants.JobEnum.BEGINNER;
-    }
-
-    @Override
     public int getFinalAttackSkill() {
         return 0;
     }
@@ -77,5 +60,15 @@ public class Beginner extends Job {
         } else {
             cs.setPosMap(4000011);
         }
+    }
+
+    @Override
+    public void handleSetJob(short jobId) {
+        if (JobConstants.JobEnum.getJobById(jobId) == JobConstants.JobEnum.BEGINNER) {
+            chr.addSkill(THREE_SNAILS, 0, 3);
+            chr.addSkill(RECOVERY, 0, 3);
+            chr.addSkill(NIMBLE_FEET, 0, 3);
+        }
+        super.handleSetJob(jobId);
     }
 }

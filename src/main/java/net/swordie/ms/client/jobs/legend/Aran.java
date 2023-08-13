@@ -18,6 +18,7 @@ import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.life.AffectedArea;
+import net.swordie.ms.life.Dragon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.life.mob.MobTemporaryStat;
@@ -35,6 +36,9 @@ public class Aran extends Job {
     public static final int COMBAT_STEP = 20001295;
     public static final int REGAINED_MEMORY = 20000194;
     public static final int RETURN_TO_RIEN = 20001296;
+    public static final int THREE_SNAILS = 20001000;
+    public static final int RECOVERY = 20001001;
+    public static final int NIMBLE_FEET = 20001002;
 
     public static final int POLEARM_MASTERY = 21100000;
     public static final int POLEARM_BOOSTER = 21001003; //Buff
@@ -107,24 +111,8 @@ public class Aran extends Job {
     public static final int FINISHER_HUNTER_PREY_FINAL = 21120026;
     public static final int FINISHER_STORM_OF_FEAR_FINAL = 21120027;
 
-
-    private int[] addedSkills = new int[] {
-            RETURN_TO_RIEN,
-    };
-
-    private int combo;
-
     public Aran(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override
@@ -519,5 +507,15 @@ public class Aran extends Job {
         super.setCharCreationStats(chr);
         CharacterStat cs = chr.getAvatarData().getCharacterStat();
         cs.setPosMap(914000000);
+    }
+
+    @Override
+    public void handleSetJob(short jobId) {
+        if (jobId == JobConstants.JobEnum.LEGEND.getJobId()) {
+            chr.addSkill(THREE_SNAILS, 0, 3);
+            chr.addSkill(RECOVERY, 0, 3);
+            chr.addSkill(NIMBLE_FEET, 0, 3);
+        }
+        super.handleSetJob(jobId);
     }
 }

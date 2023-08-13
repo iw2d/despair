@@ -98,27 +98,11 @@ public class DemonAvenger extends Job {
     public static final int FORBIDDEN_CONTRACT = 31221054;
     public static final int THOUSAND_SWORDS = 31221052;
 
-    private int[] addedSkills = new int[] {
-            EXCEED,
-            BLOOD_PACT,
-            HYPER_POTION_MASTERY,
-            // STAR_FORCE_CONVERSION, TODO
-    };
-
     private Map<Integer, Integer> shieldBounceMap = new ConcurrentHashMap<>();
     private ScheduledFuture diabolicRecoveryTimer;
 
     public DemonAvenger(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override
@@ -516,5 +500,14 @@ public class DemonAvenger extends Job {
         super.handleHit(chr, hitInfo);
     }
 
-    // TODO: change hair
+    @Override
+    public void handleSetJob(short jobId) {
+        if (JobConstants.isDemonAvenger(jobId)) {
+            chr.addSkill(EXCEED, 1, 1);
+            chr.addSkill(BLOOD_PACT, 1, 1);
+            chr.addSkill(HYPER_POTION_MASTERY, 1, 1);
+            // chr.addSkill(STAR_FORCE_CONVERSION, 1, 1); // TODO
+        }
+        super.handleSetJob(jobId);
+    }
 }

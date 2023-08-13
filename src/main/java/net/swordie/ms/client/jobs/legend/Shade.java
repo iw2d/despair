@@ -72,25 +72,11 @@ public class Shade extends Job {
     public static final int SPIRIT_BOND_MAX = 25121131;
     public static final int SPIRIT_INCARNATION = 25121030;
 
-    private int[] addedSkills = new int[] {
-            FOX_TROT,
-            SPIRIT_BOND_I,
-    };
-
     private Map<Integer, Integer> foxBounceMap = new ConcurrentHashMap<>();
 
 
     public Shade(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override
@@ -110,6 +96,7 @@ public class Shade extends Job {
         int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
         if (hasHitMobs) {
+            handleSpiritBond();
             handleWeaken(attackInfo);
         }
         Option o1 = new Option();
@@ -195,6 +182,16 @@ public class Shade extends Job {
         super.handleAttack(chr, attackInfo);
     }
 
+    private void handleSpiritBond() {
+        if (!chr.hasSkill(SPIRIT_BOND_I)) {
+            return;
+        }
+        if (chr.getHP() > 0) {
+            int healRate = chr.getSkillStatValue(x, SPIRIT_BOND_I);
+            chr.heal((int) (chr.getMaxHP() * ((double) healRate / 100D)));
+        }
+    }
+
     private void handleWeaken(AttackInfo attackInfo) {
         if (!chr.hasSkill(WEAKEN)) {
             return;
@@ -234,7 +231,7 @@ public class Shade extends Job {
         if (bi.getSkillId() == DEATH_MARK) {
             if (chr.getHP() > 0) {
                 int healRate = chr.getSkillStatValue(x, DEATH_MARK);
-                chr.heal((int) (bi.getDamage() * healRate / 100D));
+                chr.heal((int) (bi.getDamage() * ((double) healRate / 100D)));
             }
         }
         super.handleMobBurn(mob, bi);
@@ -502,5 +499,14 @@ public class Shade extends Job {
     public void setCharCreationStats(Char chr) {
         super.setCharCreationStats(chr);
         chr.getAvatarData().getCharacterStat().setPosMap(927030050);
+    }
+
+    @Override
+    public void handleSetJob(short jobId) {
+        if (jobId == JobConstants.JobEnum.SHADE.getJobId()) {
+            chr.addSkill(FOX_TROT, 1, 1);
+            chr.addSkill(SPIRIT_BOND_I, 1, 1);
+        }
+        super.handleSetJob(jobId);
     }
 }

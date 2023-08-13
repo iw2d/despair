@@ -27,21 +27,8 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
 public class Archer extends Beginner {
     public static final int CRITICAL_SHOT = 3000001;
 
-    private int[] addedSkills = new int[] {
-            MAPLE_RETURN,
-    };
-
     public Archer(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override

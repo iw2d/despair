@@ -45,21 +45,8 @@ public class Jett extends Job {
     public static final int EPIC_ADVENTURER_JETT = 5721053;
     public static final int BIONIC_MAXIMIZER = 5721054;
 
-    private int[] addedSkills = new int[] {
-            RETURN_TO_SPACESHIP
-    };
-
     public Jett(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override

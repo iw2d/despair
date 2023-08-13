@@ -53,21 +53,8 @@ public class ThunderBreaker extends Noblesse {
             THUNDER_GOD
     };
 
-    private int[] addedSkills = new int[] {
-            IMPERIAL_RECALL,
-    };
-
     public ThunderBreaker(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override

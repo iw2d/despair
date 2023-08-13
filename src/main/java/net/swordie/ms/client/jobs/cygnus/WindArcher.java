@@ -69,21 +69,8 @@ public class WindArcher extends Noblesse {
     public static final int STORM_BRINGER = 13121054;
     public static final int MONSOON = 13121052;
 
-    private int[] addedSkills = new int[] {
-            IMPERIAL_RECALL,
-    };
-
     public WindArcher(Char chr) {
         super(chr);
-        if (isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
 

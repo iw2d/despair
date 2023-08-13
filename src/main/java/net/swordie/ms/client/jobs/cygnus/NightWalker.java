@@ -98,25 +98,12 @@ public class NightWalker extends Noblesse {
             ADAPTIVE_DARKNESS_III
     };
 
-    private int[] addedSkills = new int[] {
-            IMPERIAL_RECALL,
-    };
-
     private Map<Integer, Integer> batBounceMap = new ConcurrentHashMap<>();
     private AtomicInteger shadowBatAttackCounter = new AtomicInteger(0);
     private AtomicInteger darkOmenAttackCounter = new AtomicInteger(0);
 
     public NightWalker(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override

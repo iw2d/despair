@@ -84,52 +84,36 @@ public class Phantom extends Job {
             MobStat.Invincible
     };
 
-    private int[] addedSkills = new int[]{
-            JUDGMENT_DRAW_1, // TODO: add skills on job advance
-            JUDGMENT_DRAW_TOGGLE,
-            SHROUD_WALK,
-            SKILL_SWIPE,
-            LOADOUT,
-            TO_THE_SKIES,
-    };
-
     private int cardCount = 0;
     private Set<Job> stealJobHandlers = new HashSet<>();
 
     public Phantom(Char chr) {
         super(chr);
         if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
+            stealJobHandlers.add(new Warrior(chr));
+            stealJobHandlers.add(new Hero(chr));
+            stealJobHandlers.add(new Paladin(chr));
+            stealJobHandlers.add(new DarkKnight(chr));
+
+            stealJobHandlers.add(new Magician(chr));
+            stealJobHandlers.add(new Bishop(chr));
+            stealJobHandlers.add(new IceLightning(chr));
+            stealJobHandlers.add(new FirePoison(chr));
+
+            stealJobHandlers.add(new Archer(chr));
+            stealJobHandlers.add(new Bowmaster(chr));
+            stealJobHandlers.add(new Marksman(chr));
+
+            stealJobHandlers.add(new Thief(chr));
+            stealJobHandlers.add(new NightLord(chr));
+            stealJobHandlers.add(new Shadower(chr));
+            stealJobHandlers.add(new DualBlade(chr));
+
+            stealJobHandlers.add(new Pirate(chr));
+            stealJobHandlers.add(new Buccaneer(chr));
+            stealJobHandlers.add(new Corsair(chr));
+            stealJobHandlers.add(new Cannoneer(chr));
         }
-        stealJobHandlers.add(new Warrior(chr));
-        stealJobHandlers.add(new Hero(chr));
-        stealJobHandlers.add(new Paladin(chr));
-        stealJobHandlers.add(new DarkKnight(chr));
-
-        stealJobHandlers.add(new Magician(chr));
-        stealJobHandlers.add(new Bishop(chr));
-        stealJobHandlers.add(new IceLightning(chr));
-        stealJobHandlers.add(new FirePoison(chr));
-
-        stealJobHandlers.add(new Archer(chr));
-        stealJobHandlers.add(new Bowmaster(chr));
-        stealJobHandlers.add(new Marksman(chr));
-
-        stealJobHandlers.add(new Thief(chr));
-        stealJobHandlers.add(new NightLord(chr));
-        stealJobHandlers.add(new Shadower(chr));
-        stealJobHandlers.add(new DualBlade(chr));
-
-        stealJobHandlers.add(new Pirate(chr));
-        stealJobHandlers.add(new Buccaneer(chr));
-        stealJobHandlers.add(new Corsair(chr));
-        stealJobHandlers.add(new Cannoneer(chr));
     }
 
     @Override
@@ -514,4 +498,20 @@ public class Phantom extends Job {
         chr.getAvatarData().getCharacterStat().setPosMap(915000000);
     }
 
+    @Override
+    public void handleSetJob(short jobId) {
+        if (jobId == JobConstants.JobEnum.PHANTOM.getJobId()) {
+            chr.addSkill(SHROUD_WALK, 1, 1);
+            chr.addSkill(SKILL_SWIPE, 1, 1);
+            chr.addSkill(LOADOUT, 1, 1);
+            chr.addSkill(TO_THE_SKIES, 1, 1);
+        } else if (jobId == JobConstants.JobEnum.PHANTOM2.getJobId()) {
+            chr.addSkill(JUDGMENT_DRAW_1, 1, 1);
+            chr.addSkill(JUDGMENT_DRAW_TOGGLE, 1, 1);
+        } else if (jobId == JobConstants.JobEnum.PHANTOM4.getJobId()) {
+            chr.removeSkill(JUDGMENT_DRAW_1);
+            chr.addSkill(JUDGMENT_DRAW_2, 1, 1);
+        }
+        super.handleSetJob(jobId);
+    }
 }

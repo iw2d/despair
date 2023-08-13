@@ -106,25 +106,9 @@ public class Kaiser extends Job {
     public static final int REALIGN_ATTACKER_MODE_III = 61120013;
     public static final int REALIGN_DEFENDER_MODE_III = 61120010;
 
-    private final int[] addedSkills = new int[]{
-            REALIGN_ATTACKER_MODE,
-            REALIGN_DEFENDER_MODE,
-            VERTICAL_GRAPPLE,
-            TRANSFIGURATION,
-            DRAGON_LINK,
-    };
 
     public Kaiser(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override
@@ -752,4 +736,15 @@ public class Kaiser extends Job {
         chr.getEquippedInventory().addItem(secondary);
     }
 
+    @Override
+    public void handleSetJob(short jobId) {
+        if (JobConstants.isKaiser(jobId)) {
+            chr.addSkill(REALIGN_ATTACKER_MODE, 1, 1);
+            chr.addSkill(REALIGN_DEFENDER_MODE, 1, 1);
+            chr.addSkill(VERTICAL_GRAPPLE, 1, 1);
+            chr.addSkill(TRANSFIGURATION, 1, 1);
+            chr.addSkill(DRAGON_LINK, 1, 1);
+        }
+        super.handleSetJob(jobId);
+    }
 }

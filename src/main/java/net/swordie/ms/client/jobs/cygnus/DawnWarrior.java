@@ -61,24 +61,13 @@ public class DawnWarrior extends Noblesse {
     public static final int STYX_CROSSING_CHARGED = 11121055;
     public static final int GLORY_OF_THE_GUARDIANS_DW = 11121053;
 
-    private int[] addedSkills = new int[] {
-            IMPERIAL_RECALL
-    };
-
     private ScheduledFuture willOfSteelTimer;
 
     public DawnWarrior(Char chr) {
         super(chr);
         if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
+            willOfSteelTimer = EventManager.addEvent(this::handleWillOfSteel, getWillOfSteelDelay(), TimeUnit.SECONDS);
         }
-        willOfSteelTimer = EventManager.addEvent(this::handleWillOfSteel, getWillOfSteelDelay(), TimeUnit.SECONDS);
     }
 
     @Override

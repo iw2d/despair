@@ -72,24 +72,9 @@ public class Luminous extends Job {
     public static final int HEROIC_MEMORIES_LUMI = 27121053;
     public static final int ARMAGEDDON = 27121052; //Stun debuff
 
-    private int[] addedSkills = new int[] {
-            EQUILIBRIUM_LIGHT,
-            CHANGE_LIGHT_DARK,
-            SUNFIRE,
-            ECLIPSE,
-            INNER_LIGHT,
-    };
-
     public Luminous(Char chr) {
         super(chr);
         if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
             if (chr.getTemporaryStatManager().getLarknessManager() == null) {
                 chr.getTemporaryStatManager().setLarknessManager(new LarknessManager(chr));
                 chr.getTemporaryStatManager().getLarknessManager().updateInfo();
@@ -467,5 +452,18 @@ public class Luminous extends Job {
     public void setCharCreationStats(Char chr) {
         super.setCharCreationStats(chr);
         chr.getAvatarData().getCharacterStat().setPosMap(927020080);
+    }
+
+    @Override
+    public void handleSetJob(short jobId) {
+        if (JobConstants.isLuminous(jobId)) {
+            // TODO: distribute these skills for the different job levels
+            chr.addSkill(EQUILIBRIUM_LIGHT, 1, 1);
+            chr.addSkill(CHANGE_LIGHT_DARK, 1, 1);
+            chr.addSkill(SUNFIRE, 1, 1);
+            chr.addSkill(ECLIPSE, 1, 1);
+            chr.addSkill(INNER_LIGHT, 1, 1);
+        }
+        super.handleSetJob(jobId);
     }
 }

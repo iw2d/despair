@@ -85,24 +85,9 @@ public class Xenon extends Job {
     private ScheduledFuture supplyTimer;
     private static ScheduledFuture temporalPodTimer;
 
-    private int[] addedSkills = new int[]{
-            SUPPLY_SURPLUS,
-            MULTILATERAL_I,
-            MODAL_SHIFT,
-            LIBERTY_BOOSTERS,
-            MIMIC_PROTOCOL,
-    };
-
     public Xenon(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
             supplyProp = SkillData.getSkillInfoById(SUPPLY_SURPLUS).getValue(prop, 1);
 
             if(supplyTimer != null && !supplyTimer.isDone()) {
@@ -562,5 +547,15 @@ public class Xenon extends Job {
         cs.setPosMap(310010000);
     }
 
+    @Override
+    public void handleSetJob(short jobId) {
+        if (JobConstants.isXenon(jobId)) {
+            chr.addSkill(SUPPLY_SURPLUS, 1, 1);
+            chr.addSkill(MULTILATERAL_I, 1, 1);
+            chr.addSkill(MODAL_SHIFT, 1, 1);
+            chr.addSkill(LIBERTY_BOOSTERS, 1, 1);
+            chr.addSkill(MIMIC_PROTOCOL, 1, 1);
+        }
+        super.handleSetJob(jobId);
+    }
 }
-

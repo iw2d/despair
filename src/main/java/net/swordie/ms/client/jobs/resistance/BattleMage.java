@@ -63,10 +63,6 @@ public class BattleMage extends Citizen {
     public static final int FOR_LIBERTY_BAM = 32121053;
     public static final int MASTER_OF_DEATH = 32121056;
 
-    private int[] addedSkills = new int[]{
-            SECRET_ASSEMBLY,
-    };
-
     private int[] auras = new int[] {
             HASTY_AURA,
             DRAINING_AURA,
@@ -83,15 +79,6 @@ public class BattleMage extends Citizen {
 
     public BattleMage(Char chr) {
         super(chr);
-        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override

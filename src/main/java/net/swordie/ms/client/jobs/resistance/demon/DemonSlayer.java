@@ -81,11 +81,6 @@ public class DemonSlayer extends Job {
     public static final int DEMON_LASH_3 = 31001007;
     public static final int DEMON_LASH_4 = 31001008;
 
-
-    private int[] addedSkills = new int[] {
-            CURSE_OF_FURY,
-    };
-
     private ScheduledFuture maxFuryTimer;
     private long leechAuraCD = Long.MIN_VALUE;
 
@@ -93,13 +88,6 @@ public class DemonSlayer extends Job {
     public DemonSlayer(Char chr) {
         super(chr);
         if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
             maxFuryTimer = EventManager.addFixedRateEvent(this::maxFury, 4000, 4000);
         }
     }
@@ -450,5 +438,13 @@ public class DemonSlayer extends Job {
         super.setCharCreationStats(chr);
         chr.getAvatarData().getCharacterStat().setMaxMp(0);
         chr.getAvatarData().getCharacterStat().setPosMap(927000000);
+    }
+
+    @Override
+    public void handleSetJob(short jobId) {
+        if (JobConstants.isDemonSlayer(jobId)) {
+            chr.addSkill(CURSE_OF_FURY, 1, 1);
+        }
+        super.handleSetJob(jobId);
     }
 }

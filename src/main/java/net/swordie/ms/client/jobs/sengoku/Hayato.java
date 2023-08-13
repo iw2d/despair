@@ -76,26 +76,10 @@ public class Hayato extends Job {
     public static final int TORNADO_BLADE_BATTOUJUTSU = 41121020;
     public static final int SUDDEN_STRIKE_BATTOUJUTSU = 41121021;
 
-    private int[] addedSkills = new int[] {
-            QUICK_DRAW,
-            SUMMER_RAIN,
-            MASTER_OF_BLADES,
-            SHIMADA_HEART,
-    };
-
     private int swordEnergy = 0;
 
     public Hayato(Char chr) {
         super(chr);
-        if(chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
-            for (int id : addedSkills) {
-                if (!chr.hasSkill(id)) {
-                    Skill skill = SkillData.getSkillDeepCopyById(id);
-                    skill.setCurrentLevel(skill.getMasterLevel());
-                    chr.addSkill(skill);
-                }
-            }
-        }
     }
 
     @Override
@@ -617,21 +601,13 @@ public class Hayato extends Job {
     }
 
     @Override
-    public void handleLevelUp() {
-        super.handleLevelUp();
-        if (chr.getLevel() == 60) {
-            chr.setJob(JobConstants.JobEnum.HAYATO3.getJobId());
-            chr.setSpToCurrentJob(3);
-            Map<Stat, Object> stats = new HashMap<>();
-            stats.put(Stat.sp, chr.getAvatarData().getCharacterStat().getExtendSP());
-            chr.getClient().write(WvsContext.statChanged(stats));
+    public void handleSetJob(short jobId) {
+        if (JobConstants.isHayato(jobId)) {
+            chr.addSkill(QUICK_DRAW, 1, 1);
+            chr.addSkill(SUMMER_RAIN, 1, 1);
+            chr.addSkill(MASTER_OF_BLADES, 1, 1);
+            chr.addSkill(SHIMADA_HEART, 1, 1);
         }
-        if (chr.getLevel() == 100) {
-            chr.setJob(JobConstants.JobEnum.HAYATO4.getJobId());
-            chr.setSpToCurrentJob(3);
-            Map<Stat, Object> stats = new HashMap<>();
-            stats.put(Stat.sp, chr.getAvatarData().getCharacterStat().getExtendSP());
-            chr.getClient().write(WvsContext.statChanged(stats));
-        }
+        super.handleSetJob(jobId);
     }
 }
