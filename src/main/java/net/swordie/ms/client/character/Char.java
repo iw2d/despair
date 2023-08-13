@@ -1663,6 +1663,7 @@ public class Char {
 		// set job
 		getAvatarData().getCharacterStat().setJob(jobId);
 		setJobHandler(JobManager.getJobById(jobId, this));
+		getJobHandler().handleSetJob(jobId);
 		// set subJob
 		short subJob = (short) (JobConstants.isDualBlade(jobId) ? 1 : 0);
 		getAvatarData().getCharacterStat().setSubJob(subJob);
@@ -2707,10 +2708,6 @@ public class Char {
 		}
 		if (getActiveFamiliar() != null) {
 			getField().broadcastPacket(CFamiliar.familiarEnterField(getId(), true, getActiveFamiliar(), true, false));
-		}
-		Dragon dragon = getDragon();
-		if (dragon != null) {
-			toField.spawnLife(dragon, null);
 		}
 		Android android = getAndroid();
 		if (android != null) {

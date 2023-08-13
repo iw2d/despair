@@ -440,7 +440,9 @@ public class Evan extends Job {
     public void handleWarp() {
         // spawn mir
         if (chr.getJob() != JobConstants.JobEnum.EVAN.getJobId()) {
-            getDragon().resetToPlayer();
+            Dragon dragon = getDragon();
+            dragon.resetToPlayer();
+            chr.getField().spawnLife(dragon, null);
         }
         // clear debris
         handleRemoveDebris(debrisPos.keySet().stream().toList(), true);
@@ -462,6 +464,15 @@ public class Evan extends Job {
         super.setCharCreationStats(chr);
         CharacterStat cs = chr.getAvatarData().getCharacterStat();
         cs.setPosMap(900010000);
+    }
+
+    @Override
+    public void handleSetJob(short jobId) {
+        if (jobId != JobConstants.JobEnum.EVAN.getJobId()) {
+            Dragon dragon = getDragon();
+            dragon.resetToPlayer();
+            chr.getField().spawnLife(dragon, null);
+        }
     }
 
     @Override

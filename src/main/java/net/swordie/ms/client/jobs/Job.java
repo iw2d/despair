@@ -887,6 +887,15 @@ public abstract class Job {
 
 	}
 
+	/**
+	 * Called when a Character sets their Job to jobId, the caller should be the relevant
+	 * JobHandler instance.
+	 * @param jobId
+	 */
+	public void handleSetJob(short jobId) {
+
+	}
+
 	public void handleLevelUp() {
 		short level = chr.getLevel();
 		Map<Stat, Object> stats = new HashMap<>();

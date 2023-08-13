@@ -28,15 +28,16 @@ def skip_tutorial():
     if sm.sendAskYesNo("Would you like to skip the tutorial questline and instantly arrive at #m" + str(map_to_warp) + "#?"):
         sm.giveItem(1372107)  # Beginner Magician's Wand
         sm.levelUntil(target_level)
-        sm.resetAP(False, 2210)
+        sm.jobAdvance(2200)
+        sm.resetAP(False, 2200)
         for quest in quests_to_complete:
             sm.completeQuestNoRewards(quest)
         sm.warp(map_to_warp)
         sm.lockInGameUI(False)
         sm.dispose()
-
-    sm.createQuestWithQRValue(22011, "noskip")
-    sm.lockInGameUI(False)
+    else:
+        sm.createQuestWithQRValue(22011, "noskip")
+        sm.lockInGameUI(False)
 
 if sm.getQRValue(22011) != "noskip":
     skip_tutorial()
