@@ -287,7 +287,6 @@ public class DemonSlayer extends Job {
             }
         } else {
             Rect rect = chr.getRectAround(si.getFirstRect());
-            System.out.println(rect);
             List<PartyMember> partyMembers = field.getPartyMembersInRect(chr, rect).stream()
                     .filter(pml -> pml.getChr().getHP() > 0)
                     .toList();

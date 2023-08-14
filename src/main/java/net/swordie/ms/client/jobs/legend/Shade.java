@@ -219,8 +219,8 @@ public class Shade extends Job {
             }
             if (Util.succeedProp(proc)) {
                 MobTemporaryStat mts = mob.getTemporaryStat();
-                mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o1);
-                mts.addStatOptionsAndBroadcast(MobStat.ACC, o2);
+                mts.addStatOptions(MobStat.AddDamSkill2, o1);
+                mts.addStatOptions(MobStat.ACC, o2);
                 mts.addStatOptionsAndBroadcast(MobStat.EVA, o3);
             }
         }

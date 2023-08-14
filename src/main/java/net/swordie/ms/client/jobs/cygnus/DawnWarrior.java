@@ -128,7 +128,7 @@ public class DawnWarrior extends Noblesse {
                     }
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         MobTemporaryStat mts = mob.getTemporaryStat();
-                        mts.addStatOptionsAndBroadcast(MobStat.Freeze, o1);
+                        mts.addStatOptions(MobStat.Freeze, o1);
                         mts.addStatOptionsAndBroadcast(MobStat.SoulExplosion, o2);
                     }
                 }
@@ -260,26 +260,33 @@ public class DawnWarrior extends Noblesse {
         Field field;
         switch(skillID) {
             case TRUE_SIGHT:
-                o1.nOption = -si.getValue(v, slv) - chr.getSkillStatValue(w, TRUE_SIGHT_GUARDBREAK);
+                // get_element_dec
+                o1.nOption = 1;
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, TRUE_SIGHT_PERSIST);
-                o2.nOption = -chr.getSkillStatValue(w, TRUE_SIGHT_ENHANCE);
+                o1.cOption = chr.getId();                                   // dwOwnerId
+                o1.pOption = chr.getPartyID();                              // nPartyId
+                o1.uOption = chr.getSkillStatValue(w, TRUE_SIGHT_ENHANCE);  // nDecRate
+                o1.wOption = chr.getParty() == null ? 0 : 1;                // nOption (in party or not)
+                // enemy DEF -v%
+                o2.nOption = -si.getValue(v, slv) - chr.getSkillStatValue(w, TRUE_SIGHT_GUARDBREAK);
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, TRUE_SIGHT_PERSIST);
+                // final damage the enemy receives increased by s%
                 o3.nOption = si.getValue(s, slv);
                 o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, TRUE_SIGHT_PERSIST);;
+                o3.tOption = si.getValue(time, slv) + chr.getSkillStatValue(time, TRUE_SIGHT_PERSIST);
                 Rect rect = inPacket.decodePosition().getRectAround(si.getFirstRect());
                 for (Life life : chr.getField().getLifesInRect(rect)) {
                     if (life instanceof Mob && ((Mob) life).getHp() > 0) {
                         Mob mob = (Mob) life;
                         MobTemporaryStat mts = mob.getTemporaryStat();
                         if (Util.succeedProp(si.getValue(prop, slv))) {
-                            mts.addStatOptions(MobStat.PDR, o1);
-                            mts.addStatOptions(MobStat.MDR, o1);
                             if (chr.hasSkill(TRUE_SIGHT_ENHANCE)) {
-                                mts.addStatOptions(MobStat.ElementResetBySummon, o2);
+                                mts.addStatOptions(MobStat.TrueSight, o1);
                             }
+                            mts.addStatOptions(MobStat.PDR, o2);
+                            mts.addStatOptions(MobStat.MDR, o2);
                             mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o3);
                         }
                     }

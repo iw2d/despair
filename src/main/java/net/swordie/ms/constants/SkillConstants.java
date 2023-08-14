@@ -1723,6 +1723,8 @@ public class SkillConstants {
             case Evan.MAGIC_MASTERY:
             case Luminous.SPELL_MASTERY:
             case Luminous.MAGIC_MASTERY:
+            case BattleMage.STAFF_MASTERY:
+            case BattleMage.STAFF_EXPERT:
                 stats.put(BaseStat.mad, si.getValue(SkillStat.x, slv));
                 break;
             case Corsair.GUN_MASTERY:
@@ -1812,6 +1814,17 @@ public class SkillConstants {
             case Luminous.STANDARD_MAGIC_GUARD:
                 stats.put(BaseStat.magicGuard, si.getValue(SkillStat.x, slv));
                 break;
+            case BattleMage.HASTY_AURA: // overwrite active stats for BaM auras
+                stats.put(BaseStat.speed, si.getValue(SkillStat.psdSpeed, slv));
+                stats.put(BaseStat.booster, si.getValue(SkillStat.actionSpeed, slv));
+                break;
+            case BattleMage.BLUE_AURA:
+                stats.put(BaseStat.asr, si.getValue(SkillStat.asrR, slv));
+                break;
+            case BattleMage.DARK_AURA:
+                stats.remove(BaseStat.damR);
+                break;
+
         }
     }
 }

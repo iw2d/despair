@@ -539,7 +539,7 @@ public class NightWalker extends Noblesse {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         SkillInfo si = SkillData.getSkillInfoById(DARK_SERVANT);
         int slv = chr.getSkillLevel(DARK_SERVANT);
-        // creat esummon
+        // create summon
         Summon summon = new Summon(DARK_SERVANT);
         summon.setChr(chr);
         summon.setSkillID(DARK_SERVANT);
@@ -558,11 +558,17 @@ public class NightWalker extends Noblesse {
         chr.getField().spawnSummon(summon);
         // set buff
         Option o1 = new Option();
-        o1.nOption = si.getValue(x, slv);
-        o1.rOption = DARK_SERVANT;
-        o1.tOption = si.getValue(time, slv);
+        Option o2 = new Option();
+        o1.nValue = 1;
+        o1.nReason = DARK_SERVANT;
+        o1.tStart = Util.getCurrentTime();
+        o1.tTerm = si.getValue(time, slv);
         o1.summon = summon;
-        tsm.putCharacterStatValue(ShadowServant, o1);
+        tsm.putCharacterStatValue(IndieEmpty, o1);
+        o2.nOption = si.getValue(x, slv);
+        o2.rOption = DARK_SERVANT;
+        o2.tOption = si.getValue(time, slv);
+        tsm.putCharacterStatValue(ShadowServant, o2);
         tsm.sendSetStatPacket();
     }
 

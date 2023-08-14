@@ -115,6 +115,8 @@ public class DualBlade extends Thief {
                 o2.nOption = 10; // no SkillStat assigned, literally just  10
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
+                o2.pOption = chr.getPartyID();
+                o2.wOption = chr.getId();
                 // boss effect, halved duration
                 o3.nOption = -si.getValue(x, slv);
                 o3.rOption = skillID;
@@ -122,6 +124,8 @@ public class DualBlade extends Thief {
                 o4.nOption = 10;
                 o4.rOption = skillID;
                 o4.tOption = si.getValue(time, slv) / 2;
+                o4.pOption = chr.getPartyID();
+                o4.wOption = chr.getId();
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
@@ -130,11 +134,11 @@ public class DualBlade extends Thief {
                         }
                         MobTemporaryStat mts = mob.getTemporaryStat();
                         if (!mob.isBoss()) {
-                            mts.addStatOptionsAndBroadcast(MobStat.ACC, o1);
-                            mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o2);
+                            mts.addStatOptions(MobStat.ACC, o1);
+                            mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o2);
                         } else {
-                            mts.addStatOptionsAndBroadcast(MobStat.ACC, o3);
-                            mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o4);
+                            mts.addStatOptions(MobStat.ACC, o3);
+                            mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o4);
                         }
                     }
                 }

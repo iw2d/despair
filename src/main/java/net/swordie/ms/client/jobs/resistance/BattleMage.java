@@ -2,19 +2,18 @@ package net.swordie.ms.client.jobs.resistance;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
-import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.client.party.Party;
+import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.Summoned;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
-import net.swordie.ms.enums.AssistType;
-import net.swordie.ms.enums.MoveAbility;
+import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Summon;
@@ -29,7 +28,7 @@ import net.swordie.ms.world.field.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -41,16 +40,18 @@ public class BattleMage extends Citizen {
     public static final int CONDEMNATION = 32001014; //Special Buff (ON/OFF)
     public static final int HASTY_AURA = 32001016; //Buff (Unlimited Duration)
 
-    public static final int CONDEMNATION_I = 32100010; //Special Buff (ON/OFF)
+    public static final int STAFF_MASTERY = 32100006;
+    public static final int GRIM_CONTRACT = 32100010;
     public static final int DRAINING_AURA = 32101009; //Buff (Unlimited Duration)
     public static final int STAFF_BOOST = 32101005; //Buff
     public static final int DARK_CHAIN = 32101001; //Special Attack (Stun Debuff)
 
-    public static final int CONDEMNATION_II = 32110017; //Special Buff (ON/OFF)
+    public static final int GRIM_CONTRACT_II = 32110017;
     public static final int BLUE_AURA = 32111012; //Buff (Unlimited Duration
     public static final int DARK_SHOCK = 32111016; //Buff (ON/OFF)
 
-    public static final int CONDEMNATION_III = 32120019; //Special Buff (ON/OFF)
+    public static final int STAFF_EXPERT = 32120016;
+    public static final int GRIM_CONTRACT_III = 32120019;
     public static final int DARK_GENESIS = 32121004; //Special Attack (Stun Debuff) (Special Properties if on Cooldown)
     public static final int DARK_GENESIS_FA = 32121011; // Final Attack  attack if DarkGenesis is on CD
     public static final int DARK_AURA = 32121017; //Buff (Unlimited Duration)
@@ -60,10 +61,15 @@ public class BattleMage extends Citizen {
     public static final int MAPLE_WARRIOR_BAM = 32121007; //Buff
     public static final int HEROS_WILL_BAM = 32121008;
 
+    public static final int DARK_AURA_BOSS = 32120060;
+    public static final int WEAKENING_AURA_ELEMENTAL = 32120061;
+    public static final int BLUE_AURA_DISPEL = 32120062;
+    public static final int PARTY_SHIELD_PERSIST = 32120064;
+    public static final int PARTY_SHIELD_ENHANCE = 32120065;
     public static final int FOR_LIBERTY_BAM = 32121053;
     public static final int MASTER_OF_DEATH = 32121056;
 
-    private int[] auras = new int[] {
+    private static final int[] AURA_SKILLS = new int[] {
             HASTY_AURA,
             DRAINING_AURA,
             BLUE_AURA,
@@ -71,14 +77,18 @@ public class BattleMage extends Citizen {
             WEAKENING_AURA,
     };
 
-    private Summon death;
-    private long drainAuraCD = Long.MIN_VALUE;
-    private ScheduledFuture WeaknessAuraTimer;
-    private long lastCondemnationAttack = Long.MIN_VALUE;
-    private int hitCountBoss = 0;
+    private AtomicInteger bossAttackCounter = new AtomicInteger(0);
+    private ScheduledFuture applyAuraTimer;
+    private ScheduledFuture drainingAuraPassiveTimer;
+    private long blueAuraDispelCD = Long.MIN_VALUE;
+    private long drainingAuraCD = Long.MIN_VALUE;
 
     public BattleMage(Char chr) {
         super(chr);
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
+            applyAuraTimer = EventManager.addFixedRateEvent(this::applyAura, 1000, 1000);
+            drainingAuraPassiveTimer = EventManager.addFixedRateEvent(this::drainingAuraPassive, 4000, 4000);
+        }
     }
 
     @Override
@@ -86,51 +96,93 @@ public class BattleMage extends Citizen {
         return JobConstants.isBattleMage(id);
     }
 
-
-    public void spawnDeath(int skillID, int slv) {
+    private Summon getDeath() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o1 = new Option();
-        SkillInfo si = SkillData.getSkillInfoById(skillID);
-        Field field = chr.getField();
-        death = Summon.getSummonBy(chr, skillID, slv);
-        death.setFlyMob(true);
-        death.setSummonTerm(0);
-        death.setMoveAbility(MoveAbility.Walk);
-        death.setAssistType(AssistType.AttackManual);
-        death.setAttackActive(false);
-        death.setBeforeFirstAttack(false);
-        field.spawnSummon(death);
-
-        o1.nReason = skillID;
-        o1.nValue = 1;
-        o1.summon = death;
-        o1.tStart = Util.getCurrentTime();
-        o1.tTerm = 0; // #time is used for something else
-        tsm.putCharacterStatValue(IndieEmpty, o1);
-        tsm.sendSetStatPacket();
+        for (Option option : tsm.getOptions(IndieEmpty)) {
+            if (option.nReason != CONDEMNATION && option.nReason != GRIM_CONTRACT &&
+                    option.nReason != GRIM_CONTRACT_II && option.nReason != GRIM_CONTRACT_III) {
+                continue;
+            }
+            return option.summon;
+        }
+        return null;
     }
 
-    public void removeCondemnationBuff(Summon summon) {
+    private void applyAura() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if(summon != null) {
-            if (tsm.hasStat(BMageDeath)) {
-                tsm.removeStatsBySkill(summon.getSkillID());
-                tsm.sendResetStatPacket();
+        if (!tsm.hasStat(BMageAura)) {
+            return;
+        }
+        int skillId = tsm.getOption(BMageAura).rOption;
+        SkillInfo si = SkillData.getSkillInfoById(skillId);
+        int slv = chr.getSkillLevel(skillId);
+        Rect rect = chr.getRectAround(si.getFirstRect());
+
+        // handle weakening aura
+        if (skillId == WEAKENING_AURA) {
+            Option o1 = new Option();
+            Option o2 = new Option();
+            Option o3 = new Option();
+            // get_element_dec
+            o1.nOption = 1;
+            o1.rOption = WEAKENING_AURA;
+            o1.tOption = si.getValue(time, slv);
+            o1.cOption = chr.getId();                                           // dwOwnerId
+            o1.pOption = chr.getPartyID();                                      // nPartyId
+            o1.uOption = chr.getSkillStatValue(x, WEAKENING_AURA_ELEMENTAL);    // nDecRate
+            o1.wOption = chr.getParty() == null ? 0 : 1;                        // nOption (in party or not)
+            // final damage the enemy receives increased by s%
+            o2.nOption = chr.getSkillStatValue(s, WEAKENING_AURA_ELEMENTAL);
+            o2.rOption = WEAKENING_AURA;
+            o2.tOption = si.getValue(time, slv);
+            // enemy DEF -x%
+            o3.nOption = si.getValue(x, slv);
+            o3.rOption = WEAKENING_AURA;
+            o3.tOption = si.getValue(time, slv);
+            for (Mob mob : chr.getField().getMobsInRect(rect)) {
+                MobTemporaryStat mts = mob.getTemporaryStat();
+                if (chr.hasSkill(WEAKENING_AURA_ELEMENTAL)) {
+                    mts.addStatOptions(MobStat.TrueSight, o1);
+                    mts.addStatOptions(MobStat.AddDamSkill2, o2);
+                }
+                mts.addStatOptionsAndBroadcast(MobStat.BMageDebuff, o1);
+            }
+            return;
+        }
+
+        // handle Blue Aura dispel
+        boolean doDispel = false;
+        if (skillId == BLUE_AURA && chr.hasSkill(BLUE_AURA_DISPEL)) {
+            // check and set cooldown for dispel
+            if (blueAuraDispelCD < Util.getCurrentTimeLong()) {
+                blueAuraDispelCD = Util.getCurrentTimeLong() + (chr.getSkillStatValue(time, BLUE_AURA_DISPEL) * 1000L);
+                doDispel = true;
+            }
+        }
+        if (doDispel) {
+            tsm.removeAllDebuffs();
+        }
+
+        // give party buff
+        Party party = chr.getParty();
+        if (party != null) {
+            List<Char> pChrList = party.getPartyMembersInSameField(chr).stream().filter(pc -> rect.hasPositionInside(pc.getPosition())).toList();
+            for (Char pChr : pChrList) {
+                if (pChr.getHP() > 0) {
+                    giveAuraBuff(skillId, 2, pChr);
+                    if (doDispel) {
+                        pChr.getTemporaryStatManager().removeAllDebuffs();
+                    }
+                }
             }
         }
     }
 
-    public void applyBlueAuraDispel() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(BLUE_AURA);
-        if (chr.hasSkill(32120062)) { //Blue Aura - Dispel Magic
-            if (tsm.getOptByCTSAndSkill(BMageAura, skill.getSkillId()) != null) {
-                tsm.removeAllDebuffs();
-                EventManager.addEvent(this::applyBlueAuraDispel, 5, TimeUnit.SECONDS);
-            }
+    private void drainingAuraPassive() {
+        if (chr.hasSkill(DRAINING_AURA) && chr.getHP() > 0) {
+            chr.heal(chr.getSkillStatValue(hp, DRAINING_AURA));
         }
     }
-
 
 
     // Attack related methods ------------------------------------------------------------------------------------------
@@ -142,244 +194,153 @@ public class BattleMage extends Citizen {
         SkillInfo si = SkillData.getSkillInfoById(attackInfo.skillId);
         int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
+        boolean hasHitBoss = attackInfo.mobAttackInfo.stream().anyMatch(mai -> {
+            Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
+            return mob != null && mob.isBoss();
+        });
         if (hasHitMobs) {
-            if(attackInfo.skillId != CONDEMNATION
-                    && attackInfo.skillId != CONDEMNATION_I
-                    && attackInfo.skillId != CONDEMNATION_II
-                    && attackInfo.skillId != CONDEMNATION_III
-                    && attackInfo.skillId != RuneStone.LIBERATE_THE_RUNE_OF_THUNDER_2) {
-                incrementCondemnation(attackInfo);
+            handleDrainingAura(attackInfo);
+            if (si != null && si.getElemAttr().contains("d") &&
+                    attackInfo.skillId != CONDEMNATION && attackInfo.skillId != GRIM_CONTRACT &&
+                    attackInfo.skillId != GRIM_CONTRACT_II && attackInfo.skillId != GRIM_CONTRACT_III) {
+                chr.reduceSkillCoolTime(CONDEMNATION, 500);
             }
-            drainAuraActiveHPRecovery(attackInfo);
-            drainAuraPassiveHPRecovery(attackInfo);
+            if (hasHitBoss) {
+                if (bossAttackCounter.incrementAndGet() % 2 == 0) { // chr.getSkillStatValue(y, CONDEMNATION)
+                    incrementCondemnation();
+                }
+            }
         }
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
         switch (attackInfo.skillId) {
             case DARK_CHAIN:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                    //if (Util.succeedProp(si.getValue(hcProp, slv))) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if (mob == null) {
+                    if (mob == null || mob.isBoss()) {
                         continue;
                     }
-                    if(!mob.isBoss()) {
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        o1.nOption = 1;
-                        o1.rOption = skillID;
-                        o1.tOption = si.getValue(time, slv);
-                        mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
+                    if (Util.succeedProp(si.getValue(hcProp, slv))) {
+                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
                     }
-                    //}
                 }
                 break;
             case DARK_GENESIS:
+                o1.nOption = 1;
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-                    if (mob == null) {
+                    if (mob == null || mob.isBoss()) {
                         continue;
                     }
-                    if(!mob.isBoss()) {
-                        MobTemporaryStat mts = mob.getTemporaryStat();
-                        o1.nOption = 1;
-                        o1.rOption = skillID;
-                        o1.tOption = si.getValue(time, slv);
-                        mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
-                    }
+                    mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Stun, o1);
                 }
                 break;
         }
-
         super.handleAttack(chr, attackInfo);
     }
 
-    private void incrementCondemnation(AttackInfo attackInfo) {
-        Field field = chr.getField();
+    private void handleDrainingAura(AttackInfo attackInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (!tsm.hasStatBySkillId(DRAINING_AURA)) {
+            return;
+        }
+        SkillInfo si = SkillData.getSkillInfoById(DRAINING_AURA);
+        int slv = chr.getSkillLevel(DRAINING_AURA);
+        // check and set cooldown
+        if (drainingAuraCD > Util.getCurrentTimeLong()) {
+            return;
+        }
+        drainingAuraCD = Util.getCurrentTimeLong() + (si.getValue(subTime, slv) * 1000L);
+        // convert damage to hp
+        int damage = attackInfo.mobAttackInfo.stream().mapToInt(mai -> Arrays.stream(mai.damages).sum()).sum();
+        int damageR = si.getValue(x, slv);
+        int healAmount = (int) (damage * ((double) damageR / 100D));
+        int healMaxR = 15; // in description
+        Field field = chr.getField();
+        if (chr.getParty() == null) {
+            int healMax = (int) (chr.getMaxHP() * ((double) healMaxR / 100D));
+            if (chr.getHP() > 0) {
+                chr.heal(Math.min(healMax, healAmount), true);
+            }
+        } else {
+            Rect rect = chr.getRectAround(si.getFirstRect());
+            List<PartyMember> partyMembers = field.getPartyMembersInRect(chr, rect).stream()
+                    .filter(pml -> pml.getChr().getHP() > 0)
+                    .toList();
+            int partyHealAmount = healAmount / partyMembers.size();
+            for (PartyMember partyMember : partyMembers) {
+                Char partyChr = partyMember.getChr();
+                int healMax = (int) (partyChr.getMaxHP() * ((double) healMaxR / 100D));
+                partyChr.heal(Math.min(healMax, partyHealAmount), true);
+            }
+        }
+    }
 
+    private void incrementCondemnation() {
+        int skillId = 0;
+        if (chr.hasSkill(GRIM_CONTRACT_III)) {
+            skillId = GRIM_CONTRACT_III;
+        } else if (chr.hasSkill(GRIM_CONTRACT_II)) {
+            skillId = GRIM_CONTRACT_II;
+        } else if (chr.hasSkill(GRIM_CONTRACT)) {
+            skillId = GRIM_CONTRACT;
+        } else if (chr.hasSkill(CONDEMNATION)) {
+            skillId = CONDEMNATION;
+        }
+        if (skillId == 0) {
+            return;
+        }
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (!tsm.hasStat(BMageDeath)) {
             return;
         }
-        int killCount = tsm.getOption(BMageDeath).nOption;
-        for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-            Mob mob = (Mob) field.getLifeByObjectID(mai.mobId);
-            int dmgOnMob = Arrays.stream(mai.damages).sum();
-            if (mob == null) {
-                continue;
-            }
-            if (mob.isBoss()) {
-                if(hitCountBoss < 1) {
-                    hitCountBoss++;
-                } else {
-                    hitCountBoss = 0;
-                    if(killCount < getCondemnationKillReq()) {
-                        killCount++;
-                    } else {
-                        killCount = doCondemnationAttack(killCount);
-                    }
-                }
-            } else {
-                if(mob.getHp() <= dmgOnMob) {
-                    if(killCount < getCondemnationKillReq()) {
-                        killCount++;
-                    } else {
-                        killCount = doCondemnationAttack(killCount);
-                    }
-
-                }
+        SkillInfo si = SkillData.getSkillInfoById(skillId);
+        int slv = chr.getSkillLevel(skillId);
+        int stacks = tsm.getOption(BMageDeath).nOption + 1;
+        int maxStacks = tsm.hasStatBySkillId(MASTER_OF_DEATH) ? chr.getSkillStatValue(y, MASTER_OF_DEATH) : si.getValue(x, slv);
+        if (stacks >= maxStacks && !chr.hasSkillOnCooldown(CONDEMNATION)) {
+            // do attack
+            Summon death = getDeath();
+            if (death != null) {
+                chr.write(Summoned.summonedAssistAttackRequest(death));
+                chr.addSkillCooldown(CONDEMNATION, getBuffedSkillCooldown(si.getValue(time, slv) * 1000));
+                stacks = 0;
             }
         }
-        setCondemnationCount(killCount);
-    }
-
-    private void setCondemnationCount(int killCount) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o = new Option();
-        o.nOption = killCount;
-        o.rOption = getCondemnationSkill().getSkillId();
-        tsm.putCharacterStatValue(BMageDeath, o);
+        Option o1 = new Option();
+        o1.nOption = Math.min(stacks, 10); // icon number goes up to 10
+        o1.rOption = skillId;
+        tsm.putCharacterStatValue(BMageDeath, o1);
         tsm.sendSetStatPacket();
     }
 
-    private int doCondemnationAttack(int killCount) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if(lastCondemnationAttack + (getCondemnationCooldown() * 1000) < Util.getCurrentTimeLong()) {
-            spawnDeath(getCondemnationSkill().getSkillId(), (byte)1);
-            death = tsm.getOption(IndieEmpty).summon;
-            chr.write(Summoned.summonedAssistAttackRequest(death));
-            killCount = 0;
-
-            lastCondemnationAttack = Util.getCurrentTimeLong();
+    @Override
+    public void handleMobDeath(Mob mob) {
+        incrementCondemnation();
+        // handle Draining Aura passive
+        if (chr.hasSkill(DRAINING_AURA)) {
+            int healRate = chr.getSkillStatValue(killRecoveryR, DRAINING_AURA);
+            chr.heal((int) (chr.getMaxHP() * ((double) healRate / 100D)));
         }
-        return killCount;
-    }
-
-    private int getCondemnationCooldown() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = getCondemnationSkill();
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-
-        // Master of Death Buff
-        if(tsm.getOptByCTSAndSkill(AttackCountX, MASTER_OF_DEATH) != null) {
-            return 0;
-        }
-
-        return si.getValue(time, 1);
-    }
-
-    private int getCondemnationKillReq() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = getCondemnationSkill();
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-
-        // Master of Death Buff
-        if(tsm.getOptByCTSAndSkill(AttackCountX, MASTER_OF_DEATH) != null) {
-            return 1;
-        }
-
-        return si.getValue(x, 1);
-    }
-
-    private Skill getCondemnationSkill() {
-        Skill skill = null;
-
-        if (chr.getJob() == JobConstants.JobEnum.BATTLE_MAGE_1.getJobId()) {
-            skill = chr.getSkill(CONDEMNATION);
-        }
-        if (chr.getJob() == JobConstants.JobEnum.BATTLE_MAGE_2.getJobId()) {
-            skill = chr.getSkill(CONDEMNATION_I);
-        }
-        if (chr.getJob() == JobConstants.JobEnum.BATTLE_MAGE_3.getJobId()) {
-            skill = chr.getSkill(CONDEMNATION_II);
-        }
-        if (chr.getJob() == JobConstants.JobEnum.BATTLE_MAGE_4.getJobId()) {
-            skill = chr.getSkill(CONDEMNATION_III);
-        }
-        return skill;
-    }
-
-
-    private void drainAuraActiveHPRecovery(AttackInfo attackInfo) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(DRAINING_AURA);
-        if (skill == null) {
-            return;
-        }
-        byte slv = (byte) skill.getCurrentLevel();
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        int duration = 1000 * si.getValue(subTime, slv);
-        if ((tsm.getOptByCTSAndSkill(BMageAura, DRAINING_AURA) != null) && (drainAuraCD + duration < Util.getCurrentTimeLong())) {
-            for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-                drainAuraCD = Util.getCurrentTimeLong();
-                int totaldmg = Arrays.stream(mai.damages).sum();
-                int healingrate = si.getValue(x, slv);
-                int restoration = (int) (totaldmg / ((double) 100 / healingrate));
-                chr.heal(restoration);
-            }
-        }
-    }
-
-    private void drainAuraPassiveHPRecovery(AttackInfo attackInfo) {
-        Skill skill = chr.getSkill(DRAINING_AURA);
-        if (skill == null) {
-            return;
-        }
-        byte slv = (byte) skill.getCurrentLevel();
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
-            Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-            if (mob == null) {
-                continue;
-            }
-            int totaldmg = Arrays.stream(mai.damages).sum();
-            if(mob == null) {
-                return;
-            }
-            if (totaldmg >= mob.getHp()) {
-                int maxHP = chr.getMaxHP();
-                int healingrate = si.getValue(x, slv);
-                int restoration = (int) (maxHP / ((double) 100 / healingrate));
-                chr.heal(restoration);
-            }
-        }
-    }
-
-    public void applyWeakenAuraOnMob() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(WEAKENING_AURA);
-        byte slv = (byte) skill.getCurrentLevel();
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        Option o = new Option();
-        int delay = si.getValue(y, slv);
-        if (tsm.getOptByCTSAndSkill(BMageAura, skill.getSkillId()) != null) {
-            Rect rect = chr.getPosition().getRectAround(si.getRects().get(0));
-            if(!chr.isLeft()) {
-                rect = rect.moveRight();
-            }
-            Field field = chr.getField();
-            List<Mob> mobs = field.getMobsInRect(rect);
-            for (Mob mob : mobs) {
-                MobTemporaryStat mts = mob.getTemporaryStat();
-                o.nOption = -si.getValue(x, slv);
-                o.rOption = skill.getSkillId();
-                o.tOption = si.getValue(time, slv);
-                mts.addStatOptionsAndBroadcast(MobStat.PDR, o);
-            }
-            WeaknessAuraTimer = EventManager.addEvent(this::applyWeakenAuraOnMob, delay, TimeUnit.SECONDS);
-        }
+        super.handleMobDeath(mob);
     }
 
     @Override
     public int getFinalAttackSkill() {
-        SkillInfo si = SkillData.getSkillInfoById(DARK_GENESIS_FA);
-        if(chr.getSkill(DARK_GENESIS) != null) {
-            byte slv = (byte) chr.getSkill(DARK_GENESIS).getCurrentLevel();
+        if (chr.hasSkillOnCooldown(DARK_GENESIS)) {
+            SkillInfo si = SkillData.getSkillInfoById(DARK_GENESIS_FA);
+            int slv = chr.getSkillLevel(DARK_GENESIS);
             if (Util.succeedProp(si.getValue(prop, slv))) {
                 return DARK_GENESIS_FA;
             }
         }
-        return 0;
+        return super.getFinalAttackSkill();
     }
 
 
@@ -396,24 +357,46 @@ public class BattleMage extends Citizen {
         Option o2 = new Option();
         Option o3 = new Option();
         Option o4 = new Option();
+        Summon summon;
         switch (skillID) {
             case PARTY_SHIELD:
                 AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
                 aa.setMobOrigin((byte) 0);
-                aa.setPosition(chr.getPosition());
-                aa.setRect(aa.getPosition().getRectAround(si.getRects().get(0)));
+                aa.setPosition(inPacket.decodePosition());
+                aa.setRect(aa.getPosition().getRectAround(si.getFirstRect()));
                 aa.setDelay((short) 16);
                 chr.getField().spawnAffectedArea(aa);
                 break;
             case CONDEMNATION:
-            case CONDEMNATION_I:
-            case CONDEMNATION_II:
-            case CONDEMNATION_III:
-                o1.nOption = 0;
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(BMageDeath, o1);
-                spawnDeath(skillID, slv);
+            case GRIM_CONTRACT:
+            case GRIM_CONTRACT_II:
+            case GRIM_CONTRACT_III:
+                summon = new Summon(skillID);
+                summon.setChr(chr);
+                summon.setSkillID(skillID);
+                summon.setSlv((byte) slv);
+                summon.setCharLevel((byte) chr.getStat(Stat.level));
+                summon.setPosition(chr.getPosition().deepCopy());
+                summon.setMoveAction((byte) 1);
+                summon.setCurFoothold((short) chr.getField().findFootHoldBelow(summon.getPosition()).getId());
+                summon.setEnterType(EnterType.Animation);
+                summon.setFlyMob(true);
+                summon.setSummonTerm(0);
+                summon.setMoveAbility(MoveAbility.Walk);
+                summon.setAssistType(AssistType.AttackManual);
+                summon.setAttackActive(false);
+                summon.setBeforeFirstAttack(false);
+                chr.getField().spawnSummon(summon);
+                o1.nValue = 1;
+                o1.nReason = skillID;
+                o1.tStart = Util.getCurrentTime();
+                o1.tTerm = 0;
+                o1.summon = summon;
+                tsm.putCharacterStatValue(IndieEmpty, o1);
+                o2.nOption = 0;
+                o2.rOption = skillID;
+                o2.tOption = 0;
+                tsm.putCharacterStatValue(BMageDeath, o2);
                 break;
             case STAFF_BOOST:
                 o1.nOption = si.getValue(x, slv);
@@ -422,86 +405,18 @@ public class BattleMage extends Citizen {
                 tsm.putCharacterStatValue(Booster, o1);
                 break;
             case HASTY_AURA:
-                for(int aura : auras) {
-                    tsm.removeStatsBySkill(aura);
-                }
-
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieSpeed, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = 0;
-                tsm.putCharacterStatValue(IndieSpeed, o1);
-                o2.nReason = skillID;
-                o2.nValue = -1;//   si.getValue(indieBooster, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = 0;
-                tsm.putCharacterStatValue(IndieBooster, o2);
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(BMageAura, o3);
-                break;
             case DRAINING_AURA:
-                for(int aura : auras) {
-                    tsm.removeStatsBySkill(aura);
-                }
-
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(BMageAura, o3);
-                break;
             case BLUE_AURA:
-                for(int aura : auras) {
-                    tsm.removeStatsBySkill(aura);
-                }
-
-                o1.nOption = si.getValue(asrR, slv);
-                o1.rOption = skillID;
-                o1.tOption = 0;
-                tsm.putCharacterStatValue(AsrR, o1);
-                o2.nOption = si.getValue(terR, slv);
-                o2.rOption = skillID;
-                o2.tOption = 0;
-                tsm.putCharacterStatValue(TerR, o2);
-                o3.nOption = si.getValue(y, slv);
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(IgnoreMobDamR, o3);
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(BMageAura, o3);
-                applyBlueAuraDispel(); //Hyper
-                break;
             case DARK_AURA:
-                for(int aura : auras) {
-                    tsm.removeStatsBySkill(aura);
-                }
-
-                o1.nReason = skillID;
-                o1.nValue = si.getValue(indieDamR, slv);
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(BMageAura, o3);
-                break;
             case WEAKENING_AURA:
-                for(int aura : auras) {
-                    tsm.removeStatsBySkill(aura);
+                if (tsm.hasStat(BMageAura)) {
+                    for (int auraSkillId : AURA_SKILLS) {
+                        tsm.removeStatsBySkill(auraSkillId);
+                    }
+                    tsm.sendResetStatPacket();
                 }
-
-                o3.nOption = 1;
-                o3.rOption = skillID;
-                o3.tOption = 0;
-                tsm.putCharacterStatValue(BMageAura, o3);
-                if (WeaknessAuraTimer != null && !WeaknessAuraTimer.isDone()) {
-                    WeaknessAuraTimer.cancel(true);
-                }
-                applyWeakenAuraOnMob();
+                giveAuraBuff(skillID, 0, chr); // permanent buff for caster
+                applyAura();
                 break;
             case DARK_SHOCK:
                 o1.nOption = 1;
@@ -510,31 +425,81 @@ public class BattleMage extends Citizen {
                 tsm.putCharacterStatValue(DarkLighting, o1);
                 break;
             case BATTLE_RAGE:
-                o1.nOption = 1;
+                o1.nOption = 100 * si.getValue(x, slv) + si.getValue(mobCount, slv); // damR = n / 100, mobsHit = n % 100 (for Mages)
                 o1.rOption = skillID;
-                o1.tOption = 0;
                 tsm.putCharacterStatValue(Enrage, o1);
-                o2.nOption = si.getValue(x, slv);
+                o2.nOption = si.getValue(y, slv);
                 o2.rOption = skillID;
-                o2.tOption = 0;
-                tsm.putCharacterStatValue(DamR, o2);
+                tsm.putCharacterStatValue(EnrageCrDamMin, o2);
                 o3.nOption = si.getValue(z, slv);
                 o3.rOption = skillID;
-                o3.tOption = 0;
                 tsm.putCharacterStatValue(CriticalBuff, o3);
-                o4.nOption = si.getValue(y, slv);
-                o4.rOption = skillID;
-                o4.tOption = 0;
-                tsm.putCharacterStatValue(IncCriticalDamMin, o4);
                 break;
             case MASTER_OF_DEATH:
-                o1.nOption = 1;
+                o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(AttackCountX, o1);
                 break;
         }
         tsm.sendSetStatPacket();
+    }
+
+    private void giveAuraBuff(int skillId, int duration, Char target) {
+        TemporaryStatManager tsm = target.getTemporaryStatManager();
+        SkillInfo si = SkillData.getSkillInfoById(skillId);
+        int slv = this.chr.getSkillLevel(skillId);
+        Option o1 = new Option();
+        Option o2 = new Option();
+        Option o3 = new Option();
+        o1.nOption = skillId == BLUE_AURA ? si.getValue(y, slv) : 1; // dmgReduce handled by BMageAura CTS
+        o1.rOption = skillId;
+        o1.tOption = duration;
+        o1.bOption = chr == target ? 1 : 0;
+        tsm.putCharacterStatValue(BMageAura, o1);
+        if (skillId == HASTY_AURA) {
+            o2.nReason = skillId;
+            o2.nValue = si.getValue(indieSpeed, slv);
+            o2.tStart = Util.getCurrentTime();
+            o2.tTerm = duration;
+            tsm.putCharacterStatValue(IndieSpeed, o2);
+            o3.nReason = skillId;
+            o3.nValue = si.getValue(indieBooster, slv);
+            o3.tStart = Util.getCurrentTime();
+            o3.tTerm = duration;
+            tsm.putCharacterStatValue(IndieBooster, o3);
+        } else if (skillId == BLUE_AURA) {
+            o2.nReason = skillId;
+            o2.nValue = si.getValue(indieAsrR, slv);
+            o2.tStart = Util.getCurrentTime();
+            o2.tTerm = duration;
+            tsm.putCharacterStatValue(IndieAsrR, o2);
+        } else if (skillId == DARK_AURA) {
+            o2.nReason = skillId;
+            o2.nValue = si.getValue(indieDamR, slv);
+            o2.tStart = Util.getCurrentTime();
+            o2.tTerm = duration;
+            tsm.putCharacterStatValue(IndieDamR, o2);
+            if (this.chr.hasSkill(DARK_AURA_BOSS)) {
+                o3.nReason = skillId;
+                o3.nValue = this.chr.getSkillStatValue(indieBDR, DARK_AURA_BOSS);
+                o3.tStart = Util.getCurrentTime();
+                o3.tTerm = duration;
+                tsm.putCharacterStatValue(IndieBDR, o3);
+            }
+        }
+        tsm.sendSetStatPacket();
+    }
+
+    @Override
+    public void handleCancelTimer(Char chr) {
+        if (applyAuraTimer != null && !applyAuraTimer.isDone()) {
+            applyAuraTimer.cancel(true);
+        }
+        if (drainingAuraPassiveTimer != null && !drainingAuraPassiveTimer.isDone()) {
+            drainingAuraPassiveTimer.cancel(true);
+        }
+        super.handleCancelTimer(chr);
     }
 
 

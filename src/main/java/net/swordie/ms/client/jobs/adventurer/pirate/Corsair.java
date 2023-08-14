@@ -150,6 +150,7 @@ public class Corsair extends Pirate {
                 tsm.sendResetStatPacket();
             }
         }
+        super.handleMobDeath(mob);
     }
 
 

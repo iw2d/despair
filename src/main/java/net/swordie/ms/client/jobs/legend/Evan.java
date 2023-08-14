@@ -324,7 +324,7 @@ public class Evan extends Job {
                     if (mob == null) {
                         continue;
                     }
-                    mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
+                    mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o1);
                 }
                 break;
             case RETURN_DIVE:

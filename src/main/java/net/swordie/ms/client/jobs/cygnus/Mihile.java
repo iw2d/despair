@@ -84,6 +84,7 @@ public class Mihile extends Job {
         super(chr);
         if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
             selfRecoveryTimer = EventManager.addFixedRateEvent(this::selfRecovery, 4000, 4000);
+            soulLinkTimer = EventManager.addFixedRateEvent(this::soulLink, 1000, 1000);
         }
     }
 
@@ -104,7 +105,7 @@ public class Mihile extends Job {
         }
     }
 
-    private void giveSoulLinkBuff() {
+    private void soulLink() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (!chr.hasSkill(SOUL_LINK) || !tsm.hasStat(MichaelSoulLink)) {
             return;
@@ -164,8 +165,6 @@ public class Mihile extends Job {
         o5.tTerm = 0;
         tsm.putCharacterStatValue(IndieDamR, o5);
         tsm.sendSetStatPacket();
-
-        soulLinkTimer = EventManager.addEvent(this::giveSoulLinkBuff, 1, TimeUnit.SECONDS);
     }
 
 
@@ -242,10 +241,10 @@ public class Mihile extends Job {
                         continue;
                     }
                     if (mob.isBoss()) {
-                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.ACC, o1);
+                        mob.getTemporaryStat().addStatOptions(MobStat.ACC, o1);
                         mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Blind, o2);
                     } else {
-                        mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.ACC, o3);
+                        mob.getTemporaryStat().addStatOptions(MobStat.ACC, o3);
                         mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.Blind, o4);
                     }
                 }
@@ -254,12 +253,14 @@ public class Mihile extends Job {
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
+                o1.pOption = chr.getPartyID();
+                o1.wOption = chr.getId();
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
                     }
-                    mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
+                    mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.DeadlyCharge, o1);
                 }
                 break;
         }
@@ -390,10 +391,7 @@ public class Mihile extends Job {
                     o1.rOption = SOUL_LINK;
                     o1.cOption = chr.getId();
                     tsm.putCharacterStatValue(MichaelSoulLink, o1);
-                    if (soulLinkTimer != null && !soulLinkTimer.isDone()) {
-                        soulLinkTimer.cancel(true);
-                    }
-                    giveSoulLinkBuff();
+                    soulLink();
                 }
                 break;
             case RADIANT_CROSS_SPREAD:
@@ -446,14 +444,6 @@ public class Mihile extends Job {
             tsm.removeStatsBySkill(SOUL_LINK_HIDE);
         }
         super.handleRemoveCTS(cts);
-    }
-
-    @Override
-    public void handleRemoveSkill(int skillID) {
-        if (skillID == SOUL_LINK && soulLinkTimer != null && !soulLinkTimer.isDone()) {
-            soulLinkTimer.cancel(true);
-        }
-        super.handleRemoveSkill(skillID);
     }
 
     @Override

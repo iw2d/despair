@@ -165,6 +165,8 @@ public class Bishop extends Magician {
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
+                o1.pOption = chr.getPartyID();
+                o1.wOption = chr.getId();
                 rect = attackInfo.getForcedPos().getRectAround(si.getFirstRect());
                 int count = si.getValue(u, slv);
                 for (Life life : chr.getField().getLifesInRect(rect)) {

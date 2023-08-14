@@ -105,7 +105,7 @@ public class NightLord extends Thief {
                     }
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         MobTemporaryStat mts = mob.getTemporaryStat();
-                        mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
+                        mts.addStatOptions(MobStat.Stun, o1);
                         mts.createAndAddBurnedInfo(chr, skillID, slv);
                     }
                 }
@@ -136,7 +136,7 @@ public class NightLord extends Thief {
                     if (mob.isBoss()) {
                         mts.addStatOptionsAndBroadcast(MobStat.Treasure, o1);
                     } else {
-                        mts.addStatOptionsAndBroadcast(MobStat.Showdown, o2);
+                        mts.addStatOptions(MobStat.Showdown, o2);
                         mts.addStatOptionsAndBroadcast(MobStat.Treasure, o3);
                     }
                 }

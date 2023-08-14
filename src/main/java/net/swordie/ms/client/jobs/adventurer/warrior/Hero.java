@@ -231,12 +231,12 @@ public class Hero extends Warrior {
                             continue;
                         }
                         MobTemporaryStat mts = mob.getTemporaryStat();
-                        mts.addStatOptionsAndBroadcast(MobStat.PAD, mob.isBoss() ? o2 : o1);
-                        mts.addStatOptionsAndBroadcast(MobStat.MAD, mob.isBoss() ? o2 : o1);
                         if (Util.succeedProp(si.getValue(prop, slv))) {
-                            mts.addStatOptionsAndBroadcast(MobStat.ACC, mob.isBoss() ? o4 : o3);
-                            mts.addStatOptionsAndBroadcast(MobStat.Blind, mob.isBoss() ? o6 : o5);
+                            mts.addStatOptions(MobStat.ACC, mob.isBoss() ? o4 : o3);
+                            mts.addStatOptions(MobStat.Blind, mob.isBoss() ? o6 : o5);
                         }
+                        mts.addStatOptions(MobStat.PAD, mob.isBoss() ? o2 : o1);
+                        mts.addStatOptionsAndBroadcast(MobStat.MAD, mob.isBoss() ? o2 : o1);
                     }
                 }
                 break;
@@ -276,13 +276,16 @@ public class Hero extends Warrior {
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
+                o1.wOption = chr.getId();
+                o1.uOption = si.getValue(u, slv); // party effect, but only works on the first attack for some reason
+                o1.pOption = chr.getPartyID();
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    mts.addStatOptions(MobStat.HitCriDamR, o1);
+                    mts.addStatOptions(MobStat.Incizing, o1);
                     if (Util.succeedProp(si.getValue(prop, slv))) {
                         mts.createAndAddBurnedInfo(chr, skillID, slv);
                     }
@@ -380,7 +383,7 @@ public class Hero extends Warrior {
                 break;
             case ENRAGE:
                 removeCombo(1);
-                o1.nOption = 100 * si.getValue(x, slv) + si.getValue(mobCount, slv);; // fd = n / 100, mobsHit = n % 100
+                o1.nOption = 100 * si.getValue(x, slv) + si.getValue(mobCount, slv); // fd = n / 100, mobsHit = n % 100
                 o1.rOption = skillID;
                 tsm.putCharacterStatValue(Enrage, o1);
                 o2.nOption = si.getValue(y, slv);

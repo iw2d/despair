@@ -220,7 +220,7 @@ public class MobTemporaryStat {
 			}
 			if (hasNewMobStat(DeadlyCharge)) {
 				outPacket.encodeInt(getNewOptionsByMobStat(DeadlyCharge).pOption);
-				outPacket.encodeInt(getNewOptionsByMobStat(DeadlyCharge).pOption);
+				outPacket.encodeInt(getNewOptionsByMobStat(DeadlyCharge).wOption);
 			}
 			if (hasNewMobStat(Incizing)) {
 				outPacket.encodeInt(getNewOptionsByMobStat(Incizing).wOption);
@@ -597,10 +597,10 @@ public class MobTemporaryStat {
 					bis.addAll(biList);
 				}
 			}
+			return bis;
 		} finally {
 			getBurnedInfoLock().readLock().unlock();
 		}
-		return bis;
 	}
 
 	public Map<Integer, Map<Integer, List<BurnedInfo>>> getBurnedInfos() {

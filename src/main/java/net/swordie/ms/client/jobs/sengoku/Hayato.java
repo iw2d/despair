@@ -264,6 +264,8 @@ public class Hayato extends Job {
                     o1.nOption = si.getValue(y, slv);
                     o1.rOption = skillID;
                     o1.tOption = si.getValue(time, slv);
+                    o1.pOption = chr.getPartyID();
+                    o1.wOption = chr.getId();
                     mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
                 }
                 break;

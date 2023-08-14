@@ -149,8 +149,8 @@ public class BurnedInfo {
         outPacket.encodeInt(getAttackDelay());
         outPacket.encodeInt(getDotTickIdx());
         outPacket.encodeInt(getDotTickDamR());
-        outPacket.encodeInt(getLastUpdate());
-        outPacket.encodeInt(getStartTime());
+        outPacket.encodeInt(0); // BURNED_INFO[14]
+        outPacket.encodeInt(0); // BURNED_INFO[15]
     }
 
     public Char getChr() {

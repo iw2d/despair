@@ -8,6 +8,8 @@ import net.swordie.ms.client.character.skills.info.ToBaseStat;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
 import net.swordie.ms.client.jobs.adventurer.archer.Marksman;
+import net.swordie.ms.client.jobs.resistance.BattleMage;
+import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.loaders.SkillData;
 
 import java.util.HashMap;
@@ -289,7 +291,12 @@ public enum BaseStat {
                 stats.put(cr, o.nValue);
                 break;
             case Enrage:
-                stats.put(fd, o.nOption / 100);
+                if (JobConstants.getJobCategory(chr.getJob()) == 2) {
+                    stats.put(damR, o.nOption / 100);
+                } else {
+                    stats.put(fd, o.nOption / 100);
+                }
+                break;
             case EnrageCr:
                 stats.put(cr, o.nOption);
                 break;
@@ -568,6 +575,11 @@ public enum BaseStat {
                     stats.put(damR, o.mOption);
                 } else if (o.nOption == 2) {
                     stats.put(cr, o.mOption);
+                }
+                break;
+            case BMageAura:
+                if (o.rOption == BattleMage.BLUE_AURA) {
+                    stats.put(BaseStat.dmgReduce, o.nOption);
                 }
                 break;
             default:

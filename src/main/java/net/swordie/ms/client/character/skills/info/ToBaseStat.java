@@ -7,6 +7,7 @@ import net.swordie.ms.client.jobs.adventurer.pirate.Buccaneer;
 import net.swordie.ms.client.jobs.adventurer.warrior.Hero;
 import net.swordie.ms.client.jobs.legend.Aran;
 import net.swordie.ms.client.jobs.legend.Luminous;
+import net.swordie.ms.client.jobs.resistance.BattleMage;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.loaders.SkillData;
 

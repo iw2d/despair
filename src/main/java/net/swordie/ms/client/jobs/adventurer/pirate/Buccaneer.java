@@ -73,7 +73,9 @@ public class Buccaneer extends Pirate {
 
     public Buccaneer(Char chr) {
         super(chr);
-        perseveranceTimer = EventManager.addEvent(this::handlePerserverance, getPerserveranceDelay(), TimeUnit.SECONDS);
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
+            perseveranceTimer = EventManager.addEvent(this::handlePerserverance, getPerserveranceDelay(), TimeUnit.SECONDS);
+        }
     }
 
     @Override
@@ -85,8 +87,8 @@ public class Buccaneer extends Pirate {
     private void handlePerserverance() {
         if (chr.hasSkill(PERSERVERANCE) && chr.getHP() > 0) {
             int healRate = chr.getSkillStatValue(x, PERSERVERANCE);
-            chr.heal((int) (chr.getMaxHP() / (100D / healRate)));
-            chr.healMP((int) (chr.getMaxMP() / (100D / healRate)));
+            chr.heal((int) (chr.getMaxHP() * ((double) healRate / 100D)));
+            chr.healMP((int) (chr.getMaxMP() * ((double) healRate / 100D)));
         }
         if (perseveranceTimer != null && !perseveranceTimer.isDone()) {
             perseveranceTimer.cancel(true);

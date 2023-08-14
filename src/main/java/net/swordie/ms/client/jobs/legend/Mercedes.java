@@ -162,6 +162,8 @@ public class Mercedes extends Job {
                 o1.nOption = si.getValue(x, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
+                o1.pOption = chr.getPartyID();
+                o1.wOption = chr.getId();
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
@@ -182,7 +184,7 @@ public class Mercedes extends Job {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    mts.addStatOptionsAndBroadcast(MobStat.PDR, o1);
+                    mts.addStatOptions(MobStat.PDR, o1);
                     mts.addStatOptionsAndBroadcast(MobStat.MDR, o1);
                 }
                 break;
@@ -195,9 +197,9 @@ public class Mercedes extends Job {
                     if (mob == null) {
                         continue;
                     }
-                    //if (mob.isBoss()) {
+                    if (mob.isBoss()) {
                         mob.getTemporaryStat().addStatOptionsAndBroadcast(MobStat.AddDamSkill, o1);
-                    //}
+                    }
                 }
                 break;
             case ELEMENTAL_KNIGHTS_BLUE:

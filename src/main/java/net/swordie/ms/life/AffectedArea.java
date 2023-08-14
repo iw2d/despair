@@ -275,7 +275,7 @@ public class AffectedArea extends Life {
                 o1.nOption = si.getValue(SkillStat.x, slv);
                 o1.rOption = skillID;
                 o1.tOption = 5;
-                mts.addStatOptionsAndBroadcast(MobStat.AddDamParty, o1);
+                mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o1);
                 break;
         }
     }

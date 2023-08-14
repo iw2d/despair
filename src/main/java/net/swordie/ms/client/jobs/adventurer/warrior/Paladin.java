@@ -30,7 +30,6 @@ import net.swordie.ms.world.field.Field;
 
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -79,6 +78,9 @@ public class Paladin extends Warrior {
 
     public Paladin(Char chr) {
         super(chr);
+        if (chr.getId() != 0 && isHandlerOfJob(chr.getJob())) {
+            parashockGuardTimer = EventManager.addFixedRateEvent(this::parashockGuard, 1000, 1000);
+        }
     }
 
     @Override
@@ -87,7 +89,7 @@ public class Paladin extends Warrior {
     }
 
 
-    private void giveParashockGuardBuff() {
+    private void parashockGuard() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (!chr.hasSkill(PARASHOCK_GUARD) || !tsm.hasStat(KnightsAura)) {
             return;
@@ -111,7 +113,6 @@ public class Paladin extends Warrior {
                 }
             }
         }
-        parashockGuardTimer = EventManager.addEvent(this::giveParashockGuardBuff, 1, TimeUnit.SECONDS);
     }
 
 
@@ -377,22 +378,16 @@ public class Paladin extends Warrior {
                 o1.nOption = slv;
                 o1.rOption = PARASHOCK_GUARD;
                 o1.bOption = 1;
+                tsm.putCharacterStatValue(KnightsAura, o1); // guard chance handled client side with KnightsAura
                 o2.nReason = PARASHOCK_GUARD;
                 o2.nValue = si.getValue(indiePad, slv);
                 o2.tStart = Util.getCurrentTime();
+                tsm.putCharacterStatValue(IndiePAD, o2);
                 o3.nReason = PARASHOCK_GUARD;
                 o3.nValue = si.getValue(z, slv);
                 o3.tStart = Util.getCurrentTime();
-
-                tsm.putCharacterStatValue(KnightsAura, o1);
-                tsm.putCharacterStatValue(IndiePAD, o2);
                 tsm.putCharacterStatValue(IndiePDDR, o3);
-                // guard chance handled client side with KnightsAura
-
-                if (parashockGuardTimer != null && !parashockGuardTimer.isDone()) {
-                    parashockGuardTimer.cancel(true);
-                }
-                giveParashockGuardBuff();
+                parashockGuard();
                 break;
             case ELEMENTAL_FORCE:
                 o1.nReason = skillID;
@@ -508,14 +503,6 @@ public class Paladin extends Warrior {
         tsm.removeStat(BlessingArmor, false);
         tsm.removeStat(BlessingArmorIncPAD, false);
         tsm.sendResetStatPacket();
-    }
-
-    @Override
-    public void handleRemoveSkill(int skillID) {
-        if (skillID == PARASHOCK_GUARD && parashockGuardTimer != null && !parashockGuardTimer.isDone()) {
-            parashockGuardTimer.cancel(true);
-        }
-        super.handleRemoveSkill(skillID);
     }
 
     @Override

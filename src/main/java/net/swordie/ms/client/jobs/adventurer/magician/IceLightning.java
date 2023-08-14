@@ -180,7 +180,7 @@ public class IceLightning extends Magician {
 
     @Override
     public int getFinalAttackSkill() {
-        if (chr.hasSkill(BLIZZARD)) {
+        if (chr.hasSkillOnCooldown(BLIZZARD)) {
             SkillInfo si = SkillData.getSkillInfoById(BLIZZARD_FA);
             int slv = chr.getSkillLevel(BLIZZARD);
             if (Util.succeedProp(si.getValue(prop, slv))) {

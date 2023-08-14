@@ -65,7 +65,6 @@ public class DarkKnight extends Warrior {
     public static final int FINAL_PACT_COOLDOWN = 1320047;
     public static final int FINAL_PACT_CRITICAL = 1320048;
 
-    private Summon evilEye;
     private long evilEyeEnd = Long.MIN_VALUE;
     private long evilEyeRevenge = Long.MIN_VALUE;
 
@@ -78,7 +77,18 @@ public class DarkKnight extends Warrior {
         return JobConstants.isDarkKnight(id);
     }
 
-    public void spawnEvilEye(boolean refresh) {
+    private Summon getEvilEye() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        for (Option option : tsm.getOptions(IndieEmpty)) {
+            if (option.nReason != EVIL_EYE) {
+                continue;
+            }
+            return option.summon;
+        }
+        return null;
+    }
+
+    private void spawnEvilEye(boolean refresh) {
         removeEvilEye();
 
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -107,18 +117,26 @@ public class DarkKnight extends Warrior {
         summon.setBeforeFirstAttack(false);
         summon.setTemplateId(EVIL_EYE);
         summon.setAttackActive(true);
+        chr.getField().spawnSummon(summon);
 
-        evilEye = summon;
         evilEyeEnd = Util.getCurrentTimeLong() + (summonTerm * 1000L);
-        chr.getField().spawnSummon(evilEye);
 
         Option o1 = new Option();
-        o1.nOption = 1;
-        o1.rOption = EVIL_EYE;
-        o1.tOption = summonTerm;
-        o1.sOption = 0;
-        o1.ssOption = 0;
-        tsm.putCharacterStatValue(Beholder, o1);
+        Option o2 = new Option();
+        o1.nValue = 1;
+        o1.nReason = EVIL_EYE;
+        o1.tStart = Util.getCurrentTime();
+        o1.tTerm = summonTerm;
+        o1.summon = summon;
+        o1.setInMillis(true);
+        tsm.putCharacterStatValue(IndieEmpty, o1);
+        o2.nOption = 1;
+        o2.rOption = EVIL_EYE;
+        o2.tOption = summonTerm;
+        o2.sOption = 0;
+        o2.ssOption = 0;
+        o2.setInMillis(true);
+        tsm.putCharacterStatValue(Beholder, o2);
         tsm.sendSetStatPacket();
     }
 
@@ -135,11 +153,8 @@ public class DarkKnight extends Warrior {
     public void removeEvilEye() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (tsm.hasStat(Beholder)) {
-            tsm.removeStat(Beholder, true);
-            if (evilEye != null) {
-                chr.getField().broadcastPacket(Summoned.summonedRemoved(evilEye, LeaveType.ANIMATION));
-                evilEye = null;
-            }
+            tsm.removeStatsBySkill(EVIL_EYE);
+            tsm.sendResetStatPacket();
         }
     }
 
@@ -432,7 +447,8 @@ public class DarkKnight extends Warrior {
             int heal = si.getValue(x, slv);
             if (chr.hasSkill(EVIL_EYE) && tsm.hasStatBySkillId(EVIL_EYE) && chr.getHP() > 0) {
                 if (evilEyeRevenge < Util.getCurrentTimeLong()) {
-                    if (Util.succeedProp(proc)) {
+                    Summon evilEye = getEvilEye();
+                    if (evilEye != null && Util.succeedProp(proc)) {
                         chr.write(Summoned.summonBeholderRevengeAttack(evilEye, hitInfo.mobID));
                         chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)), true);
                         evilEyeRevenge = Util.getCurrentTimeLong() + (si.getValue(cooltime, slv) * 1000L);

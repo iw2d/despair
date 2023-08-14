@@ -203,8 +203,8 @@ public class TemporaryStatManager {
 
         getChr().getJobHandler().handleRemoveCTS(cts);
 
-        Option opt = getOption(cts);
-        for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(chr, cts, opt).entrySet()) {
+        Option option = getOption(cts);
+        for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(chr, cts, option).entrySet()) {
             removeBaseStat(stats.getKey(), stats.getValue());
         }
         getRemovedStats().put(cts, getCurrentStats().get(cts));
@@ -220,7 +220,7 @@ public class TemporaryStatManager {
         }
         // handlers for after stat is removed
         if (JobConstants.isLuminous(chr.getJob()) && cts == Larkness) {
-            ((Luminous) chr.getJobHandler()).handleRemoveLarkness(opt.rOption);
+            ((Luminous) chr.getJobHandler()).handleRemoveLarkness(option.rOption);
         }
         if (JobConstants.isDemonAvenger(chr.getJob())) {
             ((DemonAvenger) chr.getJobHandler()).sendHpUpdate();
@@ -234,8 +234,8 @@ public class TemporaryStatManager {
         for (Map.Entry<BaseStat, Integer> stats : BaseStat.getFromCTS(chr, cts, option).entrySet()) {
             removeBaseStat(stats.getKey(), stats.getValue());
         }
-        if(getCurrentStats().containsKey(cts)) {
-            if(option.summon != null) {
+        if (getCurrentStats().containsKey(cts)) {
+            if (option.summon != null) {
                 getChr().getField().broadcastPacket(Summoned.summonedRemoved(option.summon, LeaveType.ANIMATION));
                 option.summon = null;
             }

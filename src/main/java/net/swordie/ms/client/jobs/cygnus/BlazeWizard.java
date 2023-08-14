@@ -145,16 +145,21 @@ public class BlazeWizard extends Noblesse {
                 MobTemporaryStat mts = mob.getTemporaryStat();
                 if (Util.succeedProp(si.getValue(prop, slv))) {
                     if (tsm.hasStatBySkillId(FIRES_OF_CREATION_FOX) || tsm.hasStatBySkillId(FIRES_OF_CREATION_LION)) {
-                        o1.nOption = chr.getSkillStatValue(z, FIRES_OF_CREATION);
+                        // get_element_dec
+                        o1.nOption = 1;
                         o1.rOption = FIRES_OF_CREATION;
                         o1.tOption = si.getValue(dotTime, slv);
-                        mts.addStatOptions(MobStat.ElementResetBySummon, o1);
+                        o1.cOption = chr.getId();                                   // dwOwnerId
+                        o1.pOption = chr.getPartyID();                              // nPartyId
+                        o1.uOption = chr.getSkillStatValue(z, FIRES_OF_CREATION);   // nDecRate
+                        o1.wOption = chr.getParty() == null ? 0 : 1;                // nOption (in party or not)
+                        mts.addStatOptions(MobStat.ElementResetBySummon, o1); // TrueSight MTS takes precedence unless chrId == cOption
                     }
                     o2.nOption = chr.getSkillStatValue(x, TOWERING_INFERNO);
                     o2.rOption = IGNITION;
                     o2.tOption = si.getValue(dotTime, slv);
                     mts.addStatOptions(MobStat.Ember, o2);
-                    mts.createAndAddBurnedInfo(chr, IGNITION, slv);
+                    mts.createAndAddBurnedInfo(chr, IGNITION, slv); // broadcasts
                     EventManager.addEvent(() -> explodeIgnition(mob), si.getValue(dotTime, slv), TimeUnit.SECONDS);
                 }
             }

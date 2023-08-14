@@ -1168,7 +1168,7 @@ public class AdminCommands {
             for (short j : targetJobs) {
                 List<Skill> list = new ArrayList<>();
                 for (Skill skill : SkillData.getSkillsByJob(j)) {
-                    byte maxLevel = (byte) skill.getMaxLevel();
+                    int maxLevel = skill.getMaxLevel();
                     skill.setCurrentLevel(maxLevel);
                     skill.setMasterLevel(maxLevel);
                     list.add(skill);

@@ -182,16 +182,16 @@ public class FirePoison extends Magician {
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
                     if (!mob.isBoss()) {
-                        mts.addStatOptionsAndBroadcast(MobStat.DodgeBodyAttack, o1); //Untouchable (physical dmg) Mob Stat
+                        mts.addStatOptions(MobStat.DodgeBodyAttack, o1); //Untouchable (physical dmg) Mob Stat
                     }
-                    mts.addStatOptionsAndBroadcast(MobStat.Speed, o2);
+                    mts.addStatOptions(MobStat.Speed, o2);
                     mts.createAndAddBurnedInfo(chr, skillID, slv, si.getValue(dot, slv), si.getValue(dotInterval, slv), getExtendedDoTTime(si.getValue(dotTime, slv)), 1);
                 }
                 break;
             case PARALYZE:
                 o1.nOption = 1;
                 o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
+                o1.tOption = getExtendedDoTTime(si.getValue(dotTime, slv));
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                     if (mob == null) {
@@ -199,7 +199,7 @@ public class FirePoison extends Magician {
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
                     if (!mob.isBoss()) {
-                        mts.addStatOptionsAndBroadcast(MobStat.Stun, o1);
+                        mts.addStatOptions(MobStat.Stun, o1);
                     }
                     int dotDmg = si.getValue(dot, slv);
                     if (chr.hasSkill(PARALYZE_CRIPPLE)) {
@@ -360,7 +360,7 @@ public class FirePoison extends Magician {
 
     @Override
     public int getFinalAttackSkill() {
-        if (chr.hasSkill(METEOR_SHOWER)) {
+        if (chr.hasSkillOnCooldown(METEOR_SHOWER)) {
             SkillInfo si = SkillData.getSkillInfoById(METEOR_SHOWER_FA);
             int slv = chr.getSkillLevel(METEOR_SHOWER);
             if (Util.succeedProp(si.getValue(prop, slv))) {

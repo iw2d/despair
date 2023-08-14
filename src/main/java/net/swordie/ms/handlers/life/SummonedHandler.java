@@ -3,11 +3,9 @@ package net.swordie.ms.handlers.life;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
-import net.swordie.ms.client.jobs.nova.Kaiser;
 import net.swordie.ms.client.jobs.resistance.BattleMage;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.Summoned;
-import net.swordie.ms.enums.AssistType;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.life.Life;
@@ -49,13 +47,6 @@ public class SummonedHandler {
         int skillId = summon.getSkillID();
         if (tsm.hasStatBySkillId(skillId)) {
             tsm.removeStatsBySkill(skillId);
-        }
-        if (skillId == BattleMage.CONDEMNATION
-                || skillId == BattleMage.CONDEMNATION_I
-                || skillId == BattleMage.CONDEMNATION_II
-                || skillId == BattleMage.CONDEMNATION_III) {
-
-            ((BattleMage) chr.getJobHandler()).removeCondemnationBuff(summon);
         }
 
         chr.getField().removeLife(id, false);
