@@ -346,8 +346,6 @@ public class Char {
 	@Transient
 	private FieldInstanceType fieldInstanceType;
 	@Transient
-	private Map<Integer, Field> fields = new HashMap<>();
-	@Transient
 	private int bulletIDForAttack;
 	@Transient
 	private NpcShopDlg shop;
@@ -425,8 +423,6 @@ public class Char {
 	private Map<Integer, PsychicArea> psychicAreas;
 	@Transient
 	private Map<Integer, PsychicLock> psychicLocks;
-	@Transient
-	private Map<Integer, PsychicLockBall> psychicLockBalls;
 	@Transient
 	private int forceAtomKeyCounter = 1;
 	@Transient
@@ -518,7 +514,6 @@ public class Char {
 //        monsterBattleRankInfo = new MonsterBattleRankInfo();
 		psychicAreas = new HashMap<>();
 		psychicLocks = new HashMap<>();
-		psychicLockBalls = new HashMap<>();
 		funcKeyMaps = new ArrayList<FuncKeyMap>();
 	}
 
@@ -2622,8 +2617,9 @@ public class Char {
 		for (AffectedArea aa : tsm.getAffectedAreas()) {
 			tsm.removeStatsBySkill(aa.getSkillID());
 		}
-		Field currentField = getField();
+		tsm.getAffectedAreas().clear();
 
+		Field currentField = getField();
 		if (currentField != null) {
 			if (saveReturnMap) {
 				setPreviousFieldID(currentField.getId()); // this may be a bad idea in some cases? idk
@@ -3579,23 +3575,6 @@ public class Char {
 
 	public void setFieldInstanceType(FieldInstanceType fieldInstanceType) {
 		this.fieldInstanceType = fieldInstanceType;
-	}
-
-	/**
-	 * Returns the current Set of Fields that this Char holds as personal instances.
-	 *
-	 * @return the list of personal Field instances.
-	 */
-	public Map<Integer, Field> getFields() {
-		return fields;
-	}
-
-	public void addField(Field field) {
-		getFields().put(field.getId(), field);
-	}
-
-	public Field getPersonalById(int id) {
-		return getFields().get(id);
 	}
 
 	public void setInstance(Instance instance) {
@@ -5096,6 +5075,7 @@ public class Char {
 		}
 		return sp;
 	}
+
 	public PsychicArea addPsychicArea(PsychicArea pa) {
 		psychicAreas.put(pa.localPsychicAreaKey, pa);
 		return pa;

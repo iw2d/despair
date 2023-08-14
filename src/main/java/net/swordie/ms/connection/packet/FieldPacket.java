@@ -12,6 +12,7 @@ import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.PsychicArea;
 import net.swordie.ms.client.character.skills.TownPortal;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
+import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.resistance.OpenGate;
 import net.swordie.ms.client.trunk.TrunkDlg;
@@ -84,7 +85,7 @@ public class FieldPacket {
         outPacket.encodeInt(aa.getOption());
         outPacket.encodeByte(aa.getOption() != 0);
         outPacket.encodeInt(aa.getDuration());
-        if(SkillConstants.isFlipAffectAreaSkill(aa.getSkillID())) {
+        if (SkillConstants.isFlipAffectAreaSkill(aa.getSkillID())) {
             outPacket.encodeByte(aa.isFlip());
         }
         outPacket.encodeInt(0); // ?
@@ -95,7 +96,7 @@ public class FieldPacket {
         OutPacket outPacket = new OutPacket(OutHeader.AFFECTED_AREA_REMOVED);
 
         outPacket.encodeInt(aa.getObjectId());
-        if(aa.getSkillID() == 2111003) {
+        if (aa.getSkillID() == FirePoison.POISON_MIST) {
             outPacket.encodeByte(mistEruption);
         }
 

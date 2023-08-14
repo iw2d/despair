@@ -2,7 +2,6 @@ package net.swordie.ms.life;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
@@ -13,6 +12,7 @@ import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
 import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 import net.swordie.ms.client.jobs.adventurer.thief.NightLord;
 import net.swordie.ms.client.jobs.adventurer.thief.Shadower;
+import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.legend.Aran;
 import net.swordie.ms.client.jobs.legend.Shade;
@@ -167,7 +167,7 @@ public class AffectedArea extends Life {
         this.flip = flip;
     }
 
-    public boolean getRemoveSkill() {
+    public boolean isRemoveSkill() {
         return removeSkill;
     }
 
@@ -200,7 +200,6 @@ public class AffectedArea extends Life {
         aa.setSkillID(skillID);
         aa.setSlv((byte) slv);
         aa.setRemoveSkill(true);
-
         return aa;
     }
 
@@ -214,8 +213,7 @@ public class AffectedArea extends Life {
         }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         int skillID = getSkillID();
-        Skill skill = chr.getSkill(getSkillID());
-        byte slv = getSlv();
+        int slv = getSlv();
         SkillInfo si = SkillData.getSkillInfoById(skillID);
         MobTemporaryStat mts = mob.getTemporaryStat();
         Option o = new Option();
@@ -242,7 +240,22 @@ public class AffectedArea extends Life {
             case Bowmaster.FLAME_SURGE:
             case Kanna.NIMBUS_CURSE:
                 if (!mts.hasBurnFromSkillAndOwner(skillID, getCharID())) {
-                    mts.createAndAddBurnedInfo(chr, skill);
+                    mts.createAndAddBurnedInfo(chr, skillID, slv);
+                }
+                break;
+            case NightLord.FRAILTY_CURSE:
+                if (!mob.isBoss() || chr.hasSkill(NightLord.FRAILTY_CURSE_BOSS_RUSH)) {
+                    o.nOption = si.getValue(SkillStat.y, slv) - chr.getSkillStatValue(s, NightLord.FRAILTY_CURSE_SLOW); // already negative in SI
+                    o.rOption = skillID;
+                    o.tOption = 5;
+                    mts.addStatOptions(MobStat.Speed, o);
+                    o1.nOption = -si.getValue(SkillStat.w, slv) - chr.getSkillStatValue(v, NightLord.FRAILTY_CURSE_ENHANCE);
+                    o1.rOption = skillID;
+                    o1.tOption = 5;
+                    mts.addStatOptions(MobStat.PAD, o1);
+                    mts.addStatOptions(MobStat.PDR, o1);
+                    mts.addStatOptions(MobStat.MAD, o1);
+                    mts.addStatOptionsAndBroadcast(MobStat.MDR, o1);
                 }
                 break;
             case Shade.SPIRIT_TRAP:
@@ -253,27 +266,12 @@ public class AffectedArea extends Life {
                     mts.addStatOptionsAndBroadcast(MobStat.Freeze, o);
                 }
                 break;
-            case NightLord.FRAILTY_CURSE:
-                if (!mob.isBoss() || chr.hasSkill(NightLord.FRAILTY_CURSE_BOSS_RUSH)) {
-                    o.nOption = si.getValue(SkillStat.y, slv) - chr.getSkillStatValue(s, NightLord.FRAILTY_CURSE_SLOW); // already negative in SI
-                    o.rOption = skillID;
-                    o.tOption = 5;
-                    mts.addStatOptionsAndBroadcast(MobStat.Speed, o);
-                    o1.nOption = -si.getValue(SkillStat.w, slv) - chr.getSkillStatValue(v, NightLord.FRAILTY_CURSE_ENHANCE);
-                    o1.rOption = skillID;
-                    o1.tOption = 5;
-                    mts.addStatOptionsAndBroadcast(MobStat.PAD, o1);
-                    mts.addStatOptionsAndBroadcast(MobStat.PDR, o1);
-                    mts.addStatOptionsAndBroadcast(MobStat.MAD, o1);
-                    mts.addStatOptionsAndBroadcast(MobStat.MDR, o1);
-                }
-                break;
             case Zero.TIME_DISTORTION:
                 mts.removeBuffs();
                 o.nOption = 1;
                 o.rOption = skillID;
                 o.tOption = 5;
-                mts.addStatOptionsAndBroadcast(MobStat.Freeze, o);
+                mts.addStatOptions(MobStat.Freeze, o);
                 o1.nOption = si.getValue(SkillStat.x, slv);
                 o1.rOption = skillID;
                 o1.tOption = 5;
@@ -286,15 +284,17 @@ public class AffectedArea extends Life {
         if (getOwner() == null) {
             return;
         }
+        if (getOwner() != chr && (getOwner().getParty() == null || !getOwner().getParty().isPartyMember(chr))) {
+            return;
+        }
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         if (tsm.hasAffectedArea(this)) {
             return;
         }
         tsm.addAffectedArea(this);
         int skillID = getSkillID();
-        byte slv = getSlv();
+        int slv = getSlv();
         SkillInfo si = SkillData.getSkillInfoById(skillID);
-        Option o = new Option();
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -305,13 +305,6 @@ public class AffectedArea extends Life {
                 o1.tStart = Util.getCurrentTime();
                 tsm.putCharacterStatValue(IndieCrMax, o1);
                 break;
-            case Zero.TIME_DISTORTION:
-                tsm.removeAllDebuffs();
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieBooster, slv);
-                o2.tStart = Util.getCurrentTime();
-                tsm.putCharacterStatValue(IndieBooster, o2); // Indie
-                break;
             case BlazeWizard.BURNING_CONDUIT:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
@@ -321,6 +314,13 @@ public class AffectedArea extends Life {
                 o2.nValue = si.getValue(indieBooster, slv);
                 o2.tStart = Util.getCurrentTime();
                 tsm.putCharacterStatValue(IndieBooster, o2); // Indie
+                break;
+            case Aran.MAHAS_DOMAIN:
+                if (chr.getHP() > 0) {
+                    chr.heal((int) (chr.getMaxHP() / (100D / si.getValue(w, slv))));
+                    chr.healMP((int) (chr.getMaxHP() / (100D / si.getValue(w, slv))));
+                    tsm.removeAllDebuffs();
+                }
                 break;
             case Kanna.BELLFLOWER_BARRIER:
                 o1.nReason = skillID;
@@ -337,19 +337,23 @@ public class AffectedArea extends Life {
                 tsm.putCharacterStatValue(AsrR, o2);
                 tsm.putCharacterStatValue(TerR, o2);
                 break;
-            case Aran.MAHAS_DOMAIN:
-                chr.heal((int) (chr.getMaxHP() / (100D / si.getValue(w, slv))));
-                chr.healMP((int) (chr.getMaxHP() / (100D / si.getValue(w, slv))));
-                tsm.removeAllDebuffs();
-                break;
-            case BeastTamer.PURR_ZONE:
-                chr.heal(si.getValue(hp, slv), true);
-                break;
             case Xenon.TEMPORAL_POD:
                 o1.nOption = 2;
                 o1.rOption = skillID;
                 tsm.putCharacterStatValue(OnCapsule, o1);
                 Xenon.temporalPodTimer(chr);
+                break;
+            case Zero.TIME_DISTORTION:
+                tsm.removeAllDebuffs();
+                o2.nReason = skillID;
+                o2.nValue = si.getValue(indieBooster, slv);
+                o2.tStart = Util.getCurrentTime();
+                tsm.putCharacterStatValue(IndieBooster, o2); // Indie
+                break;
+            case BeastTamer.PURR_ZONE:
+                if (chr.getHP() > 0) {
+                    chr.heal(si.getValue(hp, slv), true);
+                }
                 break;
         }
         tsm.sendSetStatPacket();
@@ -357,9 +361,8 @@ public class AffectedArea extends Life {
 
     public void handleAARemoved() {
         Field field = getField();
-
-        // Mob Affected Areas
         if (getMobOrigin() > 0) {
+            // Mob Affected Areas
 
             // Demian Flying Sword Affected Area.
             if (getSkillID() == 131 && getSlv() == 28) {
@@ -376,10 +379,12 @@ public class AffectedArea extends Life {
                     sword.target();
                 }
             }
-
-        // Char Affected Areas
-        } else {
-
+        } else  {
+            // Char Affected Areas
+            for (Char chr : field.getChars()) {
+                TemporaryStatManager tsm = chr.getTemporaryStatManager();
+                chr.getTemporaryStatManager().removeAffectedArea(this);
+            }
         }
     }
 
@@ -400,17 +405,8 @@ public class AffectedArea extends Life {
 
     @Override
     public void broadcastLeavePacket() {
+        handleAARemoved();
         Field field = getField();
-
-        handleAARemoved(); // Used for special cases, where something has to happen upon removal of AA.
-
         field.broadcastPacket(FieldPacket.affectedAreaRemoved(this, false));
-        for (Char chr : field.getChars()) {
-            TemporaryStatManager tsm = chr.getTemporaryStatManager();
-            if (getRemoveSkill() && tsm.hasStatBySkillId(getSkillID())) {
-                tsm.removeStatsBySkill(getSkillID());
-                tsm.sendResetStatPacket();
-            }
-        }
     }
 }

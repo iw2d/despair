@@ -604,7 +604,7 @@ public class Field {
                 setRandomController(entry.getKey());
             }
         }
-        // remove summons of that char & remove field attacks of that char
+        // remove summons, field attacks and affected areas of that char
         List<Integer> removedList = new ArrayList<>();
         for (Life life : getLifes().values()) {
             if (life instanceof Summon && ((Summon) life).getChr() == chr) {
@@ -613,6 +613,11 @@ public class Field {
                 FieldAttackObj fao = (FieldAttackObj) life;
                 if (fao.getOwnerID() == chr.getId() && fao.getTemplateId() == Bowmaster.ARROW_PLATTER) {
                     removedList.add(life.getObjectId());
+                }
+            } else if (life instanceof AffectedArea) {
+                AffectedArea aa = (AffectedArea) life;
+                if (aa.getOwner() == chr) {
+                    removedList.add(aa.getObjectId());
                 }
             }
         }
@@ -910,6 +915,17 @@ public class Field {
         getLifeSchedules().remove(life);
     }
 
+    public void checkCharInAffectedAreas(Char chr) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        for (AffectedArea aa : getAffectedAreas()) {
+            if (aa.getRect().hasPositionInside(chr.getPosition())) {
+                aa.handleCharInside(chr);
+            } else if (tsm.hasAffectedArea(aa)) {
+                tsm.removeAffectedArea(aa);
+            }
+        }
+    }
+
     public void checkMobInAffectedAreas(Mob mob) {
         for (AffectedArea aa : getAffectedAreas()) {
             if (aa.getRect().hasPositionInside(mob.getPosition())) {
@@ -918,17 +934,6 @@ public class Field {
         }
     }
 
-    public void checkCharInAffectedAreas(Char chr) {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        for (AffectedArea aa : getAffectedAreas()) {
-            boolean isInsideAA = aa.getRect().hasPositionInside(chr.getPosition());
-            if (isInsideAA) {
-                aa.handleCharInside(chr);
-            } else if (tsm.hasAffectedArea(aa) && !isInsideAA) {
-                tsm.removeAffectedArea(aa);
-            }
-        }
-    }
     public void drop(Drop drop, Position posFrom, Position posTo) {
         drop(drop, posFrom, posTo, false);
     }

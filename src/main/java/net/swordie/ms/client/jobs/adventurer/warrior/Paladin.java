@@ -86,28 +86,6 @@ public class Paladin extends Warrior {
         return JobConstants.isPaladin(id);
     }
 
-    private Char getReviveTarget(Rect range) {
-        Party party = chr.getParty();
-        if (party != null) {
-            List<Char> pChrList = chr.getParty().getPartyMembersInSameField(chr).stream().filter(pChr -> range.hasPositionInside(pChr.getPosition())).toList();
-            Char closestChr = null;
-            double closestDst = Double.MIN_VALUE;
-            for (Char pChr : pChrList) {
-                if (pChr.getHP() <= 0) {
-                    double dst = chr.getPosition().distance(pChr.getPosition());
-                    if (dst > closestDst) {
-                        closestChr = pChr;
-                        closestDst = dst;
-                    }
-                }
-            }
-            if (closestChr != null) {
-                return closestChr;
-            }
-        }
-        return null;
-    }
-
 
     private void giveParashockGuardBuff() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
@@ -329,7 +307,16 @@ public class Paladin extends Warrior {
         Position pos;
         switch (skillID) {
             case HP_RECOVERY:
-                hpRecovery();
+                int amount = 0;
+                if (tsm.hasStat(Restoration)) {
+                    amount = tsm.getOption(Restoration).nOption;
+                }
+                int healRate = Math.max(si.getValue(x, slv) - amount, 10);
+                chr.heal((int) (chr.getMaxHP() * ((double) healRate / 100D)), true);
+                o1.nOption = Math.min(amount + si.getValue(y, slv), 300); // only displayed up to 30 stacks
+                o1.rOption = skillID;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(Restoration, o1);
                 break;
             case THREATEN:
                 pos = inPacket.decodePosition();
@@ -424,31 +411,26 @@ public class Paladin extends Warrior {
         tsm.sendSetStatPacket();
     }
 
-    public void hpRecovery() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o = new Option();
-        if (chr.hasSkill(HP_RECOVERY)) {
-            Skill skill = chr.getSkill(HP_RECOVERY);
-            byte slv = (byte) skill.getCurrentLevel();
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            int recovery = si.getValue(x, slv);
-            int amount = 10; // si.getValue(y, slv);
-
-            if (tsm.hasStat(Restoration)) {
-                amount = tsm.getOption(Restoration).nOption;
-                if (amount < 300) { // only displayed to 30 stacks
-                    amount = amount + 10;
+    private Char getReviveTarget(Rect range) {
+        Party party = chr.getParty();
+        if (party != null) {
+            List<Char> pChrList = chr.getParty().getPartyMembersInSameField(chr).stream().filter(pChr -> range.hasPositionInside(pChr.getPosition())).toList();
+            Char closestChr = null;
+            double closestDst = Double.MIN_VALUE;
+            for (Char pChr : pChrList) {
+                if (pChr.getHP() <= 0) {
+                    double dst = chr.getPosition().distance(pChr.getPosition());
+                    if (dst > closestDst) {
+                        closestChr = pChr;
+                        closestDst = dst;
+                    }
                 }
             }
-
-            o.nOption = amount;
-            o.rOption = skill.getSkillId();
-            o.tOption = si.getValue(time, slv);
-            int heal = recovery - Math.max(10, amount);
-            chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)), true);
-            tsm.putCharacterStatValue(Restoration, o);
-            tsm.sendSetStatPacket();
+            if (closestChr != null) {
+                return closestChr;
+            }
         }
+        return null;
     }
 
 

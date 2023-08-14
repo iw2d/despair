@@ -244,7 +244,6 @@ public class BlazeWizard extends Noblesse {
         Option o2 = new Option();
         Option o3 = new Option();
         Summon summon;
-        Field field;
         switch(skillID) {
             case FLASHFIRE:
                 if (flashFire != null && flashFire.getFieldId() == chr.getFieldID() && tsm.hasStatBySkillId(skillID)) {
@@ -267,18 +266,12 @@ public class BlazeWizard extends Noblesse {
                 chr.healMP((int) (chr.getMaxMP() / (100D / si.getValue(x, slv))));
                 break;
             case BURNING_CONDUIT:
-                field = chr.getField();
-                for (AffectedArea aa : chr.getField().getAffectedAreas()) {
-                    if (aa.getOwner().getId() == chr.getId() && aa.getSkillID() == skillID) {
-                        field.removeLife(aa);
-                    }
-                }
                 AffectedArea aa = AffectedArea.getPassiveAA(chr, skillID, slv);
                 aa.setMobOrigin((byte) 0);
                 aa.setPosition(inPacket.decodePosition());
                 aa.setRect(aa.getPosition().getRectAround(si.getFirstRect()));
                 aa.setDelay((short) 15);
-                field.spawnAffectedArea(aa);
+                chr.getField().spawnAffectedAreaAndRemoveOld(aa);
                 break;
             case WORD_OF_FIRE:
                 o1.nOption = si.getValue(x, slv);

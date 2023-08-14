@@ -209,8 +209,8 @@ public class FirePoison extends Magician {
                 }
                 break;
             case MIST_ERUPTION:
+                Field field = chr.getField();
                 for (int id : attackInfo.mists) {
-                    Field field = chr.getField();
                     field.removeLife(id);
                 }
                 chr.resetSkillCoolTime(FLAME_HAZE);
@@ -294,8 +294,7 @@ public class FirePoison extends Magician {
         }
         if (tsm.hasStat(WizardIgnite)) {
             SkillInfo igniteInfo = SkillData.getSkillInfoById(IGNITE);
-            Skill skill = chr.getSkill(IGNITE);
-            byte slv = (byte) skill.getCurrentLevel();
+            int slv = chr.getSkillLevel(IGNITE);
             for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                 Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
                 if (mob == null) {
@@ -306,6 +305,7 @@ public class FirePoison extends Magician {
                     aa.setPosition(mob.deepCopy().getPosition());
                     aa.setRect(aa.getPosition().getRectAround(igniteInfo.getFirstRect()));
                     aa.setDelay((short) 3);
+                    aa.setRemoveSkill(false);
                     chr.getField().spawnAffectedArea(aa);
                 }
             }

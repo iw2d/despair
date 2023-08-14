@@ -926,8 +926,7 @@ public class TemporaryStatManager {
 
     public void removeAffectedArea(AffectedArea aa) {
         getAffectedAreas().remove(aa);
-
-        if (aa.getRemoveSkill()) {
+        if (aa.isRemoveSkill()) {
             removeStatsBySkill(aa.getSkillID());
             sendResetStatPacket();
         }
