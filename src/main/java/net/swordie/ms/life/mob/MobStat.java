@@ -100,6 +100,7 @@ public enum MobStat {
     Ember(85),
     TrueSight(86),
     Laser(87),
+    StatResetSkill(88),
     ;
 
     private int val, pos, bitPos;
@@ -120,9 +121,6 @@ public enum MobStat {
     }
 
     public int getVal() {
-        if(this == BurnedInfo) {
-            return 0x40000;
-        }
         return val;
     }
 
@@ -135,6 +133,7 @@ public enum MobStat {
             case Lifting:
             case Smite:
             case TempMoveAbility:
+            case StatResetSkill:
             case RWLiftPress:
                 return true;
             default:

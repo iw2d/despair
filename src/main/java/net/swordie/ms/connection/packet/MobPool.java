@@ -34,7 +34,8 @@ public class MobPool {
         if(fms != null) {
             fms.encode(outPacket);
         }
-        mob.getTemporaryStat().encode(outPacket);
+        MobTemporaryStat mts = mob.getTemporaryStat();
+        mts.encode(outPacket, mts.getCurrentStatVals(), false);
         if(!hasBeenInit) {
             // CMob::Init
             mob.encodeInit(outPacket);
@@ -54,7 +55,8 @@ public class MobPool {
             if(fms != null) {
                 fms.encode(outPacket);
             }
-            mob.getTemporaryStat().encode(outPacket);
+            MobTemporaryStat mts = mob.getTemporaryStat();
+            mts.encode(outPacket, mts.getCurrentStatVals(), false);
             if(!hasBeenInit) {
                 mob.encodeInit(outPacket);
             }
@@ -147,7 +149,7 @@ public class MobPool {
         MobTemporaryStat mts = mob.getTemporaryStat();
         boolean hasMovementStat = mts.hasNewMovementAffectingStat();
         outPacket.encodeInt(mob.getObjectId());
-        mts.encode(outPacket);
+        mts.encode(outPacket, mts.getNewStatVals(), true);
         outPacket.encodeShort(delay);
         outPacket.encodeByte(1); // nCalcDamageStatIndex
         if (hasMovementStat) {
@@ -164,7 +166,7 @@ public class MobPool {
     public static OutPacket statReset(Mob mob, byte calcDamageStatIndex, boolean sn, Set<BurnedInfo> biList) {
         OutPacket outPacket = new OutPacket(OutHeader.MOB_STAT_RESET);
         MobTemporaryStat mts = mob.getTemporaryStat();
-        mts.getRemovedStatLock().lock();
+        mts.getRemoveStatLock().lock();
         try {
             int[] mask = mts.getRemovedMask();
             outPacket.encodeInt(mob.getObjectId());
@@ -197,7 +199,7 @@ public class MobPool {
             }
             mts.getRemovedStatVals().clear();
         } finally {
-            mts.getRemovedStatLock().unlock();
+            mts.getRemoveStatLock().unlock();
         }
         return outPacket;
     }

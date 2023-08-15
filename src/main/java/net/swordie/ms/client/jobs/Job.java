@@ -141,7 +141,7 @@ public abstract class Job {
 			}
 			MobTemporaryStat mts = mob.getTemporaryStat();
 			if (attackInfo.skillId != Bishop.BAHAMUT && mts.hasCurrentMobStat(MobStat.BahamutLightElemAddDam)) {
-				mts.removeMobStat(MobStat.BahamutLightElemAddDam, true);
+				mts.removeMobStat(MobStat.BahamutLightElemAddDam, false);
 			}
 		}
 

@@ -75,7 +75,7 @@ public class MobData {
                 dataOutputStream.writeInt(mob.getTemplateId());
                 dataOutputStream.writeInt(fms.getLevel());
                 dataOutputStream.writeInt(mob.getFirstAttack());
-                dataOutputStream.writeInt(mts.getNewOptionsByMobStat(BodyAttack) != null ? mts.getNewOptionsByMobStat(BodyAttack).nOption : 0);
+                dataOutputStream.writeInt(mts.getNewOptionsByMobStat(BodyAttack).nOption);
                 dataOutputStream.writeLong(fms.getMaxHP());
                 dataOutputStream.writeLong(fms.getMaxMP());
                 dataOutputStream.writeInt(fms.getPad());
@@ -210,7 +210,7 @@ public class MobData {
                     dataOutputStream.writeUTF(ms.getText());
                     dataOutputStream.writeUTF(ms.getSpeak());
                 }
-                dataOutputStream.writeInt(mts.getNewOptionsByMobStat(PImmune) != null ? mts.getNewOptionsByMobStat(PImmune).nOption : 0);
+                dataOutputStream.writeInt(mts.getNewOptionsByMobStat(PImmune).nOption);
             } catch (IOException e) {
                 e.printStackTrace();
             }

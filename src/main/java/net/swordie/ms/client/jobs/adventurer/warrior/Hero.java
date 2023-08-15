@@ -277,7 +277,7 @@ public class Hero extends Warrior {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 o1.wOption = chr.getId();
-                o1.uOption = si.getValue(u, slv); // party effect, but only works on the first attack for some reason
+                o1.uOption = si.getValue(u, slv);
                 o1.pOption = chr.getPartyID();
                 for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
                     Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);

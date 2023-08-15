@@ -1665,7 +1665,7 @@ public class Mob extends Life {
 
     @Override
     public void broadcastSpawnPacket(Char onlyChar) {
-        setTemporaryStat(new MobTemporaryStat(this));
+        getTemporaryStat().setMob(this);
         Field field = getField();
         Position pos = getPosition();
         Foothold fh = field.getFootholdById(getFh());
@@ -1680,13 +1680,13 @@ public class Mob extends Life {
         setCurFoodhold(fh.deepCopy());
         Char controller = getField().getLifeToControllers().get(this);
         if (onlyChar == null) {
+            field.broadcastPacket(MobPool.enterField(this, false));
             for (Char chr : field.getChars()) {
-                chr.write(MobPool.enterField(this, false));
-                chr.write(MobPool.changeController(this, false, controller == chr));
+                field.broadcastPacket(MobPool.changeController(this, true, controller == chr));
             }
         } else {
             onlyChar.getClient().write(MobPool.enterField(this, false));
-            onlyChar.getClient().write(MobPool.changeController(this, false, controller == onlyChar));
+            onlyChar.getClient().write(MobPool.changeController(this, true, controller == onlyChar));
         }
     }
 
