@@ -7,6 +7,7 @@ import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
 import net.swordie.ms.client.jobs.adventurer.thief.Shadower;
 import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
+import net.swordie.ms.client.jobs.resistance.WildHunter;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.BaseStat;
@@ -202,8 +203,10 @@ public class SkillInfo {
 
     public boolean isMassSpell() {
         // overrides
-        if (skillId == Bishop.HOLY_SYMBOL) {
-            return true;
+        switch (getSkillId()) {
+            case Bishop.HOLY_SYMBOL:
+            case WildHunter.CALL_OF_THE_WILD:
+                return true;
         }
         return massSpell;
     }

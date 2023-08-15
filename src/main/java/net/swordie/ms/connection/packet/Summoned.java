@@ -19,13 +19,23 @@ import javax.script.ScriptEngineManager;
  */
 public class Summoned {
 
+    public static OutPacket summonedActionChange(Summon summon, byte action) {
+        OutPacket outPacket = new OutPacket(OutHeader.SUMMONED_ACTION_CHANGE);
+
+        outPacket.encodeInt(summon.getChr().getId());
+        outPacket.encodeInt(summon.getObjectId());
+        outPacket.encodeByte(action);
+
+        return outPacket;
+    }
+
     public static OutPacket summonedAssistAttackRequest(Summon summon) {
-        OutPacket outpacket = new OutPacket(OutHeader.SUMMONED_ASSIST_ATTACK_REQUEST);
+        OutPacket outPacket = new OutPacket(OutHeader.SUMMONED_ASSIST_ATTACK_REQUEST);
 
-        outpacket.encodeInt(summon.getChr().getId());
-        outpacket.encodeInt(summon.getObjectId());
+        outPacket.encodeInt(summon.getChr().getId());
+        outPacket.encodeInt(summon.getObjectId());
 
-        return outpacket;
+        return outPacket;
     }
 
     public static OutPacket summonedSummonAttackActive(Summon summon) {

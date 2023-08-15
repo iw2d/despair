@@ -427,6 +427,9 @@ public class MobTemporaryStat {
 	}
 
 	public void removeMobStat(MobStat mobStat, boolean fromSchedule) {
+		if (!hasCurrentMobStat(mobStat)) {
+			return;
+		}
 		getRemoveStatLock().lock();
 		try {
 			getRemovedStatVals().put(mobStat, getCurrentStatVals().get(mobStat));

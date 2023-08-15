@@ -48,10 +48,7 @@ import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.connection.db.InlinedIntArrayConverter;
 import net.swordie.ms.connection.packet.*;
-import net.swordie.ms.constants.GameConstants;
-import net.swordie.ms.constants.ItemConstants;
-import net.swordie.ms.constants.JobConstants;
-import net.swordie.ms.constants.SkillConstants;
+import net.swordie.ms.constants.*;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.ClientSocket;
 import net.swordie.ms.handlers.EventManager;
@@ -1219,6 +1216,19 @@ public class Char {
 		}
 		if (mask.isInMask(DBChar.WildHunterInfo)) {
 			if (JobConstants.isWildHunter(getAvatarData().getCharacterStat().getJob())) {
+				QuestManager qm = getQuestManager();
+				WildHunterInfo whi = getWildHunterInfo();
+				Quest chosenQuest = qm.getQuestById(QuestConstants.WILD_HUNTER_JAGUAR_CHOSEN_ID);
+				int toID = -1;
+				if (chosenQuest == null) {
+					chosenQuest = new Quest(QuestConstants.WILD_HUNTER_JAGUAR_CHOSEN_ID, QuestStatus.Started);
+					qm.addQuest(chosenQuest);
+				} else if (Util.isNumber(chosenQuest.getQRValue())){
+					toID = Integer.parseInt(chosenQuest.getQRValue());
+				}
+				whi.setIdx((byte) toID);
+				whi.setRidingType((byte) toID);
+				chosenQuest.setQrValue("" + toID);
 				getWildHunterInfo().encode(outPacket); // GW_WildHunterInfo::Decode
 			}
 		}
@@ -2661,8 +2671,6 @@ public class Char {
 			}
 		}
 		toField.spawnLifesForChar(this);
-		getJobHandler().handleWarp();
-
 		if (tsm.hasStat(IndieEmpty)) {
 			for (Iterator<Option> iterator = tsm.getCurrentStats().getOrDefault(IndieEmpty, new ArrayList<>()).iterator(); iterator.hasNext(); ) {
 				Summon summon = iterator.next().summon;
@@ -2684,6 +2692,8 @@ public class Char {
 		if (tsm.hasStat(Flying) && !toField.isFly()) {
 			tsm.removeStat(Flying, false);
 		}
+
+		getJobHandler().handleWarp();
 		setForceAtomKeyCounter(1);
 		notifyChanges();
 		toField.execUserEnterScript(this);
@@ -4724,7 +4734,7 @@ public class Char {
 	 * @param slv the current skill level
 	 * @return whether the consumption was successful (unsuccessful = not enough mp)
 	 */
-	public boolean applyHpMpCon(int skillID, byte slv) {
+	public boolean applyHpMpCon(int skillID, int slv) {
 		int curHp = getStat(Stat.hp);
 		int curMp = getStat(Stat.mp);
 		int hpCon = getJobHandler().getHpCon(skillID, slv);
@@ -4738,7 +4748,7 @@ public class Char {
 	}
 
 	public boolean applyBulletCon(int skillID, byte slv, boolean isExJablin) {
-		if (getTemporaryStatManager().hasStat(NoBulletConsume)) {
+		if (getTemporaryStatManager().hasStat(SoulArrow) || getTemporaryStatManager().hasStat(NoBulletConsume)) {
 			return true;
 		}
 		Item weapon = getEquippedInventory().getFirstItemByBodyPart(BodyPart.Weapon);

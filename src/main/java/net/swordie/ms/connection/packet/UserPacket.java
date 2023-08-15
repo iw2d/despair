@@ -201,9 +201,14 @@ public class UserPacket {
     public static OutPacket gatherResult(int chrId, boolean success) {
         OutPacket outPacket = new OutPacket(OutHeader.GATHER_RESULT);
         outPacket.encodeInt(chrId);
-
         outPacket.encodeByte(success);
+        return outPacket;
+    }
 
+    public static OutPacket beastFormWingOnOff(int chrId, boolean isOn) {
+        OutPacket outPacket = new OutPacket(OutHeader.BEAST_FORM_WING_OFF);
+        outPacket.encodeInt(chrId);
+        outPacket.encodeByte(isOn);
         return outPacket;
     }
 }

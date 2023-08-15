@@ -94,7 +94,7 @@ public class AttackInfo {
     public byte byteIdk5;
     public OutHeader attackHeader;
     public int requestTime;
-    public int summonID;
+    public int jaguarSkillId;
     public boolean boxAttack;
 
     public Position getForcedPos() {

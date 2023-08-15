@@ -8,6 +8,7 @@ import net.swordie.ms.client.jobs.adventurer.warrior.Hero;
 import net.swordie.ms.client.jobs.legend.Aran;
 import net.swordie.ms.client.jobs.legend.Luminous;
 import net.swordie.ms.client.jobs.resistance.BattleMage;
+import net.swordie.ms.client.jobs.resistance.WildHunter;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.loaders.SkillData;
 
@@ -147,6 +148,15 @@ public class ToBaseStat {
         } else if (o.nOption == 3) {
             stats.put(BaseStat.mad, si.getValue(y, slv));
         }
+    }
+
+    public static void jaguarCount(Char chr, Option o, Map<BaseStat, Integer> stats) {
+        SkillInfo si = SkillData.getSkillInfoById(WildHunter.JAGUAR_LINK);
+        int slv = chr.getSkillLevel(WildHunter.JAGUAR_LINK);
+        int count = o.nOption;
+        stats.put(BaseStat.cr, count * si.getValue(y, slv));
+        stats.put(BaseStat.minCd, count * si.getValue(w, slv));
+        stats.put(BaseStat.maxCd, count * si.getValue(z, slv));
     }
 }
 

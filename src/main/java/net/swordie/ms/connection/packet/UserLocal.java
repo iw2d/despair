@@ -244,6 +244,20 @@ public class UserLocal {
         return outPacket;
     }
 
+    public static OutPacket userBonusAttackRequest(int skillID, List<Integer> targetList, int jaguarBleedingAttackCount) {
+        OutPacket outPacket = new OutPacket(OutHeader.USER_BONUS_ATTACK_REQUEST);
+
+        outPacket.encodeInt(skillID);
+        outPacket.encodeInt(targetList.size());
+        outPacket.encodeInt(jaguarBleedingAttackCount);
+        for (Integer mobId : targetList) {
+            outPacket.encodeInt(mobId);
+            outPacket.encodeInt(0);
+        }
+
+        return outPacket;
+    }
+
     public static OutPacket userRandAreaAttackRequest(Mob mob, int skillID) {
         OutPacket outPacket = new OutPacket(OutHeader.USER_RAND_AREA_ATTACK_REQUEST);
 

@@ -86,4 +86,18 @@ public class SummonedHandler {
             summon.onSkillUse(skillId);
         }
     }
+
+    @Handler(op = InHeader.SUMMONED_ACTION)
+    public static void handleSummonedAction(Client c, InPacket inPacket) {
+        Char chr = c.getChr();
+        Field field = chr.getField();
+
+        int objectID = inPacket.decodeInt();
+        byte action = inPacket.decodeByte();
+
+        if (field.getLifeByObjectID(objectID) != null && field.getLifeByObjectID(objectID) instanceof Summon) {
+            Summon summon = (Summon) field.getLifeByObjectID(objectID);
+            field.broadcastPacket(Summoned.summonedActionChange(summon, action));
+        }
+    }
 }

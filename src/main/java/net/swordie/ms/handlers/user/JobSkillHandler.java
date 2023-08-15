@@ -4,6 +4,7 @@ import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.quest.Quest;
+import net.swordie.ms.client.character.quest.QuestManager;
 import net.swordie.ms.client.character.skills.*;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
@@ -15,6 +16,7 @@ import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.legend.Aran;
 import net.swordie.ms.client.jobs.legend.Luminous;
 import net.swordie.ms.client.jobs.nova.Kaiser;
+import net.swordie.ms.client.jobs.resistance.WildHunter;
 import net.swordie.ms.client.jobs.resistance.WildHunterInfo;
 import net.swordie.ms.client.jobs.resistance.demon.DemonAvenger;
 import net.swordie.ms.client.jobs.sengoku.Kanna;
@@ -24,6 +26,7 @@ import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.QuestConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.ForceAtomEnum;
+import net.swordie.ms.enums.QuestStatus;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.client.character.skills.PsychicLock;
@@ -551,8 +554,8 @@ public class JobSkillHandler {
 
     @Handler(op = InHeader.USER_JAGUAR_CHANGE_REQUEST)
     public static void handleUserJaguarChangeRequest(Char chr, InPacket inPacket) {
-        final int questID = QuestConstants.WILD_HUNTER_JAGUAR_STORAGE_ID;
-        Quest quest = chr.getQuestManager().getQuestById(questID);
+        QuestManager qm = chr.getQuestManager();
+        Quest quest = qm.getQuestById(QuestConstants.WILD_HUNTER_JAGUAR_STORAGE_ID);
         if (quest == null) {
             return;
         }
@@ -565,8 +568,22 @@ public class JobSkillHandler {
             whi.setIdx((byte) toID);
             whi.setRidingType((byte) toID);
             chr.write(WvsContext.wildHunterInfo(whi));
+            // set chosen ID
+            Quest chosenQuest = qm.getQuestById(QuestConstants.WILD_HUNTER_JAGUAR_CHOSEN_ID);
+            if (chosenQuest == null) {
+                chosenQuest = new Quest(QuestConstants.WILD_HUNTER_JAGUAR_CHOSEN_ID, QuestStatus.Started);
+                qm.addQuest(chosenQuest);
+            }
+            chosenQuest.setQrValue("" + toID);
         } else {
             chr.chatMessage("You do not have that jaguar.");
+        }
+    }
+
+    @Handler(op = InHeader.BEAST_FORM_WING_OFF)
+    public static void handleBeastFormWingOff(Char chr, InPacket inPacket) {
+        if (JobConstants.isWildHunter(chr.getJob())) {
+            ((WildHunter) chr.getJobHandler()).handleJaguarWings(true);
         }
     }
 }

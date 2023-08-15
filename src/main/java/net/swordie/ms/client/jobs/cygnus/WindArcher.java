@@ -276,10 +276,6 @@ public class WindArcher extends Noblesse {
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(SoulArrow, o3);
-                o4.nOption = 1;
-                o4.rOption = skillID;
-                o4.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(NoBulletConsume, o4);
                 break;
             case ALBATROSS:
                 o1.nReason = skillID;

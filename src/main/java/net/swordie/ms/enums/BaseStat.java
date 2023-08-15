@@ -1,3 +1,4 @@
+
 package net.swordie.ms.enums;
 
 import net.swordie.ms.client.character.Char;
@@ -369,7 +370,7 @@ public enum BaseStat {
             case IndieDamR:
                 stats.put(damR, o.nValue);
             case BeastFormDamageUp:
-                stats.put(fd, o.nOption);
+                stats.put(padR, o.nOption);
                 break;
             case IndieAsrR:
                 stats.put(asr, o.nValue);
@@ -581,6 +582,25 @@ public enum BaseStat {
                 if (o.rOption == BattleMage.BLUE_AURA) {
                     stats.put(BaseStat.dmgReduce, o.nOption);
                 }
+                break;
+            case JaguarCount:
+                ToBaseStat.jaguarCount(chr, o, stats);
+                break;
+            case HowlingAttackDamage:
+                stats.put(BaseStat.padR, o.nOption);
+                stats.put(BaseStat.madR, o.nOption);
+                break;
+            case HowlingCritical:
+                stats.put(BaseStat.cr, o.nOption);
+                break;
+            case HowlingMaxMP:
+                stats.put(BaseStat.mmpR, o.nOption);
+                break;
+            case HowlingDefence:
+                stats.put(BaseStat.dmgReduce, o.nOption);
+                break;
+            case HowlingEvasion:
+                // CUserLocal::CheckMissByEtc
                 break;
             default:
                 stats.put(unk, o.nOption);

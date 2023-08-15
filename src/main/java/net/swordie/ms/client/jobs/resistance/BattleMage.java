@@ -115,8 +115,15 @@ public class BattleMage extends Citizen {
         }
         int skillId = tsm.getOption(BMageAura).rOption;
         SkillInfo si = SkillData.getSkillInfoById(skillId);
-        int slv = chr.getSkillLevel(skillId);
         Rect rect = chr.getRectAround(si.getFirstRect());
+        int slv = chr.getSkillLevel(skillId);
+
+        // cancel buff if no more MP
+        if (!chr.applyHpMpCon(skillId, slv)) {
+            tsm.removeStatsBySkill(skillId);
+            tsm.sendResetStatPacket();
+            return;
+        }
 
         // handle weakening aura
         if (skillId == WEAKENING_AURA) {

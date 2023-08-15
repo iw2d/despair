@@ -231,7 +231,7 @@ public class AttackHandler {
         ai.summon = (Summon) field.getLifeByObjectID(summonedID);
         ai.updateTime = inPacket.decodeInt();
         ai.skillId = inPacket.decodeInt();
-        inPacket.decodeInt(); // hardcoded 0
+        ai.jaguarSkillId = inPacket.decodeInt();
         byte leftAndAction = inPacket.decodeByte();
         ai.attackActionType = (byte) (leftAndAction & 0x7F);
         ai.left = (byte) (leftAndAction >>> 7) != 0;

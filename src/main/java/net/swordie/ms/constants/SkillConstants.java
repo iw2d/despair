@@ -101,6 +101,24 @@ public class SkillConstants {
         }
     }
 
+    public static boolean isWildHunterShotSkill(int skillId) {
+        // bool __cdecl is_wildhunter_shot_skill
+        if (skillId > 33111212) {
+            if (skillId == 33121214) {
+                return true;
+            }
+        } else if (skillId == 33111212 || skillId == 33001205 || skillId == 33101213) {
+            return true;
+        }
+        if (skillId > 33111112) {
+            return skillId == 33121114;
+        }
+        if (skillId == 33111112 || skillId == 33001105) {
+            return true;
+        }
+        return skillId == 33101113;
+    }
+
     public static int getSkillRootFromSkill(int skillId) {
         int prefix = skillId / 10000;
         if (prefix == 8000) {
@@ -1163,7 +1181,7 @@ public class SkillConstants {
             case Evan.DRAGON_FURY:
             case Luminous.SPELL_MASTERY:
             case DemonSlayer.OBSIDIAN_SKIN:
-            // case DemonAvenger.DEFENSE_EXPERTISE:
+            case DemonAvenger.DEFENSE_EXPERTISE:
                 return true;
             default:
                 return false;
@@ -1177,6 +1195,8 @@ public class SkillConstants {
             case Shadower.SHIELD_MASTERY:
             case DualBlade.SHADOW_MELD:
             case ThunderBreaker.PRIMAL_BOLT:
+            case WildHunter.FELINE_BERSERK_VITALITY:
+            case WildHunter.SILENT_RAMPAGE:
                 return true;
         }
         return false;
@@ -1351,7 +1371,8 @@ public class SkillConstants {
 
     public static boolean isMultiAttackCooldownSkill(int skillID) {
         switch (skillID) {
-            case 5311010: // Cannoneer.MONKEY_FURY
+            case 5311010: // Cannoneer.MONKEY_FURY\
+            case WildHunter.HUNTING_ASSISTANT_UNIT:
             case DemonSlayer.DARK_METAMORPHOSIS:
             case DemonAvenger.VITALITY_VEIL:
             case DemonAvenger.NETHER_SHIELD:
@@ -1712,6 +1733,7 @@ public class SkillConstants {
             case ThunderBreaker.KNUCKLE_EXPERT:
             case Aran.HIGH_MASTERY:
             case Mercedes.DUAL_BOWGUNS_EXPERT:
+            case WildHunter.CROSSBOW_EXPERT:
                 stats.put(BaseStat.pad, si.getValue(SkillStat.x, slv));
                 break;
             case FirePoison.SPELL_MASTERY_FP:

@@ -25,6 +25,7 @@ import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.JobConstants.JobEnum;
+import net.swordie.ms.constants.QuestConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.Life;
@@ -71,10 +72,7 @@ public class AdminCommands {
     public static class Test extends AdminCommand {
 
         public static void execute(Char chr, String[] args) {
-            Effect effect = Effect.skillUse(Integer.valueOf(args[1]), (byte) 1, 0);
-            chr.getField().broadcastPacket(
-                    UserRemote.effect(chr.getId(), effect));
-            chr.write(UserPacket.effect(effect));
+            chr.chatMessage(chr.getQuestManager().getQuestById(QuestConstants.WILD_HUNTER_JAGUAR_STORAGE_ID).getQRValue());
         }
     }
 

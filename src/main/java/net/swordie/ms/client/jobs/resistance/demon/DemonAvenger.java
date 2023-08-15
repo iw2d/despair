@@ -80,6 +80,7 @@ public class DemonAvenger extends Job {
     public static final int EXCEED_EXECUTION_3 = 31221010;
     public static final int EXCEED_EXECUTION_4 = 31221011;
     public static final int EXCEED_EXECUTION_PURPLE = 31221012;
+    public static final int DEFENSE_EXPERTISE = 31220005;
     public static final int NETHER_SHIELD = 31221001;
     public static final int NETHER_SHIELD_ATOM = 31221014;
     public static final int NETHER_SLICE = 31221002;

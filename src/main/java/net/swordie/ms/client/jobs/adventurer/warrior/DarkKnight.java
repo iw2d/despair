@@ -213,9 +213,9 @@ public class DarkKnight extends Warrior {
         int slv = chr.getSkillLevel(skillID);
         boolean hasHitMobs = attackInfo.mobAttackInfo.size() > 0;
         if (hasHitMobs) {
-            lordOfDarkness();
             killCountFinalPactOnMob(attackInfo);
-            darkThirst(tsm);
+            handleLordOfDarkness();
+            handleDarkThirst();
         }
         Option o1 = new Option();
         Option o2 = new Option();
@@ -262,14 +262,7 @@ public class DarkKnight extends Warrior {
         super.handleAttack(chr, attackInfo);
     }
 
-    private void darkThirst(TemporaryStatManager tsm) {
-        if (tsm.hasStatBySkillId(DARK_THIRST) && chr.getHP() > 0) {
-            int heal = chr.getSkillStatValue(x, DARK_THIRST);
-            chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)));
-        }
-    }
-
-    public void lordOfDarkness() {
+    public void handleLordOfDarkness() {
         if (chr.hasSkill(LORD_OF_DARKNESS) && chr.getHP() > 0) {
             SkillInfo si = SkillData.getSkillInfoById(LORD_OF_DARKNESS);
             int slv = chr.getSkillLevel(LORD_OF_DARKNESS);
@@ -278,6 +271,14 @@ public class DarkKnight extends Warrior {
                 int heal = si.getValue(x, slv);
                 chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)));
             }
+        }
+    }
+
+    private void handleDarkThirst() {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        if (tsm.hasStatBySkillId(DARK_THIRST) && chr.getHP() > 0) {
+            int heal = chr.getSkillStatValue(x, DARK_THIRST);
+            chr.heal((int) (chr.getMaxHP() / ((double) 100 / heal)));
         }
     }
 
@@ -362,8 +363,9 @@ public class DarkKnight extends Warrior {
                     o2.tStart = Util.getCurrentTime();
                     o2.tTerm = si.getValue(time, slv);
                     tsm.putCharacterStatValue(IndieBDR, o2);
-
-                    chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(y, slv))));
+                    if (chr.getHP() > 0) {
+                        chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(y, slv))));
+                    }
                     removeEvilEye();
                 }
                 break;
@@ -523,13 +525,11 @@ public class DarkKnight extends Warrior {
         }
         for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
             Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-
             if (mob != null) {
                 if (mob.isBoss()) {
                     lowerFinalPactKillCount();
                 } else {
                     int totaldmg = Arrays.stream(mai.damages).sum();
-
                     if (totaldmg >= mob.getHp()) {
                         lowerFinalPactKillCount();
                     }
