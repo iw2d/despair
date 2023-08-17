@@ -412,10 +412,11 @@ public class Shadower extends Thief {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (critGrowthTimer != null && !critGrowthTimer.isDone()) {
             critGrowthTimer.cancel(true);
         }
+        super.handleCancelTimer();
     }
 
     @Override

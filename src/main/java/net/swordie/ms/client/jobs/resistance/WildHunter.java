@@ -433,6 +433,7 @@ public class WildHunter extends Citizen {
                 summon.setAssistType(AssistType.Jaguar);
                 summon.setAttackActive(true);
                 summon.setBeforeFirstAttack(true);
+                summon.setJaguarActive(true);
                 chr.getField().spawnSummon(summon);
 
                 o1.nValue = 1;
@@ -445,7 +446,6 @@ public class WildHunter extends Citizen {
                 o2.rOption = skillID;
                 o2.tOption = 0;
                 tsm.putCharacterStatValue(JaguarSummoned, o2);
-                chr.write(UserLocal.jaguarActive(true));
                 break;
             case RIDE_JAGUAR:
                 if (chr.getWildHunterInfo() == null
@@ -469,7 +469,6 @@ public class WildHunter extends Citizen {
                     tsb.setOption(o1);
                     tsm.putCharacterStatValue(RideVehicle, tsb.getOption());
                     tsm.sendSetStatPacket();
-                    chr.write(UserLocal.jaguarActive(false));
                 }
                 break;
             case SOUL_ARROW_CROSSBOW:

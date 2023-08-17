@@ -16,6 +16,7 @@ import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.legend.Aran;
 import net.swordie.ms.client.jobs.legend.Shade;
+import net.swordie.ms.client.jobs.resistance.BattleMage;
 import net.swordie.ms.client.jobs.resistance.Xenon;
 import net.swordie.ms.client.jobs.sengoku.Kanna;
 import net.swordie.ms.connection.packet.FieldPacket;
@@ -37,6 +38,7 @@ import java.util.Random;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
+import static net.swordie.ms.client.jobs.resistance.Mechanic.*;
 
 /**
  * Created on 1/6/2018.
@@ -216,7 +218,6 @@ public class AffectedArea extends Life {
         int slv = getSlv();
         SkillInfo si = SkillData.getSkillInfoById(skillID);
         MobTemporaryStat mts = mob.getTemporaryStat();
-        Option o = new Option();
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
@@ -245,37 +246,45 @@ public class AffectedArea extends Life {
                 break;
             case NightLord.FRAILTY_CURSE:
                 if (!mob.isBoss() || chr.hasSkill(NightLord.FRAILTY_CURSE_BOSS_RUSH)) {
-                    o.nOption = si.getValue(SkillStat.y, slv) - chr.getSkillStatValue(s, NightLord.FRAILTY_CURSE_SLOW); // already negative in SI
-                    o.rOption = skillID;
-                    o.tOption = 5;
-                    mts.addStatOptions(MobStat.Speed, o);
-                    o1.nOption = -si.getValue(SkillStat.w, slv) - chr.getSkillStatValue(v, NightLord.FRAILTY_CURSE_ENHANCE);
+                    o1.nOption = si.getValue(SkillStat.y, slv) - chr.getSkillStatValue(s, NightLord.FRAILTY_CURSE_SLOW); // already negative in SI
                     o1.rOption = skillID;
                     o1.tOption = 5;
-                    mts.addStatOptions(MobStat.PAD, o1);
-                    mts.addStatOptions(MobStat.PDR, o1);
-                    mts.addStatOptions(MobStat.MAD, o1);
+                    mts.addStatOptions(MobStat.Speed, o1);
+                    o2.nOption = -si.getValue(SkillStat.w, slv) - chr.getSkillStatValue(v, NightLord.FRAILTY_CURSE_ENHANCE);
+                    o2.rOption = skillID;
+                    o2.tOption = 5;
+                    mts.addStatOptions(MobStat.PAD, o2);
+                    mts.addStatOptions(MobStat.PDR, o2);
+                    mts.addStatOptions(MobStat.MAD, o2);
                     mts.addStatOptionsAndBroadcast(MobStat.MDR, o1);
                 }
                 break;
             case Shade.SPIRIT_TRAP:
                 if (!mts.hasCurrentMobStat(MobStat.Freeze)) {
-                    o.nOption = 1;
-                    o.rOption = skillID;
-                    o.tOption = si.getValue(time, slv);
-                    mts.addStatOptionsAndBroadcast(MobStat.Freeze, o);
+                    o1.nOption = 1;
+                    o1.rOption = skillID;
+                    o1.tOption = si.getValue(time, slv);
+                    mts.addStatOptionsAndBroadcast(MobStat.Freeze, o1);
                 }
+                break;
+            case SUPPORT_UNIT_HEX: // Mechanic
+            case ENHANCED_SUPPORT_UNIT:
+                o1.nOption = si.getValue(SkillStat.y, slv); // SkillStat.w in description, but y = -w, and present in both skills
+                o1.rOption = skillID;
+                o1.tOption = 5;
+                mts.addStatOptions(MobStat.PDR, o1);
+                mts.addStatOptionsAndBroadcast(MobStat.MDR, o1);
                 break;
             case Zero.TIME_DISTORTION:
                 mts.removeBuffs();
-                o.nOption = 1;
-                o.rOption = skillID;
-                o.tOption = 5;
-                mts.addStatOptions(MobStat.Freeze, o);
-                o1.nOption = si.getValue(SkillStat.x, slv);
+                o1.nOption = 1;
                 o1.rOption = skillID;
                 o1.tOption = 5;
-                mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o1);
+                mts.addStatOptions(MobStat.Freeze, o1);
+                o2.nOption = si.getValue(SkillStat.x, slv);
+                o2.rOption = skillID;
+                o2.tOption = 5;
+                mts.addStatOptionsAndBroadcast(MobStat.AddDamSkill2, o2);
                 break;
         }
     }
@@ -322,6 +331,23 @@ public class AffectedArea extends Life {
                     tsm.removeAllDebuffs();
                 }
                 break;
+            case BattleMage.PARTY_SHIELD:
+                o1.nOption = si.getValue(SkillStat.y, slv);
+                o1.rOption = skillID;
+                tsm.putCharacterStatValue(PartyBarrier, o1);
+                break;
+            case ENHANCED_SUPPORT_UNIT: // Mechanic
+                o1.nValue = si.getValue(z, slv) + getOwner().getSkillStatValue(SkillStat.x, SUPPORT_UNIT_HEX_PARTY);
+                o1.nReason = skillID;
+                o1.tStart = Util.getCurrentTime();
+                tsm.putCharacterStatValue(IndieDamR, o1);
+                break;
+            case Xenon.TEMPORAL_POD:
+                o1.nOption = 2;
+                o1.rOption = skillID;
+                tsm.putCharacterStatValue(OnCapsule, o1);
+                Xenon.temporalPodTimer(chr);
+                break;
             case Kanna.BELLFLOWER_BARRIER:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(bdR, slv);
@@ -331,17 +357,11 @@ public class AffectedArea extends Life {
             case Kanna.BLOSSOM_BARRIER:
                 o1.nOption = si.getValue(SkillStat.x, slv);
                 o1.rOption = skillID;
-                tsm.putCharacterStatValue(DamageReduce, o1);
+                tsm.putCharacterStatValue(PartyBarrier, o1);
                 o2.nOption = si.getValue(SkillStat.y, slv);
                 o2.rOption = skillID;
                 tsm.putCharacterStatValue(AsrR, o2);
                 tsm.putCharacterStatValue(TerR, o2);
-                break;
-            case Xenon.TEMPORAL_POD:
-                o1.nOption = 2;
-                o1.rOption = skillID;
-                tsm.putCharacterStatValue(OnCapsule, o1);
-                Xenon.temporalPodTimer(chr);
                 break;
             case Zero.TIME_DISTORTION:
                 tsm.removeAllDebuffs();

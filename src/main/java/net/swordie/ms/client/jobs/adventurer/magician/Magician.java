@@ -303,11 +303,11 @@ public class Magician extends Beginner {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (infinityTimer != null && !infinityTimer.isDone()) {
             infinityTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 
     @Override

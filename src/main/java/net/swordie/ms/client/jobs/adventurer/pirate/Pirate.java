@@ -88,78 +88,6 @@ public class Pirate extends Beginner {
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(Booster, o1);
                 break;
-            case Buccaneer.ROLL_OF_THE_DICE_BUCC:
-            case Corsair.ROLL_OF_THE_DICE_SAIR:
-            case Cannoneer.LUCK_OF_THE_DIE:
-                int roll = Util.getRandom(1, 6);
-                chr.write(UserPacket.effect(Effect.skillAffectedSelect(skillID, slv, roll, false)));
-                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffectedSelect(skillID, slv, roll, false)));
-                if (roll == 1) {
-                    return;
-                }
-                o1.nOption = roll;
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-                tsm.throwDice(roll);
-                tsm.putCharacterStatValue(Dice, o1);
-                break;
-            case Buccaneer.ROLL_OF_THE_DICE_BUCC_DD:
-            case Corsair.ROLL_OF_THE_DICE_SAIR_DD:
-            case Cannoneer.LUCK_OF_THE_DIE_DD:
-                List<Integer> choices = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6));
-                if (chr.hasSkill(Buccaneer.ROLL_OF_THE_DICE_BUCC_ADDITION) || chr.hasSkill(Corsair.ROLL_OF_THE_DICE_SAIR_ADDITION)) {
-                    choices.add(7);
-                }
-                if (chr.hasSkill(Buccaneer.ROLL_OF_THE_DICE_BUCC_ENHANCE) || chr.hasSkill(Corsair.ROLL_OF_THE_DICE_SAIR_ENHANCE)) {
-                    // WZ has prop = 5, but I'll just to this instead
-                    choices.add(4);
-                    choices.add(5);
-                    choices.add(6);
-                }
-
-                int roll1 = Util.getRandomFromCollection(choices);
-                int roll2 = Util.getRandomFromCollection(choices);
-
-                // Saving Grace Hyper handling, when DD does not activate, 40% chance for cooldown to not apply
-                // Original description: "After this, you can activate at least 4 Double Downs"
-                // I will interpret this as: "The next cast after this will activate Double Down with 4 or above"
-                int savingGraceSkillId = 0;
-                if (chr.hasSkill(Buccaneer.ROLL_OF_THE_DICE_BUCC_SAVING_GRACE)) {
-                    savingGraceSkillId = Buccaneer.ROLL_OF_THE_DICE_BUCC_SAVING_GRACE;
-                } else if (chr.hasSkill(Corsair.ROLL_OF_THE_DICE_SAIR_SAVING_GRACE)) {
-                    savingGraceSkillId = Corsair.ROLL_OF_THE_DICE_SAIR_SAVING_GRACE;
-                }
-                if (savingGraceSkillId != 0 && tsm.hasStatBySkillId(savingGraceSkillId)) {
-                    tsm.removeStatsBySkill(savingGraceSkillId);
-                    roll1 = Util.getRandom(4, (chr.hasSkill(Buccaneer.ROLL_OF_THE_DICE_BUCC_ADDITION) || chr.hasSkill(Corsair.ROLL_OF_THE_DICE_SAIR_ADDITION)) ? 7 : 6);
-                    roll2 = roll1;
-                } else if (Util.succeedProp(si.getValue(prop, slv))) { // prop% chance to roll double down
-                    roll2 = roll1;
-                }
-
-                if (roll1 != roll2 && savingGraceSkillId != 0 && Util.succeedProp(chr.getSkillStatValue(prop, savingGraceSkillId))) {
-                    chr.resetSkillCoolTime(skillID);
-                    o2.nOption = 1;
-                    o2.rOption = savingGraceSkillId;
-                    tsm.putCharacterStatValue(LUK, o2);
-                }
-
-                chr.write(UserPacket.effect(Effect.skillAffectedSelect(skillID, slv, roll1, false)));
-                chr.write(UserPacket.effect(Effect.skillAffectedSelect(skillID, slv, roll2, true)));
-                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffectedSelect(skillID, slv, roll1, false)));
-                chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffectedSelect(skillID, slv, roll2, true)));
-
-                if (roll1 == 1 && roll2 == 1) {
-                    return;
-                }
-
-                o1.nOption = (roll1 * 10) + roll2; // if rolled: 3 and 5, the DoubleDown nOption = 35
-                o1.rOption = skillID;
-                o1.tOption = si.getValue(time, slv);
-
-                tsm.throwDice(roll1, roll2);
-                tsm.putCharacterStatValue(Dice, o1);
-                break;
         }
         tsm.sendSetStatPacket();
     }
@@ -193,10 +121,12 @@ public class Pirate extends Beginner {
         Option o2 = new Option();
         int prop = si.getValue(SkillStat.prop, slv);
         if (Util.succeedProp(prop)) {
-            o1.nOption = si.getValue(y, slv);
-            o1.rOption = skillId;
-            o1.tOption = si.getValue(time, slv);
-            tsm.putCharacterStatValue(DamageReduce, o1);
+            if (skillId == Buccaneer.PIRATE_REVENGE_BUCC) {
+                o1.nOption = si.getValue(y, slv);
+                o1.rOption = skillId;
+                o1.tOption = si.getValue(time, slv);
+                tsm.putCharacterStatValue(DamageReduce, o1);
+            }
             o2.nReason = skillId;
             o2.nValue = si.getValue(indieDamR, slv);
             o2.tStart = Util.getCurrentTime();

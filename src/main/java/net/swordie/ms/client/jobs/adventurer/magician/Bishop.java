@@ -185,7 +185,9 @@ public class Bishop extends Magician {
                     healRate = (int) (healRate * (chr.getSkillStatValue(hp, RIGHTEOUSLY_INDIGNANT) / 100D));
                 }
                 if (chr.getParty() == null) {
-                    chr.heal(!tsm.hasStat(CharacterTemporaryStat.Undead) ? healRate : -healRate, true);
+                    if (chr.getHP() > 0) {
+                        chr.heal(!tsm.hasStat(CharacterTemporaryStat.Undead) ? healRate : -healRate, true);
+                    }
                 } else {
                     partyMembers = chr.getField().getPartyMembersInRect(chr, rect).stream()
                             .filter(pml -> pml.getChr().getHP() > 0)
@@ -259,7 +261,9 @@ public class Bishop extends Magician {
                     healRate = (int) (healRate * (chr.getSkillStatValue(hp, RIGHTEOUSLY_INDIGNANT) / 100D));
                 }
                 if (chr.getParty() == null) {
-                    chr.heal((int) (chr.getMaxHP() * (healRate / 100D)), true);
+                    if (chr.getHP() > 0) {
+                        chr.heal((int) (chr.getMaxHP() * (healRate / 100D)), true);
+                    }
                 } else {
                     partyMembers = chr.getParty().getOnlineMembers().stream()
                             .filter(pml -> pml != null &&
@@ -541,11 +545,11 @@ public class Bishop extends Magician {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (blessedEmsembleTimer != null && !blessedEmsembleTimer.isDone()) {
             blessedEmsembleTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 
     public static void reviveByHeavensDoor(Char chr) {

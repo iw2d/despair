@@ -34,10 +34,7 @@ import net.swordie.ms.world.field.Field;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -188,6 +185,8 @@ public abstract class Job {
 		switch (skillID) {
 			// BEGINNER SKILLS -----------------------------------------------------------------------------------------
 			case Beginner.NIMBLE_FEET:
+			case Noblesse.NIMBLE_FEET:
+			case Aran.NIMBLE_FEET:
 			case Evan.NIMBLE_FEET:
 				o1.nOption = 5 + 5 * slv;
 				o1.rOption = skillID;
@@ -196,12 +195,82 @@ public abstract class Job {
 				chr.addSkillCooldown(skillID, 60 * 1000);
 				break;
 			case Beginner.RECOVERY:
+			case Noblesse.RECOVERY:
+			case Aran.RECOVERY:
 			case Evan.RECOVERY:
 				o1.nOption = 24 * slv;
 				o1.rOption = skillID;
 				o1.tOption = 30;
 				tsm.putCharacterStatValue(Regen, o1);
 				chr.addSkillCooldown(skillID, 10 * 60 * 1000);
+				break;
+			// ROLL OF THE DICE ----------------------------------------------------------------------------------------
+			case Buccaneer.ROLL_OF_THE_DICE_BUCC:
+			case Corsair.ROLL_OF_THE_DICE_SAIR:
+			case Cannoneer.LUCK_OF_THE_DIE:
+			case ROLL_OF_THE_DICE: // Mechanic
+				int roll = Util.getRandom(1, 6);
+				chr.write(UserPacket.effect(Effect.skillAffectedSelect(skillID, slv, roll, false)));
+				chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffectedSelect(skillID, slv, roll, false)));
+				if (roll == 1) {
+					return;
+				}
+				o1.nOption = roll;
+				o1.rOption = skillID;
+				o1.tOption = si.getValue(time, slv);
+				tsm.throwDice(roll);
+				tsm.putCharacterStatValue(Dice, o1);
+				break;
+			case Buccaneer.ROLL_OF_THE_DICE_BUCC_DD:
+			case Corsair.ROLL_OF_THE_DICE_SAIR_DD:
+			case Cannoneer.LUCK_OF_THE_DIE_DD:
+			case ROLL_OF_THE_DICE_DD: // Mechanic
+				List<Integer> choices = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6));
+				if (chr.hasSkill(Buccaneer.ROLL_OF_THE_DICE_BUCC_ADDITION) || chr.hasSkill(Corsair.ROLL_OF_THE_DICE_SAIR_ADDITION)) {
+					choices.add(7);
+				}
+				if (chr.hasSkill(Buccaneer.ROLL_OF_THE_DICE_BUCC_ENHANCE) || chr.hasSkill(Corsair.ROLL_OF_THE_DICE_SAIR_ENHANCE)) {
+					// WZ has prop = 5, but I'll just do this instead
+					choices.add(4);
+					choices.add(5);
+					choices.add(6);
+				}
+				int roll1 = Util.getRandomFromCollection(choices);
+				int roll2 = Util.getRandomFromCollection(choices);
+				// Saving Grace Hyper handling, when DD does not activate, 40% chance for cooldown to not apply
+				// Original description: "After this, you can activate at least 4 Double Downs"
+				// I will interpret this as: "The next cast after this will activate Double Down with 4 or above"
+				int savingGraceSkillId = 0;
+				if (chr.hasSkill(Buccaneer.ROLL_OF_THE_DICE_BUCC_SAVING_GRACE)) {
+					savingGraceSkillId = Buccaneer.ROLL_OF_THE_DICE_BUCC_SAVING_GRACE;
+				} else if (chr.hasSkill(Corsair.ROLL_OF_THE_DICE_SAIR_SAVING_GRACE)) {
+					savingGraceSkillId = Corsair.ROLL_OF_THE_DICE_SAIR_SAVING_GRACE;
+				}
+				if (savingGraceSkillId != 0 && tsm.hasStatBySkillId(savingGraceSkillId)) {
+					tsm.removeStatsBySkill(savingGraceSkillId);
+					roll1 = Util.getRandom(4, (chr.hasSkill(Buccaneer.ROLL_OF_THE_DICE_BUCC_ADDITION) || chr.hasSkill(Corsair.ROLL_OF_THE_DICE_SAIR_ADDITION)) ? 7 : 6);
+					roll2 = roll1;
+				} else if (Util.succeedProp(si.getValue(prop, slv))) { // prop% chance to roll double down
+					roll2 = roll1;
+				}
+				if (roll1 != roll2 && savingGraceSkillId != 0 && Util.succeedProp(chr.getSkillStatValue(prop, savingGraceSkillId))) {
+					chr.resetSkillCoolTime(skillID);
+					o2.nOption = 1;
+					o2.rOption = savingGraceSkillId;
+					tsm.putCharacterStatValue(LUK, o2);
+				}
+				chr.write(UserPacket.effect(Effect.skillAffectedSelect(skillID, slv, roll1, false)));
+				chr.write(UserPacket.effect(Effect.skillAffectedSelect(skillID, slv, roll2, true)));
+				chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffectedSelect(skillID, slv, roll1, false)));
+				chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffectedSelect(skillID, slv, roll2, true)));
+				if (roll1 == 1 && roll2 == 1) {
+					return;
+				}
+				o1.nOption = (roll1 * 10) + roll2; // if rolled: 3 and 5, the DoubleDown nOption = 35
+				o1.rOption = skillID;
+				o1.tOption = si.getValue(time, slv);
+				tsm.throwDice(roll1, roll2);
+				tsm.putCharacterStatValue(Dice, o1);
 				break;
 			// LINK SKILLS ---------------------------------------------------------------------------------------------
 			case Shade.CLOSE_CALL:
@@ -792,16 +861,6 @@ public abstract class Job {
 
 	}
 
-	/**
-	 * Used for Classes that have timers, to cancel the timer on logging out
-	 *
-	 * @param chr
-	 * 		The Character
-	 */
-	public void handleCancelTimer(Char chr) {
-
-	}
-
 
 	public int getFinalAttackSkill() {
 		return 0;
@@ -863,6 +922,13 @@ public abstract class Job {
 	 * Called when client sends a USER_FORCE_ATOM_COLLISION packet
 	 */
 	public void handleForceAtomCollision(int forceAtomKey, int mobId) {
+
+	}
+
+	/**
+	 * Used for Classes that have timers, to cancel the timer on logging out
+	 */
+	public void handleCancelTimer() {
 
 	}
 
@@ -993,13 +1059,17 @@ public abstract class Job {
 		return mpCon;
 	}
 
-	public final int getBuffedSkillDuration(int duration) {
+	public int getBuffedSummonDuration(int duration) {
+		return (int) ((double) duration * ((double) chr.getTotalStat(BaseStat.summonTimeR) / 100D));
+	}
+
+	public int getBuffedSkillDuration(int duration) {
 		return (int) ((double) duration * ((double) chr.getTotalStat(BaseStat.buffTimeR) / 100D));
 	}
 
-	public final int getBuffedSkillCooldown(int cooldown) {
+	public int getBuffedSkillCooldown(int cdInMillis) {
 		int cooltimeR = Math.max(100 - chr.getTotalStat(BaseStat.reduceCooltime), 0);
-		return (int) ((double) cooldown * (cooltimeR / 100D));
+		return (int) ((double) cdInMillis * (cooltimeR / 100D));
 	}
 
 	public void setCharCreationStats(Char chr) {

@@ -336,11 +336,11 @@ public class IceLightning extends Magician {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (absoluteZeroAuraTimer != null && !absoluteZeroAuraTimer.isDone()) {
             absoluteZeroAuraTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 
     @Override

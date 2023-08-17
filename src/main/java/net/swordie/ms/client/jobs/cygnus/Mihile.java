@@ -431,7 +431,7 @@ public class Mihile extends Job {
                 o3.nOption = si.getValue(x, slv);
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamAbsorbShield, o3);
+                tsm.putCharacterStatValue(DamageReduce, o3);
                 break;
         }
         tsm.sendSetStatPacket();
@@ -447,14 +447,14 @@ public class Mihile extends Job {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (selfRecoveryTimer != null && !selfRecoveryTimer.isDone()) {
             selfRecoveryTimer.cancel(true);
         }
         if (soulLinkTimer != null && !soulLinkTimer.isDone()) {
             soulLinkTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 
 

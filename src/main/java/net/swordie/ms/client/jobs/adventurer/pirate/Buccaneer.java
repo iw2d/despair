@@ -364,14 +364,14 @@ public class Buccaneer extends Pirate {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (perseveranceTimer != null && !perseveranceTimer.isDone()) {
             perseveranceTimer.cancel(true);
         }
         if (stimulatingConversationTimer != null && !stimulatingConversationTimer.isDone()) {
             stimulatingConversationTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 
     @Override

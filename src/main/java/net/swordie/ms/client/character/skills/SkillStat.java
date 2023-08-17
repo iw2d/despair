@@ -461,6 +461,8 @@ public enum SkillStat {
                 return BaseStat.mpRecovery;
             case costmpR:
                 return BaseStat.costMpR;
+            case summonTimeR:
+                return BaseStat.summonTimeR;
             case bufftimeR:
                 return BaseStat.buffTimeR;
             case damAbsorbShieldR:

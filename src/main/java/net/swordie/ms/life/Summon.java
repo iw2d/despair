@@ -64,6 +64,7 @@ public class Summon extends Life {
     private int maxHP;
     private int hp;
     private boolean fromDarkOmen;
+    private boolean expired;
 
     public Summon(int templateId) {
         super(templateId);
@@ -207,11 +208,16 @@ public class Summon extends Life {
 
     public static Summon getSummonBy(Char chr, int skillID, int slv) {
         SkillInfo si = SkillData.getSkillInfoById(skillID);
+        int duration = chr.getJobHandler().getBuffedSummonDuration(si.getValue(SkillStat.time, slv));
+        return getSummonBy(chr, skillID, slv, duration);
+    }
+
+    public static Summon getSummonBy(Char chr, int skillID, int slv, int duration) {
         Summon summon = new Summon(-1);
         summon.setChr(chr);
         summon.setSkillID(skillID);
         summon.setSlv((byte) slv);
-        summon.setSummonTerm(chr.getJobHandler().getBuffedSkillDuration(si.getValue(SkillStat.time, slv)));
+        summon.setSummonTerm(duration);
         summon.setCharLevel((byte) chr.getStat(Stat.level));
         summon.setPosition(chr.getPosition().deepCopy());
         summon.setMoveAction((byte) 1);
@@ -230,7 +236,7 @@ public class Summon extends Life {
         o1.summon = summon;
         o1.tStart = Util.getCurrentTime();
         o1.tTerm = summon.getSummonTerm() / 1000;
-        tsm.putCharacterStatValue(IndieEmpty, o1);
+        tsm.putCharacterStatValue(IndieEmpty, o1, true);
         tsm.sendSetStatPacket();
         return summon;
     }
@@ -301,7 +307,7 @@ public class Summon extends Life {
         this.hp = hp;
     }
 
-    public boolean getFromDarkOmen() {
+    public boolean isFromDarkOmen() {
         return fromDarkOmen;
     }
 
@@ -309,18 +315,26 @@ public class Summon extends Life {
         this.fromDarkOmen = fromDarkOmen;
     }
 
+    public boolean isExpired() {
+        return expired;
+    }
+
+    public void setExpired(boolean expired) {
+        this.expired = expired;
+    }
+
     public void onSkillUse(int skillId) {
         switch (skillId) {
             case DarkKnight.EVIL_EYE:
-                ((DarkKnight) chr.getJobHandler()).healByEvilEye();
+                DarkKnight.healByEvilEye(chr);
                 break;
             case DarkKnight.HEX_OF_THE_EVIL_EYE:
-                ((DarkKnight) chr.getJobHandler()).giveHexOfTheEvilEyeBuffs();
+                DarkKnight.giveHexOfTheEvilEyeBuffs(chr);
                 break;
 
             case Mechanic.SUPPORT_UNIT_HEX:
             case Mechanic.ENHANCED_SUPPORT_UNIT:
-                ((Mechanic) chr.getJobHandler()).healFromSupportUnit(this);
+                Mechanic.healBySupportUnit(this);
                 break;
             default:
                 int buffItem = SkillConstants.getBuffSkillItem(skillId);

@@ -424,10 +424,10 @@ public class DawnWarrior extends Noblesse {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (willOfSteelTimer != null && !willOfSteelTimer.isDone()) {
             willOfSteelTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 }

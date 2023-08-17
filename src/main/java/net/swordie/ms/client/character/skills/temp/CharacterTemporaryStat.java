@@ -337,7 +337,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IncEffectMPPotion(286),
     BleedingToxin(287),
 
-    IgnoreMobDamR(288),
+    IgnoreMobDamR(288), // reserve for RuneStone LIBERATE_THE_RECOVERY_RUNE
     Asura(289),
     FlipTheCoin(290),
     UnityOfPower(291),

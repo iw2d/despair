@@ -3,7 +3,6 @@ package net.swordie.ms.client.jobs.cygnus;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
@@ -379,7 +378,7 @@ public class NightWalker extends Noblesse {
         int summonCount = (int) chr.getField().getSummons().stream()
                 .filter(s -> s != null && s.getChr().getId() == chr.getId() &&
                         (s.getSkillID() == SHADOW_BAT_SUMMON || s.getSkillID() == BAT_AFFINITY_III) &&
-                        (!fromDarkOmen || s.getFromDarkOmen()))
+                        (!fromDarkOmen || s.isFromDarkOmen()))
                 .count();
         if (summonCount >= summonLimit) {
             return;
@@ -539,12 +538,13 @@ public class NightWalker extends Noblesse {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         SkillInfo si = SkillData.getSkillInfoById(DARK_SERVANT);
         int slv = chr.getSkillLevel(DARK_SERVANT);
+        int duration = chr.getJobHandler().getBuffedSkillDuration(si.getValue(time, slv));
         // create summon
         Summon summon = new Summon(DARK_SERVANT);
         summon.setChr(chr);
         summon.setSkillID(DARK_SERVANT);
         summon.setSlv((byte) slv);
-        summon.setSummonTerm(chr.getJobHandler().getBuffedSkillDuration(si.getValue(time, slv)));
+        summon.setSummonTerm(duration);
         summon.setCharLevel((byte) chr.getStat(Stat.level));
         summon.setPosition(chr.getPosition().deepCopy());
         summon.setMoveAction((byte) 1);
@@ -562,13 +562,13 @@ public class NightWalker extends Noblesse {
         o1.nValue = 1;
         o1.nReason = DARK_SERVANT;
         o1.tStart = Util.getCurrentTime();
-        o1.tTerm = si.getValue(time, slv);
+        o1.tTerm = duration;
         o1.summon = summon;
-        tsm.putCharacterStatValue(IndieEmpty, o1);
+        tsm.putCharacterStatValue(IndieEmpty, o1, true);
         o2.nOption = si.getValue(x, slv);
         o2.rOption = DARK_SERVANT;
-        o2.tOption = si.getValue(time, slv);
-        tsm.putCharacterStatValue(ShadowServant, o2);
+        o2.tOption = duration;
+        tsm.putCharacterStatValue(ShadowServant, o2, true);
         tsm.sendSetStatPacket();
     }
 

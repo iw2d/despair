@@ -319,7 +319,7 @@ public class Corsair extends Pirate {
                     o1.nOption = si.getValue(y, slv);
                     o1.rOption = AHOY_MATEYS;
                     o1.tOption = duration;
-                    tsm.putCharacterStatValue(DamageReduce, o1);
+                    tsm.putCharacterStatValue(DamAbsorbShield, o1);
                     break;
             }
         }

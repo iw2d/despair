@@ -866,11 +866,6 @@ public class SkillConstants {
         }
     }
 
-    public static boolean isEncode4Reason(int rOption) {
-        // NewFlying + NotDamaged are not normally ints, but are encoded as ints in this skill
-        return rOption == Evan.DRAGON_MASTER;
-    }
-
     public static boolean isShikigamiHauntingSkill(int skillID) {
         switch(skillID) {
             case 80001850:
@@ -1182,6 +1177,8 @@ public class SkillConstants {
             case Luminous.SPELL_MASTERY:
             case DemonSlayer.OBSIDIAN_SKIN:
             case DemonAvenger.DEFENSE_EXPERTISE:
+            case Mechanic.EXTREME_MECH:
+            case Mechanic.ROBOT_MASTERY:
                 return true;
             default:
                 return false;
@@ -1197,6 +1194,8 @@ public class SkillConstants {
             case ThunderBreaker.PRIMAL_BOLT:
             case WildHunter.FELINE_BERSERK_VITALITY:
             case WildHunter.SILENT_RAMPAGE:
+            case Mechanic.MECHANIZED_DEFENSE_SYSTEM:
+            case Mechanic.ENHANCED_SUPPORT_UNIT:
                 return true;
         }
         return false;
@@ -1758,6 +1757,7 @@ public class SkillConstants {
             case Mercedes.DUAL_BOWGUNS_MASTERY:
             case Shade.KNUCKLE_MASTERY:
             case DemonSlayer.WEAPON_MASTERY:
+            case Mechanic.MECHANIC_MASTERY:
                 stats.put(BaseStat.acc, si.getValue(SkillStat.x, slv));
                 break;
             case Mihile.SOUL_ASYLUM:
@@ -1846,7 +1846,19 @@ public class SkillConstants {
             case BattleMage.DARK_AURA:
                 stats.remove(BaseStat.damR);
                 break;
-
+            case Mechanic.SUPPORT_UNIT_HEX:
+                stats.clear();
+                stats.put(BaseStat.ter, si.getValue(SkillStat.terR, slv));
+                break;
+            case Mechanic.EXTREME_MECH:
+                stats.clear(); // other stats handled by Mech skills
+                stats.put(BaseStat.mastery, si.getValue(SkillStat.mastery, slv));
+                stats.put(BaseStat.mhpR, si.getValue(SkillStat.indieMhpR, slv));
+                break;
+            case Mechanic.ROBOT_MASTERY:
+                stats.clear(); // other stats handled by client
+                stats.put(BaseStat.summonTimeR, si.getValue(SkillStat.y, slv));
+                break;
         }
     }
 }

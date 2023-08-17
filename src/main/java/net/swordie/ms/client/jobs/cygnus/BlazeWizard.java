@@ -191,6 +191,7 @@ public class BlazeWizard extends Noblesse {
         SkillInfo si = SkillData.getSkillInfoById(skillId);
         int slv = chr.getSkillLevel(skillId);
         // create/refresh summon
+        int duration = getBuffedSummonDuration(si.getValue(time, slv));
         Summon summon = null;
         if (tsm.hasStatBySkillId(skillId)) {
             summon = tsm.getOptByCTSAndSkill(IndieEmpty, skillId).summon;
@@ -200,7 +201,7 @@ public class BlazeWizard extends Noblesse {
             summon.setChr(chr);
             summon.setSkillID(skillId);
             summon.setSlv((byte) slv);
-            summon.setSummonTerm(chr.getJobHandler().getBuffedSkillDuration(si.getValue(time, slv)));
+            summon.setSummonTerm(duration);
             summon.setCharLevel((byte) chr.getStat(Stat.level));
             summon.setPosition(chr.getPosition().deepCopy());
             summon.setMoveAction((byte) 1);
@@ -212,7 +213,7 @@ public class BlazeWizard extends Noblesse {
             summon.setAssistType(AssistType.None);
             chr.getField().spawnSummon(summon);
         } else {
-            summon.setSummonTerm(chr.getJobHandler().getBuffedSkillDuration(si.getValue(time, slv)));
+            summon.setSummonTerm(duration);
         }
         // set stat
         Option o1 = new Option();
@@ -221,12 +222,12 @@ public class BlazeWizard extends Noblesse {
         o1.nValue = 1;
         o1.summon = summon;
         o1.tStart = Util.getCurrentTime();
-        o1.tTerm = si.getValue(time, slv);
-        tsm.putCharacterStatValue(IndieEmpty, o1);
+        o1.tTerm = duration;
+        tsm.putCharacterStatValue(IndieEmpty, o1, true);
         o2.nOption = si.getValue(x, slv);
         o2.rOption = skillId;
-        o2.tOption = si.getValue(time, slv);
-        tsm.putCharacterStatValue(MAD, o2);
+        o2.tOption = duration;
+        tsm.putCharacterStatValue(MAD, o2, true);
         tsm.sendSetStatPacket();
     }
 
@@ -339,12 +340,13 @@ public class BlazeWizard extends Noblesse {
             tsm.removeStatsBySkill(FIRES_OF_CREATION_LION);
             tsm.sendResetStatPacket();
         }
+        int duration = getBuffedSummonDuration(si.getValue(time, slv));
 
         Summon summon = new Summon(skillId);
         summon.setChr(chr);
         summon.setSkillID(skillId);
         summon.setSlv((byte) slv);
-        summon.setSummonTerm(chr.getJobHandler().getBuffedSkillDuration(si.getValue(time, slv)));
+        summon.setSummonTerm(duration);
         summon.setCharLevel((byte) chr.getStat(Stat.level));
         summon.setPosition(chr.getPosition().deepCopy());
         summon.setMoveAction((byte) 1);
@@ -358,23 +360,28 @@ public class BlazeWizard extends Noblesse {
 
         Option o1 = new Option();
         Option o2 = new Option();
-        Option o3 = new Option();
         o1.nReason = skillId;
         o1.nValue = 1;
         o1.summon = summon;
         o1.tStart = Util.getCurrentTime();
-        o1.tTerm = si.getValue(time, slv);
-        tsm.putCharacterStatValue(IndieEmpty, o1);
-        o2.nOption = si.getValue(v, slv);
-        o2.rOption = skillId;
-        o2.tOption = si.getValue(time, slv);
-        // tsm.putCharacterStatValue(); // mpConIncrease?
-        o3.nReason = skillId;
-        o3.nValue = si.getValue(y, slv);
-        o3.tStart = Util.getCurrentTime();
-        o3.tTerm = si.getValue(time, slv);
-        tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o3);
+        o1.tTerm = duration;
+        tsm.putCharacterStatValue(IndieEmpty, o1, true);
+        o2.nReason = skillId;
+        o2.nValue = si.getValue(y, slv);
+        o2.tStart = Util.getCurrentTime();
+        o2.tTerm = duration;
+        tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o2, true);
         tsm.sendSetStatPacket();
+    }
+
+    @Override
+    public int getMpCon(int skillId, int slv) {
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        int mpCon = super.getMpCon(skillId, slv);
+        if (tsm.hasStatBySkillId(FIRES_OF_CREATION_FOX) || tsm.hasStatBySkillId(FIRES_OF_CREATION_LION)) {
+            mpCon = (int) (mpCon * ((double) chr.getSkillStatValue(v, FIRES_OF_CREATION) / 100D));
+        }
+        return mpCon;
     }
 
 

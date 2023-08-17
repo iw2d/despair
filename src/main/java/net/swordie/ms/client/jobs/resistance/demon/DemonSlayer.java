@@ -364,14 +364,15 @@ public class DemonSlayer extends Job {
     @Override
     public int alterCooldownSkill(int skillId) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        int cooldown = super.alterCooldownSkill(skillId);
         switch (skillId) {
             case DEMON_CRY:
                 if (tsm.hasStat(InfinityForce)) {
-                    return super.alterCooldownSkill(skillId) - (chr.getSkillStatValue(s, DEMON_CRY) * 1000);
+                    cooldown -= (chr.getSkillStatValue(s, DEMON_CRY) * 1000);
                 }
                 break;
         }
-        return super.alterCooldownSkill(skillId);
+        return Math.max(cooldown, 0);
     }
 
     @Override
@@ -425,11 +426,11 @@ public class DemonSlayer extends Job {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (maxFuryTimer != null && !maxFuryTimer.isDone()) {
             maxFuryTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 
     @Override

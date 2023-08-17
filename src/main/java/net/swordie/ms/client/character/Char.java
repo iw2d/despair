@@ -1838,6 +1838,7 @@ public class Char {
 		stats.put(BaseStat.acc, 11);
 		stats.put(BaseStat.eva, 8);
 		stats.put(BaseStat.buffTimeR, 100);
+		stats.put(BaseStat.summonTimeR, 100);
 		stats.put(BaseStat.dropR, 100);
 		stats.put(BaseStat.mesoR, 100);
 		getSkills().stream()
@@ -3563,7 +3564,7 @@ public class Char {
 		getScriptManager().getScripts().values().forEach(ScriptInfo::reset);
 		getWorld().getConnectedChatClients().remove(getAccId());
 		setOnline(false);
-		getJobHandler().handleCancelTimer(this);
+		getJobHandler().handleCancelTimer();
 		getField().removeChar(this);
 		getUser().setCurrentChr(null);
 		if (!isChangingChannel()) {

@@ -34,8 +34,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
-import static net.swordie.ms.client.jobs.resistance.Mechanic.HUMANOID_MECH;
-import static net.swordie.ms.client.jobs.resistance.Mechanic.TANK_MECH;
+import static net.swordie.ms.client.jobs.resistance.Mechanic.*;
 
 /**
  * Created on 1/3/2018.
@@ -96,13 +95,31 @@ public class TemporaryStatManager {
         return getTwoStates().get(tsi.getIndex());
     }
 
-    public synchronized void putCharacterStatValue(CharacterTemporaryStat cts, Option option) {
+    public void putCharacterStatValue(CharacterTemporaryStat cts, int skillID, int value, int duration) {
+        Option option = new Option();
+        if (cts.isIndie()) {
+            option.nReason = skillID;
+            option.nValue = value;
+            option.tTerm = duration;
+        } else {
+            option.rOption = skillID;
+            option.nOption = value;
+            option.tOption = duration;
+        }
+        putCharacterStatValue(cts, option, false);
+    }
+
+    public void putCharacterStatValue(CharacterTemporaryStat cts, Option option) {
+        putCharacterStatValue(cts, option, false);
+    }
+
+    public void putCharacterStatValue(CharacterTemporaryStat cts, Option option, boolean noIncBuffDuration) { // TODO: use this for updating buffs without changing duration
         boolean indie = cts.isIndie();
         TSIndex tsi = TSIndex.getTSEFromCTS(cts);
         TemporaryStatBase tsb = tsi != null ? getTSBByTSIndex(tsi) : null;
         option.setTimeToMillis();
         SkillInfo skillinfo = SkillData.getSkillInfoById(indie ? option.nReason : option.rOption);
-        if (skillinfo != null && !skillinfo.isNotIncBuffDuration()) {
+        if (skillinfo != null && !skillinfo.isNotIncBuffDuration() && !noIncBuffDuration) {
             if (indie) {
                 option.tTerm = getChr().getJobHandler().getBuffedSkillDuration(option.tTerm);
             } else {
@@ -236,7 +253,7 @@ public class TemporaryStatManager {
         }
         if (getCurrentStats().containsKey(cts)) {
             if (option.summon != null) {
-                getChr().getField().broadcastPacket(Summoned.summonedRemoved(option.summon, LeaveType.ANIMATION));
+                option.summon.setExpired(true);
                 option.summon = null;
             }
             getCurrentStats().get(cts).remove(option);
@@ -316,10 +333,11 @@ public class TemporaryStatManager {
                 .filter(cts -> cts.getOrder() != -1)
                 .sorted(Comparator.comparingInt(CharacterTemporaryStat::getOrder))
                 .toList();
+        boolean isEncodeInt = getNewStats().keySet().stream().anyMatch(CharacterTemporaryStat::isEncodeInt);
         for (CharacterTemporaryStat cts : orderedAndFilteredCtsList) {
             if (cts.getOrder() != -1) {
                 Option o = getOption(cts);
-                if (cts.isEncodeInt() || SkillConstants.isEncode4Reason(o.rOption)) {
+                if (isEncodeInt) {
                     outPacket.encodeInt(o.nOption);
                 } else {
                     outPacket.encodeShort(o.nOption);
@@ -328,7 +346,6 @@ public class TemporaryStatManager {
                 outPacket.encodeInt(o.tOption);
             }
         }
-
         if (hasNewStat(SoulMP)) {
             outPacket.encodeInt(getOption(SoulMP).xOption);
             outPacket.encodeInt(getOption(SoulMP).rOption);
@@ -929,6 +946,9 @@ public class TemporaryStatManager {
         if (aa.isRemoveSkill()) {
             removeStatsBySkill(aa.getSkillID());
             sendResetStatPacket();
+        } else if (aa.getSkillID() == SUPPORT_UNIT_HEX || aa.getSkillID() == ENHANCED_SUPPORT_UNIT) {
+            removeStatsBySkill(IndieDamR, aa.getSkillID());
+            sendResetStatPacket();
         }
     }
 
@@ -1057,14 +1077,7 @@ public class TemporaryStatManager {
         currentStats.addAll(getCurrentStats().keySet());
         currentStats.forEach(stat -> removeStat(stat, fromSchedule));
 
-        if (getOptByCTSAndSkill(CharacterTemporaryStat.RideVehicle, HUMANOID_MECH) != null
-                || getOptByCTSAndSkill(CharacterTemporaryStat.RideVehicle, TANK_MECH) != null) {
-            removeStatsBySkill(TANK_MECH + 100);
-            removeStatsBySkill(HUMANOID_MECH + 100);
-            sendResetStatPacket(true);
-        } else {
-            sendResetStatPacket();
-        }
+        sendResetStatPacket();
         currentStats.clear();
     }
 

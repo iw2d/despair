@@ -178,13 +178,11 @@ public class UserPacket {
         return outPacket;
     }
 
-    public static OutPacket teslaTriangle(List<Summon> rockNshockLifes, int chrId) {
+    public static OutPacket teslaTriangle(List<Integer> rockNShockIds, int chrId) {
         OutPacket outPacket = new OutPacket(OutHeader.TESLA_TRIANGLE);
-
-
         outPacket.encodeInt(chrId);
         for (int i = 0; i < 3 ; i++) {
-            outPacket.encodeInt(rockNshockLifes.get(i).getObjectId());
+            outPacket.encodeInt(rockNShockIds.get(i));
         }
         return outPacket;
     }

@@ -479,11 +479,11 @@ public class DemonAvenger extends Job {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (diabolicRecoveryTimer != null && !diabolicRecoveryTimer.isDone()) {
             diabolicRecoveryTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 
     @Override

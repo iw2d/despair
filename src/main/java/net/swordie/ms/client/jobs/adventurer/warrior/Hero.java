@@ -368,11 +368,15 @@ public class Hero extends Warrior {
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1);
                 if (this.chr == chr) {
-                    // Power Guard effect only for caster
+                    // Damage Absorption and Power Guard effect only for caster
                     o2.nOption = si.getValue(x, slv);
                     o2.rOption = skillID;
                     o2.tOption = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(PowerGuard, o2);
+                    tsm.putCharacterStatValue(DamageReduce, o2);
+                    o3.nOption = si.getValue(y, slv);
+                    o3.rOption = skillID;
+                    o3.tOption = si.getValue(time, slv);
+                    tsm.putCharacterStatValue(PowerGuard, o3);
                 }
                 break;
             case COMBO_ATTACK:
@@ -425,11 +429,11 @@ public class Hero extends Warrior {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (selfRecoveryTimer != null && !selfRecoveryTimer.isDone()) {
             selfRecoveryTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 
     @Override

@@ -3,6 +3,8 @@ package net.swordie.ms.connection.packet;
 import net.swordie.ms.client.character.avatar.AvatarLook;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
+import net.swordie.ms.client.jobs.resistance.Mechanic;
+import net.swordie.ms.client.jobs.sengoku.Kanna;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.enums.LeaveType;
 import net.swordie.ms.handlers.header.OutHeader;
@@ -93,13 +95,13 @@ public class Summoned {
         if(al != null) {
             al.encode(outPacket);
         }
-        if(summon.getSkillID() == 35111002) { // Tesla Coil
+        if(summon.getSkillID() == Mechanic.ROCK_N_SHOCK) { // Tesla Coil
             outPacket.encodeByte(summon.getTeslaCoilState());
             for(Position pos : summon.getTeslaCoilPositions()) {
                 outPacket.encodePosition(pos);
             }
         }
-        if(summon.getSkillID() == 42111003) { // Kishin Shoukan
+        if(summon.getSkillID() == Kanna.KISHIN_SHOUKAN) { // Kishin Shoukan
             for(Position pos : summon.getKishinPositions()) {
                 outPacket.encodePosition(pos);
             }

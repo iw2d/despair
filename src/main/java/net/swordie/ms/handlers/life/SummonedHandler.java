@@ -29,6 +29,9 @@ public class SummonedHandler {
             MovementInfo movementInfo = new MovementInfo(inPacket);
             movementInfo.applyTo(summon);
             chr.getField().broadcastPacket(Summoned.summonedMove(chr.getId(), summonID, movementInfo), chr);
+            if (summon.isExpired()) {
+                chr.getField().removeLife(summon);
+            }
         }
     }
 

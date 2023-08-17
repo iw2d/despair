@@ -499,14 +499,14 @@ public class BattleMage extends Citizen {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (applyAuraTimer != null && !applyAuraTimer.isDone()) {
             applyAuraTimer.cancel(true);
         }
         if (drainingAuraPassiveTimer != null && !drainingAuraPassiveTimer.isDone()) {
             drainingAuraPassiveTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 
 

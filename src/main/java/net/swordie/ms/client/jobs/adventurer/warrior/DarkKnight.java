@@ -94,7 +94,7 @@ public class DarkKnight extends Warrior {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         SkillInfo si = SkillData.getSkillInfoById(EVIL_EYE);
         int summonSlv = chr.getSkillLevel(EVIL_EYE);
-        int summonTerm = getBuffedSkillDuration(si.getValue(SkillStat.time, summonSlv));
+        int summonTerm = getBuffedSummonDuration(si.getValue(SkillStat.time, summonSlv));
 
         long remaining = evilEyeEnd - Util.getCurrentTimeLong();
         if (!refresh && remaining > 0) {
@@ -129,14 +129,14 @@ public class DarkKnight extends Warrior {
         o1.tTerm = summonTerm;
         o1.summon = summon;
         o1.setInMillis(true);
-        tsm.putCharacterStatValue(IndieEmpty, o1);
+        tsm.putCharacterStatValue(IndieEmpty, o1, true);
         o2.nOption = 1;
         o2.rOption = EVIL_EYE;
         o2.tOption = summonTerm;
         o2.sOption = 0;
         o2.ssOption = 0;
         o2.setInMillis(true);
-        tsm.putCharacterStatValue(Beholder, o2);
+        tsm.putCharacterStatValue(Beholder, o2, true);
         tsm.sendSetStatPacket();
     }
 
@@ -158,44 +158,42 @@ public class DarkKnight extends Warrior {
         }
     }
 
-    public void healByEvilEye() {
-        if (chr.getHP() > 0) {
-            Skill skill = chr.getSkill(EVIL_EYE);
-            SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-            int slv = skill.getCurrentLevel();
-            chr.heal(si.getValue(hp, slv), true);
+    public static void healByEvilEye(Char owner) {
+        if (owner.getHP() > 0) {
+            SkillInfo si = SkillData.getSkillInfoById(EVIL_EYE);
+            int slv = owner.getSkillLevel(EVIL_EYE);
+            owner.heal(si.getValue(hp, slv), true);
         }
     }
 
-    public void giveHexOfTheEvilEyeBuffs() {
-        TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Skill skill = chr.getSkill(HEX_OF_THE_EVIL_EYE);
-        SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-        int slv = skill.getCurrentLevel();
+    public static void giveHexOfTheEvilEyeBuffs(Char owner) {
+        TemporaryStatManager tsm = owner.getTemporaryStatManager();
+        SkillInfo si = SkillData.getSkillInfoById(HEX_OF_THE_EVIL_EYE);
+        int slv = owner.getSkillLevel(HEX_OF_THE_EVIL_EYE);
 
         Option o1 = new Option();
         Option o2 = new Option();
         Option o3 = new Option();
         Option o4 = new Option();
         o1.nOption = si.getValue(epad, slv);
-        o1.rOption = skill.getSkillId();
+        o1.rOption = HEX_OF_THE_EVIL_EYE;
         o1.tOption = si.getValue(time, slv);
         tsm.putCharacterStatValue(EPAD, o1);
 
         o2.nOption = si.getValue(epdd, slv);
-        o2.rOption = skill.getSkillId();
+        o2.rOption = HEX_OF_THE_EVIL_EYE;
         o2.tOption = si.getValue(time, slv);
         tsm.putCharacterStatValue(EPDD, o2);
         tsm.putCharacterStatValue(EMDD, o2);
 
-        o3.nReason = skill.getSkillId();
+        o3.nReason = HEX_OF_THE_EVIL_EYE;
         o3.nValue = si.getValue(indieCr, slv);
         o3.tStart = Util.getCurrentTime();
         o3.tTerm = si.getValue(time, slv);
         tsm.putCharacterStatValue(IndieCr, o3);
 
         o4.nOption = si.getValue(acc, slv);
-        o4.rOption = skill.getSkillId();
+        o4.rOption = HEX_OF_THE_EVIL_EYE;
         o4.tOption = si.getValue(time, slv);
         tsm.putCharacterStatValue(ACC, o4);
         tsm.putCharacterStatValue(EVA, o4);

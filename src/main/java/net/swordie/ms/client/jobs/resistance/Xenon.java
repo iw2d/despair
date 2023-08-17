@@ -143,10 +143,11 @@ public class Xenon extends Job {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
-        if(supplyTimer != null) {
+    public void handleCancelTimer() {
+        if (supplyTimer != null) {
             supplyTimer.cancel(true);
         }
+        super.handleCancelTimer();
     }
 
 

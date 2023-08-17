@@ -506,11 +506,11 @@ public class Paladin extends Warrior {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (parashockGuardTimer != null && !parashockGuardTimer.isDone()) {
             parashockGuardTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 
     @Override

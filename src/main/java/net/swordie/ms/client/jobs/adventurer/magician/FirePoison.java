@@ -25,6 +25,7 @@ import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.field.Field;
 
+import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -248,8 +249,9 @@ public class FirePoison extends Magician {
         if (!chr.isLeft()) {
             rect = rect.horizontalFlipAround(chr.getPosition().getX());
         }
-        if (field.getMobsInRect(rect).size() > 0) {
-            Mob life = Util.getRandomFromCollection(field.getMobsInRect(rect));
+        List<Mob> targets = field.getMobsInRect(rect);
+        if (targets.size() > 0) {
+            Mob life = Util.getRandomFromCollection(targets);
             int mobID2 = (life).getObjectId();
             int inc = ForceAtomEnum.DA_ORB.getInc();
             int type = ForceAtomEnum.DA_ORB.getForceAtomType();
@@ -270,7 +272,7 @@ public class FirePoison extends Magician {
 
         for (MobAttackInfo mai : attackInfo.mobAttackInfo) {
             Mob mob = (Mob) chr.getField().getLifeByObjectID(mai.mobId);
-            if (mob == null || ! Util.succeedProp(proc)) {
+            if (mob == null || !Util.succeedProp(proc)) { // TODO: proper bouncing
                 continue;
             }
             int mobID = mai.mobId;
@@ -440,11 +442,11 @@ public class FirePoison extends Magician {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (elementalDrainTimer != null && !elementalDrainTimer.isDone()) {
             elementalDrainTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 
     @Override

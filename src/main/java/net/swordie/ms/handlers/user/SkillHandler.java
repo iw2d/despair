@@ -421,13 +421,7 @@ public class SkillHandler {
             chr.getField().broadcastPacket(UserRemote.skillCancel(chr.getId(), skillId), chr);
         }
 
-        if (skillId == net.swordie.ms.client.jobs.resistance.Mechanic.HUMANOID_MECH || skillId == net.swordie.ms.client.jobs.resistance.Mechanic.TANK_MECH) {
-            tsm.removeStatsBySkill(skillId + 100); // because of special use
-            tsm.sendResetStatPacket(true);
-        } else {
-            tsm.sendResetStatPacket();
-        }
-
+        tsm.sendResetStatPacket();
         chr.getJobHandler().handleRemoveBuff(skillId);
     }
 

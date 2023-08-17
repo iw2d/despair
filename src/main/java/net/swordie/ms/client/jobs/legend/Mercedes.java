@@ -332,7 +332,7 @@ public class Mercedes extends Job {
                 o3.nOption = si.getValue(x, slv) + this.chr.getSkillStatValue(x, WATER_SHIELD_REINFORCE);
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(DamAbsorbShield, o3);
+                tsm.putCharacterStatValue(DamageReduce, o3);
                 break;
             case ANCIENT_WARDING:
                 o1.nOption = si.getValue(emhp, slv);
@@ -393,11 +393,11 @@ public class Mercedes extends Job {
     }
 
     @Override
-    public void handleCancelTimer(Char chr) {
+    public void handleCancelTimer() {
         if (elvenHealingTimer != null && !elvenHealingTimer.isDone()) {
             elvenHealingTimer.cancel(true);
         }
-        super.handleCancelTimer(chr);
+        super.handleCancelTimer();
     }
 
     // Character creation related methods ------------------------------------------------------------------------------

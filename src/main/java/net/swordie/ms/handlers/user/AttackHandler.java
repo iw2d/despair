@@ -24,6 +24,7 @@ import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Rect;
+import net.swordie.ms.util.Util;
 import net.swordie.ms.world.event.InGameEvent;
 import net.swordie.ms.world.event.InGameEventManager;
 import net.swordie.ms.world.event.PinkZakumEvent;
@@ -31,6 +32,8 @@ import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import static net.swordie.ms.client.jobs.resistance.Mechanic.DISTORTION_BOMB;
 
 public class AttackHandler {
     private static final Logger log = LogManager.getLogger(AttackHandler.class);
@@ -69,6 +72,9 @@ public class AttackHandler {
                 switch (attackInfo.attackHeader) {
                     case SUMMONED_ATTACK:
                         chr.getField().broadcastPacket(Summoned.summonedAttack(chr.getId(), attackInfo, false), chr);
+                        if (attackInfo.summon != null && attackInfo.summon.isExpired()) {
+                            chr.getField().removeLife(attackInfo.summon);
+                        }
                         break;
                     case FAMILIAR_ATTACK:
                         chr.getField().broadcastPacket(CFamiliar.familiarAttack(chr.getId(), attackInfo), chr);
@@ -239,7 +245,7 @@ public class AttackHandler {
         ai.hits = (byte) (mask & 0xF);
         ai.mobCount = (mask >>> 4) & 0xF;
         inPacket.decodeByte(); // hardcoded 0
-        if(ai.skillId == Mechanic.ROCK_N_SHOCK) {
+        if (ai.skillId == Mechanic.ROCK_N_SHOCK && ai.attackActionType == 9) { // explosion attackActionType = 19
             for (int i = 0; i < 3; i++){
                 inPacket.decodeInt(); //rock n shock life ids, not needed
             }
@@ -435,7 +441,7 @@ public class AttackHandler {
             ai.ptTarget.setX(inPacket.decodeShort());
             ai.ptTarget.setY(inPacket.decodeShort());
         } else {
-            if (skillID == 27121052 || skillID == 80001837) {
+            if (skillID == 27121052 || skillID == 80001837 || skillID == DISTORTION_BOMB) {
                 ai.x = inPacket.decodeShort();
                 ai.y = inPacket.decodeShort();
             } else if (header == InHeader.USER_MAGIC_ATTACK && skillID != 32111016 && !SkillConstants.isKinesisPsychicAreaSkill(skillID)) {

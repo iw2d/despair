@@ -77,6 +77,7 @@ public enum BaseStat {
     basicIntR,
     basicLukR,
     buffTimeR, // Buff Duration multiplier
+    summonTimeR, // Summon Duration multiplier
     recoveryUp, // % increase in heal potion use
     costMpR,
     mpConReduce,
@@ -418,9 +419,9 @@ public enum BaseStat {
             case Stance:
                 stats.put(stance, o.nOption);
                 break;
-            case PowerGuard:
-            case DamageReduce:
-            case DamAbsorbShield:
+            case IgnoreMobDamR:   // reserved for RuneStone LIBERATE_THE_RECOVERY_RUNE
+            case DamageReduce:    // self buff dmgReduce
+            case DamAbsorbShield: // self buff dmgReduce 2
                 stats.put(dmgReduce, o.nOption);
                 break;
             case ComboCounter:
@@ -569,7 +570,7 @@ public enum BaseStat {
                 ToBaseStat.blessOfDarkness(chr, o, stats);
                 break;
             case StackBuff:
-                stats.put(damR, o.nOption);
+                stats.put(damR, o.nOption); // mdam only, add evasion (mOption) for xenon?
                 break;
             case LifeTidal:
                 if (o.nOption == 1) {

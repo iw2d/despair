@@ -9,6 +9,7 @@ import net.swordie.ms.client.character.skills.TownPortal;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
+import net.swordie.ms.client.jobs.resistance.Mechanic;
 import net.swordie.ms.client.jobs.resistance.OpenGate;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
@@ -621,9 +622,9 @@ public class Field {
                 }
             }
         }
-        for (int id : removedList) {
-            removeLife(id, false);
-        }
+        removedList.forEach((lifeId) -> removeLife(lifeId, false));
+        // remove open gates
+        Mechanic.despawnOpenGates(this, chr);
     }
 
     public Map<Life, Char> getLifeToControllers() {
