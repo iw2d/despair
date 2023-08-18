@@ -411,6 +411,7 @@ public enum BaseStat {
                 stats.put(mesoR, o.nOption);
                 break;
             case BasicStatUp:
+            case SurplusSupply:
                 stats.put(basicStrR, o.nOption);
                 stats.put(basicDexR, o.nOption);
                 stats.put(basicIntR, o.nOption);

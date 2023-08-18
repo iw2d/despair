@@ -41,8 +41,15 @@ import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat
  * Created on 12/14/2017.
  */
 public class Xenon extends Job {
-    public static final int SUPPLY_SURPLUS = 30020232;
+    // Multilateral passives - stat increase with base str/dex/luk
     public static final int MULTILATERAL_I = 30020234;
+    public static final int MULTILATERAL_II = 36000004;
+    public static final int MULTILATERAL_III = 36100007;
+    public static final int MULTILATERAL_IV = 36110007;
+    public static final int MULTILATERAL_V = 36120010;
+    public static final int MULTILATERAL_VI = 36120016;
+
+    public static final int SUPPLY_SURPLUS = 30020232;
     public static final int MODAL_SHIFT = 30021236;
     public static final int LIBERTY_BOOSTERS = 30021236;
     public static final int MIMIC_PROTOCOL = 30020240;
@@ -64,9 +71,9 @@ public class Xenon extends Job {
     public static final int PINPOINT_SALVO_REDESIGN_B = 36110012; //Special Attack Upgrade  (Passive Upgrade)
     public static final int TRIANGULATION = 36110005;
 
-    public static final int HYPOGRAM_FIELD_FORCE_FIELD = 36121002;                  //TODO Summon
+    public static final int HYPOGRAM_FIELD_FORCE_FIELD = 36121002;
     public static final int HYPOGRAM_FIELD_PENETRATE = 36121013;
-    public static final int HYPOGRAM_FIELD_SUPPORT = 36121014;                      //TODO Summon
+    public static final int HYPOGRAM_FIELD_SUPPORT = 36121014;
     public static final int TEMPORAL_POD = 36121007;
     public static final int OOPARTS_CODE = 36121003; //Buff
     public static final int MAPLE_WARRIOR_XENON = 36121008; //Buff

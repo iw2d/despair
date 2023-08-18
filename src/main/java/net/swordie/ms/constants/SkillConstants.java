@@ -1127,10 +1127,10 @@ public class SkillConstants {
             case Zero.STORM_BREAK_INIT:
                 return Zero.STORM_BREAK;
             case Zero.ADV_STORM_BREAK_SHOCK_INIT:
-                return Zero.ADV_STORM_BREAK;
-        }
-        return skillID;
+        return Zero.ADV_STORM_BREAK;
     }
+        return skillID;
+}
 
     public static boolean isPassiveSkill(int skillId) {
         if (isSkipPassiveSkill(skillId)) {
@@ -1196,6 +1196,7 @@ public class SkillConstants {
             case WildHunter.SILENT_RAMPAGE:
             case Mechanic.MECHANIZED_DEFENSE_SYSTEM:
             case Mechanic.ENHANCED_SUPPORT_UNIT:
+            case Xenon.SUPPLY_SURPLUS:
                 return true;
         }
         return false;
@@ -1203,13 +1204,19 @@ public class SkillConstants {
 
     public static boolean isPsdWTSkill(int skillId) {
         SkillInfo si = SkillData.getSkillInfoById(skillId);
-        return (si != null && !si.getPsdWT().isEmpty()) || isShieldMasterySkill(skillId);
+        return (si != null && !si.getPsdWT().isEmpty());
     }
 
-    public static boolean isShieldMasterySkill(int skillId) {
+    public static boolean isConditionalPassiveSkill(int skillId) {
         switch (skillId) {
-            case Paladin.SHIELD_MASTERY:
+            case Paladin.SHIELD_MASTERY:    // shield mastery, mastery stat is additive
             case Shadower.SHIELD_MASTERY:
+            case Xenon.MULTILATERAL_I:      // passive stat depending on base stat (allocated by sp)
+            case Xenon.MULTILATERAL_II:
+            case Xenon.MULTILATERAL_III:
+            case Xenon.MULTILATERAL_IV:
+            case Xenon.MULTILATERAL_V:
+            case Xenon.MULTILATERAL_VI:
                 return true;
             default:
                 return false;

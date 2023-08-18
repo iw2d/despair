@@ -1844,9 +1844,6 @@ public class Char {
 		getSkills().stream()
 				.filter(skill -> SkillConstants.isPassiveSkill(skill.getSkillId()))
 				.forEach(this::addToBaseStatCache);
-		getSkills().stream()
-				.filter(skill -> SkillConstants.isPsdWTSkill(skill.getSkillId()))
-				.forEach(this::initPsdWTSkill);
 	}
 
 	/**
@@ -1883,24 +1880,6 @@ public class Char {
 				getHyperPsdSkillsCooltimeR().remove(psdSkill, si.getValue(SkillStat.coolTimeR, skill.getCurrentLevel()));
 			}
 		}
-	}
-
-	/**
-	 * Initialize stat bonuses from psdWT skills
-	 *
-	 * @param skill The skill to retrieve bonus stats from
-	 */
-	public void initPsdWTSkill(Skill skill) {
-		SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
-		Map<BaseStat, Integer> stats = si.getPsdWTStatValues(this, skill.getCurrentLevel());
-		stats.forEach((bs, value) -> {
-			if (bs == BaseStat.mastery) {
-				// mastery from PsdWT skills are additive
-				getBaseStats().put(bs, getBaseStats().getOrDefault(bs, 0) + value);
-			} else {
-				addBaseStat(bs, value);
-			}
-		});
 	}
 
 	/**
@@ -3923,16 +3902,14 @@ public class Char {
 			return stat;
 		}
 		if (baseStat.isNonAdditiveStat()) {
-			// stats like ied, final damage
+			// Stats like ied, final damage
 			Set<Integer> statSet = new HashSet<>();
 			// Stat gained by passives
-			if (getNonAddBaseStats().get(baseStat) != null) {
-				statSet.addAll(getNonAddBaseStats().get(baseStat));
-			}
+			statSet.addAll(getNonAddBaseStats().getOrDefault(baseStat, Set.of()));
+			// Stat gained by conditional passives (psdWT, Shield mastery, Xenon's Multilateral)
+			statSet.addAll(getNonAddConditionalStats().getOrDefault(baseStat, Set.of()));
 			// Stat gained by buffs
-			if (getTemporaryStatManager().getNonAddBaseStats().get(baseStat) != null) {
-				statSet.addAll(getTemporaryStatManager().getNonAddBaseStats().get(baseStat));
-			}
+			statSet.addAll(getTemporaryStatManager().getNonAddBaseStats().getOrDefault(baseStat, Set.of()));
 			// Stat gained by equips
 			for (Item item : getEquippedInventory().getItems()) {
 				Equip equip = (Equip) item;
@@ -3942,9 +3919,7 @@ public class Char {
 				statSet.addAll(equip.getNonAddBaseStat(baseStat));
 			}
 			// Stat gained by set effects
-			if (getSetNonAddBaseStats().get(baseStat) != null) {
-				statSet.addAll(getSetNonAddBaseStats().get(baseStat));
-			}
+			statSet.addAll(getSetNonAddBaseStats().getOrDefault(baseStat, Set.of()));
 			// Character potential
 			for (CharacterPotential cp : getPotentials()) {
 				Skill skill = cp.getSkill();
@@ -3973,6 +3948,8 @@ public class Char {
 			stat += baseStat.toStat() == null ? 0 : getStat(baseStat.toStat());
 			// Stat gained by passives
 			stat += getBaseStats().getOrDefault(baseStat, 0);
+			// Stat gained by conditional passives (psdWT, Shield mastery, Xenon's Multilateral)
+			stat += getConditionalStats().getOrDefault(baseStat, 0);
 			// Stat gained by buffs
 			stat += getTemporaryStatManager().getBaseStats().getOrDefault(baseStat, 0);
 			// Stat gained by the stat's corresponding "per level" value
@@ -4060,6 +4037,66 @@ public class Char {
 
 	public Map<BaseStat, Set<Integer>> getNonAddBaseStats() {
 		return nonAddBaseStats;
+	}
+
+	public Map<BaseStat, Integer> getConditionalStats() {
+		Map<BaseStat, Integer> stats = new HashMap<>();
+		for (Skill skill : getSkills()) {
+			int skillId = skill.getSkillId();
+			int slv = skill.getCurrentLevel();
+			SkillInfo si = SkillData.getSkillInfoById(skillId);
+			if (si == null) {
+				continue;
+			}
+			if (SkillConstants.isPsdWTSkill(skillId)) {
+				si.getPsdWTStatValues(this, slv).forEach((bs, value) -> {
+					if (!bs.isNonAdditiveStat()) {
+						stats.put(bs, stats.getOrDefault(bs, 0) + value);
+					}
+				});
+			}
+			if (SkillConstants.isConditionalPassiveSkill(skill.getSkillId())) {
+				si.getConditionalStatValues(this, slv).forEach((bs, value) -> {
+					if (!bs.isNonAdditiveStat()) {
+						stats.put(bs, stats.getOrDefault(bs, 0) + value);
+					}
+				});
+			}
+		}
+		return stats;
+	}
+
+	public Map<BaseStat, Set<Integer>> getNonAddConditionalStats() {
+		Map<BaseStat, Set<Integer>> stats = new HashMap<>();
+		for (Skill skill : getSkills()) {
+			int skillId = skill.getSkillId();
+			int slv = skill.getCurrentLevel();
+			SkillInfo si = SkillData.getSkillInfoById(skillId);
+			if (si == null) {
+				continue;
+			}
+			if (SkillConstants.isPsdWTSkill(skillId)) {
+				si.getPsdWTStatValues(this, slv).forEach((bs, value) -> {
+					if (bs.isNonAdditiveStat()) {
+						if (!stats.containsKey(bs)) {
+							stats.put(bs, new HashSet<>());
+						}
+						stats.get(bs).add(value);
+					}
+				});
+			}
+			if (SkillConstants.isConditionalPassiveSkill(skill.getSkillId())) {
+				si.getConditionalStatValues(this, slv).forEach((bs, value) -> {
+					if (bs.isNonAdditiveStat()) {
+						if (!stats.containsKey(bs)) {
+							stats.put(bs, new HashSet<>());
+						}
+						stats.get(bs).add(value);
+					}
+				});
+			}
+		}
+		return stats;
 	}
 
 	/**

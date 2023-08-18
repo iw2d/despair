@@ -8,6 +8,7 @@ import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
 import net.swordie.ms.client.jobs.adventurer.thief.Shadower;
 import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.jobs.resistance.WildHunter;
+import net.swordie.ms.client.jobs.resistance.Xenon;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.BaseStat;
@@ -233,24 +234,53 @@ public class SkillInfo {
 
     public Map<BaseStat, Integer> getPsdWTStatValues(Char chr, int slv) {
         Map<BaseStat, Integer> stats = new HashMap<>();
-        getSkillStatsByWT(chr.getEquippedWeaponType()).forEach((ss, value) ->
-                stats.put(ss.getBaseStat(), value + stats.getOrDefault(ss.getBaseStat(), 0))
-        );
-        // handle shield mastery
-        if (SkillConstants.isShieldMasterySkill(skillId)) {
-            Item shield = chr.getEquippedItemByBodyPart(BodyPart.Shield);
-            if (shield != null && ItemConstants.isShield(shield.getItemId())) {
-                getBaseStatValues(chr, slv).forEach((bs, value) -> {
-                    stats.put(bs, value);
-                });
-                switch (getSkillId()) {
-                    case Paladin.SHIELD_MASTERY:
-                    case Shadower.SHIELD_MASTERY:
+        if (slv > 0) {
+            getSkillStatsByWT(chr.getEquippedWeaponType()).forEach((ss, value) ->
+                    stats.put(ss.getBaseStat(), value + stats.getOrDefault(ss.getBaseStat(), 0))
+            );
+        }
+        return stats;
+    }
+
+    public Map<BaseStat, Integer> getConditionalStatValues(Char chr, int slv) {
+        Map<BaseStat, Integer> stats = new HashMap<>();
+        if (SkillConstants.isConditionalPassiveSkill(getSkillId())) {
+            switch (getSkillId()) {
+                case Paladin.SHIELD_MASTERY:
+                case Shadower.SHIELD_MASTERY:
+                    Item shield = chr.getEquippedItemByBodyPart(BodyPart.Shield);
+                    if (shield != null && ItemConstants.isShield(shield.getItemId())) {
+                        stats.putAll(getBaseStatValues(chr, slv));
                         stats.put(BaseStat.pddR, getValue(SkillStat.x, slv));
                         stats.put(BaseStat.mddR, getValue(SkillStat.x, slv));
                         stats.put(BaseStat.pad, getValue(SkillStat.y, slv));
-                        break;
-                }
+                    }
+                    break;
+                case Xenon.MULTILATERAL_I:
+                case Xenon.MULTILATERAL_II:
+                case Xenon.MULTILATERAL_III:
+                case Xenon.MULTILATERAL_IV:
+                case Xenon.MULTILATERAL_V:
+                case Xenon.MULTILATERAL_VI:
+                    boolean strCheck = getValue(SkillStat.x, slv) < chr.getStat(Stat.str);
+                    boolean dexCheck = getValue(SkillStat.x, slv) < chr.getStat(Stat.dex);
+                    boolean lukCheck = getValue(SkillStat.x, slv) < chr.getStat(Stat.luk);
+                    if (strCheck) {
+                        stats.put(BaseStat.stance, getValue(SkillStat.y, slv));
+                    }
+                    if (dexCheck) {
+                        stats.put(BaseStat.asr, getValue(SkillStat.z, slv));
+                        stats.put(BaseStat.ter, getValue(SkillStat.z, slv));
+                    }
+                    if (lukCheck) {
+                        stats.put(BaseStat.evaR, getValue(SkillStat.u, slv));
+                    }
+                    if (strCheck && dexCheck && lukCheck) {
+                        stats.put(BaseStat.damR, getValue(SkillStat.w, slv));
+                        stats.put(BaseStat.mhpR, getValue(SkillStat.s, slv));
+                        stats.put(BaseStat.mmpR, getValue(SkillStat.s, slv));
+                    }
+                    break;
             }
         }
         return stats;
