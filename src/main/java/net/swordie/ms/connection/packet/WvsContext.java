@@ -265,22 +265,18 @@ public class WvsContext {
 
     public static OutPacket temporaryStatReset(TemporaryStatManager temporaryStatManager, boolean demount, boolean isMigrate) {
         OutPacket outPacket = new OutPacket(OutHeader.TEMPORARY_STAT_RESET);
-
         for (int i : temporaryStatManager.getRemovedMask()) {
             outPacket.encodeInt(i);
         }
-//        temporaryStatManager.getRemovedStats().forEach((cts, option) -> outPacket.encodeInt(0));
         temporaryStatManager.encodeRemovedIndieTempStat(outPacket);
         if (temporaryStatManager.hasRemovedMovingEffectingStat()) {
             outPacket.encodeByte(0);
         }
         outPacket.encodeByte(0); // ?
         outPacket.encodeByte(demount);
-
-        if(isMigrate) {
+        if (isMigrate) {
             temporaryStatManager.getToBroadcastAfterMigrate().add(outPacket);
         }
-
         temporaryStatManager.getRemovedStats().clear();
         return outPacket;
     }

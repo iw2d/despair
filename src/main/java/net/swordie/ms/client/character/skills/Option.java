@@ -35,7 +35,6 @@ public class Option {
     public int tTerm;
     public int pOption;
     public int slv;
-    public int startTime = Util.getCurrentTime();
     public Summon summon;
     public List<Option> extraOpts = new ArrayList<>();
     public boolean isInMillis = false;
@@ -85,6 +84,7 @@ public class Option {
         copy.tTerm = tTerm;
         copy.slv = slv;
         copy.summon = summon;
+        copy.isInMillis = isInMillis;
         extraOpts.forEach(o -> extraOpts.add(o.deepCopy()));
         return copy;
     }

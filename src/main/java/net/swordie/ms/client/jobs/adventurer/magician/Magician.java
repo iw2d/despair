@@ -57,16 +57,13 @@ public class Magician extends Beginner {
 
         if (tsm.hasStat(Infinity)) {
             int remaining = tsm.getRemainingTime(Infinity, skillId);
-            if (remaining > 0 && chr.hasSkill(skillId) && chr.getHP() > 0) {
+            if (remaining > 0 &&chr.hasSkill(skillId) && chr.getHP() > 0) {
                 chr.heal((int) (chr.getMaxHP() / ((double) 100 / si.getValue(y, slv))));
                 chr.healMP((int) (chr.getMaxMP() / ((double) 100 / si.getValue(y, slv))));
 
-                Option o1 = new Option();
-                o1.nOption = tsm.getOption(Infinity).nOption + si.getValue(damage, slv);
-                o1.rOption = skillId;
-                o1.tOption = remaining;
-                o1.setInMillis(true);
-                tsm.putCharacterStatValue(Infinity, o1);
+                Option o1 = tsm.getOption(Infinity).deepCopy();
+                o1.nOption += si.getValue(damage, slv);
+                tsm.putCharacterStatValue(Infinity, o1, true);
                 tsm.sendSetStatPacket();
 
                 infinityTimer = EventManager.addEvent(this::infinity, 4, TimeUnit.SECONDS);

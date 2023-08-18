@@ -490,24 +490,15 @@ public class DarkKnight extends Warrior {
 
     private void lowerFinalPactKillCount() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        Option o = new Option();
         Skill skill = chr.getSkill(FINAL_PACT_INFO);
         if (skill == null || !tsm.hasStat(Reincarnation)) {
             return;
         }
-        int duration = tsm.getRemainingTime(Reincarnation, FINAL_PACT);
-        int killCount = tsm.getOption(Reincarnation).xOption;
-
-        if (killCount > 0) {
-            killCount--;
-
-            if (duration > 0) {
-                o.nOption = 1;
-                o.rOption = FINAL_PACT;
-                o.tOption = duration;
-                o.xOption = killCount;
-                o.setInMillis(true);
-                tsm.putCharacterStatValue(Reincarnation, o);
+        Option oldOption = tsm.getOption(Reincarnation);
+        if (oldOption.xOption > 0) {
+            oldOption.xOption--;
+            if (oldOption.xOption > 0) {
+                tsm.putCharacterStatValue(Reincarnation, oldOption);
                 tsm.sendSetStatPacket();
             } else {
                 tsm.removeStatsBySkill(FINAL_PACT);

@@ -113,7 +113,7 @@ public class TemporaryStatManager {
         putCharacterStatValue(cts, option, false);
     }
 
-    public void putCharacterStatValue(CharacterTemporaryStat cts, Option option, boolean noIncBuffDuration) { // TODO: use this for updating buffs without changing duration
+    public void putCharacterStatValue(CharacterTemporaryStat cts, Option option, boolean noIncBuffDuration) {
         boolean indie = cts.isIndie();
         TSIndex tsi = TSIndex.getTSEFromCTS(cts);
         TemporaryStatBase tsb = tsi != null ? getTSBByTSIndex(tsi) : null;
@@ -236,6 +236,19 @@ public class TemporaryStatManager {
             getSchedules().remove(cts);
         }
         // handlers for after stat is removed
+        if (cts == Reincarnation && option.xOption != 0) {
+            chr.heal(-chr.getMaxHP());
+        }
+        if (cts == HolyMagicShell && option.nOption != 0) {
+            // apply cooldown
+            Option o1 = new Option();
+            o1.nOption = 0;
+            o1.rOption = option.rOption;
+            o1.tOption = (option.tStart + (option.xOption * 1000)) - Util.getCurrentTime();
+            o1.setInMillis(true);
+            putCharacterStatValue(HolyMagicShell, o1, true);
+            sendSetStatPacket();
+        }
         if (JobConstants.isLuminous(chr.getJob()) && cts == Larkness) {
             ((Luminous) chr.getJobHandler()).handleRemoveLarkness(option.rOption);
         }
@@ -295,7 +308,7 @@ public class TemporaryStatManager {
     public int getRemainingTime(CharacterTemporaryStat cts, int skillId) {
         if (getOptByCTSAndSkill(cts, skillId) != null) {
             Option opt = getOptByCTSAndSkill(cts, skillId);
-            return (opt.startTime + ((opt.isInMillis ? 1 : 1000) * (cts.isIndie() ? opt.tTerm : opt.tOption))) - Util.getCurrentTime();
+            return (opt.tStart + ((opt.isInMillis ? 1 : 1000) * (cts.isIndie() ? opt.tTerm : opt.tOption))) - Util.getCurrentTime();
         }
         return 0;
     }

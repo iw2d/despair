@@ -454,7 +454,9 @@ public class Bishop extends Magician {
                     if (tsm.hasStat(VengeanceOfAngel)) {
                         healAmount = (int) (healAmount * (chr.getSkillStatValue(hp, RIGHTEOUSLY_INDIGNANT) / 100D));
                     }
-                    chr.heal(healAmount, true);
+                    if (chr.getHP() > 0) {
+                        chr.heal(healAmount, true);
+                    }
                     o1.nOption = si.getValue(x, slv) + this.chr.getSkillStatValue(x, HOLY_MAGIC_SHELL_EXTRA_GUARD);
                     o1.rOption = skillID;
                     o1.tOption = si.getValue(time, slv) + this.chr.getSkillStatValue(time, HOLY_MAGIC_SHELL_PERSIST);
@@ -562,30 +564,21 @@ public class Bishop extends Magician {
 
     public static void handleHolyMagicShell(Char chr, HitInfo hitInfo) {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        if (!tsm.hasStat(HolyMagicShell)) {
+        if (!tsm.hasStat(HolyMagicShell) || tsm.getOption(HolyMagicShell).nOption == 0) {
             return;
         }
         hitInfo.hpDamage = 0;
         hitInfo.mpDamage = 0;
+        chr.write(UserPacket.effect(Effect.skillAffected(HOLY_MAGIC_SHELL, 1, 0)));
+        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillAffected(HOLY_MAGIC_SHELL, 1, 0)), chr);
         Option oldOption = tsm.getOption(HolyMagicShell);
         if (oldOption.nOption > 1) {
-            Option o = new Option();
-            o.nOption = oldOption.nOption - 1;
-            o.rOption = oldOption.rOption;
-            o.tOption = tsm.getRemainingTime(HolyMagicShell, o.rOption);
-            o.xOption = oldOption.xOption;
-            o.setInMillis(true);
-            tsm.putCharacterStatValue(HolyMagicShell, o);
+            Option o1 = oldOption.deepCopy();
+            o1.nOption -= 1;
+            tsm.putCharacterStatValue(HolyMagicShell, o1, true);
             tsm.sendSetStatPacket();
         } else {
-            // apply cooldown
-            Option o = new Option();
-            o.nOption = 0;
-            o.rOption = oldOption.rOption;
-            o.tOption = (o.startTime + (oldOption.xOption * 1000)) - Util.getCurrentTime();
-            o.setInMillis(true);
-            tsm.putCharacterStatValue(HolyMagicShell, o);
-            tsm.sendSetStatPacket();
+            tsm.removeStat(HolyMagicShell, false);
         }
     }
 
