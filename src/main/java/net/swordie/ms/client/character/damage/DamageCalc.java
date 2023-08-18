@@ -58,7 +58,7 @@ public class DamageCalc {
         WeaponType weaponType = chr.getEquippedWeaponType();
         Map<BaseStat, Integer> basicStats = chr.getTotalBasicStats();
         double damage = calcDamageByWT(weaponType, basicStats, 0, 0);
-        damage *= (1 + chr.getTotalStat(damR) / 100D);
+        damage *= (1 + (chr.getTotalStat(damR) / 100D));
         return damage;
     }
 

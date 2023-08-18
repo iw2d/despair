@@ -1766,6 +1766,14 @@ public class Char {
 			removeSkill(skillID);
 			return;
 		}
+		SkillInfo si = SkillData.getSkillInfoById(skillID);
+		if (si.getReqLev() > getLevel()) {
+			if (addRegardlessOfLevel) {
+				skill.setCurrentLevel(0);
+			} else {
+				return;
+			}
+		}
 		skill.setCharId(getId());
 		boolean isPassive = SkillConstants.isPassiveSkill(skillID);
 		boolean isChanged;
@@ -4045,7 +4053,7 @@ public class Char {
 			int skillId = skill.getSkillId();
 			int slv = skill.getCurrentLevel();
 			SkillInfo si = SkillData.getSkillInfoById(skillId);
-			if (si == null) {
+			if (slv <= 0 || si == null) {
 				continue;
 			}
 			if (SkillConstants.isPsdWTSkill(skillId)) {
@@ -4072,7 +4080,7 @@ public class Char {
 			int skillId = skill.getSkillId();
 			int slv = skill.getCurrentLevel();
 			SkillInfo si = SkillData.getSkillInfoById(skillId);
-			if (si == null) {
+			if (slv <= 0 || si == null) {
 				continue;
 			}
 			if (SkillConstants.isPsdWTSkill(skillId)) {

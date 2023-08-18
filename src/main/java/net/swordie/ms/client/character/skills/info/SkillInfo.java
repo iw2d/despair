@@ -49,6 +49,7 @@ public class SkillInfo {
     private int hyper;
     private int hyperstat;
     private int vehicleId;
+    private int reqLev;
     private int reqTierPoint;
     private Map<Integer, Integer> reqSkills = new HashMap<>();
     private boolean notCooltimeReset;
@@ -244,7 +245,7 @@ public class SkillInfo {
 
     public Map<BaseStat, Integer> getConditionalStatValues(Char chr, int slv) {
         Map<BaseStat, Integer> stats = new HashMap<>();
-        if (SkillConstants.isConditionalPassiveSkill(getSkillId())) {
+        if (slv > 0 && SkillConstants.isConditionalPassiveSkill(getSkillId())) {
             switch (getSkillId()) {
                 case Paladin.SHIELD_MASTERY:
                 case Shadower.SHIELD_MASTERY:
@@ -373,12 +374,20 @@ public class SkillInfo {
         this.vehicleId = vehicleId;
     }
 
-    public void setReqTierPoint(int reqTierPoint) {
-        this.reqTierPoint = reqTierPoint;
+    public int getReqLev() {
+        return reqLev;
+    }
+
+    public void setReqLev(int reqLev) {
+        this.reqLev = reqLev;
     }
 
     public int getReqTierPoint() {
         return reqTierPoint;
+    }
+
+    public void setReqTierPoint(int reqTierPoint) {
+        this.reqTierPoint = reqTierPoint;
     }
 
     public void addReqSkill(int skillID, int slv) {

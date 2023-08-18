@@ -411,7 +411,6 @@ public enum BaseStat {
                 stats.put(mesoR, o.nOption);
                 break;
             case BasicStatUp:
-            case SurplusSupply:
                 stats.put(basicStrR, o.nOption);
                 stats.put(basicDexR, o.nOption);
                 stats.put(basicIntR, o.nOption);
@@ -603,6 +602,12 @@ public enum BaseStat {
                 break;
             case HowlingEvasion:
                 // CUserLocal::CheckMissByEtc
+                break;
+            case SurplusSupply:
+                stats.put(BaseStat.strR, o.nOption);
+                stats.put(BaseStat.dexR, o.nOption);
+                stats.put(BaseStat.intR, o.nOption);
+                stats.put(BaseStat.lukR, o.nOption);
                 break;
             default:
                 stats.put(unk, o.nOption);

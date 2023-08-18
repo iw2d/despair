@@ -49,6 +49,7 @@ public class SkillData {
                 dataOutputStream.writeInt(si.getHyper());
                 dataOutputStream.writeInt(si.getHyperStat());
                 dataOutputStream.writeInt(si.getVehicleId());
+                dataOutputStream.writeInt(si.getReqLev());
                 dataOutputStream.writeInt(si.getReqTierPoint());
                 dataOutputStream.writeBoolean(si.isNotCooltimeReset());
                 dataOutputStream.writeBoolean(si.isNotIncBuffDuration());
@@ -138,6 +139,7 @@ public class SkillData {
             skillInfo.setHyper(dataInputStream.readInt());
             skillInfo.setHyperStat(dataInputStream.readInt());
             skillInfo.setVehicleId(dataInputStream.readInt());
+            skillInfo.setReqLev(dataInputStream.readInt());
             skillInfo.setReqTierPoint(dataInputStream.readInt());
             skillInfo.setNotCooltimeReset(dataInputStream.readBoolean());
             skillInfo.setNotIncBuffDuration(dataInputStream.readBoolean());
@@ -339,6 +341,9 @@ public class SkillData {
                                             skill.addReqSkill(Integer.parseInt(childName), Integer.parseInt(childValue));
                                         }
                                     }
+                                    break;
+                                case "reqLev":
+                                    skill.setReqLev(intVal);
                                     break;
                                 case "common":
                                 case "info":
