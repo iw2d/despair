@@ -98,7 +98,7 @@ public class BattleMage extends Citizen {
 
     private Summon getDeath() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        for (Option option : tsm.getOptions(IndieEmpty)) {
+        for (Option option : tsm.getIndieOptions(IndieEmpty)) {
             if (option.nReason != CONDEMNATION && option.nReason != GRIM_CONTRACT &&
                     option.nReason != GRIM_CONTRACT_II && option.nReason != GRIM_CONTRACT_III) {
                 continue;

@@ -60,6 +60,7 @@ public class FamiliarHandler {
                 // deactivate old familiar
                 if (activeFam.getSkillID() != 0) {
                     chr.getTemporaryStatManager().removeStatsBySkill(-activeFam.getSkillID());
+                    chr.getTemporaryStatManager().sendResetStatPacket();
                     activeFam.setSkillID(0);
                 }
                 chr.getField().broadcastPacket(CFamiliar.familiarEnterField(chr.getId(), false,
@@ -71,6 +72,7 @@ public class FamiliarHandler {
                 familiar.setFh(chr.getFoothold());
             } else if (familiar.getSkillID() != 0) {
                 chr.getTemporaryStatManager().removeStatsBySkill(-familiar.getSkillID());
+                chr.getTemporaryStatManager().sendResetStatPacket();
                 familiar.setSkillID(0);
             }
             chr.getField().broadcastPacket(CFamiliar.familiarEnterField(chr.getId(), false, familiar, on, true));
@@ -115,6 +117,7 @@ public class FamiliarHandler {
         }
         if (activeFamiliar.getSkillID() != 0) {
             chr.getTemporaryStatManager().removeStatsBySkill(-activeFamiliar.getSkillID());
+            chr.getTemporaryStatManager().sendResetStatPacket();
         }
         int skillID = EtcData.getSkillByFamiliarID(familiarID);
         Item item = ItemData.getItemDeepCopy(skillID);

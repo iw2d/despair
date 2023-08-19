@@ -324,6 +324,7 @@ public class Kinesis extends Job {
         }
         if(getPp() <= 0) {
             tsm.removeStat(KinesisPsychicShield, false);
+            tsm.sendResetStatPacket();
         }
         super.handleHit(chr, hitInfo);
     }

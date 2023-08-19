@@ -262,6 +262,7 @@ public class DualBlade extends Thief {
                     field.spawnSummon(summon);
 
                     tsm.removeStatsBySkill(MIRROR_IMAGE);
+                    tsm.sendResetStatPacket();
                 }
                 break;
             case BLADE_CLONE:

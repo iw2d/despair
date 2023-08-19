@@ -420,6 +420,7 @@ public class Aran extends Job {
             case BODY_PRESSURE:
                 if(tsm.hasStatBySkillId(skillID)) {
                     tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
                 } else {
                     o1.nOption = 1;
                     o1.rOption = skillID;
@@ -429,6 +430,7 @@ public class Aran extends Job {
             case DRAIN:
                 if(tsm.hasStatBySkillId(skillID)) {
                     tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
                 } else {
                     o1.nOption = si.getValue(x, slv);
                     o1.rOption = skillID;

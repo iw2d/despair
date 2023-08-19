@@ -55,6 +55,7 @@ public class Thief extends Beginner {
         int maintainProc = si.getValue(prop, slv);
         if (tsm.hasStat(DarkSight) && !(Util.succeedProp(maintainProc) || tsm.hasStatBySkillId(Shadower.SMOKE_SCREEN))) {
             tsm.removeStat(DarkSight, true);
+            tsm.sendResetStatPacket();
         } else if (Util.succeedProp(proc)) {
             handleSkill(chr, DARK_SIGHT, chr.getSkillLevel(DARK_SIGHT), null);
         }

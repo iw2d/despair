@@ -158,7 +158,7 @@ public class WildHunter extends Citizen {
 
     private Summon getJaguar() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        for (Option option : tsm.getOptions(IndieEmpty)) {
+        for (Option option : tsm.getIndieOptions(IndieEmpty)) {
             if (Arrays.stream(SUMMONS).anyMatch(summonSkillId -> summonSkillId == option.nReason)) {
                 return option.summon;
             }
@@ -463,6 +463,7 @@ public class WildHunter extends Citizen {
                 TemporaryStatBase tsb = tsm.getTSBByTSIndex(TSIndex.RideVehicle);
                 if (tsm.hasStat(RideVehicle)) {
                     tsm.removeStat(RideVehicle, false);
+                    tsm.sendResetStatPacket();
                 } else {
                     o1.nOption = MOUNTS[chr.getWildHunterInfo().getIdx()];
                     o1.rOption = skillID;

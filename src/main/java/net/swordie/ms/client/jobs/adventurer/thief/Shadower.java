@@ -307,6 +307,7 @@ public class Shadower extends Thief {
                 if (tsm.hasStat(KillingPoint)) {
                     pad += si.getValue(kp, slv) * tsm.getOption(KillingPoint).nOption;
                     tsm.removeStat(KillingPoint, false);
+                    tsm.sendResetStatPacket();
                 }
                 o1.nOption = pad;
                 o1.rOption = skillID;
@@ -395,6 +396,7 @@ public class Shadower extends Thief {
             if (chr.getMoney() < mesoLoss) {
                 chr.deductMoney(chr.getMoney());
                 tsm.removeStat(MesoGuard, false);
+                tsm.sendResetStatPacket();
             } else {
                 chr.deductMoney(mesoLoss);
             }

@@ -3,9 +3,7 @@ package net.swordie.ms.client.character.skills.temp;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -668,6 +666,56 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             Unk483, Unk487, Unk488, Unk489, Unk491, Unk460
     );
 
+    private static final List<CharacterTemporaryStat> INDIE_ORDER = Arrays.asList(
+            IndiePAD, IndieMAD, IndiePDD, IndieMDD, IndieMHP, IndieMHPR, IndieMMP, IndieMMPR, IndieACC, IndieEVA,
+            IndieJump, IndieSpeed, IndieAllStat, IndieDodgeCriticalTime, IndieEXP, IndieBooster, IndieFixedDamageR,
+            PyramidStunBuff, PyramidFrozenBuff, PyramidFireBuff, PyramidBonusDamageBuff, IndieRelaxEXP, IndieSTR,
+            IndieDEX, IndieINT, IndieLUK, IndieDamR, IndieScriptBuff, IndieMDF, IndieMaxDamageOver, IndieAsrR,
+            IndieTerR, IndieCr, IndiePDDR, IndieCrMax, IndieBDR, IndieStatR, IndieStance, IndieIgnoreMobpdpR,
+            IndieEmpty, IndiePADR, IndieMADR, IndieCrMaxR, IndieEVAR, IndieMDDR, IndieDrainHP, IndiePMdR,
+            IndieMaxDamageOverR, IndieForceJump, IndieForceSpeed, IndieQrPointTerm, IndieUNK1, IndieUNK2, IndieUNK3,
+            IndieUNK4, IndieUNK5, IndieStatCount
+    );
+
+    private static final List<CharacterTemporaryStat> ENCODE_INT = Arrays.asList(
+            RideVehicle, RideVehicleExpire, CarnivalDefence, SpiritLink, DojangLuckyBonus, SoulGazeCriDamR,
+            PowerTransferGauge, ReturnTeleport, ShadowPartner, AranSmashSwing, IncMaxDamage, Unk487, SetBaseDamage,
+            QuiverCatridge, ImmuneBarrier, NaviFlying, Dance, SetBaseDamageByBuff, DotHealHPPerSecond, Magnet,
+            MagnetArea, VampDeath, VampDeathSummon, Cyclone, RWBarrier
+    );
+
+    public static final EnumSet<CharacterTemporaryStat> MOVING_AFFECTING_STAT = EnumSet.of(
+            Speed, Jump, Stun, Weakness, Slow, Morph, Ghost, BasicStatUp, Attract, DashSpeed, DashJump, Flying, Frozen,
+            Frozen2, Lapidification, IndieSpeed, IndieJump, KeyDownMoving, EnergyCharged, Mechanic, Magnet, MagnetArea,
+            VampDeath, VampDeathSummon, GiveMeHeal, DarkTornado, NewFlying, NaviFlying, UserControlMob, Dance,
+            SelfWeakness, BattlePvPHelenaWindSpirit, BattlePvPLeeMalNyunScaleUp, TouchMe, IndieForceSpeed,
+            IndieForceJump, RideVehicle, RideVehicleExpire
+    );
+
+    public static final EnumSet<CharacterTemporaryStat> RESET_BY_TIME_CTS = EnumSet.of(
+            Stun, Shock, Poison, Seal, Darkness, Weakness, WeaknessMdamage, Curse, Slow, /*TimeBomb,*/
+            DisOrder, Thread, Attract, Magnet, MagnetArea, ReverseInput, BanMap, StopPortion, StopMotion,
+            Fear, Frozen, Frozen2, Web, NotDamaged, FinalCut, Lapidification, VampDeath, VampDeathSummon,
+            GiveMeHeal, TouchMe, Contagion, ComboUnlimited, CrossOverChain, Reincarnation, ComboCostInc,
+            DotBasedBuff, ExtremeArchery, QuiverCatridge, AdvancedQuiver, UserControlMob, ArmorPiercing,
+            CriticalGrowing, QuickDraw, BowMasterConcentration, ComboTempest, SiphonVitality, KnockBack, RWMovingEvar
+    );
+
+    public static List<CharacterTemporaryStat> getOrderList() {
+        return ORDER;
+    }
+
+    public static List<CharacterTemporaryStat> getRemoteOrderList() {
+        return REMOTE_ORDER;
+    }
+
+    public static List<CharacterTemporaryStat> getIndieOrderList() {
+        return INDIE_ORDER;
+    }
+
+    public static List<CharacterTemporaryStat> getEncodeIntList() {
+        return ENCODE_INT;
+    }
 
 
     CharacterTemporaryStat(int val, int pos) {
@@ -688,102 +736,16 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
                         .collect(Collectors.toList()).get(0);
     }
 
-    public boolean isEncodeInt() {
-        switch (this) {
-            case RideVehicle:
-            case RideVehicleExpire:
-            case CarnivalDefence:
-            case SpiritLink:
-            case DojangLuckyBonus:
-            case SoulGazeCriDamR:
-            case PowerTransferGauge:
-            case ReturnTeleport:
-            case ShadowPartner:
-            case AranSmashSwing:
-            case IncMaxDamage:
-            case Unk487:
-            case SetBaseDamage:
-            case QuiverCatridge:
-            case ImmuneBarrier:
-            case NaviFlying:
-            case Dance:
-            case SetBaseDamageByBuff:
-            case DotHealHPPerSecond:
-            case Magnet:
-            case MagnetArea:
-            case VampDeath:
-            case VampDeathSummon:
-            case Cyclone:
-            case RWBarrier:
-
-                // EXPERIMENTAL *******
-                // case unk214_1:
-
-            /*
-            case Unk199_527: //?
-            case Unk199_528: //?
-            case IndieKeyDownTime:
-            case EnergyCharged:
-            case DashSpeed:
-            case DashJump:
-            case PartyBooster:
-            case GuidedBullet:
-            case Undead:
-            */
-                return true;
-            default:
-                return false;
-        }
+    public boolean isIndie() {
+        return INDIE_ORDER.contains(this);
     }
 
-    public boolean isIndie() {
-        return toString().toLowerCase().contains("indie");
+    public boolean isEncodeInt() {
+        return ENCODE_INT.contains(this);
     }
 
     public boolean isMovingEffectingStat() {
-        switch (this) {
-            case Speed:
-            case Jump:
-            case Stun:
-            case Weakness:
-            case Slow:
-            case Morph:
-            case Ghost:
-            case BasicStatUp:
-            case Attract:
-            case DashSpeed:
-            case DashJump:
-            case Flying:
-            case Frozen:
-            case Frozen2:
-            case Lapidification:
-            case IndieSpeed:
-            case IndieJump:
-            case KeyDownMoving:
-            case EnergyCharged:
-            case Mechanic:
-            case Magnet:
-            case MagnetArea:
-            case VampDeath:
-            case VampDeathSummon:
-            case GiveMeHeal:
-            case DarkTornado:
-            case NewFlying:
-            case NaviFlying:
-            case UserControlMob:
-            case Dance:
-            case SelfWeakness:
-            case BattlePvPHelenaWindSpirit:
-            case BattlePvPLeeMalNyunScaleUp:
-            case TouchMe:
-            case IndieForceSpeed:
-            case IndieForceJump:
-            case RideVehicle:
-            case RideVehicleExpire:
-                return true;
-            default:
-                return false;
-        }
+        return MOVING_AFFECTING_STAT.contains(this);
     }
 
     public int getVal() {

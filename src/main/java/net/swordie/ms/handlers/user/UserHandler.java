@@ -86,6 +86,7 @@ public class UserHandler {
                     tsm.removeStatsBySkill(skill);
                 }
             }
+            tsm.sendResetStatPacket();
         }
     }
 

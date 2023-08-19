@@ -248,6 +248,7 @@ public abstract class Job {
 				}
 				if (savingGraceSkillId != 0 && tsm.hasStatBySkillId(savingGraceSkillId)) {
 					tsm.removeStatsBySkill(savingGraceSkillId);
+					tsm.sendResetStatPacket();
 					roll1 = Util.getRandom(4, (chr.hasSkill(Buccaneer.ROLL_OF_THE_DICE_BUCC_ADDITION) || chr.hasSkill(Corsair.ROLL_OF_THE_DICE_SAIR_ADDITION)) ? 7 : 6);
 					roll2 = roll1;
 				} else if (Util.succeedProp(si.getValue(prop, slv))) { // prop% chance to roll double down

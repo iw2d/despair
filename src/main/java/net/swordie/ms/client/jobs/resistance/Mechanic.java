@@ -242,6 +242,7 @@ public class Mechanic extends Citizen {
             case PERFECT_ARMOR:
                 if (tsm.hasStatBySkillId(skillID)) {
                     tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
                 } else {
                     o1.nOption = si.getValue(x, slv);
                     o1.rOption = skillID;

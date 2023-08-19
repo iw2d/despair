@@ -4,7 +4,6 @@ import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
@@ -207,6 +206,7 @@ public class DawnWarrior extends Noblesse {
 
             tsm.removeStatsBySkill(FALLING_MOON);
             tsm.removeStatsBySkill(EQUINOX_CYCLE_SUN);
+            tsm.sendResetStatPacket();
         } else {
             o1.nOption = 1;
             o1.rOption = FALLING_MOON;
@@ -231,6 +231,7 @@ public class DawnWarrior extends Noblesse {
 
             tsm.removeStatsBySkill(RISING_SUN);
             tsm.removeStatsBySkill(EQUINOX_CYCLE_MOON);
+            tsm.sendResetStatPacket();
         }
         tsm.sendSetStatPacket();
     }
@@ -406,7 +407,7 @@ public class DawnWarrior extends Noblesse {
             if (ServerConstants.CLIENT_SIDED_SKILL_HOOK) {
                 tsm.removeStatsBySkill(FALLING_MOON);
                 tsm.removeStatsBySkill(RISING_SUN);
-                chr.write(WvsContext.temporaryStatReset(PoseType));
+                chr.write(WvsContext.clientTemporaryStatReset(PoseType));
             }
             tsm.removeStatsBySkill(EQUINOX_CYCLE_MOON);
             tsm.removeStatsBySkill(EQUINOX_CYCLE_SUN);

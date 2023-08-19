@@ -1813,6 +1813,7 @@ public class Char {
 			getSkills().remove(skill);
 			getJobHandler().handleRemoveSkill(skillID);
 			getTemporaryStatManager().removeStatsBySkill(skillID);
+			getTemporaryStatManager().sendResetStatPacket();
 		}
 	}
 
@@ -2299,10 +2300,12 @@ public class Char {
 		al.removeItem(itemID);
 		byte maskValue = AvatarModifiedMask.AvatarLook.getVal();
 		getField().broadcastPacket(UserRemote.avatarModified(this, maskValue, (byte) 0), this);
-		if (getTemporaryStatManager().hasStat(SoulMP) && ItemConstants.isWeapon(item.getItemId())) {
-			getTemporaryStatManager().removeStat(SoulMP, false);
-			getTemporaryStatManager().removeStat(FullSoulMP, false);
-			getTemporaryStatManager().sendResetStatPacket();
+
+		TemporaryStatManager tsm = getTemporaryStatManager();
+		if (tsm.hasStat(SoulMP) && ItemConstants.isWeapon(item.getItemId())) {
+			tsm.removeStat(SoulMP, false);
+			tsm.removeStat(FullSoulMP, false);
+			tsm.sendResetStatPacket();
 		}
         List<Skill> skills = new ArrayList<>();
         for (ItemSkill itemSkill : ItemData.getEquipById(item.getItemId()).getItemSkills()) {
@@ -2319,8 +2322,9 @@ public class Char {
 		if (equippedSummonSkill != 0) {
 			getField().removeSummon(equippedSummonSkill, getId());
 
-            getTemporaryStatManager().removeStatsBySkill(equippedSummonSkill);
-            getTemporaryStatManager().removeStatsBySkill(getTemporaryStatManager().getOption(RepeatEffect).rOption);
+			tsm.removeStatsBySkill(equippedSummonSkill);
+			tsm.removeStatsBySkill(getTemporaryStatManager().getOption(RepeatEffect).rOption);
+			tsm.sendResetStatPacket();
 		}
 		if (JobConstants.isDemonAvenger(getJob())) {
 			((DemonAvenger) getJobHandler()).sendHpUpdate();
@@ -2611,11 +2615,6 @@ public class Char {
 		if (toField == null) {
 			return;
 		}
-		TemporaryStatManager tsm = getTemporaryStatManager();
-		for (AffectedArea aa : tsm.getAffectedAreas()) {
-			tsm.removeStatsBySkill(aa.getSkillID());
-		}
-		tsm.getAffectedAreas().clear();
 
 		Field currentField = getField();
 		if (currentField != null) {
@@ -2659,29 +2658,9 @@ public class Char {
 			}
 		}
 		toField.spawnLifesForChar(this);
-		if (tsm.hasStat(IndieEmpty)) {
-			for (Iterator<Option> iterator = tsm.getCurrentStats().getOrDefault(IndieEmpty, new ArrayList<>()).iterator(); iterator.hasNext(); ) {
-				Summon summon = iterator.next().summon;
-				if (summon != null) {
-					if (summon.getMoveAbility().changeFieldWithOwner()) {
-						summon.setObjectId(getField().getNewObjectID());
-						getField().spawnSummon(summon);
-					} else {
-						iterator.remove();
-					}
-				}
-			}
-		}
-		for (int skill : Job.REMOVE_ON_WARP) {
-			if (tsm.hasStatBySkillId(skill)) {
-				tsm.removeStatsBySkill(skill);
-			}
-		}
-		if (tsm.hasStat(Flying) && !toField.isFly()) {
-			tsm.removeStat(Flying, false);
-		}
-
+		getTemporaryStatManager().handleWarp(toField);
 		getJobHandler().handleWarp();
+
 		setForceAtomKeyCounter(1);
 		notifyChanges();
 		toField.execUserEnterScript(this);
@@ -5159,24 +5138,6 @@ public class Char {
 
 	public void addItemBoughtAmount(long itemId, int amount) {
 		getItemBoughtAmounts().put(itemId, amount);
-	}
-
-	public void increaseGolluxStack() {
-		int maxStack = 5;
-		TemporaryStatManager tsm = getTemporaryStatManager();
-		int stack = tsm.getCurrentStats().get(Stigma) != null ? tsm.getCurrentStats().get(Stigma).get(0).nOption : 0;
-		stack++;
-		Option o = new Option();
-		if (stack >= maxStack) {
-			this.heal(-getMaxHP());
-			stack = maxStack;
-		}
-		o.nOption = stack;
-		o.rOption = 800;
-		o.bOption = maxStack;
-		tsm.putCharacterStatValue(Stigma, o);
-		// no tOption  as it would probably be permanent (till death)
-		tsm.sendSetStatPacket();
 	}
 
 	public Merchant getVisitingmerchant() {

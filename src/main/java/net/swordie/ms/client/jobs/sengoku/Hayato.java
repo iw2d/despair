@@ -510,6 +510,7 @@ public class Hayato extends Job {
             case EYE_FOR_AN_EYE:
                 if(tsm.hasStatBySkillId(skillID)) {
                     tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
                 } else {
                     o1.nOption = 1;
                     o1.rOption = skillID;

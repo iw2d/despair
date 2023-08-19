@@ -6,7 +6,6 @@ import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.items.BodyPart;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
@@ -357,7 +356,7 @@ public class Mercedes extends Job {
                 tsm.putCharacterStatValue(Stance, o2);
                 break;
             case ELEMENTAL_KNIGHTS_BLUE:
-                List<Integer> existingSummons = tsm.getOptions(IndieEmpty).stream()
+                List<Integer> existingSummons = tsm.getIndieOptions(IndieEmpty).stream()
                         .map(o -> o.nReason)
                         .filter(ELEMENTAL_KNIGHT_SKILLS::contains)
                         .toList();

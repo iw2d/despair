@@ -392,6 +392,7 @@ public class Zero extends Job {
             case DIVINE_FORCE:
                 if(tsm.hasStatBySkillId(skillID)) {
                     tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
                 } else {
                     o1.nReason = skillID;
                     o1.nValue = si.getValue(indieAsrR, slv);
@@ -432,6 +433,7 @@ public class Zero extends Job {
             case DIVINE_SPEED:
                 if(tsm.hasStatBySkillId(skillID)) {
                     tsm.removeStatsBySkill(skillID);
+                    tsm.sendResetStatPacket();
                 } else {
                     o1.nReason = skillID;
                     o1.nValue = si.getValue(indieAcc, slv);

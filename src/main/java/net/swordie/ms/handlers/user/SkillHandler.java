@@ -412,6 +412,7 @@ public class SkillHandler {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         int skillId = inPacket.decodeInt();
         tsm.removeStatsBySkill(skillId);
+        tsm.sendResetStatPacket();
 
         if (SkillConstants.isKeyDownSkill(skillId)) {
             if(SkillConstants.isKeydownCDSkill(skillId)){

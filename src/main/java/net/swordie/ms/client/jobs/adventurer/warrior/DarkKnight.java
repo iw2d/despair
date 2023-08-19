@@ -79,7 +79,7 @@ public class DarkKnight extends Warrior {
 
     private Summon getEvilEye() {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        for (Option option : tsm.getOptions(IndieEmpty)) {
+        for (Option option : tsm.getIndieOptions(IndieEmpty)) {
             if (option.nReason != EVIL_EYE) {
                 continue;
             }
@@ -340,6 +340,7 @@ public class DarkKnight extends Warrior {
             case EVIL_EYE_OF_DOMINATION:
                 if (tsm.hasStatBySkillId(EVIL_EYE_OF_DOMINATION)) {
                     tsm.removeStatsBySkill(EVIL_EYE_OF_DOMINATION);
+                    tsm.sendResetStatPacket();
                     spawnEvilEye(false);
                 } else {
                     updateEvilEye(EVIL_EYE_OF_DOMINATION);

@@ -50,6 +50,7 @@ public class SummonedHandler {
         int skillId = summon.getSkillID();
         if (tsm.hasStatBySkillId(skillId)) {
             tsm.removeStatsBySkill(skillId);
+            tsm.sendResetStatPacket();
         }
 
         chr.getField().removeLife(id, false);

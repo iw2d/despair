@@ -35,7 +35,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
-import static net.swordie.ms.enums.InvType.EQUIPPED;
 import static net.swordie.ms.enums.MessageType.*;
 
 /**
@@ -248,15 +247,12 @@ public class WvsContext {
 
     public static OutPacket temporaryStatSet(TemporaryStatManager tsm) {
         OutPacket outPacket = new OutPacket(OutHeader.TEMPORARY_STAT_SET);
-
-        boolean hasMovingAffectingStat = tsm.hasNewMovingEffectingStat(); // encoding flushes new stats
         tsm.encodeForLocal(outPacket);
-
         outPacket.encodeShort(0);
         outPacket.encodeByte(0);
         outPacket.encodeByte(0);
         outPacket.encodeByte(0);
-        if (hasMovingAffectingStat) {
+        if (tsm.hasNewMovingEffectingStat()) {
             outPacket.encodeByte(0);
         }
         outPacket.encodeInt(0);
@@ -265,9 +261,7 @@ public class WvsContext {
 
     public static OutPacket temporaryStatReset(TemporaryStatManager temporaryStatManager, boolean demount, boolean isMigrate) {
         OutPacket outPacket = new OutPacket(OutHeader.TEMPORARY_STAT_RESET);
-        for (int i : temporaryStatManager.getRemovedMask()) {
-            outPacket.encodeInt(i);
-        }
+        temporaryStatManager.getResetStatMask().encode(outPacket);
         temporaryStatManager.encodeRemovedIndieTempStat(outPacket);
         if (temporaryStatManager.hasRemovedMovingEffectingStat()) {
             outPacket.encodeByte(0);
@@ -277,11 +271,10 @@ public class WvsContext {
         if (isMigrate) {
             temporaryStatManager.getToBroadcastAfterMigrate().add(outPacket);
         }
-        temporaryStatManager.getRemovedStats().clear();
         return outPacket;
     }
 
-    public static OutPacket temporaryStatReset(CharacterTemporaryStat cts) {
+    public static OutPacket clientTemporaryStatReset(CharacterTemporaryStat cts) {
         OutPacket outPacket = new OutPacket(OutHeader.TEMPORARY_STAT_RESET);
 
         int[] removedMask = new int[CharacterTemporaryStat.length];

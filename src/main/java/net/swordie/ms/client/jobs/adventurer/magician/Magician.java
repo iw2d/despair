@@ -68,7 +68,7 @@ public class Magician extends Beginner {
 
                 infinityTimer = EventManager.addEvent(this::infinity, 4, TimeUnit.SECONDS);
             } else {
-                tsm.removeStat(Infinity, true);
+                tsm.removeStat(Infinity, false);
                 tsm.sendResetStatPacket();
             }
         }

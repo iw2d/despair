@@ -87,7 +87,7 @@ public class ReactorHandler {
         mob.die(false);
         Field field = chr.getField();
         for (Char character : field.getChars()) {
-            character.increaseGolluxStack();
+            character.getTemporaryStatManager().increaseGolluxStack();
         }
     }
 

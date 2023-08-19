@@ -42,6 +42,7 @@ import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
+import net.swordie.ms.util.container.Tuple;
 import net.swordie.ms.world.event.InGameEventManager;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.Portal;
@@ -2014,35 +2015,33 @@ public class AdminCommands {
     @Command(names = {"showbuffs"}, requiredType = Tester)
     public static class ShowBuffs extends AdminCommand {
         public static void execute(Char chr, String[] args) {
+            Map<Integer, Set<Tuple<CharacterTemporaryStat, Option>>> buffs = new HashMap<>();
             TemporaryStatManager tsm = chr.getTemporaryStatManager();
-            Set<Integer> buffs = new HashSet<>();
-            for (List<Option> options : tsm.getCurrentStats().values()) {
-                for (Option o : options) {
-                    if (o.rOption != 0) {
-                        buffs.add(o.rOption);
-                    } else {
-                        buffs.add(o.nReason);
-                    }
+            tsm.getCurrentStats().forEach((cts, option) -> {
+                int key = option.rOption;
+                if (!buffs.containsKey(key)) {
+                    buffs.put(key, new HashSet<>());
                 }
-            }
-            StringBuilder sb = new StringBuilder("Current buffs: ");
-            for (int id : buffs) {
-                String skillName = StringData.getSkillStringById(id) != null ? StringData.getSkillStringById(id).getName() : "Unknown Skill ID";
-                sb.append(skillName).append(" (").append(id).append("), ");
-            }
-            chr.chatMessage(sb.toString().substring(0, sb.toString().length() - 2));
-        }
-    }
+                buffs.get(key).add(new Tuple<>(cts, option));
+            });
+            tsm.getCurrentIndieStats().forEach((cts, options) -> {
+                for (Option option : options) {
+                    int key = option.nReason;
+                    if (!buffs.containsKey(key)) {
+                        buffs.put(key, new HashSet<>());
+                    }
+                    buffs.get(key).add(new Tuple<>(cts, option));
+                }
+            });
 
-    @Command(names = {"showcts"}, requiredType = Tester)
-    public static class ShowCTS extends AdminCommand {
-        public static void execute(Char chr, String[] args) {
-            TemporaryStatManager tsm = chr.getTemporaryStatManager();
-            chr.chatMessage("Current CTS:");
-
-            for (CharacterTemporaryStat cts : tsm.getCurrentStats().keySet()) {
-                chr.chatMessage(String.format("    %s : %d", cts.name(), cts.isIndie() ? tsm.getOption(cts).nValue : tsm.getOption(cts).nOption));
-            }
+            chr.chatMessage("Current buffs:");
+            buffs.forEach((skillId, tuples) -> {
+                String skillName = StringData.getSkillStringById(skillId) != null ? StringData.getSkillStringById(skillId).getName() : "Unknown Skill ID";
+                String ctsInfo = tuples.stream()
+                        .map((tuple) -> String.format("%s (%d)", tuple.getLeft().name(), (!tuple.getLeft().isIndie() ? tuple.getRight().nOption : tuple.getRight().nReason)))
+                        .collect(Collectors.joining(", "));
+                chr.chatMessage(String.format("  %s (%d) : %s", skillName, skillId, ctsInfo));
+            });
         }
     }
 

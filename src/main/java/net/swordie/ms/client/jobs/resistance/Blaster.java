@@ -440,6 +440,7 @@ public class Blaster extends Citizen {
         int newShield = (oldShield * si.getValue(y, shieldSkill.getCurrentLevel()) / 100) - si.getValue(z, shieldSkill.getCurrentLevel());
         if (newShield <= 0) {
             tsm.removeStat(RWBarrier, false);
+            tsm.sendResetStatPacket();
         } else {
             putOnShield(newShield);
         }

@@ -313,12 +313,14 @@ public class IceLightning extends Magician {
                 int slv = chr.getSkillLevel(ELEMENTAL_ADAPTATION_IL);
 
                 tsm.removeStatsBySkill(ELEMENTAL_ADAPTATION_IL);
-                Option o = new Option();
-                o.nOption = 1;
-                o.rOption = ELEMENTAL_ADAPTATION_IL;
-                o.tOption = si.getValue(time, slv);
-                o.bOption = 1;
-                tsm.putCharacterStatValue(AntiMagicShell, o);
+                tsm.sendResetStatPacket();
+
+                Option o1 = new Option();
+                o1.nOption = 1;
+                o1.rOption = ELEMENTAL_ADAPTATION_IL;
+                o1.tOption = si.getValue(time, slv);
+                o1.bOption = 1;
+                tsm.putCharacterStatValue(AntiMagicShell, o1);
                 tsm.sendSetStatPacket();
             }
             tsm.removeAllDebuffs();

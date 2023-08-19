@@ -63,6 +63,19 @@ public class SkillConstants {
             AngelicBuster.SUPREME_SUPERNOVA
     ));
 
+    public static final List<BaseStat>[] DICE_STAT_TYPE = new List[]{
+            List.of(),
+            List.of(),
+            List.of(BaseStat.pddR, BaseStat.mddR),
+            List.of(BaseStat.mhpR, BaseStat.mmpR),
+            List.of(BaseStat.cr),
+            List.of(BaseStat.damR),
+            List.of(BaseStat.expR),
+            List.of(BaseStat.ied)
+    };
+    public static final int[] DICE_STAT_VALUE = { 0, 0, 30, 20, 15, 20, 30, 20 };
+    public static final int[] DICE_STAT_VALUE_DD = { 0, 0, 40, 30, 25, 30, 40, 30 };
+
     public static boolean isSkillNeedMasterLevel(int skillId) {
         // bool __cdecl is_skill_need_master_level(int) (0x00601370)
         if (isIgnoreMasterLevel(skillId)

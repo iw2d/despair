@@ -487,6 +487,7 @@ public class Shade extends Job {
             return false;
         }
         tsm.removeStatsBySkill(skillId);
+        tsm.sendResetStatPacket();
         chr.chatMessage("You have survived a fatal attack with Close Call.");
         chr.write(UserPacket.effect(Effect.skillUse(CLOSE_CALL, (byte) 1, 0)));
         chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(CLOSE_CALL, (byte) 1, 0)), chr);

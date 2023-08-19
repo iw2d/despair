@@ -2260,12 +2260,14 @@ public class ScriptManagerImpl implements ScriptManager {
 	public void removeCTS(CharacterTemporaryStat cts) {
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
 		tsm.removeStat(cts, false);
+		tsm.sendResetStatPacket();
 	}
 
 	@Override
 	public void removeBuffBySkill(int skillId) {
 		TemporaryStatManager tsm = chr.getTemporaryStatManager();
 		tsm.removeStatsBySkill(skillId);
+		tsm.sendResetStatPacket();
 	}
 
 	@Override

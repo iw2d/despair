@@ -579,6 +579,7 @@ public class Bishop extends Magician {
             tsm.sendSetStatPacket();
         } else {
             tsm.removeStat(HolyMagicShell, false);
+            tsm.sendResetStatPacket();
         }
     }
 

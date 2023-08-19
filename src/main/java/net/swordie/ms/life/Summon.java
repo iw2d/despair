@@ -379,6 +379,7 @@ public class Summon extends Life {
             TemporaryStatManager tsm = chr.getTemporaryStatManager();
             chr.getField().broadcastPacket(Summoned.summonedRemoved(this, LeaveType.ANIMATION));
             tsm.removeStatsBySkill(getSkillID());
+            tsm.sendResetStatPacket();
         } else {
             setHp(newSummonHP);
         }

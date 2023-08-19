@@ -313,7 +313,7 @@ public class UserRemote {
 
         outPacket.encodeInt(chr.getId());
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        tsm.encodeForRemote(outPacket, tsm.getNewStats());
+        tsm.encodeForRemote(outPacket, false);
         outPacket.encodeShort(delay);
 
         return outPacket;
@@ -325,10 +325,7 @@ public class UserRemote {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
 
         outPacket.encodeInt(chr.getId());
-        int[] mask = tsm.getMaskByCollection(tsm.getRemovedStats());
-        for (int maskElem : mask) {
-            outPacket.encodeInt(maskElem);
-        }
+        tsm.getResetStatMask().encode(outPacket);
         int poseType = 0;
         if (tsm.hasStat(CharacterTemporaryStat.PoseType)) {
             poseType = tsm.getOption(CharacterTemporaryStat.PoseType).bOption;

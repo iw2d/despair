@@ -220,6 +220,7 @@ public class FirePoison extends Magician {
                 Summon viralSlime = attackInfo.summon;
                 chr.getField().removeLife(viralSlime.getObjectId(), true);
                 tsm.removeStatsBySkill(VIRAL_SLIME);
+                tsm.sendResetStatPacket();
                 applyDot(attackInfo, skillID, slv, si);
                 break;
             case IFRIT:

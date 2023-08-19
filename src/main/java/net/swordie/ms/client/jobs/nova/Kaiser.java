@@ -516,6 +516,7 @@ public class Kaiser extends Job {
                     tsm.removeStatsBySkill(REALIGN_DEFENDER_MODE);
                     giveRealignAttackBuffs();
                 }
+                tsm.sendResetStatPacket();
                 break;
             case REALIGN_DEFENDER_MODE:
                 if (tsm.hasStatBySkillId(skillID)) {
@@ -524,6 +525,7 @@ public class Kaiser extends Job {
                     tsm.removeStatsBySkill(REALIGN_ATTACKER_MODE);
                     giveRealignDefendBuffs();
                 }
+                tsm.sendResetStatPacket();
                 break;
             case BLAZE_ON:
                 o1.nOption = si.getValue(x, slv);
