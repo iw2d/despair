@@ -1,7 +1,5 @@
 package net.swordie.ms.client.character.skills.temp;
 
-import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timeout;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.BodyPart;
 import net.swordie.ms.client.character.items.Equip;
@@ -17,6 +15,7 @@ import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.TSIndex;
+import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.loaders.SkillData;
@@ -28,6 +27,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -40,11 +40,10 @@ import static net.swordie.ms.constants.SkillConstants.DICE_STAT_VALUE_DD;
 
 public class TemporaryStatManager {
     private static final Logger log = LogManager.getLogger(TemporaryStatManager.class);
-    private static final HashedWheelTimer timer = new HashedWheelTimer(30, TimeUnit.MILLISECONDS, 2000);
     private final Map<CharacterTemporaryStat, Option> stats = new ConcurrentHashMap<>();
     private final Map<CharacterTemporaryStat, List<Option>> indieStats = new ConcurrentHashMap<>();
-    private final Map<CharacterTemporaryStat, Timeout> statTimers = new ConcurrentHashMap<>();
-    private final Map<Tuple<CharacterTemporaryStat, Option>, Timeout> indieStatTimers = new ConcurrentHashMap<>();
+    private final Map<CharacterTemporaryStat, ScheduledFuture> statSchedules = new ConcurrentHashMap<>();
+    private final Map<Tuple<CharacterTemporaryStat, Option>, ScheduledFuture> indieStatSchedules = new ConcurrentHashMap<>();
     private final TemporaryStatMask setStatMask = new TemporaryStatMask();
     private final TemporaryStatMask resetStatMask = new TemporaryStatMask();
     private final Lock lock = new ReentrantLock();
@@ -214,10 +213,10 @@ public class TemporaryStatManager {
                 stats.put(cts, option);
                 if (option.tOption > 0 || (tsi != null && !tsb.hasExpired() && tsb.getExpireTerm() != 0)) {
                     int delay = tsi != null ? tsb.getExpireTerm() : option.tOption;
-                    if (statTimers.containsKey(cts)) {
-                        statTimers.get(cts).cancel();
+                    if (statSchedules.containsKey(cts)) {
+                        statSchedules.get(cts).cancel(false);
                     }
-                    statTimers.put(cts, timer.newTimeout((timeout) -> removeStat(cts, true), delay, TimeUnit.MILLISECONDS));
+                    statSchedules.put(cts, EventManager.addEvent(() -> removeStat(cts, true), delay, TimeUnit.MILLISECONDS));
                 }
             } else {
                 if (!indieStats.containsKey(cts)) {
@@ -225,10 +224,10 @@ public class TemporaryStatManager {
                 }
                 if (option.tTerm > 0) {
                     Tuple<CharacterTemporaryStat, Option> tuple = new Tuple<>(cts, option);
-                    if (indieStatTimers.containsKey(tuple)) {
-                        indieStatTimers.get(tuple).cancel();
+                    if (indieStatSchedules.containsKey(tuple)) {
+                        indieStatSchedules.get(tuple).cancel(false);
                     }
-                    indieStatTimers.put(tuple, timer.newTimeout((timeout) -> removeIndieStat(tuple, true), option.tTerm, TimeUnit.MILLISECONDS));
+                    indieStatSchedules.put(tuple, EventManager.addEvent(() -> removeIndieStat(tuple, true), option.tTerm, TimeUnit.MILLISECONDS));
                 }
                 indieStats.get(cts).add(option);
             }
@@ -253,7 +252,7 @@ public class TemporaryStatManager {
         try {
             if (predicate.test(option)) {
                 stats.remove(cts);
-                statTimers.remove(cts);
+                statSchedules.remove(cts);
                 resetStatMask.put(cts);
                 baseStatChanged = true;
             }
@@ -312,7 +311,7 @@ public class TemporaryStatManager {
                         option.summon.setExpired(true);
                         option.summon = null;
                     }
-                    indieStatTimers.remove(new Tuple<>(cts, option));
+                    indieStatSchedules.remove(new Tuple<>(cts, option));
                     resetStatMask.put(cts);
                     baseStatChanged = true;
                 }
@@ -334,7 +333,7 @@ public class TemporaryStatManager {
     }
 
     public void removeIndieStat(Tuple<CharacterTemporaryStat, Option> tuple) {
-        removeIndieStat(tuple, false);
+        removeIndieStat(tuple.getLeft(), tuple.getRight()::equals, false);
     }
 
     public void removeStatsBySkill(CharacterTemporaryStat cts, int skillId) {

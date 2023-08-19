@@ -100,7 +100,7 @@ public class Xenon extends Job {
             if(supplyTimer != null && !supplyTimer.isDone()) {
                 supplyTimer.cancel(true);
             }
-            supplyTimer = EventManager.addFixedRateEvent(this::incrementSupply, 2000, 4000);
+            supplyTimer = EventManager.addFixedRateEvent(() -> incrementSupply(), 2000, 4000);
         }
     }
 
