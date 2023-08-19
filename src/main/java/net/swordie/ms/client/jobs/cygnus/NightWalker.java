@@ -242,7 +242,7 @@ public class NightWalker extends Noblesse {
                 // max stacks when dominion is active
                 stacks = maxStacks;
             } else {
-                Option oldO = mts.getCurrentOptionsByMobStat(MobStat.ElementDarkness);
+                Option oldO = mts.getOption(MobStat.ElementDarkness);
                 if (oldO != null && oldO.nOption > 0) {
                     stacks = oldO.nOption;
                 }

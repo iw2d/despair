@@ -286,13 +286,13 @@ public class MobHandler {
         Mob mob = (Mob) chr.getField().getLifeByObjectID(mobID);
         if (mob != null) {
             MobTemporaryStat mts = mob.getTemporaryStat();
-            if ((mts.hasCurrentMobStat(MobStat.Explosion) && mts.getCurrentOptionsByMobStat(MobStat.Explosion).wOption == chr.getId())
-                    || (mts.hasCurrentMobStat(MobStat.SoulExplosion) && mts.getCurrentOptionsByMobStat(MobStat.SoulExplosion).wOption == chr.getId())) {
+            if ((mts.hasStat(MobStat.Explosion) && mts.getOption(MobStat.Explosion).wOption == chr.getId())
+                    || (mts.hasStat(MobStat.SoulExplosion) && mts.getOption(MobStat.SoulExplosion).wOption == chr.getId())) {
                 chr.write(UserLocal.explosionAttack(skillID, mob.getPosition(), mobID, 1));
 
-                if (mts.hasCurrentMobStat(MobStat.SoulExplosion) && skillID == DawnWarrior.IMPALING_RAYS_EXPLOSION) {
+                if (mts.hasStat(MobStat.SoulExplosion) && skillID == DawnWarrior.IMPALING_RAYS_EXPLOSION) {
                     mts.removeMobStat(MobStat.SoulExplosion, true);
-                } else if (mts.hasCurrentMobStat(MobStat.Explosion)) {
+                } else if (mts.hasStat(MobStat.Explosion)) {
                     mts.removeMobStat(MobStat.Explosion, true);
                 }
             }

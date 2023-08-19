@@ -292,8 +292,8 @@ public class Bishop extends Magician {
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
                     int stack = 1;
-                    if (mts.hasCurrentMobStat(MobStat.PDR)) {
-                        Option oldO = mts.getCurrentOptionsByMobStat(MobStat.PDR);
+                    if (mts.hasStat(MobStat.PDR)) {
+                        Option oldO = mts.getOption(MobStat.PDR);
                         if (oldO.rOption == skillID) {
                             stack = oldO.cOption;
                             if (stack < si.getValue(y, slv)) {

@@ -260,7 +260,7 @@ public class AffectedArea extends Life {
                 }
                 break;
             case Shade.SPIRIT_TRAP:
-                if (!mts.hasCurrentMobStat(MobStat.Freeze)) {
+                if (!mts.hasStat(MobStat.Freeze)) {
                     o1.nOption = 1;
                     o1.rOption = skillID;
                     o1.tOption = si.getValue(time, slv);

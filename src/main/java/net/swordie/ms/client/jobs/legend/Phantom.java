@@ -362,7 +362,7 @@ public class Phantom extends Job {
         for (Mob mob : mobs) {
             MobTemporaryStat mts = mob.getTemporaryStat();
             for (MobStat mobStat : VOL_DAME_MOBSTATS) {
-                if (mts.hasCurrentMobStat(mobStat)) {
+                if (mts.hasStat(mobStat)) {
                     mts.removeMobStat(mobStat, false);
                     stolenBuffStat = mobStat;
                 }

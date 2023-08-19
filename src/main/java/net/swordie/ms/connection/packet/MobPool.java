@@ -35,7 +35,7 @@ public class MobPool {
             fms.encode(outPacket);
         }
         MobTemporaryStat mts = mob.getTemporaryStat();
-        mts.encode(outPacket, mts.getCurrentStatVals(), false);
+        mts.encode(outPacket, true);
         if(!hasBeenInit) {
             // CMob::Init
             mob.encodeInit(outPacket);
@@ -56,7 +56,7 @@ public class MobPool {
                 fms.encode(outPacket);
             }
             MobTemporaryStat mts = mob.getTemporaryStat();
-            mts.encode(outPacket, mts.getCurrentStatVals(), false);
+            mts.encode(outPacket, true);
             if(!hasBeenInit) {
                 mob.encodeInit(outPacket);
             }
@@ -147,15 +147,13 @@ public class MobPool {
     public static OutPacket statSet(Mob mob, short delay) {
         OutPacket outPacket = new OutPacket(OutHeader.MOB_STAT_SET);
         MobTemporaryStat mts = mob.getTemporaryStat();
-        boolean hasMovementStat = mts.hasNewMovementAffectingStat();
         outPacket.encodeInt(mob.getObjectId());
-        mts.encode(outPacket, mts.getNewStatVals(), true);
+        mts.encode(outPacket, false);
         outPacket.encodeShort(delay);
         outPacket.encodeByte(1); // nCalcDamageStatIndex
-        if (hasMovementStat) {
+        if (mts.hasNewMovingAffectingStat()) {
             outPacket.encodeByte(0); // ?
         }
-
         return outPacket;
     }
 
@@ -163,43 +161,28 @@ public class MobPool {
         return statReset(mob, byteCalcDamageStatIndex, sn, null);
     }
 
-    public static OutPacket statReset(Mob mob, byte calcDamageStatIndex, boolean sn, Set<BurnedInfo> biList) {
+    public static OutPacket statReset(Mob mob, byte calcDamageStatIndex, boolean sn, List<BurnedInfo> bis) {
         OutPacket outPacket = new OutPacket(OutHeader.MOB_STAT_RESET);
         MobTemporaryStat mts = mob.getTemporaryStat();
-        mts.getRemoveStatLock().lock();
-        try {
-            int[] mask = mts.getRemovedMask();
-            outPacket.encodeInt(mob.getObjectId());
-            for (int i = 0; i < 3; i++) {
-                outPacket.encodeInt(mask[i]);
-            }
-            if (mts.hasRemovedMobStat(MobStat.BurnedInfo)) {
-                mts.getBurnedInfoLock().writeLock().lock();
-                try {
-                    if (biList == null) {
-                        outPacket.encodeInt(0);
-                        outPacket.encodeInt(0);
-                    } else {
-                        int dotCount = biList.stream().mapToInt(BurnedInfo::getDotCount).sum();
-                        outPacket.encodeInt(dotCount);
-                        outPacket.encodeInt(biList.size());
-                        for (BurnedInfo bi : biList) {
-                            outPacket.encodeInt(bi.getCharacterId());
-                            outPacket.encodeInt(bi.getSuperPos());
-                        }
-                    }
-                    mts.getBurnedInfos().clear();
-                } finally {
-                    mts.getBurnedInfoLock().writeLock().unlock();
+        mts.getResetStatMask().encode(outPacket);
+
+        if (mts.getResetStatMask().has(MobStat.BurnedInfo)) {
+            if (bis == null) {
+                outPacket.encodeInt(0);
+                outPacket.encodeInt(0);
+            } else {
+                int dotCount = bis.stream().mapToInt(BurnedInfo::getDotCount).sum();
+                outPacket.encodeInt(dotCount);
+                outPacket.encodeInt(bis.size());
+                for (BurnedInfo bi : bis) {
+                    outPacket.encodeInt(bi.getCharacterId());
+                    outPacket.encodeInt(bi.getSuperPos());
                 }
             }
-            outPacket.encodeByte(calcDamageStatIndex);
-            if (mts.hasRemovedMovementAffectingStat()) {
-                outPacket.encodeByte(sn);
-            }
-            mts.getRemovedStatVals().clear();
-        } finally {
-            mts.getRemoveStatLock().unlock();
+        }
+        outPacket.encodeByte(calcDamageStatIndex);
+        if (mts.hasRemovedMovingAffectingStat()) {
+            outPacket.encodeByte(sn);
         }
         return outPacket;
     }

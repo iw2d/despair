@@ -310,7 +310,7 @@ public class Hayato extends Job {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    mts.createAndAddBurnedInfo(chr, skill);
+                    mts.createAndAddBurnedInfo(chr, skill.getSkillId(), slv);
                 }
             }
         } else
@@ -326,7 +326,7 @@ public class Hayato extends Job {
                         continue;
                     }
                     MobTemporaryStat mts = mob.getTemporaryStat();
-                    mts.createAndAddBurnedInfo(chr, skill);
+                    mts.createAndAddBurnedInfo(chr, skill.getSkillId(), slv);
                 }
             }
         }

@@ -1367,11 +1367,11 @@ public class Mob extends Life {
         // DropRate & MesoRate Increases
         int mostDamageCharDropRate = (getMostDamageChar() != null ? getMostDamageChar().getTotalStat(BaseStat.dropR) : 100);
         int mostDamageCharMesoRate = (getMostDamageChar() != null ? getMostDamageChar().getTotalStat(BaseStat.mesoR) : 100);
-        int dropRateMob = (getTemporaryStat().hasCurrentMobStat(MobStat.Treasure)
-                ? getTemporaryStat().getCurrentOptionsByMobStat(MobStat.Treasure).yOption
+        int dropRateMob = (getTemporaryStat().hasStat(MobStat.Treasure)
+                ? getTemporaryStat().getOption(MobStat.Treasure).yOption
                 : 0); // Item Drop Rate
-        int mesoRateMob = (getTemporaryStat().hasCurrentMobStat(MobStat.Treasure)
-                ? getTemporaryStat().getCurrentOptionsByMobStat(MobStat.Treasure).zOption
+        int mesoRateMob = (getTemporaryStat().hasStat(MobStat.Treasure)
+                ? getTemporaryStat().getOption(MobStat.Treasure).zOption
                 : 0); // Meso Drop Rate
         int totalDropRate = dropRateMob + mostDamageCharDropRate;
         int totalMesoRate = mesoRateMob + mostDamageCharMesoRate;
@@ -1429,8 +1429,8 @@ public class Mob extends Life {
             }
 
             // + Exp% MobStats
-            if (getTemporaryStat().hasCurrentMobStat(MobStat.Treasure) && getTemporaryStat().getCurrentOptionsByMobStat(MobStat.Treasure).xOption > 0) { // xOption for Exp%
-                int expIncrease = getTemporaryStat().getCurrentOptionsByMobStat(MobStat.Treasure).xOption;
+            if (getTemporaryStat().hasStat(MobStat.Treasure) && getTemporaryStat().getOption(MobStat.Treasure).xOption > 0) { // xOption for Exp%
+                int expIncrease = getTemporaryStat().getOption(MobStat.Treasure).xOption;
                 long mobStatBonusExp = ((appliedExpPre * expIncrease) / 100);
                 eei.setBaseAddExp((int) mobStatBonusExp);
                 appliedExpPost += mobStatBonusExp;
@@ -1711,7 +1711,7 @@ public class Mob extends Life {
         elite.setEliteGrade(eliteGrade);
         Map<Integer, Integer> possibleSkillsMap = SkillData.getEliteMobSkillsByGrade(eliteGrade);
         List<Tuple<Integer, Integer>> possibleSkills = new ArrayList<>();
-        possibleSkillsMap.forEach((k, v) -> possibleSkills.add(new Tuple(k, v)));
+        possibleSkillsMap.forEach((k, v) -> possibleSkills.add(new Tuple<>(k, v)));
         for (int i = 0; i < GameConstants.ELITE_MOB_SKILL_COUNT; i++) {
             Tuple<Integer, Integer> randomSkill = Util.getRandomFromCollection(possibleSkills);
             elite.addEliteSkill(randomSkill.getLeft(), randomSkill.getRight());
@@ -1740,7 +1740,7 @@ public class Mob extends Life {
         elite.setEliteGrade(eliteGrade);
         Map<Integer, Integer> possibleSkillsMap = SkillData.getEliteMobSkillsByGrade(eliteGrade);
         List<Tuple<Integer, Integer>> possibleSkills = new ArrayList<>();
-        possibleSkillsMap.forEach((k, v) -> possibleSkills.add(new Tuple(k, v)));
+        possibleSkillsMap.forEach((k, v) -> possibleSkills.add(new Tuple<>(k, v)));
         for (int i = 0; i < GameConstants.ELITE_MOB_SKILL_COUNT; i++) {
             Tuple<Integer, Integer> randomSkill = Util.getRandomFromCollection(possibleSkills);
             elite.addEliteSkill(randomSkill.getLeft(), randomSkill.getRight());
@@ -1989,12 +1989,12 @@ public class Mob extends Life {
                 tsm.hasStat(CharacterTemporaryStat.IgnoreAllCounter)
                 || tsm.hasStat(CharacterTemporaryStat.IgnoreAllImmune);
         boolean ignoreCounter = hasIgnoreCounterCts || (si != null && si.isIgnoreCounter());
-        if ((mts.hasCurrentMobStat(MobStat.PCounter) || mts.hasCurrentMobStat(MobStat.MCounter)) && !ignoreCounter) {
+        if ((mts.hasStat(MobStat.PCounter) || mts.hasStat(MobStat.MCounter)) && !ignoreCounter) {
             // DR is always P and M
             // nOption = % of hp, mOption = chance to reflect
-            Option o = mts.getCurrentOptionsByMobStat(MobStat.PCounter);
+            Option o = mts.getOption(MobStat.PCounter);
             if (o == null) {
-                o = mts.getCurrentOptionsByMobStat(MobStat.MCounter);
+                o = mts.getOption(MobStat.MCounter);
             }
             int damagePerc = o.nOption;
             int prop = o.mOption;
@@ -2070,15 +2070,15 @@ public class Mob extends Life {
     }
 
     public Mob getOriginMob() {
-        if (getTemporaryStat().hasCurrentMobStat(MobStat.SeperateSoulC)) {
-            return (Mob) getField().getLifeByObjectID(getTemporaryStat().getCurrentOptionsByMobStat(MobStat.SeperateSoulC).rOption);
+        if (getTemporaryStat().hasStat(MobStat.SeperateSoulC)) {
+            return (Mob) getField().getLifeByObjectID(getTemporaryStat().getOption(MobStat.SeperateSoulC).rOption);
         }
         return null;
     }
 
     public Mob getCopyMob() {
-        if (getTemporaryStat().hasCurrentMobStat(MobStat.SeperateSoulP)) {
-            return (Mob) getField().getLifeByObjectID(getTemporaryStat().getCurrentOptionsByMobStat(MobStat.SeperateSoulP).rOption);
+        if (getTemporaryStat().hasStat(MobStat.SeperateSoulP)) {
+            return (Mob) getField().getLifeByObjectID(getTemporaryStat().getOption(MobStat.SeperateSoulP).rOption);
         }
         return null;
     }
@@ -2202,7 +2202,7 @@ public class Mob extends Life {
         }
 
         if ((skillID == MobSkillID.PhysicalImmune.getVal() || skillID == MobSkillID.MagicImmune.getVal())
-                && (getTemporaryStat().hasCurrentMobStat(MobStat.PImmune) || getTemporaryStat().hasCurrentMobStat(MobStat.MImmune))) {
+                && (getTemporaryStat().hasStat(MobStat.PImmune) || getTemporaryStat().hasStat(MobStat.MImmune))) {
             // Don't cast Physical or Magic Immune if we already have one up, just wastes a cooldown
             return false;
         }
@@ -2293,19 +2293,19 @@ public class Mob extends Life {
         MobTemporaryStat mts = getTemporaryStat();
         if (getTemplateId() == 8950000 || getTemplateId() == 8950100) { // First Stage
             if (ms.getSkillID() == MobSkillID.LaserAttack.getVal()) {
-                if (mts.hasCurrentMobStat(MobStat.Laser)) {
+                if (mts.hasStat(MobStat.Laser)) {
                     return false;
                 }
             }
 
             if (ms.getSkillID() == MobSkillID.LaserControl.getVal()) {
-                if (!mts.hasCurrentMobStat(MobStat.Laser) || hasSkillOffCooldown(201, 83)) {
+                if (!mts.hasStat(MobStat.Laser) || hasSkillOffCooldown(201, 83)) {
                     return false;
                 }
             }
 
             if (ms.getSkillID() == MobSkillID.Summon2.getVal()) {
-                if (!mts.hasCurrentMobStat(MobStat.Laser)) {
+                if (!mts.hasStat(MobStat.Laser)) {
                     return false;
                 }
             }

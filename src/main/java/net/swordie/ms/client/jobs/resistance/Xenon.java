@@ -252,8 +252,8 @@ public class Xenon extends Job {
             MobTemporaryStat mts = mob.getTemporaryStat();
 
             if(Util.succeedProp(proc)) {
-                if (mts.hasCurrentMobStat(MobStat.Explosion)) {
-                    amount = mts.getCurrentOptionsByMobStat(MobStat.Explosion).nOption;
+                if (mts.hasStat(MobStat.Explosion)) {
+                    amount = mts.getOption(MobStat.Explosion).nOption;
                     if (amount <= 3) {
                         amount++;
                     }

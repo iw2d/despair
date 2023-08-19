@@ -32,6 +32,10 @@ public class TemporaryStatMask {
         this.mask[cts.getPos()] |= cts.getVal();
     }
 
+    public void remove(CharacterTemporaryStat cts) {
+        this.mask[cts.getPos()] &= ~cts.getVal();
+    }
+
     public List<CharacterTemporaryStat> sorted(List<CharacterTemporaryStat> orderList) {
         List<CharacterTemporaryStat> sortedList = new ArrayList<>();
         for (CharacterTemporaryStat cts : orderList) {

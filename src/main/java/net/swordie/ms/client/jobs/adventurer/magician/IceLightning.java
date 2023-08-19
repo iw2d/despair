@@ -163,8 +163,8 @@ public class IceLightning extends Magician {
             }
             MobTemporaryStat mts = mob.getTemporaryStat();
             int counter = 1;
-            if(mts.hasCurrentMobStat(MobStat.Speed)) {
-                counter = mts.getCurrentOptionsByMobStat(MobStat.Speed).mOption;
+            if(mts.hasStat(MobStat.Speed)) {
+                counter = mts.getOption(MobStat.Speed).mOption;
                 if (counter < 5) {
                     counter++;
                 }

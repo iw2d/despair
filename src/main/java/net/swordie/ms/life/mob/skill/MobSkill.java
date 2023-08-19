@@ -396,13 +396,13 @@ public class MobSkill {
                 break;
 
             case PhysicalImmune:
-                if (!mts.hasCurrentMobStat(MobStat.PImmune) && !mts.hasCurrentMobStat(MobStat.MImmune)) {
+                if (!mts.hasStat(MobStat.PImmune) && !mts.hasStat(MobStat.MImmune)) {
                     o.nOption = msi.getSkillStatIntValue(x);
                     mts.addMobSkillOptionsAndBroadCast(MobStat.PImmune, o);
                 }
                 break;
             case MagicImmune:
-                if (!mts.hasCurrentMobStat(MobStat.PImmune) && !mts.hasCurrentMobStat(MobStat.MImmune)) {
+                if (!mts.hasStat(MobStat.PImmune) && !mts.hasStat(MobStat.MImmune)) {
                     o.nOption = msi.getSkillStatIntValue(x);
                     mts.addMobSkillOptionsAndBroadCast(MobStat.MImmune, o);
                 }
@@ -469,7 +469,7 @@ public class MobSkill {
                 mob.getField().broadcastPacket(MobPool.createBounceAttackSkill(mob, msi, false));
                 break;
             case LaserAttack:
-                if (!mts.hasCurrentMobStat(MobStat.Laser)) {
+                if (!mts.hasStat(MobStat.Laser)) {
                     o.nOption = 1;
                     o.wOption = msi.getSkillStatIntValue(w);
                     o.uOption = msi.getSkillStatIntValue(z);

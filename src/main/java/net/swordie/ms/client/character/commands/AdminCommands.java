@@ -1636,7 +1636,7 @@ public class AdminCommands {
                                 controller == null ? "null" : chr.getName()
                         )
                 );
-                Map<MobStat, Option> mobStats = mob.getTemporaryStat().getCurrentStatVals();
+                Map<MobStat, Option> mobStats = mob.getTemporaryStat().getCurrentStats();
                 for (MobStat stat : mobStats.keySet()) {
                     chr.chatMessage(SpeakerChannel, String.format("MobStat: %s | %s",
                                     stat.name(),

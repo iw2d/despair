@@ -89,7 +89,6 @@ public class TemporaryStatManager {
 
     // TEMPORARY STAT INTERFACE ----------------------------------------------------------------------------------------
 
-
     public Map<CharacterTemporaryStat, Option> getCurrentStats() {
         return stats;
     }
@@ -211,22 +210,22 @@ public class TemporaryStatManager {
             setStatMask.put(cts);
             if (!indie) {
                 stats.put(cts, option);
+                if (statSchedules.containsKey(cts)) {
+                    statSchedules.remove(cts).cancel(false);
+                }
                 if (option.tOption > 0 || (tsi != null && !tsb.hasExpired() && tsb.getExpireTerm() != 0)) {
                     int delay = tsi != null ? tsb.getExpireTerm() : option.tOption;
-                    if (statSchedules.containsKey(cts)) {
-                        statSchedules.get(cts).cancel(false);
-                    }
                     statSchedules.put(cts, EventManager.addEvent(() -> removeStat(cts, true), delay, TimeUnit.MILLISECONDS));
                 }
             } else {
                 if (!indieStats.containsKey(cts)) {
                     indieStats.put(cts, new ArrayList<>());
                 }
+                Tuple<CharacterTemporaryStat, Option> tuple = new Tuple<>(cts, option);
+                if (indieStatSchedules.containsKey(tuple)) {
+                    indieStatSchedules.remove(tuple).cancel(false);
+                }
                 if (option.tTerm > 0) {
-                    Tuple<CharacterTemporaryStat, Option> tuple = new Tuple<>(cts, option);
-                    if (indieStatSchedules.containsKey(tuple)) {
-                        indieStatSchedules.get(tuple).cancel(false);
-                    }
                     indieStatSchedules.put(tuple, EventManager.addEvent(() -> removeIndieStat(tuple, true), option.tTerm, TimeUnit.MILLISECONDS));
                 }
                 indieStats.get(cts).add(option);
@@ -427,11 +426,11 @@ public class TemporaryStatManager {
         return resetStatMask;
     }
 
-    public boolean hasNewMovingEffectingStat() {
+    public boolean hasNewMovingAffectingStat() {
         return MOVING_AFFECTING_STAT.stream().anyMatch(setStatMask::has);
     }
 
-    public boolean hasRemovedMovingEffectingStat() {
+    public boolean hasRemovedMovingAffectingStat() {
         return MOVING_AFFECTING_STAT.stream().anyMatch(resetStatMask::has);
     }
 
@@ -708,6 +707,7 @@ public class TemporaryStatManager {
 
     public void encodeForRemote(OutPacket outPacket, boolean enterField) {
         TemporaryStatMask statMask = enterField ? TemporaryStatMask.from(stats.keySet()) : setStatMask;
+        statMask.remove(EnergyCharged); // causes error38
         statMask.encode(outPacket);
         List<CharacterTemporaryStat> remoteStatList = statMask.sorted(getRemoteOrderList());
         for (CharacterTemporaryStat cts : remoteStatList) {

@@ -1,6 +1,10 @@
 package net.swordie.ms.life.mob;
 
-public enum MobStat {
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+public enum MobStat implements Comparator<MobStat> {
     PAD(0),
     PDR(1),
     MAD(2),
@@ -105,6 +109,12 @@ public enum MobStat {
 
     private int val, pos, bitPos;
 
+    public static final int length = 3;
+
+    public static final List<MobStat> MOVING_AFFECTING_STAT = Arrays.asList(
+            Speed, Stun, Freeze, RiseByToss, Lifting, Smite, TempMoveAbility, StatResetSkill, RWLiftPress
+    );
+
     MobStat(int val, int pos) {
         this.val = val;
         this.pos = pos;
@@ -143,5 +153,22 @@ public enum MobStat {
 
     public int getBitPos() {
         return bitPos;
+    }
+
+    @Override
+    public int compare(MobStat o1, MobStat o2) {
+        int res = 0;
+        if (o1.getPos() < o2.getPos()) {
+            res = -1;
+        } else if (o1.getPos() > o2.getPos()) {
+            res = 1;
+        } else {
+            if (o1.getVal() < o2.getVal()) {
+                res = -1;
+            } else if (o1.getVal() > o2.getVal()) {
+                res = 1;
+            }
+        }
+        return res;
     }
 }

@@ -505,7 +505,7 @@ public class BeastTamer extends Job {
             }
             MobTemporaryStat mts = mob.getTemporaryStat();
             if (Util.succeedProp(si.getValue(prop, slv))) {
-                mts.createAndAddBurnedInfo(chr, skill);
+                mts.createAndAddBurnedInfo(chr, skill.getSkillId(), slv);
             }
         }
     }

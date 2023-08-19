@@ -140,8 +140,8 @@ public class Shade extends Job {
                     MobTemporaryStat mts = parent.getTemporaryStat();
                     if (parent.isSplit() ||
                             Arrays.stream(mai.damages).sum() > parent.getHp() ||
-                            mts.hasCurrentMobStat(MobStat.SeperateSoulP) ||
-                            mts.hasCurrentMobStat(MobStat.SeperateSoulC)) {
+                            mts.hasStat(MobStat.SeperateSoulP) ||
+                            mts.hasStat(MobStat.SeperateSoulC)) {
                         continue;
                     }
                     // Parent

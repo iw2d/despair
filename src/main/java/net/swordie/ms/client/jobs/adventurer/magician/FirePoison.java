@@ -212,7 +212,12 @@ public class FirePoison extends Magician {
             case MIST_ERUPTION:
                 Field field = chr.getField();
                 for (int id : attackInfo.mists) {
-                    field.removeLife(id);
+                    AffectedArea mist = (AffectedArea) field.getLifeByObjectID(id);
+                    if (mist == null) {
+                        continue;
+                    }
+                    field.removeLife(mist);
+                    mist.broadcastLeavePacket();
                 }
                 chr.resetSkillCoolTime(FLAME_HAZE);
                 break;

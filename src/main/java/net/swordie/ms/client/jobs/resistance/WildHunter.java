@@ -219,8 +219,8 @@ public class WildHunter extends Citizen {
                             // apply another bite debuff
                             if (Util.succeedProp(si.getValue(prop, slv))) {
                                 int stacks = 0;
-                                if (mts.hasCurrentMobStat(MobStat.JaguarBleeding)) {
-                                    stacks = mts.getCurrentOptionsByMobStat(MobStat.JaguarBleeding).nOption;
+                                if (mts.hasStat(MobStat.JaguarBleeding)) {
+                                    stacks = mts.getOption(MobStat.JaguarBleeding).nOption;
                                 }
                                 o1.nOption = Math.min(stacks + 1, 3); // chr.getSkillStatValue(x, SUMMON_JAGUAR_GREY);
                                 o1.rOption = ANOTHER_BITE;
@@ -245,7 +245,7 @@ public class WildHunter extends Citizen {
                                 }
                             }
                             // broadcast
-                            chr.getField().broadcastPacket(MobPool.statSet(mob, (short) 0));
+                            mts.sendSetStatPacket();
                         }
                         break;
                 }
@@ -280,8 +280,8 @@ public class WildHunter extends Citizen {
                 continue;
             }
             MobTemporaryStat mts = mob.getTemporaryStat();
-            if (mts.hasCurrentMobStat(MobStat.JaguarBleeding)) {
-                int stacks = mts.getCurrentOptionsByMobStat(MobStat.JaguarBleeding).nOption;
+            if (mts.hasStat(MobStat.JaguarBleeding)) {
+                int stacks = mts.getOption(MobStat.JaguarBleeding).nOption;
                 if (stacks > 0) {
                     targetList.add(mob.getObjectId());
                     if (stacks > attackCount) {

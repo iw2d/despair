@@ -252,7 +252,7 @@ public class WvsContext {
         outPacket.encodeByte(0);
         outPacket.encodeByte(0);
         outPacket.encodeByte(0);
-        if (tsm.hasNewMovingEffectingStat()) {
+        if (tsm.hasNewMovingAffectingStat()) {
             outPacket.encodeByte(0);
         }
         outPacket.encodeInt(0);
@@ -263,7 +263,7 @@ public class WvsContext {
         OutPacket outPacket = new OutPacket(OutHeader.TEMPORARY_STAT_RESET);
         temporaryStatManager.getResetStatMask().encode(outPacket);
         temporaryStatManager.encodeRemovedIndieTempStat(outPacket);
-        if (temporaryStatManager.hasRemovedMovingEffectingStat()) {
+        if (temporaryStatManager.hasRemovedMovingAffectingStat()) {
             outPacket.encodeByte(0);
         }
         outPacket.encodeByte(0); // ?

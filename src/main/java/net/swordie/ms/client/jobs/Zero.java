@@ -235,7 +235,7 @@ public class Zero extends Job {
                 if (mob == null) {
                     continue;
                 }
-                mob.getTemporaryStat().createAndAddBurnedInfo(chr, skill);
+                mob.getTemporaryStat().createAndAddBurnedInfo(chr, skill.getSkillId(), slv);
             }
         }
     }
@@ -286,8 +286,8 @@ public class Zero extends Job {
                 }
                 MobTemporaryStat mts = mob.getTemporaryStat();
                 Option o = new Option();
-                if (mts.hasCurrentMobStat(MobStat.MultiPMDR)) {
-                    amount = mts.getCurrentOptionsByMobStat(MobStat.MultiPMDR).cOption;
+                if (mts.hasStat(MobStat.MultiPMDR)) {
+                    amount = mts.getOption(MobStat.MultiPMDR).cOption;
                     if (amount < si.getValue(x, slv)) {
                         amount++;
                     }
