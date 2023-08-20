@@ -1,4 +1,4 @@
-package net.swordie.ms.client.character;
+package net.swordie.ms.client.character.cards;
 
 import net.swordie.ms.connection.db.FileTimeConverter;
 import net.swordie.ms.util.FileTime;

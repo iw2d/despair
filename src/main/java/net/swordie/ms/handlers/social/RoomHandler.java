@@ -5,7 +5,7 @@ import net.swordie.ms.client.anticheat.Offense;
 import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
-import net.swordie.ms.client.character.TradeRoom;
+import net.swordie.ms.client.room.TradeRoom;
 import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.InPacket;

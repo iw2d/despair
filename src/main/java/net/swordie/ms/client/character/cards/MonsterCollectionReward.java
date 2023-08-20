@@ -1,4 +1,4 @@
-package net.swordie.ms.client.character;
+package net.swordie.ms.client.character.cards;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

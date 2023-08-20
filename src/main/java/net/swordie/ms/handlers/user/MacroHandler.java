@@ -2,7 +2,7 @@ package net.swordie.ms.handlers.user;
 
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
-import net.swordie.ms.client.character.Macro;
+import net.swordie.ms.client.character.keys.Macro;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;

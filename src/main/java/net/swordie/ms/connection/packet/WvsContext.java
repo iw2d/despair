@@ -9,6 +9,7 @@ import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.client.character.items.InvOp;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.items.MemorialCubeInfo;
+import net.swordie.ms.client.character.keys.Macro;
 import net.swordie.ms.client.character.potential.CharacterPotential;
 import net.swordie.ms.client.character.quest.Quest;
 import net.swordie.ms.client.character.skills.Skill;

@@ -2,7 +2,7 @@ package net.swordie.ms.connection.packet;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
-import net.swordie.ms.client.character.MarriageRecord;
+import net.swordie.ms.client.character.social.MarriageRecord;
 import net.swordie.ms.client.character.items.BodyPart;
 import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.client.character.items.PetItem;

@@ -1,4 +1,4 @@
-package net.swordie.ms.client.character;
+package net.swordie.ms.client.character.potential;
 
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.util.FileTime;

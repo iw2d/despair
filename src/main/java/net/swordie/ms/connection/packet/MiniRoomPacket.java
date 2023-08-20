@@ -1,7 +1,7 @@
 package net.swordie.ms.connection.packet;
 
 import net.swordie.ms.client.character.Char;
-import net.swordie.ms.client.character.TradeRoom;
+import net.swordie.ms.client.room.TradeRoom;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.constants.GameConstants;

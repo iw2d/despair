@@ -1,7 +1,7 @@
 package net.swordie.ms.client;
 
 import net.swordie.ms.client.character.Char;
-import net.swordie.ms.client.character.MonsterCollection;
+import net.swordie.ms.client.character.cards.MonsterCollection;
 import net.swordie.ms.client.character.damage.DamageSkinSaveData;
 import net.swordie.ms.client.friend.Friend;
 import net.swordie.ms.client.trunk.Trunk;

@@ -1,4 +1,4 @@
-package net.swordie.ms.client.character;
+package net.swordie.ms.client.character.keys;
 
 import net.swordie.ms.connection.OutPacket;
 

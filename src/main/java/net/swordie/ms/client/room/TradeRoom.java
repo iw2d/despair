@@ -1,5 +1,6 @@
-package net.swordie.ms.client.character;
+package net.swordie.ms.client.room;
 
+import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.items.ItemAttribute;
 import net.swordie.ms.connection.db.DatabaseManager;

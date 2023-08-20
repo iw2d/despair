@@ -1,5 +1,6 @@
-package net.swordie.ms.client.character;
+package net.swordie.ms.client.character.cards;
 
+import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.constants.MonsterCollectionGroup;

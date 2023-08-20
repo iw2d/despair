@@ -1,4 +1,4 @@
-package net.swordie.ms.client.character;
+package net.swordie.ms.constants;
 
 import java.util.Calendar;
 import java.util.HashMap;

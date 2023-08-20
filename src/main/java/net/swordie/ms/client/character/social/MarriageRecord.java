@@ -1,4 +1,4 @@
-package net.swordie.ms.client.character;
+package net.swordie.ms.client.character.social;
 
 import net.swordie.ms.connection.OutPacket;
 
