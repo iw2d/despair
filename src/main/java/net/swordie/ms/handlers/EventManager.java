@@ -94,6 +94,11 @@ public class EventManager {
         return EventFuture.newEvent(Executors.callable(runnable), delay, timeUnit);
     }
 
+    public static void shutdown() {
+        timer.stop();
+        scheduler.shutdown();
+    }
+
 
     public static class EventFuture<V> implements ScheduledFuture<V> {
         private final Callable<V> callable;
@@ -196,8 +201,8 @@ public class EventManager {
         public static EventFuture<?> newFixedRateEvent(Callable<?> callable, long initialDelay, long delay, TimeUnit unit) {
             EventFuture<?> eventFuture = new EventFuture<>(callable, delay, unit);
             eventFuture.setTimerTask((timeout) -> {
-                eventFuture.call();
                 eventFuture.setTimeout(timer.newTimeout(eventFuture.getTimerTask(), delay, unit));
+                eventFuture.call();
             });
             eventFuture.setTimeout(timer.newTimeout(eventFuture.getTimerTask(), initialDelay, unit));
             return eventFuture;
@@ -207,12 +212,12 @@ public class EventManager {
             EventFuture<?> eventFuture = new EventFuture<>(callable, delay, unit);
             eventFuture.setExecutes(executes);
             eventFuture.setTimerTask((timeout) -> {
-                eventFuture.call();
                 int newExecutes = eventFuture.getExecutes() - 1;
                 if (newExecutes > 0) {
                     eventFuture.setExecutes(newExecutes);
                     eventFuture.setTimeout(timer.newTimeout(eventFuture.getTimerTask(), delay, unit));
                 }
+                eventFuture.call();
             });
             eventFuture.setTimeout(timer.newTimeout(eventFuture.getTimerTask(), initialDelay, unit));
             return eventFuture;

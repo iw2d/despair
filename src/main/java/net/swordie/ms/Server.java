@@ -16,6 +16,7 @@ import net.swordie.ms.connection.packet.UserLocal;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.enums.ChatType;
+import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.loaders.*;
 import net.swordie.ms.scripts.ScriptManagerImpl;
 import net.swordie.ms.util.Loader;
@@ -272,6 +273,7 @@ public class Server extends Properties {
 				for (World world : getWorlds()) {
 					world.shutdown();
 				}
+				EventManager.shutdown();
 
 				log.info("Shutdown complete!");
 			}));
