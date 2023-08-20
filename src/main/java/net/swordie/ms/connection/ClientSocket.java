@@ -1,4 +1,4 @@
-package net.swordie.ms.handlers;
+package net.swordie.ms.connection;
 
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.handlers.header.OutHeader;

@@ -54,7 +54,7 @@ import net.swordie.ms.connection.db.InlinedIntArrayConverter;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.*;
 import net.swordie.ms.enums.*;
-import net.swordie.ms.handlers.ClientSocket;
+import net.swordie.ms.connection.ClientSocket;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.client.character.skills.PsychicLock;
 import net.swordie.ms.life.*;
