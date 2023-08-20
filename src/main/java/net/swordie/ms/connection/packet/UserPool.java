@@ -15,6 +15,7 @@ import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.TSIndex;
 import net.swordie.ms.handlers.header.OutHeader;
+import net.swordie.ms.life.room.MiniRoom;
 
 import java.util.Collections;
 
@@ -112,11 +113,15 @@ public class UserPool {
         outPacket.encodeInt(chr.getTamingMobLevel());
         outPacket.encodeInt(chr.getTamingMobExp());
         outPacket.encodeInt(chr.getTamingMobFatigue());
-        int miniRoomType = chr.getMiniRoom() != null ? chr.getMiniRoom().getType() : 0;
-        outPacket.encodeByte(miniRoomType);
-        if (miniRoomType > 0) {
-            chr.getMiniRoom().encode(outPacket);
+
+        MiniRoom miniRoom = chr.getMiniRoom();
+        if (miniRoom == null || miniRoom.getOwner() != chr) {
+            outPacket.encodeByte(0);
+        } else {
+            outPacket.encodeByte(miniRoom.getType());
+            miniRoom.encode(outPacket);
         }
+
         outPacket.encodeByte(chr.getADBoardRemoteMsg() != null);
         if (chr.getADBoardRemoteMsg() != null) {
             outPacket.encodeString(chr.getADBoardRemoteMsg());

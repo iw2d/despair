@@ -1,8 +1,10 @@
 package net.swordie.ms.life.room;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.UserPacket;
+import net.swordie.ms.enums.MiniRoomAction;
 import net.swordie.ms.enums.MiniRoomType;
 import net.swordie.ms.life.Life;
 
@@ -107,6 +109,25 @@ public abstract class MiniRoom extends Life {
         outPacket.encodeByte(isOpen() ? 0 : 1);
     }
 
+    public int getPosition(Char chr) {
+        return getChars().indexOf(chr);
+    }
+
+    public Char getOtherChar(Char self) {
+        for (Char chr : getChars()) {
+            if (chr.getId() != self.getId()) {
+                return chr;
+            }
+        }
+        return null;
+    }
+
+    public void broadcastPacket(OutPacket outPacket) {
+        for (Char chr : getChars()) {
+            chr.write(outPacket);
+        }
+    }
+
     @Override
     public void broadcastSpawnPacket(Char onlyChar) {
         if (onlyChar == null) {
@@ -118,7 +139,11 @@ public abstract class MiniRoom extends Life {
 
     @Override
     public void broadcastLeavePacket() {
-        getField().broadcastPacket(UserPacket.destroyMiniRoomBalloon(this));
+        getField().broadcastPacket(UserPacket.destroyMiniRoomBalloon(getOwner()));
+    }
+
+
+    public void handlePacket(Char chr, MiniRoomAction mra, InPacket inPacket) {
     }
 
 

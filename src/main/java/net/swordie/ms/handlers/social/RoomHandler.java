@@ -12,6 +12,7 @@ import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.MiniRoomPacket;
+import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.enums.*;
@@ -158,19 +159,37 @@ public class RoomHandler {
             case EnterBase:
                 tradeRoom = chr.getTradeRoom();
                 if (tradeRoom == null) {
-                    int objectid = inPacket.decodeInt();
-                    Life life = chr.getField().getLifeByObjectID(objectid);
+                    int objectId = inPacket.decodeInt();
+                    Life life = chr.getField().getLifeByObjectID(objectId);
                     if (life instanceof Merchant) {
                         merchant = (Merchant) life;
                         if (!merchant.getOpen()) {
                             chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("This shop is in maintenance, please come by later.")));
                             return;
                         } else if (merchant.getVisitors().size() >= GameConstants.MAX_MERCHANT_VISITORS) {
-                            chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("This shop has reached it's maximum capacity, please come by later.")));
+                            chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("This shop has reached its maximum capacity, please come by later.")));
                         } else {
                             merchant.addVisitor(chr);
                             chr.setVisitingmerchant(merchant);
-                            chr.getClient().write(MiniRoomPacket.EntrustedShop.enterMerchant(chr, merchant, false));
+                            chr.write(MiniRoomPacket.EntrustedShop.enterMerchant(chr, merchant, false));
+                        }
+                    } else if (life instanceof MiniRoom miniRoom) {
+                        if (miniRoom.getChars().size() < miniRoom.getMaxSize()) {
+                            if (miniRoom.isPrivate()) {
+                                inPacket.decodeByte(); // isPrivate
+                                String password = inPacket.decodeString();
+                                if (!miniRoom.getPassword().equals(password)) {
+                                    chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("The password you entered is incorrect.")));
+                                    return;
+                                }
+                            }
+                            miniRoom.broadcastPacket(MiniRoomPacket.MiniGameRoom.enter(miniRoom, chr));
+                            miniRoom.addChar(chr);
+                            chr.setMiniRoom(miniRoom);
+                            chr.write(MiniRoomPacket.MiniGameRoom.enterResult(miniRoom, chr));
+                            miniRoom.getField().broadcastPacket(UserPacket.makeMiniRoomBalloon(miniRoom)); // update balloon
+                        } else {
+                            chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("This room has reached its maximum capacity.")));
                         }
                     } else {
                         chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("The other player has already closed the trade.")));
@@ -220,7 +239,23 @@ public class RoomHandler {
                     chr.setVisitingmerchant(null);
                 }
                 if (chr.getMiniRoom() != null) {
-                    chr.getMiniRoom().getField().removeLife(chr.getMiniRoom());
+                    MiniRoom miniRoom = chr.getMiniRoom();
+                    if (miniRoom.getOwner() == chr) {
+                        // kick others
+                        for (Char visitor : miniRoom.getChars()) {
+                            if (chr != visitor) {
+                                visitor.write(MiniRoomPacket.MiniGameRoom.leave(miniRoom.getPosition(visitor), RoomLeaveType.MRLeave_HostOut));
+                                visitor.setMiniRoom(null);
+                            }
+                        }
+                        miniRoom.getField().removeLife(miniRoom);
+                    } else {
+                        // notify user leaving
+                        miniRoom.broadcastPacket(MiniRoomPacket.MiniGameRoom.leave(miniRoom.getPosition(chr), RoomLeaveType.MRLeave_UserRequest));
+                        // update balloon
+                        miniRoom.getField().broadcastPacket(UserPacket.makeMiniRoomBalloon(miniRoom));
+                    }
+                    miniRoom.removeChar(chr);
                     chr.setMiniRoom(null);
                 }
                 break;
@@ -303,8 +338,8 @@ public class RoomHandler {
                             chr.dispose();
                             return;
                         }
-                        miniRoom.setOwner(chr);
                         miniRoom.addChar(chr);
+                        miniRoom.setOwner(chr);
                         chr.setMiniRoom(miniRoom);
                         chr.getField().spawnLife(miniRoom, null);
                         chr.write(MiniRoomPacket.MiniGameRoom.enterResult(miniRoom, chr));
@@ -488,6 +523,25 @@ public class RoomHandler {
                 break;
             case TidyMerchant:
                 chr.getMerchant().tidyMerchant(chr);
+                break;
+            case TieRequest:
+            case TieResult:
+            case ClaimGiveUp:
+            case RetreatRequest:
+            case RetreatResult:
+            case UserLeaveBooked:
+            case UserCancelLeaveBooked:
+            case UserReady:
+            case UserCancelReady:
+            case UserClickBan:
+            case UserStart:
+            case GameResult:
+            case TimeOver:
+            case PutStoneChecker:
+            case PutStoneCheckerErr:
+                if (chr.getMiniRoom() != null && chr.getMiniRoom().getMiniRoomType() == MiniRoomType.OMOK) {
+                    chr.getMiniRoom().handlePacket(chr, mra, inPacket);
+                }
                 break;
             default:
                 log.error(String.format("Unhandled miniroom action %s", mra));

@@ -68,7 +68,7 @@ public class LoginHandler {
     public static void handleAppliedHotFix(Client client, InPacket inPacket) {
         // First 4 bytes of a SHA1 hash of Data.wz, 0's if does not exist
         byte[] appliedHotFix = inPacket.decodeArr(4);
-        boolean incorrectHotFix = true;
+        boolean incorrectHotFix = false;
         File dataWz = new File("resources/Data.wz");
         if (dataWz.exists()) {
             try {

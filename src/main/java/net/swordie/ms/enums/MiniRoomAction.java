@@ -54,6 +54,23 @@ public enum MiniRoomAction {
     CloseMerchant(52),
     Update(77),
     Open3(80),
+
+    // COmokDlg::OnPacket | COmokDlg::OnButtonClicked
+    TieRequest(87),
+    TieResult(88),
+    ClaimGiveUp(89),
+    RetreatRequest(91),
+    RetreatResult(92),
+    UserLeaveBooked(93),
+    UserCancelLeaveBooked(94),
+    UserReady(95),
+    UserCancelReady(96),
+    UserClickBan(97),
+    UserStart(98),
+    GameResult(99),
+    TimeOver(100),
+    PutStoneChecker(101),
+    PutStoneCheckerErr(102),
     ;
 
     private byte val;

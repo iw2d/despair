@@ -219,9 +219,9 @@ public class UserPacket {
         return outPacket;
     }
 
-    public static OutPacket destroyMiniRoomBalloon(MiniRoom miniRoom) {
+    public static OutPacket destroyMiniRoomBalloon(Char chr) {
         OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BALLOON);
-        outPacket.encodeInt(miniRoom.getOwner().getId());
+        outPacket.encodeInt(chr.getId());
         outPacket.encodeByte(0);
         return outPacket;
     }

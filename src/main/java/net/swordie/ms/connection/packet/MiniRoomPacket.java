@@ -274,6 +274,17 @@ public class MiniRoomPacket {
 
     public static class MiniGameRoom {
 
+        public static OutPacket enter(MiniRoom miniRoom, Char chr) {
+            OutPacket outPacket = MiniRoomPacket.enter(miniRoom.getChars().size(), chr);
+            // GW_MiniGameRecord::Decode
+            outPacket.encodeInt(miniRoom.getType());
+            outPacket.encodeInt(0); // nWins
+            outPacket.encodeInt(0); // nTies
+            outPacket.encodeInt(0); // nLosses
+            outPacket.encodeInt(1337); // nScore
+            return outPacket;
+        }
+
         public static OutPacket enterResult(MiniRoom miniRoom, Char chr) {
             List<Char> chars = miniRoom.getChars();
             Map<Integer, Char> users = new HashMap<>();
@@ -292,7 +303,7 @@ public class MiniRoomPacket {
                     continue;
                 }
                 outPacket.encodeByte(user);
-                // MiniGameRecord
+                // GW_MiniGameRecord::Decode
                 outPacket.encodeInt(miniRoom.getType());
                 outPacket.encodeInt(0); // nWins
                 outPacket.encodeInt(0); // nTies
@@ -304,6 +315,95 @@ public class MiniRoomPacket {
             outPacket.encodeString(miniRoom.getTitle());
             outPacket.encodeByte(miniRoom.getKind());
             outPacket.encodeByte(0); // tournament mode
+            return outPacket;
+        }
+
+        public static OutPacket leave(int leaveUser, RoomLeaveType leaveType) {
+            OutPacket outPacket = MiniRoomPacket.leave(leaveUser);
+            outPacket.encodeByte(leaveType.getVal());
+            return outPacket;
+        }
+
+        public static OutPacket tieRequest() {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(MiniRoomAction.TieRequest.getVal());
+            return outPacket;
+        }
+
+        public static OutPacket tieResult() {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(MiniRoomAction.TieResult.getVal());
+            return outPacket;
+        }
+
+        public static OutPacket retreatRequest() {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(MiniRoomAction.RetreatRequest.getVal());
+            return outPacket;
+        }
+
+        public static OutPacket retreatResult(boolean accepted, int count, int nextTurn) {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(MiniRoomAction.RetreatResult.getVal());
+            outPacket.encodeByte(accepted ? 1 : 0);
+            if (accepted) {
+                outPacket.encodeByte(count);
+                outPacket.encodeByte(nextTurn);
+            }
+            return outPacket;
+        }
+
+        public static OutPacket gameResult(MiniRoom miniRoom, int resultType, Char winner) {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(MiniRoomAction.GameResult.getVal());
+            outPacket.encodeByte(resultType); // 0 = GiveUp, 1 = Tie, 2 = Win
+            if (resultType != 1) {
+                outPacket.encodeByte(miniRoom.getPosition(winner));
+            }
+            for (Char chr : miniRoom.getChars()) {
+                // GW_MiniGameRecord::Decode
+                outPacket.encodeInt(miniRoom.getType());
+                outPacket.encodeInt(0); // nWins
+                outPacket.encodeInt(0); // nTies
+                outPacket.encodeInt(0); // nLosses
+                outPacket.encodeInt(1337); // nScore
+            }
+            return outPacket;
+        }
+
+        public static OutPacket userReady(boolean ready) {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(ready ? MiniRoomAction.UserReady.getVal() : MiniRoomAction.UserCancelReady.getVal());
+            return outPacket;
+        }
+
+        public static OutPacket userStart(int nextTurn) {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(MiniRoomAction.UserStart.getVal());
+            outPacket.encodeByte(nextTurn);
+            return outPacket;
+        }
+
+        public static OutPacket timeOver(int nextTurn) {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(MiniRoomAction.TimeOver.getVal());
+            outPacket.encodeByte(nextTurn);
+            return outPacket;
+        }
+
+        public static OutPacket putStoneChecker(int x, int y, int type) {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(MiniRoomAction.PutStoneChecker.getVal());
+            outPacket.encodeInt(x);
+            outPacket.encodeInt(y);
+            outPacket.encodeByte(type);
+            return outPacket;
+        }
+
+        public static OutPacket putStoneCheckerErr(int errorType) {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(MiniRoomAction.PutStoneCheckerErr.getVal());
+            outPacket.encodeByte(errorType);
             return outPacket;
         }
 
