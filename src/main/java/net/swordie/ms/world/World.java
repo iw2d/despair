@@ -9,7 +9,7 @@ import net.swordie.ms.client.guild.Guild;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
-import net.swordie.ms.life.Merchant.Merchant;
+import net.swordie.ms.life.room.Merchant;
 
 import java.util.*;
 

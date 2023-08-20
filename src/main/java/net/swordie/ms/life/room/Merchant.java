@@ -1,4 +1,4 @@
-package net.swordie.ms.life.Merchant;
+package net.swordie.ms.life.room;
 
 import net.swordie.ms.Server;
 import net.swordie.ms.client.character.Char;
@@ -191,14 +191,6 @@ public class Merchant extends Life {
         return copy;
     }
 
-    @Override
-    public void broadcastSpawnPacket(Char onlyChar) {
-        Field field = getField();
-        for (Char chr : field.getChars()) {
-            chr.write(MiniRoomPacket.EntrustedShop.openMerchant(this));
-        }
-    }
-
     public void tidyMerchant(Char chr) {
         Long earnings = chr.getMerchant().getMesos();
         if (!chr.canAddMoney(earnings)) {
@@ -250,12 +242,20 @@ public class Merchant extends Life {
         DatabaseManager.saveToDB(customer);
     }
 
+
+    @Override
+    public void broadcastSpawnPacket(Char onlyChar) {
+        OutPacket outPacket = MiniRoomPacket.EntrustedShop.openMerchant(this);
+        if (onlyChar == null) {
+            getField().broadcastPacket(outPacket);
+        } else {
+            onlyChar.write(outPacket);
+        }
+    }
+
     @Override
     public void broadcastLeavePacket() {
-        Field field = getField();
-        for (Char chr : field.getChars()) {
-            field.broadcastPacket(MiniRoomPacket.EntrustedShop.closeMerchant(this));
-        }
+        getField().broadcastPacket(MiniRoomPacket.EntrustedShop.closeMerchant(this));
     }
 
     public void addBoughtItem(Item item, long price, String name) {
@@ -291,7 +291,7 @@ public class Merchant extends Life {
         getField().broadcastPacket(MiniRoomPacket.EntrustedShop.closeMerchant(this));
     }
 
-    public void broadCastPacket(OutPacket outPacket) {
+    public void broadcastPacket(OutPacket outPacket) {
         getVisitors().forEach(chr -> chr.write(outPacket));
     }
 }

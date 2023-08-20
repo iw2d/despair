@@ -39,7 +39,12 @@ public class RandomPortal extends Life implements Encodable {
 
     @Override
     public void broadcastSpawnPacket(Char onlyChar) {
-        onlyChar.write(RandomPortalPool.created(this));
+        OutPacket outPacket = RandomPortalPool.created(this);
+        if (onlyChar == null) {
+            getField().broadcastPacket(outPacket);
+        } else {
+            onlyChar.write(outPacket);
+        }
     }
 
     @Override

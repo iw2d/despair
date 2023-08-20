@@ -1,6 +1,7 @@
 package net.swordie.ms.life.npc;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.connection.packet.MobPool;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.NpcPool;
@@ -168,9 +169,14 @@ public class Npc extends Life {
     public void broadcastSpawnPacket(Char onlyChar) {
         Field field = getField();
         Char controller = field.getLifeToControllers().get(this);
-        for (Char chr : field.getChars()) {
-            chr.write(NpcPool.npcEnterField(this));
-            chr.write(NpcPool.npcChangeController(this, chr == controller));
+        if (onlyChar == null) {
+            field.broadcastPacket(NpcPool.npcEnterField(this));
+            for (Char chr : field.getChars()) {
+                chr.write(NpcPool.npcChangeController(this, chr == controller));
+            }
+        } else {
+            onlyChar.write(NpcPool.npcEnterField(this));
+            onlyChar.write(NpcPool.npcChangeController(this, onlyChar == controller));
         }
     }
 

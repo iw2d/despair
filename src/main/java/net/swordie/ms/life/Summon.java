@@ -15,6 +15,7 @@ import net.swordie.ms.client.jobs.adventurer.warrior.DarkKnight;
 import net.swordie.ms.client.jobs.cygnus.WindArcher;
 import net.swordie.ms.client.jobs.resistance.Mechanic;
 import net.swordie.ms.client.jobs.sengoku.Kanna;
+import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.Summoned;
 import net.swordie.ms.connection.packet.UserPacket;
@@ -387,12 +388,17 @@ public class Summon extends Life {
 
     @Override
     public void broadcastSpawnPacket(Char onlyChar) {
+        OutPacket outPacket = Summoned.summonedCreated(getChr().getId(), this);
         Field field = getField();
-        if (getSummonTerm() > 0) {
-            ScheduledFuture sf = EventManager.addEvent(() -> field.removeLife(getObjectId(), true), getSummonTerm());
-            field.addLifeSchedule(this, sf);
+        if (onlyChar == null) {
+            field.broadcastPacket(outPacket);
+            if (getSummonTerm() > 0) {
+                ScheduledFuture sf = EventManager.addEvent(() -> field.removeLife(getObjectId(), true), getSummonTerm());
+                field.addLifeSchedule(this, sf);
+            }
+        } else {
+            onlyChar.write(outPacket);
         }
-        field.broadcastPacket(Summoned.summonedCreated(getChr().getId(), this));
     }
 
     @Override

@@ -19,6 +19,7 @@ import net.swordie.ms.client.jobs.legend.Shade;
 import net.swordie.ms.client.jobs.resistance.BattleMage;
 import net.swordie.ms.client.jobs.resistance.Xenon;
 import net.swordie.ms.client.jobs.sengoku.Kanna;
+import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
@@ -418,15 +419,22 @@ public class AffectedArea extends Life {
 
     @Override
     public void broadcastSpawnPacket(Char onlyChar) {
+        OutPacket outPacket = FieldPacket.affectedAreaCreated(this);
         Field field = getField();
-        field.broadcastPacket(FieldPacket.affectedAreaCreated(this));
-        field.checkCharInAffectedAreas(onlyChar);
+        if (onlyChar == null) {
+            field.broadcastPacket(outPacket);
+            for (Char chr : field.getCharsInRect(getRect())) {
+                handleCharInside(chr);
+            }
+        } else {
+            onlyChar.write(outPacket);
+            field.checkCharInAffectedAreas(onlyChar);
+        }
     }
 
     @Override
     public void broadcastLeavePacket() {
         handleAARemoved();
-        Field field = getField();
-        field.broadcastPacket(FieldPacket.affectedAreaRemoved(this, false));
+        getField().broadcastPacket(FieldPacket.affectedAreaRemoved(this, false));
     }
 }

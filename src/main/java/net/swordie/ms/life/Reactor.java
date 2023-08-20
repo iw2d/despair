@@ -1,6 +1,7 @@
 package net.swordie.ms.life;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.handlers.EventManager;
@@ -94,8 +95,13 @@ public class Reactor extends Life {
 
     @Override
     public void broadcastSpawnPacket(Char onlyChar) {
-        init();
-        getField().broadcastPacket(ReactorPool.reactorEnterField(this));
+        OutPacket outPacket = ReactorPool.reactorEnterField(this);
+        if (onlyChar == null) {
+            init();
+            getField().broadcastPacket(outPacket);
+        } else {
+            onlyChar.write(outPacket);
+        }
     }
 
     @Override

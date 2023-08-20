@@ -5,7 +5,7 @@ import net.swordie.ms.client.anticheat.Offense;
 import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
-import net.swordie.ms.client.room.TradeRoom;
+import net.swordie.ms.client.character.TradeRoom;
 import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.InPacket;
@@ -19,8 +19,9 @@ import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.life.Life;
-import net.swordie.ms.life.Merchant.Merchant;
-import net.swordie.ms.life.Merchant.MerchantItem;
+import net.swordie.ms.life.room.Merchant;
+import net.swordie.ms.life.room.MerchantItem;
+import net.swordie.ms.life.room.MiniRoom;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.World;
@@ -56,6 +57,7 @@ public class RoomHandler {
         int charID;
         Char other;
         Item item;
+        int itemId;
         switch (mra) {
             case PlaceItem:
             case PlaceItem_2:
@@ -148,7 +150,7 @@ public class RoomHandler {
                     chr.getTradeRoom().getOtherChar(chr).write(MiniRoomPacket.chat(0, msgWithName));
                 } else if (chr.getVisitingmerchant() != null) {
                     merchant = chr.getVisitingmerchant();
-                    merchant.broadCastPacket(MiniRoomPacket.chat(merchant.getVisitors().indexOf(chr), msgWithName));
+                    merchant.broadcastPacket(MiniRoomPacket.chat(merchant.getVisitors().indexOf(chr), msgWithName));
                 } else {
                     chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("You are currently not in a room.")));
                 }
@@ -217,6 +219,10 @@ public class RoomHandler {
                     chr.getVisitingmerchant().removeVisitor(chr);
                     chr.setVisitingmerchant(null);
                 }
+                if (chr.getMiniRoom() != null) {
+                    chr.getMiniRoom().getField().removeLife(chr.getMiniRoom());
+                    chr.setMiniRoom(null);
+                }
                 break;
             case TradeConfirmRemoteResponse:
                 // just an ack by the client?
@@ -249,7 +255,7 @@ public class RoomHandler {
                         slot = inPacket.decodeByte();
                         inPacket.decodeByte(); //tick
                         inPacket.decodeInt();  //tock
-                        int itemId = chr.getCashInventory().getItemBySlot(slot).getItemId();
+                        itemId = chr.getCashInventory().getItemBySlot(slot).getItemId();
                         merchant = new Merchant(0);
                         merchant.setStartTime(Util.getCurrentTimeLong());
                         merchant.setPosition(chr.getPosition());
@@ -265,7 +271,43 @@ public class RoomHandler {
                         merchant.setField(chr.getField());
                         chr.getField().addLife(merchant);
                         chr.getWorld().getMerchants().add(merchant);
-                        chr.getClient().write(MiniRoomPacket.EntrustedShop.enterMerchant(chr, chr.getMerchant(), true));
+                        chr.write(MiniRoomPacket.EntrustedShop.enterMerchant(chr, chr.getMerchant(), true));
+                        break;
+                    case OMOK:
+                    case MEMORY_GAME:
+                        if ((chr.getField().getFieldLimit() & FieldOption.MiniGameLimit.getVal()) > 0) {
+                            chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("You may not create a minigame here.")));
+                            chr.dispose();
+                            return;
+                        }
+                        String title = inPacket.decodeString();
+                        boolean isPrivate = inPacket.decodeByte() != 0;
+                        String password = "";
+                        if (isPrivate) {
+                            password = inPacket.decodeString();
+                        }
+                        short gameType = inPacket.decodeShort();
+                        if (gameType != 1 && gameType != 2) {
+                            log.error(String.format("Tried to create minigame with unhandled gameType : %d", gameType));
+                            break;
+                        }
+                        int gameKind = inPacket.decodeByte();
+                        int gameItemId = gameType == 1 ? 4080000 + gameKind : 4080100;
+                        if (!chr.hasItem(gameItemId)) {
+                            chr.dispose();
+                            return;
+                        }
+                        MiniRoom miniRoom = MiniRoom.createMiniGameRoom(mrt, title, isPrivate, password, gameKind);
+                        if (miniRoom == null) {
+                            chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Failed to create minigame.")));
+                            chr.dispose();
+                            return;
+                        }
+                        miniRoom.setOwner(chr);
+                        miniRoom.addChar(chr);
+                        chr.setMiniRoom(miniRoom);
+                        chr.getField().spawnLife(miniRoom, null);
+                        chr.write(MiniRoomPacket.MiniGameRoom.enterResult(miniRoom, chr));
                         break;
                     default:
                         log.error(String.format("Tried to create unhandled miniRoomType : %s", mrt.name()));
@@ -349,12 +391,15 @@ public class RoomHandler {
                 }
                 break;
             case Open1:
-            case Open2:
-            case Open3:
                 merchant = chr.getMerchant();
                 merchant.setOpen(true);
                 chr.getField().broadcastPacket(MiniRoomPacket.EntrustedShop.openMerchant(merchant));
                 EventManager.addEvent(merchant::closeMerchant, 24, TimeUnit.HOURS); // remove merchant in 24 hours
+                break;
+            case Open2:
+                // minigame open
+                break;
+            case Open3:
                 break;
             case AddItem1:
             case AddItem2:

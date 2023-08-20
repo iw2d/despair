@@ -1,6 +1,7 @@
 package net.swordie.ms.life;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.DragonPool;
 
 public class Dragon extends Life {
@@ -26,7 +27,12 @@ public class Dragon extends Life {
 
     @Override
     public void broadcastSpawnPacket(Char onlyChar) {
-        getField().broadcastPacket(DragonPool.createDragon(this));
+        OutPacket outPacket = DragonPool.createDragon(this);
+        if (onlyChar == null) {
+            getField().broadcastPacket(outPacket);
+        } else {
+            onlyChar.write(outPacket);
+        }
     }
 
     @Override

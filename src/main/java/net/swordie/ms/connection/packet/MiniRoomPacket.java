@@ -1,7 +1,7 @@
 package net.swordie.ms.connection.packet;
 
 import net.swordie.ms.client.character.Char;
-import net.swordie.ms.client.room.TradeRoom;
+import net.swordie.ms.client.character.TradeRoom;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.constants.GameConstants;
@@ -9,10 +9,13 @@ import net.swordie.ms.enums.MiniRoomAction;
 import net.swordie.ms.enums.MiniRoomType;
 import net.swordie.ms.enums.RoomLeaveType;
 import net.swordie.ms.handlers.header.OutHeader;
-import net.swordie.ms.life.Merchant.BoughtItem;
-import net.swordie.ms.life.Merchant.Merchant;
-import net.swordie.ms.life.Merchant.MerchantItem;
+import net.swordie.ms.life.room.BoughtItem;
+import net.swordie.ms.life.room.Merchant;
+import net.swordie.ms.life.room.MerchantItem;
+import net.swordie.ms.life.room.MiniRoom;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MiniRoomPacket {
@@ -34,14 +37,14 @@ public class MiniRoomPacket {
         outPacket.encodeByte(maxUsers);
         outPacket.encodeByte(myPosition);
         for (Integer user : users.keySet()) {
-            Char chr = users.get(user);
-            if (chr == null) {
+            Char userChr = users.get(user);
+            if (userChr == null) {
                 continue;
             }
             outPacket.encodeByte(user);
-            chr.getAvatarData().getAvatarLook().encode(outPacket);
-            outPacket.encodeString(chr.getName());
-            outPacket.encodeShort(chr.getJob());
+            userChr.getAvatarData().getAvatarLook().encode(outPacket);
+            outPacket.encodeString(userChr.getName());
+            outPacket.encodeShort(userChr.getJob());
         }
         outPacket.encodeByte(-1); // end
         return outPacket;
@@ -87,7 +90,6 @@ public class MiniRoomPacket {
         outPacket.encodeByte(user);
         return outPacket;
     }
-
 
     public static class TradingRoom extends MiniRoomPacket {
 
@@ -264,6 +266,44 @@ public class MiniRoomPacket {
                 item.item.encode(outPacket);
             }
             outPacket.encodeShort(0);
+            return outPacket;
+        }
+
+    }
+
+
+    public static class MiniGameRoom {
+
+        public static OutPacket enterResult(MiniRoom miniRoom, Char chr) {
+            List<Char> chars = miniRoom.getChars();
+            Map<Integer, Char> users = new HashMap<>();
+            for (int i = 0; i < chars.size(); i++) {
+                users.put(i, chars.get(i));
+            }
+            OutPacket outPacket = MiniRoomPacket.enterResult(
+                    miniRoom.getMiniRoomType(),
+                    miniRoom.getMaxSize(),
+                    chars.indexOf(chr),
+                    users
+            );
+            for (Integer user : users.keySet()) {
+                Char userChr = users.get(user);
+                if (userChr == null) {
+                    continue;
+                }
+                outPacket.encodeByte(user);
+                // MiniGameRecord
+                outPacket.encodeInt(miniRoom.getType());
+                outPacket.encodeInt(0); // nWins
+                outPacket.encodeInt(0); // nTies
+                outPacket.encodeInt(0); // nLosses
+                outPacket.encodeInt(1337); // nScore
+            }
+            outPacket.encodeByte(-1);
+
+            outPacket.encodeString(miniRoom.getTitle());
+            outPacket.encodeByte(miniRoom.getKind());
+            outPacket.encodeByte(0); // tournament mode
             return outPacket;
         }
 

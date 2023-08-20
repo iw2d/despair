@@ -1,4 +1,4 @@
-package net.swordie.ms.client.room;
+package net.swordie.ms.client.character;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Item;

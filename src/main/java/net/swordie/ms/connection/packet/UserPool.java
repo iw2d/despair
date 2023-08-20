@@ -46,7 +46,7 @@ public class UserPool {
         outPacket.encodeShort(cs.getSubJob());
         outPacket.encodeInt(chr.getTotalChuc());
         al.encode(outPacket);
-        if(JobConstants.isZero(chr.getJob())) {
+        if (JobConstants.isZero(chr.getJob())) {
             chr.getAvatarData().getZeroAvatarLook().encode(outPacket);
         }
         outPacket.encodeInt(chr.getDriverID());
@@ -112,9 +112,9 @@ public class UserPool {
         outPacket.encodeInt(chr.getTamingMobLevel());
         outPacket.encodeInt(chr.getTamingMobExp());
         outPacket.encodeInt(chr.getTamingMobFatigue());
-        byte miniRoomType = chr.getMiniRoom() != null ? chr.getMiniRoom().getType() : 0;
+        int miniRoomType = chr.getMiniRoom() != null ? chr.getMiniRoom().getType() : 0;
         outPacket.encodeByte(miniRoomType);
-        if(miniRoomType > 0) {
+        if (miniRoomType > 0) {
             chr.getMiniRoom().encode(outPacket);
         }
         outPacket.encodeByte(chr.getADBoardRemoteMsg() != null);

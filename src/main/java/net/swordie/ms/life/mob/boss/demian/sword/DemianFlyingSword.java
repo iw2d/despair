@@ -1,6 +1,7 @@
 package net.swordie.ms.life.mob.boss.demian.sword;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.DemianFieldPacket;
 import net.swordie.ms.life.Life;
 import net.swordie.ms.life.mob.Mob;
@@ -77,11 +78,12 @@ public class DemianFlyingSword extends Life {
 
     @Override
     public void broadcastSpawnPacket(Char onlyChar) {
+        OutPacket outPacket = DemianFieldPacket.flyingSwordCreate(this);
         Field field = getField();
         if (onlyChar == null) {
-            field.broadcastPacket(DemianFieldPacket.flyingSwordCreate(this));
+            field.broadcastPacket(outPacket);
         } else {
-            onlyChar.write(DemianFieldPacket.flyingSwordCreate(this));
+            onlyChar.write(outPacket);
         }
     }
 }

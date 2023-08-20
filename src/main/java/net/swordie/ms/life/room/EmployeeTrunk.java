@@ -1,4 +1,4 @@
-package net.swordie.ms.life.Merchant;
+package net.swordie.ms.life.room;
 
 import net.swordie.ms.constants.GameConstants;
 

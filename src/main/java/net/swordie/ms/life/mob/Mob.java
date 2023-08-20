@@ -1682,11 +1682,11 @@ public class Mob extends Life {
         if (onlyChar == null) {
             field.broadcastPacket(MobPool.enterField(this, false));
             for (Char chr : field.getChars()) {
-                field.broadcastPacket(MobPool.changeController(this, true, controller == chr));
+                chr.write(MobPool.changeController(this, true, controller == chr));
             }
         } else {
-            onlyChar.getClient().write(MobPool.enterField(this, false));
-            onlyChar.getClient().write(MobPool.changeController(this, true, controller == onlyChar));
+            onlyChar.write(MobPool.enterField(this, false));
+            onlyChar.write(MobPool.changeController(this, true, controller == onlyChar));
         }
     }
 

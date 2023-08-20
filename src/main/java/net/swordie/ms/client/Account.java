@@ -8,7 +8,7 @@ import net.swordie.ms.client.trunk.Trunk;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.SkillConstants;
-import net.swordie.ms.life.Merchant.EmployeeTrunk;
+import net.swordie.ms.life.room.EmployeeTrunk;
 import net.swordie.ms.loaders.StringData;
 import net.swordie.ms.util.Util;
 import org.apache.logging.log4j.LogManager;

@@ -113,6 +113,7 @@ public class Drop extends Life {
 
     @Override
     public void broadcastSpawnPacket(Char onlyChar) {
+        assert onlyChar != null;
         Item item = getItem();
         ItemInfo ii = null;
         if (item != null) {

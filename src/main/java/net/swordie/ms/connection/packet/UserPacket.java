@@ -7,6 +7,7 @@ import net.swordie.ms.client.character.skills.PsychicLock;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
+import net.swordie.ms.life.room.MiniRoom;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
 import net.swordie.ms.util.Position;
 
@@ -207,6 +208,21 @@ public class UserPacket {
         OutPacket outPacket = new OutPacket(OutHeader.BEAST_FORM_WING_OFF);
         outPacket.encodeInt(chrId);
         outPacket.encodeByte(isOn);
+        return outPacket;
+    }
+
+    public static OutPacket makeMiniRoomBalloon(MiniRoom miniRoom) {
+        OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BALLOON);
+        outPacket.encodeInt(miniRoom.getOwner().getId());
+        outPacket.encodeByte(miniRoom.getType());
+        miniRoom.encode(outPacket);
+        return outPacket;
+    }
+
+    public static OutPacket destroyMiniRoomBalloon(MiniRoom miniRoom) {
+        OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BALLOON);
+        outPacket.encodeInt(miniRoom.getOwner().getId());
+        outPacket.encodeByte(0);
         return outPacket;
     }
 }

@@ -117,7 +117,12 @@ public class Pet extends Life {
 
     @Override
     public void broadcastSpawnPacket(Char onlyChar) {
-        onlyChar.write(UserLocal.petActivateChange(this, true, (byte) 0));
+        OutPacket outPacket = UserLocal.petActivateChange(this, true, (byte) 0);
+        if (onlyChar == null) {
+            getField().broadcastPacket(outPacket);
+        } else {
+            onlyChar.write(outPacket);
+        }
     }
 
     @Override
