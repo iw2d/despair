@@ -187,7 +187,6 @@ public class RoomHandler {
                             miniRoom.addChar(chr);
                             chr.setMiniRoom(miniRoom);
                             chr.write(MiniRoomPacket.MiniGameRoom.enterResult(miniRoom, chr));
-                            miniRoom.getField().broadcastPacket(UserPacket.makeMiniRoomBalloon(miniRoom)); // update balloon
                         } else {
                             chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("This room has reached its maximum capacity.")));
                         }
@@ -239,24 +238,7 @@ public class RoomHandler {
                     chr.setVisitingmerchant(null);
                 }
                 if (chr.getMiniRoom() != null) {
-                    MiniRoom miniRoom = chr.getMiniRoom();
-                    if (miniRoom.getOwner() == chr) {
-                        // kick others
-                        for (Char visitor : miniRoom.getChars()) {
-                            if (chr != visitor) {
-                                visitor.write(MiniRoomPacket.MiniGameRoom.leave(miniRoom.getPosition(visitor), RoomLeaveType.MRLeave_HostOut));
-                                visitor.setMiniRoom(null);
-                            }
-                        }
-                        miniRoom.getField().removeLife(miniRoom);
-                    } else {
-                        // notify user leaving
-                        miniRoom.broadcastPacket(MiniRoomPacket.MiniGameRoom.leave(miniRoom.getPosition(chr), RoomLeaveType.MRLeave_UserRequest));
-                        // update balloon
-                        miniRoom.getField().broadcastPacket(UserPacket.makeMiniRoomBalloon(miniRoom));
-                    }
-                    miniRoom.removeChar(chr);
-                    chr.setMiniRoom(null);
+                    chr.getMiniRoom().leave(chr);
                 }
                 break;
             case TradeConfirmRemoteResponse:
@@ -338,8 +320,8 @@ public class RoomHandler {
                             chr.dispose();
                             return;
                         }
-                        miniRoom.addChar(chr);
                         miniRoom.setOwner(chr);
+                        miniRoom.addChar(chr);
                         chr.setMiniRoom(miniRoom);
                         chr.getField().spawnLife(miniRoom, null);
                         chr.write(MiniRoomPacket.MiniGameRoom.enterResult(miniRoom, chr));
@@ -539,12 +521,15 @@ public class RoomHandler {
             case TimeOver:
             case PutStoneChecker:
             case PutStoneCheckerErr:
-                if (chr.getMiniRoom() != null && chr.getMiniRoom().getMiniRoomType() == MiniRoomType.OMOK) {
+            case TurnUpCard:
+                if (chr.getMiniRoom() != null) {
                     chr.getMiniRoom().handlePacket(chr, mra, inPacket);
+                } else {
+                    chr.dispose();
                 }
                 break;
             default:
-                log.error(String.format("Unhandled miniroom action %s", mra));
+                log.error(String.format("Unhandled MiniRoomAction %s", mra));
         }
     }
 

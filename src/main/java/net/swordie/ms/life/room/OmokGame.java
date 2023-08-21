@@ -7,8 +7,8 @@ import java.util.List;
 
 public class OmokGame {
     private static final int BOARD_SIZE = 15;
-    private int[][] board = new int[BOARD_SIZE][BOARD_SIZE];
-    private List<Triple<Integer, Integer, Integer>> history = new ArrayList<>(); // x, y, type
+    private final int[][] board = new int[BOARD_SIZE][BOARD_SIZE];
+    private final List<Triple<Integer, Integer, Integer>> history = new ArrayList<>(); // x, y, type
 
     public OmokGame() {
     }
@@ -191,7 +191,7 @@ public class OmokGame {
     }
 
 
-    public static enum OmokCheckResult {
+    public enum OmokCheckResult {
         OK(0),
         WIN(1),
         DOUBLE_THREE(104), // this will print a special message

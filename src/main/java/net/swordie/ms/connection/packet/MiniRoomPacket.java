@@ -324,6 +324,15 @@ public class MiniRoomPacket {
             return outPacket;
         }
 
+        public static OutPacket infoMessage(int type, String msg) {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(MiniRoomAction.Chat.getVal());
+            outPacket.encodeByte(23);
+            outPacket.encodeByte(type);
+            outPacket.encodeString(msg);
+            return outPacket;
+        }
+
         public static OutPacket tieRequest() {
             OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
             outPacket.encodeByte(MiniRoomAction.TieRequest.getVal());
@@ -384,6 +393,17 @@ public class MiniRoomPacket {
             return outPacket;
         }
 
+        public static OutPacket userStartMemoryGame(int nextTurn, List<Integer> cards) {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(MiniRoomAction.UserStart.getVal());
+            outPacket.encodeByte(nextTurn);
+            outPacket.encodeByte(cards.size());
+            for (int card : cards) {
+                outPacket.encodeInt(card);
+            }
+            return outPacket;
+        }
+
         public static OutPacket timeOver(int nextTurn) {
             OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
             outPacket.encodeByte(MiniRoomAction.TimeOver.getVal());
@@ -404,6 +424,18 @@ public class MiniRoomPacket {
             OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
             outPacket.encodeByte(MiniRoomAction.PutStoneCheckerErr.getVal());
             outPacket.encodeByte(errorType);
+            return outPacket;
+        }
+
+        public static OutPacket turnUpCard(boolean isFirst, int card1, int card2, int type) {
+            OutPacket outPacket = new OutPacket(OutHeader.MINI_ROOM_BASE_DLG);
+            outPacket.encodeByte(MiniRoomAction.TurnUpCard.getVal());
+            outPacket.encodeByte(isFirst);
+            outPacket.encodeByte(card1);
+            if (!isFirst) {
+                outPacket.encodeByte(card2);
+                outPacket.encodeByte(type);
+            }
             return outPacket;
         }
 

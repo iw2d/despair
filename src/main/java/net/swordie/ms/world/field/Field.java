@@ -587,6 +587,10 @@ public class Field {
             other.write(MiniRoomPacket.TradingRoom.tradeCancel(1));
             other.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Could not find player.")));
         }
+        // leave miniroom
+        if (chr.getMiniRoom() != null) {
+            chr.getMiniRoom().leave(chr);
+        }
         // remove char's dragon
         Dragon dragon = chr.getDragon();
         if (dragon != null) {

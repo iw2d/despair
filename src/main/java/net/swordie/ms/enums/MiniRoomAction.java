@@ -55,7 +55,7 @@ public enum MiniRoomAction {
     Update(77),
     Open3(80),
 
-    // COmokDlg::OnPacket | COmokDlg::OnButtonClicked
+    // (COmokDlg, CMemoryGame)::(OnPacket, OnButtonClicked, OnMouseButton)
     TieRequest(87),
     TieResult(88),
     ClaimGiveUp(89),
@@ -71,6 +71,7 @@ public enum MiniRoomAction {
     TimeOver(100),
     PutStoneChecker(101),
     PutStoneCheckerErr(102),
+    TurnUpCard(105),
     ;
 
     private byte val;
