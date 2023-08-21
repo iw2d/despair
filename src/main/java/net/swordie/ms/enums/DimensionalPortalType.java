@@ -55,7 +55,10 @@ public enum DimensionalPortalType {
     WeirdMob(46, 0, "Weird Mob"),
     Ursus(47, 0, "Ursus"),
     Cygnus(49, 0, "Cygnus Empress"),
-    Maplerunner(50, 993001000, "Maplerunner");
+    Maplerunner(50, 993001000, "Maplerunner"),
+    PrincessNo(908, 0, "Princess No"),
+    CommerciRepublic(995, 0, "Commerci Republic")
+;
 
     private int val;
     private int mapID;

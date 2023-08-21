@@ -505,6 +505,10 @@ public class NightWalker extends Noblesse {
                     tsm.putCharacterStatValue(NightWalkerBat, o1);
                 }
                 break;
+            case SHADOW_BAT_SUMMON:
+                // from dominion
+                summonShadowBat(false);
+                break;
             case SHADOW_ILLUSION:
                 if (tsm.hasStatBySkillId(DARK_SERVANT)) {
                     tsm.removeStatsBySkill(DARK_SERVANT);

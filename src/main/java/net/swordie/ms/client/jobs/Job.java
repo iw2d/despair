@@ -578,6 +578,15 @@ public abstract class Job {
 				summon = Summon.getSummonBy(chr, skillID, (byte) slv);
 				chr.getField().spawnSummon(summon);
 				break;
+			case MAPLERUNNER_DASH:
+				o1.nReason = o2.nReason = skillID;
+				o1.tStart = o2.tStart = Util.getCurrentTime();
+				o1.tTerm = o2.tTerm = si.getValue(time, 1);
+				o1.nValue = si.getValue(indieForceJump, 1);
+				tsm.putCharacterStatValue(IndieForceJump, o1);
+				o2.nValue = si.getValue(indieForceSpeed, 1);
+				tsm.putCharacterStatValue(IndieForceSpeed, o2);
+				break;
 		}
 		tsm.sendSetStatPacket();
 	}
@@ -615,15 +624,6 @@ public abstract class Job {
 				o1.tStart = curTime;
 				o1.tTerm = si.getValue(time, slv);
 				tsm.putCharacterStatValue(IndieDamR, o1);
-				break;
-			case MAPLERUNNER_DASH:
-				o1.nReason = o2.nReason = skillID;
-				o1.tStart = o2.tStart = curTime;
-				o1.tTerm = o2.tTerm = si.getValue(time, slv);
-				o1.nValue = si.getValue(indieForceJump, slv);
-				tsm.putCharacterStatValue(IndieForceJump, o1);
-				o2.nValue = si.getValue(indieForceSpeed, slv);
-				tsm.putCharacterStatValue(IndieForceSpeed, o2);
 				break;
 			default:
 				sendStat = false;

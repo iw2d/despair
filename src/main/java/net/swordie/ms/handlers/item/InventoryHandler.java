@@ -113,10 +113,9 @@ public class InventoryHandler {
                         // remove item and merge into swapItem
                         chr.getInventoryByType(invTypeFrom).removeItem(item);
                         swapItem.setQuantity(newQuantity);
-                        chr.write(WvsContext.inventoryOperation(true, false, List.of(
-                                new InvOp(Remove, item, oldPos, (short) 0, 0),
-                                new InvOp(UpdateQuantity, swapItem, newPos, (short) 0, 0)
-                        )));
+                        // this has to be two writes to properly update the number
+                        chr.write(WvsContext.inventoryOperation(true, false, Remove, oldPos, (short) 0, (short) 0, item));
+                        chr.write(WvsContext.inventoryOperation(true, false, UpdateQuantity, newPos, (short) 0, (short) 0, swapItem));
                     }
                     return;
                 }
