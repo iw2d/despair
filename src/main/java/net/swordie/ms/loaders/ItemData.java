@@ -381,6 +381,9 @@ public class ItemData {
                                 case "tradeBlock":
                                     equip.setTradeBlock(Integer.parseInt(value) != 0);
                                     break;
+                                case "equipTradeBlock":
+                                    equip.setEquipTradeBlock(Integer.parseInt(value) != 0);
+                                    break;
                                 case "fixedPotential":
                                     equip.setFixedPotential(Integer.parseInt(value) != 0);
                                     break;

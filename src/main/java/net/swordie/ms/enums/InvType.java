@@ -61,6 +61,6 @@ public enum InvType {
     }
 
     public boolean isStackable() {
-        return this != EQUIP && this != EQUIPPED && this != CASH;
+        return this != EQUIP && this != EQUIPPED;
     }
 }
