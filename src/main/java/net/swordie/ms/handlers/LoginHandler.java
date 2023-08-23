@@ -335,11 +335,11 @@ public class LoginHandler {
 
         Char chr = new Char(acc.getId(), name, keySettingType, eventNewCharSaleJob, job.getJobId(),
                 curSelectedSubJob, gender, skin, face, hair, items);
+        DatabaseManager.saveToDB(chr);
+
         JobManager.getJobById(job.getJobId(), chr).setCharCreationStats(chr);
         JobManager.getJobById(job.getJobId(), chr).handleSetJob(job.getJobId());
-
         chr.initFuncKeyMaps(keySettingType, JobConstants.isBeastTamer(chr.getJob()));
-        DatabaseManager.saveToDB(chr);
         acc.addCharacter(chr);
 
         CharacterStat cs = chr.getAvatarData().getCharacterStat();
