@@ -1178,6 +1178,11 @@ public class Equip extends Item {
         outPacket.encodeShort(getSoulOptionId()); // soul ID
         outPacket.encodeShort(getSoulSocketId()); // enchanter ID
         outPacket.encodeShort(getSoulOption()); // optionID (same as potentials)
+        if (ItemConstants.isArcaneSymbol(getItemId())) {
+            outPacket.encodeShort(0); // Arc
+            outPacket.encodeInt(0); // Symbol Exp
+            outPacket.encodeShort(0); // Symbol Level
+        }
     }
 
     public int getTotalStat(EquipBaseStat stat) {

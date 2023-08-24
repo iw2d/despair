@@ -451,7 +451,7 @@ public class ItemConstants {
 
     }
 
-    private static int getItemPrefix(int nItemID) {
+    public static int getItemPrefix(int nItemID) {
         return nItemID / 10000;
     }
 
@@ -1669,8 +1669,12 @@ public class ItemConstants {
         return scrolls;
     }
 
+    public static boolean isArcaneSymbol(int itemId) {
+        return itemId / 10000 == 171;
+    }
+
     // is_tuc_ignore_item(int nItemID)
-    static boolean isTucIgnoreItem(int itemID) {
+    public static boolean isTucIgnoreItem(int itemID) {
         return (isSecondary(itemID) || isEmblem(itemID) || Arrays.asList(TUC_IGNORE_ITEMS).contains(itemID));
     }
 

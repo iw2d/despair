@@ -176,13 +176,13 @@ public class Item implements Serializable, Encodable {
             outPacket.encodeLong(getId());
         }
         outPacket.encodeFT(getDateExpire());
-        outPacket.encodeInt(getBagIndex());
+        outPacket.encodeInt(-1); // bagIndex if it's in a bag
         if (getType() == Type.ITEM) {
             outPacket.encodeShort(getQuantity()); // nQuantity
             outPacket.encodeString(getOwner()); // sOwner
             outPacket.encodeShort(getAttribute()); // nAttribute
             if (ItemConstants.isThrowingStar(getItemId()) || ItemConstants.isBullet(getItemId()) ||
-                    ItemConstants.isFamiliar(getItemId())) {
+                    ItemConstants.isFamiliar(getItemId()) ) { // || prefix == 288 || prefix == 289) { <- not in WZ
                 outPacket.encodeLong(getId());
             }
         }

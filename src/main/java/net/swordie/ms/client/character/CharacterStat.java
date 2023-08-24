@@ -328,6 +328,7 @@ public class CharacterStat {
         outPacket.encodeInt(getCharacterIdForLog());
         outPacket.encodeInt(getWorldIdForLog());
         outPacket.encodeString(getName(), 13);
+
         outPacket.encodeByte(getGender());
         outPacket.encodeByte(getSkin());
         outPacket.encodeInt(getFace());
@@ -335,6 +336,7 @@ public class CharacterStat {
         outPacket.encodeByte(getMixBaseHairColor());
         outPacket.encodeByte(getMixAddHairColor());
         outPacket.encodeByte(getMixHairBaseProb());
+
         outPacket.encodeByte(getLevel());
         outPacket.encodeShort(getJob());
         outPacket.encodeShort(getStr());
@@ -381,13 +383,23 @@ public class CharacterStat {
 
         outPacket.encodeByte(getPvpModeType());
         outPacket.encodeInt(getEventPoint());
+
         outPacket.encodeByte(getAlbaActivityID()); // part time job
         outPacket.encodeFT(getAlbaStartTime());
         outPacket.encodeInt(getAlbaDuration());
         outPacket.encodeByte(getAlbaSpecialReward());
         getCharacterCard().encode(outPacket);
         outPacket.encodeFT(getLastLogout());
+
+        // BURNING INFO
+        outPacket.encodeLong(0); // ftStart
+        outPacket.encodeLong(0); // ftEnd
+        outPacket.encodeInt(0);
+        outPacket.encodeInt(0);
+        outPacket.encodeInt(0);
         outPacket.encodeByte(isBurning()); // bBurning
+        outPacket.encodeInt(0);
+        outPacket.encodeInt(0);
     }
 
     public FileTime getLastLogout() {

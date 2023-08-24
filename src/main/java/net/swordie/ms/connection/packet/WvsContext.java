@@ -26,6 +26,7 @@ import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.client.party.PartyResult;
 import net.swordie.ms.connection.OutPacket;
+import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.util.AntiMacro;
@@ -36,6 +37,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
+import static net.swordie.ms.enums.InvType.EQUIP;
+import static net.swordie.ms.enums.InvType.EQUIPPED;
 import static net.swordie.ms.enums.MessageType.*;
 
 /**
@@ -167,7 +170,15 @@ public class WvsContext {
         outPacket.encodeByte(invOps.size());
         outPacket.encodeByte(notRemoveAddInfo);
 
+        byte addMovementInfo = 0;
         for (InvOp op : invOps) {
+            InvType invType = op.getInvType();
+            if ((op.getOldPos() > 0 && op.getNewPos() < 0 && invType == EQUIPPED) || (invType == EQUIPPED && op.getOldPos() < 0)) {
+                invType = InvType.EQUIP;
+            }
+            boolean isEquippedItem = (invType == EQUIPPED ||
+                    (invType == EQUIP && (op.getOldPos() < 0 || op.getNewPos() < 0)));
+
             outPacket.encodeByte(op.getOp().getVal());
             outPacket.encodeByte(op.getInvType().getVal());
             outPacket.encodeShort(op.getOldPos());
@@ -180,12 +191,14 @@ public class WvsContext {
                     break;
                 case Move:
                     outPacket.encodeShort(op.getNewPos());
-                    if (op.getInvType() == InvType.EQUIP && (op.getOldPos() < 0 || op.getNewPos() < 0)) {
-                        outPacket.encodeByte(op.getItem().getCashItemSerialNumber() > 0);
+                    if (isEquippedItem) {
+                        addMovementInfo = 1;
                     }
                     break;
                 case Remove:
-                    outPacket.encodeByte(0);
+                    if (isEquippedItem) {
+                        addMovementInfo = 2;
+                    }
                     break;
                 case ItemExp:
                     outPacket.encodeLong(((Equip) op.getItem()).getExp());
@@ -202,6 +215,11 @@ public class WvsContext {
                 case BagRemoveSlot:
                     break;
             }
+            boolean isSymbol = false;
+            outPacket.encodeByte(isSymbol);
+        }
+        if (addMovementInfo != 0) {
+            outPacket.encodeByte(addMovementInfo);
         }
         return outPacket;
     }

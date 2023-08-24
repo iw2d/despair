@@ -707,14 +707,14 @@ public class Char {
 			outPacket.encodeInt(0);
 		}
 
-		int sizee = 0;
-		outPacket.encodeInt(sizee);
-		for (int i = 0; i < sizee; i++) {
+		int sizeInt = 0;
+		outPacket.encodeInt(sizeInt);
+		for (int i = 0; i < sizeInt; i++) {
 			outPacket.encodeInt(0); // nKey
 			outPacket.encodeLong(0); // pInfo
 		}
 		outPacket.encodeByte(0); // again unsure
-		if (mask.isInMask(DBChar.Character)) {
+		if (mask.isInMask(DBChar.Character)) {																			// (a2 & 1) != 0
 			getAvatarData().getCharacterStat().encode(outPacket);
 			outPacket.encodeByte(getFriendRecords().size());
 			boolean hasBlessingOfFairy = getBlessingOfFairy() != null;
@@ -729,16 +729,16 @@ public class Char {
 			}
 			outPacket.encodeByte(false); // ultimate explorer, deprecated
 		}
-		if (mask.isInMask(DBChar.Money)) {
+		if (mask.isInMask(DBChar.Money)) {																				// (a2 & 2) != 0
 			outPacket.encodeLong(getMoney());
 		}
-		if (mask.isInMask(DBChar.ItemSlotConsume) || mask.isInMask(DBChar.ExpConsumeItem)) {
+		if (mask.isInMask(DBChar.ItemSlotConsume) || mask.isInMask(DBChar.ExpConsumeItem)) {							// (a2 & 8) != 0
 			outPacket.encodeInt(getExpConsumeItems().size());
 			for (ExpConsumeItem eci : getExpConsumeItems()) {
 				eci.encode(outPacket);
 			}
 		}
-		if (mask.isInMask(DBChar.ItemSlotConsume) || mask.isInMask(DBChar.ShopBuyLimit)) {
+		if (mask.isInMask(DBChar.ItemSlotConsume) || mask.isInMask(DBChar.Unk4000000000000000)) { 						// (a2 & 8) != 0 || (a2_4 & 0x40000000) != 0
 			int size = 0;
 			outPacket.encodeInt(size);
 			for (int i = 0; i < size; i++) {
@@ -751,7 +751,7 @@ public class Char {
 				outPacket.encodeLong(0);
 			}
 		}
-		if (mask.isInMask(DBChar.MonsterBattleInfo)) {
+		if (mask.isInMask(DBChar.MonsterBattleInfo)) {																	// (a2_4 & 0x8000) != 0
 			int count = 0; // MonsterBattle_MobInfo
 			outPacket.encodeInt(count);
 			if (getMonsterBattleMobInfos() != null) {
@@ -761,30 +761,14 @@ public class Char {
 				}
 			}
 			outPacket.encodeInt(getId());
-
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-
-			boolean hasMonsterBattleLadder = getMonsterBattleLadder() != null;
-			outPacket.encodeByte(hasMonsterBattleLadder);
-			if (hasMonsterBattleLadder) {
-				getMonsterBattleLadder().encode(outPacket); // TODO GW_MonsterBattleLadder_UserInfo::Decode
+			for (int i = 0; i < 3; i++) {
+				outPacket.encodeInt(0);
+				outPacket.encodeInt(0);
 			}
-			boolean hasMonsterBattleRankInfo = getMonsterBattleRankInfo() != null;
-			outPacket.encodeByte(hasMonsterBattleRankInfo);
-			if (hasMonsterBattleRankInfo) {
-				getMonsterBattleRankInfo().encode(outPacket); // TODO GW_MonsterBattleRankInfo::Decode(&dummyBLD, nSlotHyper);
-			}
-			outPacket.encodeByte(hasMonsterBattleRankInfo);
-			// again?
-			if (hasMonsterBattleRankInfo) {
-				getMonsterBattleRankInfo().encode(outPacket); // TODO GW_MonsterBattleRankInfo::Decode(&dummyBLD, nSlotHyper);
-			}
+			outPacket.encodeInt(0); // sizeInt
+			outPacket.encodeByte(0); // boolByte
+			outPacket.encodeByte(0); // sizeByte
+			outPacket.encodeByte(0); // sizeByte
 		}
 		if (mask.isInMask(DBChar.InventorySize)) {
 			outPacket.encodeByte(getEquipInventory().getSlots());
@@ -793,13 +777,12 @@ public class Char {
 			outPacket.encodeByte(getInstallInventory().getSlots());
 			outPacket.encodeByte(getCashInventory().getSlots());
 		}
-
-		if (mask.isInMask(DBChar.AdminShopCount)) {
-			outPacket.encodeInt(0); // ???
-			outPacket.encodeInt(0);
+		if (mask.isInMask(DBChar.EquipExtension)) {
+			outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME)); // extra pendant
 		}
-		if (mask.isInMask(DBChar.ItemSlotEquip)) {
-			outPacket.encodeByte(0); // ?
+		if (mask.isInMask(DBChar.ItemSlotEquip)) {																		// (a2 & 4) != 0
+			boolean onlyEquipped = false;
+			outPacket.encodeByte(onlyEquipped);
 			List<Item> equippedItems = new ArrayList<>(getEquippedInventory().getItems());
 			equippedItems.sort(Comparator.comparingInt(Item::getBagIndex));
 			// Normal equipped items
@@ -821,13 +804,16 @@ public class Char {
 			}
 			outPacket.encodeShort(0);
 			// Equip inventory
-			for (Item item : getEquipInventory().getItems()) {
-				Equip equip = (Equip) item;
-				outPacket.encodeShort(equip.getBagIndex());
-				equip.encode(outPacket);
+			if (!onlyEquipped) {
+				for (Item item : getEquipInventory().getItems()) {
+					Equip equip = (Equip) item;
+					outPacket.encodeShort(equip.getBagIndex());
+					equip.encode(outPacket);
+				}
+				outPacket.encodeShort(0);
 			}
-			outPacket.encodeShort(0);
-			// NonBPEquip::Decode (Evan)
+			// NonBPEquip::Decode (10 inventory decodes)
+			// Evan
 			for (Item item : getEquippedInventory().getItems()) {
 				Equip equip = (Equip) item;
 				if (item.getBagIndex() >= BodyPart.EvanBase.getVal() && item.getBagIndex() < BodyPart.EvanEnd.getVal()) {
@@ -836,8 +822,7 @@ public class Char {
 				}
 			}
 			outPacket.encodeShort(0);
-			// VirtualEquipInventory::Decode (Android)
-			// >= 20k < 200024?
+			// Mech
 			for (Item item : getEquippedInventory().getItems()) {
 				Equip equip = (Equip) item;
 				if (item.getBagIndex() >= BodyPart.MechBase.getVal() && item.getBagIndex() < BodyPart.MechEnd.getVal()) {
@@ -846,19 +831,10 @@ public class Char {
 				}
 			}
 			outPacket.encodeShort(0);
-			// Guessing pet consume items, could very well be wrong
-			for (Item item : getEquippedInventory().getItems()) {
-				Equip equip = (Equip) item;
-				if (item.getBagIndex() >= 200 && item.getBagIndex() <= 300) {
-					outPacket.encodeShort(equip.getBagIndex());
-					equip.encode(outPacket);
-				}
-			}
-			outPacket.encodeShort(0);
 			// Android
 			for (Item item : getEquippedInventory().getItems()) {
 				Equip equip = (Equip) item;
-				if (item.getBagIndex() >= BodyPart.APBase.getVal() && item.getBagIndex() <= BodyPart.APEnd.getVal()) {
+				if (item.getBagIndex() >= BodyPart.APBase.getVal() && item.getBagIndex() < BodyPart.APEnd.getVal()) {
 					outPacket.encodeShort(equip.getBagIndex());
 					equip.encode(outPacket);
 				}
@@ -891,19 +867,28 @@ public class Char {
 				}
 			}
 			outPacket.encodeShort(0);
-			// Totems
+			// Maybe zero beta cash?
 			for (Item item : getEquippedInventory().getItems()) {
 				Equip equip = (Equip) item;
-				if (item.getBagIndex() >= BodyPart.TotemBase.getVal() && item.getBagIndex() < BodyPart.TotemEnd.getVal()) {
+				if (item.getBagIndex() >= BodyPart.MBPBase.getVal() && item.getBagIndex() < BodyPart.MBPEnd.getVal()) {
 					outPacket.encodeShort(equip.getBagIndex());
 					equip.encode(outPacket);
 				}
 			}
 			outPacket.encodeShort(0);
-			// Maybe zero beta cash?
+			// Arcane
 			for (Item item : getEquippedInventory().getItems()) {
 				Equip equip = (Equip) item;
-				if (item.getBagIndex() >= BodyPart.MBPBase.getVal() && item.getBagIndex() < BodyPart.MBPEnd.getVal()) {
+				if (item.getBagIndex() >= BodyPart.AFBase.getVal() && item.getBagIndex() < BodyPart.AFEnd.getVal()) {
+					outPacket.encodeShort(equip.getBagIndex());
+					equip.encode(outPacket);
+				}
+			}
+			outPacket.encodeShort(0);
+			// Totems
+			for (Item item : getEquippedInventory().getItems()) {
+				Equip equip = (Equip) item;
+				if (item.getBagIndex() >= BodyPart.TotemBase.getVal() && item.getBagIndex() < BodyPart.TotemEnd.getVal()) {
 					outPacket.encodeShort(equip.getBagIndex());
 					equip.encode(outPacket);
 				}
@@ -918,7 +903,18 @@ public class Char {
 				}
 			}
 			outPacket.encodeShort(0);
+			// VirtualEquipInventory::Decode (Android)
+			for (Item item : getEquippedInventory().getItems()) {
+				Equip equip = (Equip) item;
+				if (item.getBagIndex() >= BodyPart.MechBase.getVal() && item.getBagIndex() < BodyPart.MechEnd.getVal()) {
+					outPacket.encodeShort(equip.getBagIndex());
+					equip.encode(outPacket);
+				}
+			}
 			outPacket.encodeShort(0);
+		}
+		if (mask.isInMask(DBChar.ItemSlotInstall)) {																	// (a2 & 0x10) != 0
+			// sub_B19F20
 			outPacket.encodeShort(0);
 		}
 		if (mask.isInMask(DBChar.ItemSlotConsume)) {
@@ -962,16 +958,20 @@ public class Char {
 			// TODO
 			outPacket.encodeInt(0);
 		}
-		if (mask.isInMask(DBChar.ItemSlotCash)) {
-			// TODO
-			outPacket.encodeInt(0);
-		}
 		// End bagdatas
-		if (mask.isInMask(DBChar.CoreAura)) {
+		if (mask.isInMask(DBChar.CoreAura)) {                                                                           // (a2 & 0x1000000) != 0
 			int val = 0;
 			outPacket.encodeInt(val);
 			for (int i = 0; i < val; i++) {
 				outPacket.encodeInt(0);
+				outPacket.encodeLong(0);
+			}
+		}
+		if (mask.isInMask(DBChar.Unk40000000)) {																		// (a2 & 0x40000000) != 0
+			int size = 0;
+			outPacket.encodeInt(size);
+			for (int i = 0; i < size; i++) {
+				outPacket.encodeLong(0);
 				outPacket.encodeLong(0);
 			}
 		}
@@ -985,14 +985,11 @@ public class Char {
 				}
 			}
 		}
-
-		if (mask.isInMask(DBChar.SkillRecord)) {
+		if (mask.isInMask(DBChar.SkillRecord)) {                                                                        // (a2 & 0x100) != 0
 			boolean encodeSkills = getSkills().size() > 0;
-			outPacket.encodeByte(encodeSkills);
+			outPacket.encodeByte(0x69); // bad
 			if (encodeSkills) {
-				Set<LinkSkill> linkSkills = getLinkSkills();
-				short size = (short) (getSkills().size() + linkSkills.size());
-				outPacket.encodeShort(size);
+				outPacket.encodeShort(getSkills().size());
 				for (Skill skill : getSkills()) {
 					outPacket.encodeInt(skill.getSkillId());
 					outPacket.encodeInt(skill.getCurrentLevel());
@@ -1000,11 +997,6 @@ public class Char {
 					if (SkillConstants.isSkillNeedMasterLevel(skill.getSkillId())) {
 						outPacket.encodeInt(skill.getMasterLevel());
 					}
-				}
-				outPacket.encodeShort(linkSkills.size());
-				for (LinkSkill linkSkill : linkSkills) {
-					outPacket.encodeInt(linkSkill.getLinkSkillID()); // another nCount
-					outPacket.encodeShort(linkSkill.getLevel() - 1); // idk
 				}
 			} else {
 				short size = 0;
@@ -1043,9 +1035,23 @@ public class Char {
 					outPacket.encodeInt(0); // nTI
 				}
 			}
+			Set<LinkSkill> linkSkills = getLinkSkills();
+			outPacket.encodeShort(linkSkills.size());
+			for (LinkSkill linkSkill : linkSkills) {
+				outPacket.encodeInt(linkSkill.getLinkSkillID());
+				outPacket.encodeShort(linkSkill.getLevel());
+			}
+			linkSkills = getAccount().getLinkSkills();
+			outPacket.encodeInt(linkSkills.size());
+			for (LinkSkill linkSkill : linkSkills) {
+				outPacket.encodeInt(linkSkill.getOwnerID());
+				outPacket.encodeInt(linkSkill.getUsingID());
+				outPacket.encodeInt(linkSkill.getLinkSkillID());
+				outPacket.encodeShort(linkSkill.getLevel());
+				outPacket.encodeFT(FileTime.fromType(FileTime.Type.ZERO_TIME)); // ftLastAssigned
+			}
 		}
-
-		if (mask.isInMask(DBChar.SkillCooltime)) {
+		if (mask.isInMask(DBChar.SkillCooltime)) {																		// (a2 & 0x8000) != 0
 			long curTime = Util.getCurrentTimeLong();
 			Map<Integer, Long> cooltimes = new HashMap<>();
 			getSkillCoolTimes().forEach((key, value) -> {
@@ -1059,7 +1065,7 @@ public class Char {
 				outPacket.encodeInt((int) ((cooltime.getValue() - curTime) / 1000)); // nSkillCooltime
 			}
 		}
-		if (mask.isInMask(DBChar.QuestRecord)) {
+		if (mask.isInMask(DBChar.QuestRecord)) {																		// (a2 & 0x200) != 0
 			// modified/deleted, not completed anyway
 			boolean removeAllOldEntries = true;
 			outPacket.encodeByte(removeAllOldEntries);
@@ -1085,7 +1091,7 @@ public class Char {
 				outPacket.encodeString("");
 			}
 		}
-		if (mask.isInMask(DBChar.QuestComplete)) {
+		if (mask.isInMask(DBChar.QuestComplete)) {																		// (a2 & 0x4000) != 0
 			boolean removeAllOldEntries = true;
 			outPacket.encodeByte(removeAllOldEntries);
 			Set<Quest> completedQuests = getQuestManager().getCompletedQuests();
@@ -1102,14 +1108,14 @@ public class Char {
 				}
 			}
 		}
-		if (mask.isInMask(DBChar.MinigameRecord)) {
+		if (mask.isInMask(DBChar.MinigameRecord)) {																		// (a2 & 0x400) != 0
 			int size = 0;
 			outPacket.encodeShort(size);
 			for (int i = 0; i < size; i++) {
 				new MiniGameRecord().encode(outPacket);
 			}
 		}
-		if (mask.isInMask(DBChar.CoupleRecord)) {
+		if (mask.isInMask(DBChar.CoupleRecord)) {																		// (a2 & 0x800) != 0
 			int coupleSize = 0;
 			outPacket.encodeShort(coupleSize);
 			for (int i = 0; i < coupleSize; i++) {
@@ -1127,7 +1133,7 @@ public class Char {
 			}
 		}
 
-		if (mask.isInMask(DBChar.MapTransfer)) {
+		if (mask.isInMask(DBChar.MapTransfer)) {																		// (a2 & 0x1000) != 0
 			for (int i = 0; i < 5; i++) {
 				outPacket.encodeInt(0);
 			}
@@ -1141,10 +1147,10 @@ public class Char {
 				outPacket.encodeInt(0);
 			}
 		}
-		if (mask.isInMask(DBChar.MonsterBookCover)) {
+		if (mask.isInMask(DBChar.MonsterBookCover)) {																	// (a2 & 0x200000) != 0
 			outPacket.encodeInt(getMonsterBookInfo().getCoverID());
 		}
-		if (mask.isInMask(DBChar.MonsterBookCard)) {
+		if (mask.isInMask(DBChar.MonsterBookCard)) {																	// (a2 & 0x10000) != 0
 			boolean isCompleted = false;
 			outPacket.encodeByte(isCompleted);
 			if (!isCompleted) {
@@ -1165,20 +1171,20 @@ public class Char {
 			}
 			outPacket.encodeInt(getMonsterBookInfo().getSetID()); // monsterbook set
 		}
-		if (mask.isInMask(DBChar.QuestCompleteOld)) {
+		if (mask.isInMask(DBChar.QuestCompleteOld)) {																	/// (a2 & 0x4000000) != 0
 			short size = 0;
 			outPacket.encodeShort(size);
 			for (int i = 0; i < size; i++) {
 				outPacket.encodeShort(0);
 			}
 		}
-		if (mask.isInMask(DBChar.Familiar)) {
+		if (mask.isInMask(DBChar.Familiar)) {																			// (a2 & 0x8000000) != 0
 			outPacket.encodeInt(getFamiliars().size());
 			for (Familiar familiar : getFamiliars()) {
 				familiar.encode(outPacket);
 			}
 		}
-		if (mask.isInMask(DBChar.NewYearCard)) {
+		if (mask.isInMask(DBChar.Unk800000)) {																	    	// (a2 & 0x800000) != 0
 			short size = 0;
 			outPacket.encodeShort(size);
 			for (int i = 0; i < size; i++) {
@@ -1195,15 +1201,14 @@ public class Char {
 				outPacket.encodeString("");
 			}
 		}
-		if (mask.isInMask(DBChar.QuestRecordEx)) {
+		if (mask.isInMask(DBChar.QuestRecordEx)) {																		// (a2 & 0x40000) != 0
 			outPacket.encodeShort(getQuestManager().getEx().size());
 			for (Quest quest : getQuestManager().getEx()) {
 				outPacket.encodeInt(quest.getQRKey());
 				outPacket.encodeString(quest.getQRValue());
 			}
 		}
-		if (mask.isInMask(DBChar.Avatar)) {
-
+		if (mask.isInMask(DBChar.Avatar)) {																				// (a2_4 & 0x2000) != 0
 			short size = 0;
 			outPacket.encodeShort(size);
 			for (int i = 0; i < size; i++) {
@@ -1211,7 +1216,17 @@ public class Char {
 				new AvatarLook().encode(outPacket);
 			}
 		}
-		if (mask.isInMask(DBChar.MapTransfer)) {
+		boolean bool = true; // bNxRecordAccessAuth
+		outPacket.encodeByte(bool);
+		if (bool && mask.isInMask(DBChar.Unk10000000000)) {												    			// (a2_4 & 0x100) != 0
+			int size = 0;
+			outPacket.encodeInt(size);
+			for (int i = 0; i < size; i++) {
+				outPacket.encodeInt(0);
+				outPacket.encodeString("");
+			}
+		}
+        if (mask.isInMask(DBChar.Unk100000000000)) {																	// (a2_4 & 0x1000) != 0
 			int size = 0;
 			outPacket.encodeInt(0);
 			for (int i = 0; i < size; i++) {
@@ -1219,7 +1234,7 @@ public class Char {
 				outPacket.encodeInt(0);
 			}
 		}
-		if (mask.isInMask(DBChar.WildHunterInfo)) {
+		if (mask.isInMask(DBChar.WildHunterInfo)) {																		// (a2 & 0x200000) != 0
 			if (JobConstants.isWildHunter(getAvatarData().getCharacterStat().getJob())) {
 				QuestManager qm = getQuestManager();
 				WildHunterInfo whi = getWildHunterInfo();
@@ -1237,7 +1252,7 @@ public class Char {
 				getWildHunterInfo().encode(outPacket); // GW_WildHunterInfo::Decode
 			}
 		}
-		if (mask.isInMask(DBChar.ZeroInfo)) {
+		if (mask.isInMask(DBChar.ZeroInfo)) {																			// (a2_4 & 0x800) != 0
 			if (JobConstants.isZero(getAvatarData().getCharacterStat().getJob())) {
 				if (getZeroInfo() == null) {
 					initZeroInfo();
@@ -1245,14 +1260,14 @@ public class Char {
 				getZeroInfo().encode(outPacket); // ZeroInfo::Decode
 			}
 		}
-		if (mask.isInMask(DBChar.ShopBuyLimit)) {
+		if (mask.isInMask(DBChar.ShopBuyLimit)) {																		// (a2 & 0x4000000) != 0
 			short size = 0;
-			outPacket.encodeShort(size);
+			outPacket.encodeShort(0);
 			for (int i = 0; i < size; i++) {
 				// Encode shop buy limit
 			}
 		}
-		if (mask.isInMask(DBChar.StolenSkills)) {
+		if (mask.isInMask(DBChar.StolenSkills)) {																		// (a2 & 0x20000000) != 0
 			if (JobConstants.isPhantom(getAvatarData().getCharacterStat().getJob())) {
 				for (int i = 0; i < 15; i++) {
 					StolenSkill stolenSkill = getStolenSkillByPosition(i);
@@ -1280,7 +1295,7 @@ public class Char {
 				outPacket.encodeInt(0);
 			}
 		}
-		if (mask.isInMask(DBChar.ChosenSkills)) {
+		if (mask.isInMask(DBChar.ChosenSkills)) {																		// (a2 & 0x10000000) != 0
 			if (JobConstants.isPhantom(getAvatarData().getCharacterStat().getJob())) {
 				for (int i = 1; i <= 5; i++) { //Shifted by +1 to accomodate the Skill Management Tabs
 					ChosenSkill chosenSkill = getChosenSkillByPosition(i);
@@ -1297,13 +1312,13 @@ public class Char {
 				}
 			}
 		}
-		if (mask.isInMask(DBChar.CharacterPotentialSkill)) {
+		if (mask.isInMask(DBChar.CharacterPotential)) {    							  								    // a2 < 0
 			outPacket.encodeShort(getPotentials().size());
 			for (CharacterPotential cp : getPotentials()) {
 				cp.encode(outPacket);
 			}
 		}
-		if (mask.isInMask(DBChar.SoulCollection)) {
+		if (mask.isInMask(DBChar.SoulCollection)) {																		// (a2_4 & 0x10000) != 0
 			short size = 0;
 			outPacket.encodeShort(size);
 			for (int i = 0; i < size; i++) {
@@ -1311,9 +1326,9 @@ public class Char {
 				outPacket.encodeInt(0); //
 			}
 		}
-		sizee = 0;
-		outPacket.encodeInt(sizee);
-		for (int i = 0; i < sizee; i++) {
+		sizeInt = 0;
+		outPacket.encodeInt(sizeInt);
+		for (int i = 0; i < sizeInt; i++) {
 			outPacket.encodeString("");
 			// sub_73A1A0
 			outPacket.encodeInt(0);
@@ -1325,11 +1340,11 @@ public class Char {
 			}
 		}
 		outPacket.encodeByte(0); // idk
-		if (mask.isInMask(DBChar.Character)) {
+		if (mask.isInMask(DBChar.HonorInfo)) {																			// (a2_4 & 1) != 0
 			outPacket.encodeInt(0); // honor level, deprecated
 			outPacket.encodeInt(getHonorExp()); // honor exp
 		}
-		if (mask.isInMask(DBChar.Money)) {
+		if (mask.isInMask(DBChar.Unk200000000)) {																		// (a2_4 & 2) != 0
 			boolean shouldIEncodeThis = true;
 			outPacket.encodeByte(shouldIEncodeThis);
 			if (shouldIEncodeThis) {
@@ -1356,21 +1371,21 @@ public class Char {
 
 			}
 		}
-		if (mask.isInMask(DBChar.ReturnEffectInfo)) {
+		if (mask.isInMask(DBChar.ReturnEffectInfo)) {																	// (a2_4 & 4) != 0
 //            getReturnEffectInfo().encode(outPacket); // ReturnEffectInfo::Decode
 			outPacket.encodeByte(0);
 		}
-		if (mask.isInMask(DBChar.DressUpInfo)) {
+		if (mask.isInMask(DBChar.DressUpInfo)) {																		// (a2_4 & 8) != 0
 			new DressUpInfo().encode(outPacket); // GW_DressUpInfo::Decode
 		}
-		if (mask.isInMask(DBChar.MonsterCollection)) {
-			outPacket.encodeInt(1);
-			outPacket.encodeInt(0);
-			outPacket.encodeLong(0);
-			outPacket.encodeString("");
-			outPacket.encodeInt(0);
+		if (mask.isInMask(DBChar.ActiveDamageSkin)) {                                                                   // (a2_4 & 0x400000) != 0
+			outPacket.encodeInt(getDamageSkin().getDamageSkinID());
+			outPacket.encodeInt(getPremiumDamageSkin().getDamageSkinID());
+			outPacket.encodeLong(0); // ftLastChanged?
+			outPacket.encodeString(getActiveDamageSkin().getDescription());
+			outPacket.encodeInt(getActiveDamageSkin().getDamageSkinID());
 		}
-		if (mask.isInMask(DBChar.CoreInfo)) {
+		if (mask.isInMask(DBChar.CoreInfo)) {																			// (a2_4 & 0x10) != 0
 			// GW_Core
 			short size = 0;
 			outPacket.encodeShort(size);
@@ -1405,13 +1420,25 @@ public class Char {
 		if (mask.isInMask(DBChar.RunnerGameRecord)) {
 			new RunnerGameRecord().encode(outPacket); // RunnerGameRecord::Decode
 		}
+		if (mask.isInMask(DBChar.Unk8000000000000)) {
+			int size = 0;
+			outPacket.encodeInt(size);
+			for (int i = 0; i < size; i++) {
+				outPacket.encodeInt(-1);
+				outPacket.encodeByte(-1);
+				outPacket.encodeByte(-1);
+				outPacket.encodeByte(-1);
+			}
+			outPacket.encodeInt(-1);
+			outPacket.encodeLong(-1);
+		}
 		short sizeO = 0;
-		outPacket.encodeShort(sizeO);
+		outPacket.encodeShort(0);
 		for (int i = 0; i < sizeO; i++) {
 			outPacket.encodeInt(0);
 			outPacket.encodeString("");
 		}
-		if (mask.isInMask(DBChar.MonsterCollection)) {
+		if (mask.isInMask(DBChar.MonsterCollection)) {																	// (a2_4 & 0x40000) != 0
 			Set<MonsterCollectionExploration> mces = getAccount().getMonsterCollection().getMonsterCollectionExplorations();
 			outPacket.encodeShort(mces.size());
 			for (MonsterCollectionExploration mce : mces) {
@@ -1421,78 +1448,99 @@ public class Char {
 		}
 		boolean farmOnline = false;
 		outPacket.encodeByte(farmOnline);
-		int sizeInt = 0;
 		// CharacterData::DecodeTextEquipInfo
+		sizeInt = 0;
 		outPacket.encodeInt(sizeInt);
 		for (int i = 0; i < sizeInt; i++) {
 			outPacket.encodeInt(0);
 			outPacket.encodeString("");
 		}
-
-		if (mask.isInMask(DBChar.VisitorLog4)) {
-			// mushy
-			outPacket.encodeByte(1);
-			outPacket.encodeByte(0);
-			outPacket.encodeInt(1);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(100);
-			outPacket.encodeFT(FileTime.fromType(FileTime.Type.MAX_TIME));
-			outPacket.encodeShort(0);
-			outPacket.encodeShort(0);
-		}
-
-		if (mask.isInMask(DBChar.Unk4)) {
-			outPacket.encodeByte(0);
-		}
-
-		if (mask.isInMask(DBChar.Unk)) {
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-		}
-
-		if (mask.isInMask(DBChar.CoreAura)) {
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-			outPacket.encodeInt(0);
-
-			outPacket.encodeLong(0);
-			outPacket.encodeByte(0);
-
-			outPacket.encodeByte(1);
-		}
-
-		if (mask.isInMask(DBChar.EquipExt)) {
-			short size = 0;
+		if (mask.isInMask(DBChar.Unk10000000000000)) {
+			int size = 0;
 			outPacket.encodeShort(size);
 			for (int i = 0; i < size; i++) {
+				outPacket.encodeInt(0);
+				outPacket.encodeInt(0);
+			}
+		}
+		if (mask.isInMask(DBChar.VMatrix)) {
+			outPacket.encodeInt(0);
+			// Matrix encodes
+		}
+		if (mask.isInMask(DBChar.All)) {
+			boolean someBool = false;
+			outPacket.encodeByte(someBool);
+			if (someBool) {
+				outPacket.encodeByte(0);
+				outPacket.encodeInt(0);
+				outPacket.encodeInt(0);
+				outPacket.encodeInt(0);
+				outPacket.encodeLong(0);
+			}
+			int size = 0;
+			outPacket.encodeShort(size);
+			for (int i = 0; i < size; i++) {
+				outPacket.encodeByte(0);
+				outPacket.encodeInt(0);
+				outPacket.encodeInt(0);
+			}
+			size = 0;
+			outPacket.encodeShort(size);
+			for (int i = 0; i < size; i++) {
+				outPacket.encodeInt(0);
+				outPacket.encodeInt(0);
+				outPacket.encodeLong(0);
+			}
+		}
+		outPacket.encodeByte(0);
+		if (mask.isInMask(DBChar.Unk400000)) {
+			int size = 0;
+			outPacket.encodeInt(size);
+			for (int i = 0; i < size; i++) {
+				// sub
 				outPacket.encodeShort(0);
 				outPacket.encodeShort(0);
 			}
+			size = 0;
+			outPacket.encodeInt(size);
+			for (int i = 0; i < size; i++) {
+				// sub
+				outPacket.encodeShort(0);
+				outPacket.encodeInt(0);
+			}
 		}
-
+		if (mask.isInMask(DBChar.Unk1000000000000000)) {
+			outPacket.encodeInt(0);
+			outPacket.encodeInt(0);
+			outPacket.encodeInt(0);
+			outPacket.encodeInt(0);
+			outPacket.encodeInt(0);
+			for (int i = 0; i < 6; i++) {
+				outPacket.encodeInt(0);
+			}
+			for (int i = 0; i < 4; i++) {
+				outPacket.encodeInt(0);
+			}
+			outPacket.encodeLong(0);
+			outPacket.encodeByte(0);
+			outPacket.encodeByte(0);
+		}
+		if (mask.isInMask(DBChar.MemorialFlameInfo)) {
+			short size = 0;
+			outPacket.encodeShort(0);
+			for (int i = 0; i < size; i++) {
+				outPacket.encodeShort(233);
+				outPacket.encodeShort(543);
+			}
+		}
 		if (mask.isInMask(DBChar.RedLeafInfo)) {
 			// red leaf information
-			outPacket.encodeInt(getAccId());
+			outPacket.encodeInt(getAccount().getId());
 			outPacket.encodeInt(getId());
 			outPacket.encodeInt(0);
 			outPacket.encodeInt(0);
+			outPacket.encodeArr(new byte[0x20]); // red leaf info structure probably
 		}
-		outPacket.encodeArr(new byte[32]); // real
-
 	}
 
 	@Override
@@ -2050,6 +2098,32 @@ public class Char {
 		}
 	}
 
+	public void updatePartyHP() {
+		Party party = getParty();
+		if (party != null) {
+			for (PartyMember pm : party.getOnlineMembers()) {
+				if (pm != null) {
+					Char pmChr = pm.getChr();
+					if (pmChr.getId() != getId() && pmChr.getClient().getChannel() == getClient().getChannel() && pm.getChr().getFieldID() == getFieldID()) {
+						pmChr.write(UserRemote.receiveHP(this));
+					}
+				}
+			}
+		}
+	}
+
+	public void receivePartyHP() {
+		Party party = getParty();
+		if (party != null) {
+			for (PartyMember pm : party.getOnlineMembers()) {
+				Char pmChr = pm.getChr();
+				if (pmChr.getId() != getId() && pmChr.getClient().getChannel() == getClient().getChannel() && pm.getChr().getFieldID() == getFieldID()) {
+					write(UserRemote.receiveHP(pmChr));
+				}
+			}
+		}
+	}
+
 	/**
 	 * Notifies all groups (such as party, guild) about all your changes, such as level and job.
 	 */
@@ -2058,6 +2132,8 @@ public class Char {
 		if (party != null) {
 			party.updatePartyMemberInfoByChr(this);
 			party.broadcast(WvsContext.partyResult(PartyResult.userMigration(party)));
+			updatePartyHP();
+			receivePartyHP();
 		}
 		Guild guild = getGuild();
 		if (guild != null) {
@@ -2860,6 +2936,18 @@ public class Char {
 	public void setPremiumDamageSkin(int itemID) {
 		setPremiumDamageSkin(new DamageSkinSaveData(ItemConstants.getDamageSkinIDByItemID(itemID), itemID, false,
 				StringData.getItemStringById(itemID)));
+	}
+
+	public DamageSkinSaveData getActiveDamageSkin() {
+		DamageSkinSaveData ds = getDamageSkin();
+		DamageSkinSaveData pds = getPremiumDamageSkin();
+		if (pds != null && pds.getDamageSkinID() != 0) {
+			return pds;
+		}
+		if (ds != null && pds.getDamageSkinID() != 0) {
+			return ds;
+		}
+		return DamageSkinSaveData.DEFAULT_SKIN;
 	}
 
 	public void setPartyInvitable(boolean partyInvitable) {
@@ -3785,11 +3873,20 @@ public class Char {
 	}
 
 	public void encodeDamageSkins(OutPacket outPacket) {
+		DamageSkinSaveData defaultSkin = DamageSkinSaveData.DEFAULT_SKIN;
 		outPacket.encodeByte(true); // hasDamageSkins. Always true in this design.
 		// check ida for structure
-		getDamageSkin().encode(outPacket);
-		getPremiumDamageSkin().encode(outPacket);
-		outPacket.encodeShort(getAccount().getDamageSkins().size() + 10); // slotCount
+		if (getDamageSkin() != null) {
+			getDamageSkin().encode(outPacket);
+		} else {
+			defaultSkin.encode(outPacket);
+		}
+		if (getPremiumDamageSkin() != null) {
+			getPremiumDamageSkin().encode(outPacket);
+		} else {
+			defaultSkin.encode(outPacket);
+		}
+		outPacket.encodeShort(GameConstants.DAMAGE_SKIN_MAX_SIZE); // slotCount
 		outPacket.encodeShort(getAccount().getDamageSkins().size());
 		for (DamageSkinSaveData dssd : getAccount().getDamageSkins()) {
 			dssd.encode(outPacket);
@@ -3880,6 +3977,25 @@ public class Char {
 
 	public DamageCalc getDamageCalc() {
 		return damageCalc;
+	}
+
+	public void recalcStats(Set<BaseStat> stats) {
+		if (stats.contains(BaseStat.mhp) || stats.contains(BaseStat.mhpR)) {
+			int newMHP = getTotalStat(BaseStat.mhp);
+			if (newMHP < getHP()) {
+				setStatAndSendPacket(Stat.hp, newMHP);
+			}
+			if (JobConstants.isDemonAvenger(getJob())) {
+				((DemonAvenger) getJobHandler()).sendHpUpdate();
+			}
+		}
+		if (stats.contains(BaseStat.mmp) || stats.contains(BaseStat.mmpR)) {
+			int newMMP = getTotalStat(BaseStat.mmp);
+			if (newMMP < getMP()) {
+				setStatAndSendPacket(Stat.mp, newMMP);
+			}
+		}
+		stats.clear();
 	}
 
 	/**

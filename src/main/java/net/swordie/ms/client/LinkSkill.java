@@ -34,6 +34,11 @@ public class LinkSkill {
         this.ownerID = ownerID;
     }
 
+    public int getUsingID() {
+        // TODO
+        return 0;
+    }
+
     public int getLinkSkillID() {
         return linkSkillID;
     }

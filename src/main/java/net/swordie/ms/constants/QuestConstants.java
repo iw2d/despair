@@ -14,7 +14,7 @@ import net.swordie.ms.world.field.Field;
 public class QuestConstants {
     public static final int WILD_HUNTER_JAGUAR_STORAGE_ID = 23008;
     public static final int WILD_HUNTER_JAGUAR_CHOSEN_ID = 23009;
-    public static final int WILD_HUNTER_JAGUAR_WING_OFF = 23010;
+    public static final int WILD_HUNTER_JAGUAR_WING_OFF = 23010; // TODO: CUserLocal::SetBeastFormWingOnOffOfRecord -> 1544?
     public static final int DIMENSION_LIBRARY = 32600;
     public static final int DAMAGE_SKIN = 7291;
     public static final int TOWER_CHAIR = 7266;

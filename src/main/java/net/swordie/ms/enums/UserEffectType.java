@@ -67,7 +67,7 @@ public enum UserEffectType {
     ActQuestComplete(58),
     Point(59),
     SpeechBalloon(60),
-    TextEffect(61),
+    TextEffect(0x3F),
     SkillPreLoopEnd(62),
     Aiming(63),
     PickUpItem(64),

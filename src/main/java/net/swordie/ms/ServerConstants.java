@@ -15,7 +15,7 @@ public class ServerConstants {
 	public static final String SCRIPT_DIR = DIR + "/scripts";
 	public static final String RESOURCES_DIR = DIR + "/resources";
 	public static final String HANDLERS_DIR = DIR + "/src/main/java/net/swordie/ms/handlers";
-	public static final short VERSION = 176;
+	public static final short VERSION = 178;
 	public static final String MINOR_VERSION = "1";
 	public static final int LOGIN_PORT = 8484;
 	public static final short CHAT_PORT = 8483;
@@ -28,6 +28,6 @@ public class ServerConstants {
 	public static final String SSL_STORE_PASSWORD = "changeme";
 
 	// Client Hooks
-	public static final boolean MAKE_ATTACK_INFO_PACKET_HOOK = true; // PACKETMAKER::MakeAttackInfoPacket(a, oPacket) (0x0178A800)
-	public static final boolean CLIENT_SIDED_SKILL_HOOK = true;
+	public static final boolean MAKE_ATTACK_INFO_PACKET_HOOK = false; // PACKETMAKER::MakeAttackInfoPacket(a, oPacket) (0x0178A800)
+	public static final boolean CLIENT_SIDED_SKILL_HOOK = false;
 }

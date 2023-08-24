@@ -23,12 +23,11 @@ public class InvOp {
     }
 
     public InvOp(InventoryOperation op, Item item, short oldPos, short newPos, int bagPos) {
-        this(op, InvOp.getInvTypeFromItem(item, oldPos, newPos), oldPos, newPos, bagPos);
+        this(op, item.getInvType(), oldPos, newPos, bagPos);
         this.item = item;
     }
 
     public InvType getInvType() {
-
         return invType;
     }
 
@@ -52,12 +51,4 @@ public class InvOp {
         return bagPos;
     }
 
-    private static InvType getInvTypeFromItem(Item item, short oldPos, short newPos) {
-        // logic like this in packets :(
-        InvType invType = item.getInvType();
-        if ((oldPos > 0 && newPos < 0 && invType == EQUIPPED) || (invType == EQUIPPED && oldPos < 0)) {
-            invType = InvType.EQUIP;
-        }
-        return invType;
-    }
 }

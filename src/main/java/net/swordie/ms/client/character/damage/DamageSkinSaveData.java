@@ -13,6 +13,9 @@ import javax.persistence.*;
 @Table(name = "damageskinsavedatas")
 public class DamageSkinSaveData {
 
+    public static final DamageSkinSaveData DEFAULT_SKIN =
+            new DamageSkinSaveData(0, 0, false, "The default damage skin.");
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -39,6 +42,7 @@ public class DamageSkinSaveData {
         outPacket.encodeInt(getItemID());
         outPacket.encodeByte(isNotSave());
         outPacket.encodeString(getDescription());
+        outPacket.encodeInt(0);
     }
 
     public long getId() {

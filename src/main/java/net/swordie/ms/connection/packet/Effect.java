@@ -91,11 +91,10 @@ public class Effect {
                 outPacket.encodeString(getString());
                 outPacket.encodeInt(getArg1()); // letter delay
                 outPacket.encodeInt(getArg2()); // box duration
-                outPacket.encodeInt(getArg3()); // Positioning on Client  ( 4 = middle )
 
+                outPacket.encodeInt(getArg3()); // Positioning on Client  ( 4 = middle )
                 outPacket.encodeInt(getArg4()); // xPos
                 outPacket.encodeInt(getArg5()); // yPos
-
                 outPacket.encodeInt(getArg6()); // Align
                 outPacket.encodeInt(getArg7()); // Line space
                 outPacket.encodeInt(getArg8()); // Enter type (0 = fade in)

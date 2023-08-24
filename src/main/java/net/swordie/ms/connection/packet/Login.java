@@ -252,7 +252,12 @@ public class Login {
         outPacket.encodeFT(FileTime.fromType(FileTime.Type.ZERO_TIME));
         outPacket.encodeByte(0); // nRenameCount
         outPacket.encodeByte(0);
-
+        outPacket.encodeByte(0);
+        outPacket.encodeByte(0);
+        outPacket.encodeInt(0);
+        outPacket.encodeInt(0);
+        outPacket.encodeInt(0);
+        outPacket.encodeInt(0);
         return outPacket;
     }
 
@@ -300,13 +305,15 @@ public class Login {
             outPacket.encodeArr(chatServer);
             outPacket.encodeShort(ServerConstants.CHAT_PORT);
 
+            // not used
+            outPacket.encodeInt(0);
+            outPacket.encodeShort(0);
+
             outPacket.encodeInt(characterId);
             outPacket.encodeByte(0);
             outPacket.encodeInt(0); // ulArgument
             outPacket.encodeByte(0);
-            outPacket.encodeInt(0);
-            outPacket.encodeInt(0);
-            outPacket.encodeByte(0);
+            outPacket.encodeLong(0);
         }
 
         return outPacket;

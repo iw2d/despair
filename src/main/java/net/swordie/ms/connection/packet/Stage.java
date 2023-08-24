@@ -40,14 +40,14 @@ public class Stage {
         outPacket.encodeByte(characterData);
         short notifierCheck = 0;
         outPacket.encodeShort(notifierCheck);
-        if(notifierCheck > 0) {
+        if (notifierCheck > 0) {
             outPacket.encodeString(""); // pBlockReasonIter
             for(int i = 0; i < notifierCheck; i++) {
                 outPacket.encodeString(""); // sMsg2
             }
         }
 
-        if(characterData) {
+        if (characterData) {
             Random random = new SecureRandom();
             int s1 = random.nextInt();
             int s2 = random.nextInt();
@@ -55,12 +55,14 @@ public class Stage {
             outPacket.encodeInt(s1);
             outPacket.encodeInt(s2);
             outPacket.encodeInt(s3);
-
             chr.setDamageCalc(new DamageCalc(chr, s1, s2, s3));
-            chr.encode(outPacket, DBChar.All); // <<<<------------------------------------
-            // unk sub (not in kmst)
-            // logout event (mushy)
-            encodeLogoutEvent(outPacket);
+
+            chr.encode(outPacket, DBChar.All);
+
+            // sub_1F2B310
+            outPacket.encodeInt(0);
+            // sub_1EDEFB0
+            outPacket.encodeInt(0);
         } else {
             outPacket.encodeByte(usingBuffProtector);
             outPacket.encodeInt(field.getId());
@@ -74,11 +76,10 @@ public class Stage {
             }
         }
 
-        // 41 bytes below
         outPacket.encodeByte(setWhiteFadeInOut);
-        outPacket.encodeByte(0); // unsure
+        outPacket.encodeByte(0); // set overlapping screen animation
         outPacket.encodeFT(FileTime.currentTime());
-        outPacket.encodeInt(mobStatAdjustRate);
+        outPacket.encodeInt(0);
         boolean hasFieldCustom = fieldCustom != null;
         outPacket.encodeByte(hasFieldCustom);
         if(hasFieldCustom) {
@@ -86,13 +87,25 @@ public class Stage {
         }
         outPacket.encodeByte(false); // is pvp map, deprecated
         outPacket.encodeByte(canNotifyAnnouncedQuest);
+
+        // set_stage -> CField::Init -> CWvsContext::OnEnterField
+
         outPacket.encodeByte(stackEventGauge >= 0);
         if(stackEventGauge >= 0) {
             outPacket.encodeInt(stackEventGauge);
         }
-        // sub_16A52D0
-        outPacket.encodeByte(0); // Star planet, not interesting
-        outPacket.encodeByte(0); // more star planet
+        boolean is_banan_base_field = field.getId() / 10 == 10520011 || field.getId() / 10 == 10520051 || field.getId() / 10 == 105200519;
+        if (is_banan_base_field) {
+            int size = 0;
+            outPacket.encodeByte(size);
+            for (int i = 0; i < size; i++) {
+                outPacket.encodeString("");
+            }
+        }
+        // CUser::StarPlanetRank::Decode
+        outPacket.encodeByte(0);
+        // CWvsContext::DecodeStarPlanetRoundInfo
+        outPacket.encodeByte(0);
         // CUser::DecodeTextEquipInfo
         int size = 0;
         outPacket.encodeInt(size);
@@ -102,17 +115,11 @@ public class Stage {
         }
         // FreezeAndHotEventInfo::Decode
         outPacket.encodeByte(0); // nAccountType
-        outPacket.encodeInt(chr.getAccId());
+        outPacket.encodeInt(0); // dwAccountID
         // CUser::DecodeEventBestFriendInfo
         outPacket.encodeInt(0); // dwEventBestFriendAID
-        // sub_16A4D10
-        outPacket.encodeInt(0); // ?
-        // sub_16D99C0
-        size = 0;
-        outPacket.encodeInt(size);
-        for (int i = 0; i < size; i++) {
-            outPacket.encodeInt(0); // ?
-        }
+        // sub_1BAA810
+        outPacket.encodeInt(0);
         return outPacket;
     }
 

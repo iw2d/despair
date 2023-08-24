@@ -1,5 +1,7 @@
 package net.swordie.ms.life.npc;
 
+import net.swordie.ms.util.Util;
+
 /**
  * Created on 2/19/2018.
  */
@@ -8,59 +10,60 @@ public enum NpcMessageType {
     SayNext(0, false, true, ResponseType.Response),
     SayPrev(0, true, false, ResponseType.Response),
     Say(0, true, true, ResponseType.Response),
-    SayImage(1, ResponseType.Response),
-    AskYesNo(2, ResponseType.Response),
-    AskText(3, ResponseType.Text),
-    AskNumber(4, ResponseType.Answer),
-    AskMenu(5, ResponseType.Answer),
-    InitialQuiz(6, ResponseType.Answer),
-    InitialSpeedQuiz(7, ResponseType.Answer),
-    ICQuiz(8, ResponseType.Answer),
-    AskAvatar(9, ResponseType.Answer),
-    AskAndroid(10, ResponseType.Answer),
-    // 11
-    AskPet(12, ResponseType.Answer),
-    AskPetAll(13, ResponseType.Answer),
-    AskActionPetEvolution(14, ResponseType.Answer),
-    Script(15, ResponseType.Answer),
-    AskAccept(16, ResponseType.Response),
-    AskBoxtext(17, ResponseType.Answer),
-    AskSlideMenu(18, ResponseType.Answer),
-    AskIngameDirection(19, ResponseType.Response),
-    PlayMovieClip(20, ResponseType.Response),
-    AskCenter(21, ResponseType.Answer),
-    AskAvatar2(22, ResponseType.Answer),
-    AskSelectMenu(23, ResponseType.Answer),
-    AskAngelicBuster(24, ResponseType.Answer),
-    SayIllustration(25, ResponseType.Answer),
-    SayDualIllustration(26, ResponseType.Answer),
-    AskYesNoIllustration(27, ResponseType.Answer),
-    AskAcceptIllustration(28, ResponseType.Answer),
-    AskMenuIllustration(29, ResponseType.Answer),
-    AskYesNoDualIllustration(30, ResponseType.Answer),
-    AskAcceptDualIllustration(31, ResponseType.Answer),
-    AskMenuDualIllustration(32, ResponseType.Answer),
-    AskSNN2(33, ResponseType.Answer),
-    // 34
-    // 35
-    AskAvatarZero(36, ResponseType.Answer),
-    Monologue(37, ResponseType.Response),
-    AskWeaponBox(38, ResponseType.Answer),
-    AskBoxTextBgImg(39, ResponseType.Answer),
-    AskUserSurvey(40, ResponseType.Answer),
-    SuccessCamera(41, ResponseType.Answer),
-    AskMixHair(42, ResponseType.Answer),
-    AskMixHairExZero(43, ResponseType.Answer),
-    OnAskCustomMixHair(44, ResponseType.Answer),
-    OnAskCustomMixHairAndProb(45, ResponseType.Answer),
-    OnAskMixHairNew(46, ResponseType.Answer),
-    OnAskMixHairNewExZero(47, ResponseType.Answer),
-    NpcAction(48, ResponseType.Answer),
-    OnAskScreenShinningStarMsg(49, ResponseType.Answer),
-    InputUI(50, ResponseType.Answer),
-    OnAskNumberUseKeyPad(51, ResponseType.Answer),
-    OnSpinOffGuitarRhythmGame(52, ResponseType.Answer),
-    OnGhostParkEnter(53, ResponseType.Answer),
+    SayUnk(1, ResponseType.Response),
+    SayImage(2, ResponseType.Response),
+    AskYesNo(3, ResponseType.Response),
+    AskText(4, ResponseType.Text),
+    AskNumber(5, ResponseType.Answer),
+    AskMenu(6, ResponseType.Answer),
+    InitialQuiz(7, ResponseType.Answer),
+    InitialSpeedQuiz(8, ResponseType.Answer),
+    ICQuiz(9, ResponseType.Answer),
+    AskAvatar(10, ResponseType.Answer),
+    AskAndroid(11, ResponseType.Answer),
+    AskMannequin(12, ResponseType.Answer),
+    AskPet(13, ResponseType.Answer),
+    AskPetAll(14, ResponseType.Answer),
+    AskActionPetEvolution(15, ResponseType.Answer),
+    AskAccept2(17, ResponseType.Response),
+    AskAccept(18, ResponseType.Response),
+    AskBoxtext(19, ResponseType.Answer),
+    AskSlideMenu(20, ResponseType.Answer),
+    AskIngameDirection(21, ResponseType.Response),
+    PlayMovieClip(22, ResponseType.Response),
+    AskCenter(23, ResponseType.Answer),
+    AskAvatar2(25, ResponseType.Answer),
+    AskSelectMenu(26, ResponseType.Answer),
+    AskAngelicBuster(27, ResponseType.Answer),
+    SayIllustration(28, ResponseType.Answer),
+    SayDualIllustration(29, ResponseType.Answer),
+    AskYesNoIllustration(30, ResponseType.Answer),
+    AskAcceptIllustration(31, ResponseType.Answer),
+    AskMenuIllustration(32, ResponseType.Answer),
+    AskYesNoDualIllustration(33, ResponseType.Answer),
+    AskAcceptDualIllustration(34, ResponseType.Answer),
+    AskMenuDualIllustration(35, ResponseType.Answer),
+    AskAvatarZero(37, ResponseType.Answer),
+    AskAvatar3(38, ResponseType.Answer),
+    AskAvatar3Zero(39, ResponseType.Answer),
+    AskWeaponBox(41, ResponseType.Answer),
+    AskBoxTextBgImg(42, ResponseType.Answer),
+    AskUserSurvey(43, ResponseType.Answer),
+    Monologue(44, ResponseType.Response),
+    AskMixHair(45, ResponseType.Answer),
+    AskMixHairExZero(46, ResponseType.Answer),
+    OnAskCustomMixHair(47, ResponseType.Answer),
+    OnAskCustomMixHairAndProb(48, ResponseType.Answer),
+    OnAskMixHairNew(49, ResponseType.Answer),
+    OnAskMixHairNewExZero(50, ResponseType.Answer),
+    OnAskScreenShinningStarMsg(52, ResponseType.Answer),
+    OnAskNumberUseKeyPad(55, ResponseType.Answer),
+    OnSpinOffGuitarRhythmGame(56, ResponseType.Answer),
+    OnGhostParkEnter(57, ResponseType.Answer),
+    // 62
+    // 63
+
+
     None(-1, ResponseType.Answer),
     ;
 
@@ -81,6 +84,10 @@ public enum NpcMessageType {
         prevPossible = prev;
         nextPossible = next;
         this.responseType = responseType;
+    }
+
+    public static NpcMessageType getByVal(byte val) {
+        return Util.findWithPred(values(), v -> v.getVal() == val);
     }
 
     public byte getVal() {

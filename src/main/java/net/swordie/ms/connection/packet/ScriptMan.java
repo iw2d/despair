@@ -24,7 +24,7 @@ public class ScriptMan {
             outPacket.encodeInt(overrideTemplate);
         }
         outPacket.encodeByte(nmt.getVal());
-        outPacket.encodeByte(nsi.getParam());
+        outPacket.encodeShort(nsi.getParam());
         outPacket.encodeByte(nsi.getColor());
 
         switch(nmt) {

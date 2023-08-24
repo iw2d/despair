@@ -20,7 +20,7 @@ public class BattleRecordMan {
     public static OutPacket dotDamageInfo(BurnedInfo burnedInfo, int count) {
         OutPacket outPacket = new OutPacket(OutHeader.DOT_DAMAGE_INFO.getValue());
 
-        outPacket.encodeInt(Util.maxInt(burnedInfo.getDamage()));
+        outPacket.encodeLong(burnedInfo.getDamage());
         outPacket.encodeInt(count);
 
         outPacket.encodeByte(burnedInfo.getDotTickDamR() > 0);

@@ -78,6 +78,8 @@ public class Noblesse extends Job {
             chr.addSkill(THREE_SNAILS, 0, 3);
             chr.addSkill(RECOVERY, 0, 3);
             chr.addSkill(NIMBLE_FEET, 0, 3);
+        }
+        if (JobConstants.isCygnusKnight(jobId)) {
             chr.addSkill(ELEMENTAL_SLASH, 1, 1);
             chr.addSkill(ELEMENTAL_SHIFT_BASE, 1, 1);
             chr.addSkill(ELEMENTAL_SHIFT_HIGH, 1, 1);

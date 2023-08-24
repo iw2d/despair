@@ -51,6 +51,7 @@ public class Npc extends Life {
             outPacket.encodeInt(getNoticeBoardValue());
         }
         outPacket.encodeInt(getAlpha());
+        outPacket.encodeInt(0);
         outPacket.encodeString(getLocalRepeatEffect());
         ScreenInfo si = getScreenInfo();
         outPacket.encodeByte(si != null);

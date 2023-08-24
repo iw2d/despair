@@ -15,6 +15,7 @@ import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.JobConstants;
+import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.FieldOption;
 import net.swordie.ms.enums.MapTransferType;
 import net.swordie.ms.connection.ClientSocket;
@@ -33,6 +34,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 
 public class MigrationHandler {
 
@@ -76,7 +78,9 @@ public class MigrationHandler {
         chr.initAndroid(false);
         c.setChr(chr);
         c.getChannelInstance().addChar(chr);
-        chr.setJobHandler(JobManager.getJobById(chr.getJob(), chr));
+        if (chr.getJobHandler() == null) {
+            chr.setJobHandler(JobManager.getJobById(chr.getJob(), chr));
+        }
         chr.setFieldInstanceType(FieldInstanceType.CHANNEL);
         Server.getInstance().addUser(user);
         Field field = chr.getOrCreateFieldByCurrentInstanceType(chr.getFieldID() <= 0 ? 100000000 : chr.getFieldID());
@@ -91,7 +95,7 @@ public class MigrationHandler {
                 chr.setParty(party);
             }
         }
-        // blessing has to be split up, as adding skills before SetField is send will crash the client
+        // blessing has to be split up, as adding skills before SetField will crash the client
         chr.initBlessingSkillNames();
         chr.warp(field, true);
         c.write(WvsContext.updateEventNameTag(new int[]{}));
@@ -103,18 +107,21 @@ public class MigrationHandler {
         } else {
             c.write(FieldPacket.funcKeyMappedManInit(chr.getFuncKeyMap()));
         }
+        c.write(FieldPacket.quickslotInit(chr.getQuickslotKeys()));
         c.write(WvsContext.friendResult(new LoadFriendResult(chr.getAllFriends())));
         c.write(WvsContext.macroSysDataInit(chr.getMacros()));
         c.write(UserLocal.damageSkinSaveResult(DamageSkinType.Req_SendInfo, null, chr));
         c.write(WvsContext.mapTransferResult(MapTransferType.RegisterListSend, (byte) 5, chr.getHyperRockFields()));
         acc.getMonsterCollection().init(chr);
         chr.checkAndRemoveExpiredItems();
+        chr.updatePartyHP();
         chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
         chr.initBaseStats();
         chr.initBlessingSkills();
-        chr.setOnline(true); // v195+: respect 'invisible login' setting
+        chr.setOnline(true);
         chr.getOffenseManager().setChr(chr);
-        c.write(WvsContext.setMaplePoint(acc.getNxCredit()));
+        chr.recalcStats(EnumSet.of(BaseStat.mhp, BaseStat.mmp));
+        chr.write(WvsContext.setMaplePoint(acc.getNxCredit()));
     }
 
 

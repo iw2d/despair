@@ -49,7 +49,7 @@ public enum SkillStat {
     bdR,
     damR,
     ignoreMobpdpR,
-    mobCountDamR,
+    mobCountDamR, // damR added to skill for each target fewer than the skill's max targets
     actionSpeed,
     mastery,
     rb2,
@@ -58,7 +58,7 @@ public enum SkillStat {
     terR,
     mddX,
     asrR,
-    MDF,
+    MDF, // MP for non-MP jobs, (Zero, DS, Kanna)
     cr,
     prop,
     ballCount,
@@ -86,13 +86,12 @@ public enum SkillStat {
     indieCr,
     indieDamR,
     mhpX,
-    targetPlus,
-    indieMaxDamageOverR,
-    indieMaxDamageOver,
+    targetPlus, // Multi-Mob Attacks get additional targets
     damPlus,
     ar,
     madX,
     selfDestruction,
+    selfDestructionPlus,
     pddR,
     mddR,
     speed,
@@ -189,10 +188,14 @@ public enum SkillStat {
     damageTW4,
     pad,
     indieAllStat,
+    indieSTR,
+    indieDEX,
+    indieINT,
+    indieLUK,
     bulletSpeed,
     morph,
     itemConsume,
-    nbdR,
+    nbdR, // Non-Boss Dmg Rate
     psdIncMaxDam,
     strFX,
     dexFX,
@@ -209,26 +212,26 @@ public enum SkillStat {
     dex2luk,
     lv2pad,
     lv2mad,
-    tdR,
-    minionDeathProp,
-    abnormalDamR,
+    tdR, // (Inner Ability) Damage to Towers
+    minionDeathProp, // (Inner Ability) Insta-Kill on Mobs in Supply Mode
+    abnormalDamR, // xtra damR on asr Targets
     acc2dam,
     pdd2dam,
     mdd2dam,
     pdd2mdx,
     mdd2pdx,
-    nocoolProp,
-    passivePlus,
+    nocoolProp, // chance to skip cooltimes
+    passivePlus, // passive skills +1 level
     mpConEff,
     lv2damX,
-    summonTimeR,
+    summonTimeR, // Summon Duration
     expLossReduceR,
     onHitHpRecoveryR,
     onHitMpRecoveryR,
     pdr,
     mhp2damX,
     mmp2damX,
-    finalAttackDamR,
+    finalAttackDamR, // addition dmg from FA attacks
     guardProp,
     mob, // null val
     extendPrice,
@@ -239,10 +242,10 @@ public enum SkillStat {
     mileage,
     disCountR,
     pqPointR,
-    mesoG,
-    itemUpgradeBonusR,
-    itemCursedProtectR,
-    itemTUCProtectR,
+    mesoG, // Bonus Meso (per monster drop)  (in mesos)
+    itemUpgradeBonusR, // Reg Scroll & ST success rate +  %
+    itemCursedProtectR, // Item Save chance  %
+    itemTUCProtectR, // Upgrade Save Chance for reg scrolls & ST
     igpCon,
     gpCon,
     iceGageCon,
@@ -279,6 +282,30 @@ public enum SkillStat {
     indieForceJump,
     itemCon,
     itemConNo,
+    criticalDamage,
+    nS,
+    cancelableTime,
+    indieCooltimeReduce,
+    indieEvaR,
+    indieStatRBasic,
+    indieCD,
+    indieNotDamaged,
+    indieDamReduceR,
+    updatableTime,
+    damR_5th,
+    targetPlus_5th,
+    mpRCon,
+    cdPerM,
+    expRPerM,
+    mesoAmountUp,
+    IncArcaneForce,
+    arcX,
+    indiePowerGuard,
+    criticaldamage,
+
+    // TODO: Remove
+    indieMaxDamageOver,
+    indieMaxDamageOverR,
     ;
 
     public static SkillStat getSkillStatByString(String s) {

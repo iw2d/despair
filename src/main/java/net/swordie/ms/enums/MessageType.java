@@ -45,7 +45,8 @@ public enum MessageType {
     EXPIRED_CASH_ITEM_RESULT_MESSAGE(39),
     COLLECTION_RECORD_MESSAGE(40),
     RANDOM_CHANCE_MESSAGE(41),
-    UNK(42),
+    UNK_42(42),
+    UNK_43(43),
 
     ;
 

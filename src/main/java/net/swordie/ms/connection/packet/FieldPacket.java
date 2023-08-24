@@ -18,6 +18,7 @@ import net.swordie.ms.client.jobs.resistance.OpenGate;
 import net.swordie.ms.client.trunk.TrunkDlg;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.constants.BossConstants;
+import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
@@ -59,6 +60,28 @@ public class FieldPacket {
         outPacket.encodeByte(false);
         for (FuncKeyMap funcKeyMap : funcKeyMaps) {
             funcKeyMap.encode(outPacket);
+        }
+
+        return outPacket;
+    }
+
+    public static OutPacket setHideEffect(boolean hide) {
+        OutPacket outPacket = new OutPacket(OutHeader.ADMIN_RESULT);
+        outPacket.encodeInt(25);
+        outPacket.encodeByte(hide);
+        outPacket.encodeByte(hide);
+        return outPacket;
+    }
+
+    public static OutPacket quickslotInit(List<Integer> keys) {
+        OutPacket outPacket = new OutPacket(OutHeader.QUICKSLOT_INIT);
+
+        boolean encode = keys != null && keys.size() > 0;
+        outPacket.encodeByte(encode);
+        if (encode) {
+            for (int i = 0; i < GameConstants.QUICKSLOT_LENGTH; i++) {
+                outPacket.encodeInt(i < keys.size() ? keys.get(i) : 0);
+            }
         }
 
         return outPacket;

@@ -50,7 +50,7 @@ public class PetItem extends Item {
         outPacket.encodeShort(getPetAttribute());
         outPacket.encodeShort(getPetSkill());
         outPacket.encodeInt(getRemainLife());
-        outPacket.encodeShort(hasAttribute(ItemAttribute.KarmaUse) ? 1 : 0);
+        outPacket.encodeShort(0);
         outPacket.encodeByte(getActiveState());
         outPacket.encodeInt(getAutoBuffSkill());
         outPacket.encodeInt(getPetHue());

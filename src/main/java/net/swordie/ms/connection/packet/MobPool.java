@@ -265,6 +265,8 @@ public class MobPool {
     public static OutPacket castingBarSkillStart(int gaugeType, int castingTime, boolean reverseGauge, boolean notShowUI) {
         OutPacket outPacket = new OutPacket(OutHeader.MOB_CASTING_BAR_SKILL);
 
+        // TODO: v178 CMob::OnCastingBarSkill (0x0103BFA0)
+
         outPacket.encodeInt(gaugeType);
         outPacket.encodeInt(castingTime);
         outPacket.encodeByte(reverseGauge);
