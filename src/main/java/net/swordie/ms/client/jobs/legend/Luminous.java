@@ -4,7 +4,6 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.LarknessManager;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
@@ -330,16 +329,11 @@ public class Luminous extends Job {
                 chr.resetSkillCoolTime(SHADOW_SHELL);
                 break;
             case DUSK_GUARD:
-                o1.nValue = si.getValue(indieMdd, slv);
-                o1.nReason = skillID;
-                o1.tStart = Util.getCurrentTime();
-                o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMDD, o1);
                 o2.nValue = si.getValue(indiePdd, slv);
                 o2.nReason = skillID;
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePDD, o2);
+                tsm.putCharacterStatValue(IndieDEF, o2);
                 break;
             case PHOTIC_MEDITATION:
                 o1.nOption = si.getValue(emad, slv);

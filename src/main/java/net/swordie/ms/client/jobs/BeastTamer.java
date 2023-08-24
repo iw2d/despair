@@ -11,7 +11,6 @@ import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
-import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.adventurer.magician.Bishop;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
@@ -224,7 +223,7 @@ public class BeastTamer extends Job {
                 o1.nValue = mc.getValue(pdd, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = mc.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePDD, o1);
+                tsm.putCharacterStatValue(IndieDEF, o1);
                 break;
             case MEOW_CARD_GOLD:
                 o1.nReason = randomMeowCard;
@@ -246,7 +245,7 @@ public class BeastTamer extends Job {
                 o4.nValue = mc.getValue(pdd, slv);
                 o4.tStart = Util.getCurrentTime();
                 o4.tTerm = mc.getValue(time, slv);
-                tsm.putCharacterStatValue(IndiePDD, o4);
+                tsm.putCharacterStatValue(IndieDEF, o4);
                 break;
         }
         tsm.sendSetStatPacket();
@@ -670,10 +669,6 @@ public class BeastTamer extends Job {
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieCr, o1);
-                o2.nOption = si.getValue(emdd, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EMDD, o2);
                 o3.nOption = si.getValue(epdd, slv);
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);

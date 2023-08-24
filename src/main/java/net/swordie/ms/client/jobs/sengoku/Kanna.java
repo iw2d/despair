@@ -105,7 +105,7 @@ public class Kanna extends Job {
         o1.nValue = si.getValue(indiePdd, slv);
         o1.tStart = Util.getCurrentTime();
         o1.tTerm = si.getValue(time, slv);
-        tsm.putCharacterStatValue(IndiePDD, o1);
+        tsm.putCharacterStatValue(IndieDEF, o1);
         tsm.sendSetStatPacket();
     }
 

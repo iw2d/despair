@@ -313,7 +313,7 @@ public class AffectedArea extends Life {
                 o1.nValue = si.getValue(SkillStat.x, slv);
                 o1.nReason = skillID;
                 o1.tStart = Util.getCurrentTime();
-                tsm.putCharacterStatValue(IndieCrMax, o1);
+                tsm.putCharacterStatValue(IndieCrDmg, o1);
                 break;
             case BlazeWizard.BURNING_CONDUIT:
                 o1.nReason = skillID;

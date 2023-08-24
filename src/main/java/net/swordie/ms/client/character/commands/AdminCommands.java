@@ -1735,20 +1735,6 @@ public class AdminCommands {
         }
     }
 
-    @Command(names = {"toggledamagecap"}, requiredType = Tester)
-    public static class ToggleDamageCap extends AdminCommand {
-
-        public static void execute(Char chr, String[] args) {
-            TemporaryStatManager tsm = chr.getTemporaryStatManager();
-            boolean on = tsm.hasStat(CharacterTemporaryStat.IndieMaxDamageOver) && tsm.getOptByCTSAndSkill(CharacterTemporaryStat.IndieMaxDamageOver, 0).nValue != 0;
-            Option o = new Option();
-            o.nValue = on ? 0 : 1950000000;
-            tsm.putCharacterStatValue(CharacterTemporaryStat.IndieMaxDamageOver, o);
-            tsm.sendSetStatPacket();
-            chr.chatMessage("Damage cap removed: " + (o.nValue != 0));
-        }
-    }
-
     @Command(names = {"shop"}, requiredType = Tester)
     public static class Shop extends AdminCommand {
 

@@ -221,11 +221,6 @@ public class Xenon extends Job {
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(y, slv);
                 tsm.putCharacterStatValue(IndieDamR, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOverR, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(y, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
                 tsm.sendSetStatPacket();
                 break;
         }

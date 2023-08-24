@@ -475,7 +475,6 @@ public abstract class Job {
 		o2.tTerm = si.getValue(time, slv);
 		if (chr.getParty() == null) {
 			tsm.putCharacterStatValue(IndieDamR, o1);
-			tsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
 			tsm.sendResetStatPacket();
 		} else {
 			Position pos = inPacket.decodePosition();
@@ -488,7 +487,6 @@ public abstract class Job {
 			for (PartyMember partyMember : partyMembers) {
 				TemporaryStatManager partyTsm = partyMember.getChr().getTemporaryStatManager();
 				partyTsm.putCharacterStatValue(IndieDamR, o1);
-				partyTsm.putCharacterStatValue(IndieMaxDamageOverR, o2);
 				partyTsm.sendSetStatPacket();
 			}
 		}

@@ -386,11 +386,6 @@ public class DawnWarrior extends Noblesse {
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndiePAD, o1);
-                o2.nReason = skillID;
-                o2.nValue = si.getValue(indieMaxDamageOver, slv);
-                o2.tStart = Util.getCurrentTime();
-                o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOver, o2);
                 o3.nOption = 1;
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);

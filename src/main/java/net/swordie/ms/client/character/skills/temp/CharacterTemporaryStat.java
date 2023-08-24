@@ -12,27 +12,27 @@ import java.util.stream.Collectors;
 public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat> {
     IndiePAD(0),
     IndieMAD(1),
-    IndiePDD(2),
-    IndieMDD(3),
-    IndieMHP(4),
-    IndieMHPR(5),
-    IndieMMP(6),
-    IndieMMPR(7),
+    IndieDEF(2),
+    IndieMHP(3),
+    IndieMHPR(4),
+    IndieMMP(5),
+    IndieMMPR(6),
+    IndieACC(7),
 
-    IndieACC(8),
-    IndieEVA(9),
-    IndieJump(10),
-    IndieSpeed(11),
-    IndieAllStat(12),
+    IndieEVA(8),
+    IndieJump(9),
+    IndieSpeed(10),
+    IndieAllStat(11),
+    IndieAllStatR(12),
     IndieDodgeCriticalTime(13),
     IndieEXP(14),
     IndieBooster(15),
 
     IndieFixedDamageR(16),
-    PyramidStunBuff(17),
-    PyramidFrozenBuff(18),
-    PyramidFireBuff(19),
-    PyramidBonusDamageBuff(20),
+    PyramidStunBuff(17), // Osiris' Eye: Stuns monsters for 1 second. Includes Pharaoh Yetis and Pharaoh Mummies at a 30% chance. Costs 500 points.
+    PyramidFrozenBuff(18), // Horus' Eye: Slows down all monsters for 15 seconds. Includes Pharaoh Yetis and Pharaoh Mummies at a 30% chance. Costs 700 points.
+    PyramidFireBuff(19), // Isis' Eye: Does Damage over time to all monsters for 15 seconds every second. Costs 500 points.
+    PyramidBonusDamageBuff(20), // Anubis' Eye: Increases 40 attack for 15 seconds. Costs 500 points.
     IndieRelaxEXP(21),
     IndieSTR(22),
     IndieDEX(23),
@@ -42,211 +42,190 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IndieDamR(26),
     IndieScriptBuff(27),
     IndieMDF(28),
-    IndieMaxDamageOver(29),
-    IndieAsrR(30),
-    IndieTerR(31),
+    IndieAsrR(29),
+    IndieTerR(30),
+    IndieCr(31),
 
-    IndieCr(32),
-    IndiePDDR(33),
-    IndieCrMax(34),
-    IndieBDR(35),
-    IndieStatR(36),
-    IndieStance(37),
-    IndieIgnoreMobpdpR(38),
-    IndieEmpty(39),
+    IndiePDDR(32),
+    IndieCrDmg(33),
+    IndieBDR(34),
+    IndieStatR(35),
+    IndieStance(36),
+    IndieIgnoreMobpdpR(37),
+    IndieEmpty(38),
+    IndiePADR(39),
 
-    IndiePADR(40),
-    IndieMADR(41),
-    IndieCrMaxR(42),
-    IndieEVAR(43),
-    IndieMDDR(44),
-    IndieDrainHP(45),
-    IndiePMdR(46),
-    IndieMaxDamageOverR(47),
+    IndieMADR(40),
+    IndieEVAR(41),
+    IndieDrainHP(42),
+    IndiePMdR(43),
+    IndieForceJump(44), // Max Jump (?)
+    IndieForceSpeed(45), // Max Speed (?)
+    IndieQrPointTerm(46),
 
-    IndieForceJump(48),
-    IndieForceSpeed(49),
-    IndieQrPointTerm(50),
-    IndieUNK1(51),
-    IndieUNK2(52),
-    IndieUNK3(53),
-    IndieUNK4(54),
-    IndieUNK5(55),
+    IndieSummon(47), // Seems to be used by GMS for almost all their summons
+    IndieCooltimeReduce(48),
+    IndieNotDamaged(49), // Given by Soul Eclipse DW 3rd V & Omega Blaster (Attack mode)  |  Invincibility
+    IndieKeyDownTime(50), // DemonicBlast | Twin Blades of Time
+    IndieDamReduceR(51),
+    IndieCrystalCharge(52),
 
-    IndieStatCount(56),
-    PAD(57),
-    PDD(58),
-    MAD(59),
-    MDD(60),
-    ACC(61),
-    EVA(62),
-    Craft(63),
-
-    Speed(64),
-    Jump(65),
-    MagicGuard(66),
-    DarkSight(67),
-    Booster(68),
-    PowerGuard(69),
-    MaxHP(70),
-    MaxMP(71),
-
-    Invincible(72),
-    SoulArrow(73),
-    Stun(74),
-    Poison(75),
-    Seal(76),
-    Darkness(77),
-    ComboCounter(78),
-    WeaponCharge(79),
-
-    HolySymbol(80),
-    MesoUp(81),
-    ShadowPartner(82),
-    PickPocket(83),
-    MesoGuard(84),
-    Thaw(85),
-    Weakness(86),
-    Curse(87),
-
-    Slow(88),
-    Morph(89),
-    Regen(90),
-    BasicStatUp(91),
-    Stance(92),
-    SharpEyes(93),
-    ManaReflection(94),
-    Attract(95),
-
-    NoBulletConsume(96),
-    Infinity(97),
-    AdvancedBless(98),
-    IllusionStep(99),
-    Blind(100),
-    Concentration(101),
-    BanMap(102),
-    MaxLevelBuff(103),
-
-    MesoUpByItem(104),
-    Ghost(105),
-    Barrier(106),
-    ReverseInput(107),
-    ItemUpByItem(108),
-    RespectPImmune(109),
-    RespectMImmune(110),
-    DefenseAtt(111),
-
-    DefenseState(112),
-    DojangBerserk(113),
-    DojangInvincible(114),
-    DojangShield(115),
-    SoulMasterFinal(116),
-    WindBreakerFinal(117),
-    ElementalReset(118),
-    HideAttack(119),
-
-    EventRate(120),
-    ComboAbilityBuff(121),
-    ComboDrain(122),
-    ComboBarrier(123),
-    BodyPressure(124),
-    RepeatEffect(125),
-    ExpBuffRate(126),
-    StopPortion(127),
-
-    StopMotion(128),
-    Fear(129),
-    HiddenPieceOn(130),
-    MagicShield(131),
-    MagicResistance(132),
-    SoulStone(133),
-    Flying(134),
-    Frozen(135),
-
-    AssistCharge(136),
-    Enrage(137),
-    DrawBack(138),
-    NotDamaged(139),
-    FinalCut(140),
-    HowlingAttackDamage(141),
-    BeastFormDamageUp(142),
-    Dance(143),
-
-    EMHP(144),
-    EMMP(145),
-    EPAD(146),
-    EMAD(147),
-    EPDD(148),
-    EMDD(149),
-    Guard(150),
-    Cyclone(151),
-
-    HowlingCritical(152),
-    HowlingMaxMP(153),
-    HowlingDefence(154),
-    HowlingEvasion(155),
-    Conversion(156),
-    Revive(157),
-    PinkbeanMinibeenMove(158),
-    Sneak(159),
-
-    Mechanic(160),
-    BeastFormMaxHP(161),
-    Dice(162),
-    BlessingArmor(163),
-    DamR(164),
-    TeleportMasteryOn(165),
-    CombatOrders(166),
-    Beholder(167),
-
-    DispelItemOption(168),
-    Inflation(169),
-    OnixDivineProtection(170),
-    Web(171),
-    Bless(172),
-    TimeBomb(173),
-    DisOrder(174),
-    Thread(175),
-
-    Team(176),
-    Explosion(177),
-    BuffLimit(178),
-    STR(179),
-    INT(180),
-    DEX(181),
-    LUK(182),
-    DispelItemOptionByField(183),
-
-    DarkTornado(184), // Cygnus Attack
-    PVPDamage(185),
-    PvPScoreBonus(186),
-    PvPInvincible(187),
-    PvPRaceEffect(188),
-    WeaknessMdamage(189),
-    Frozen2(190),
-    PVPDamageSkill(191),
-
-    AmplifyDamage(192),
-    IceKnight(193),
-    Shock(194),
-    InfinityForce(195),
-    IncMaxHP(196),
-    IncMaxMP(197),
-    HolyMagicShell(198),
-    KeyDownTimeIgnore(199),
-
-    ArcaneAim(200),
-    MasterMagicOn(201),
-    AsrR(202),
-    TerR(203),
-    DamAbsorbShield(204),
-    DevilishPower(205),
-    Roulette(206),
-    SpiritLink(207),
-
-    AsrRByItem(208),
-    Event(209),
-    CriticalBuff(210),
+    INDIE_STAT_COUNT(53),// alot of buffstats went -3
+    PAD(54),
+    PDD(55),
+    MAD(56),
+    MDD(57),
+    ACC(58),
+    EVA(59),
+    Craft(60),
+    Speed(61),
+    Jump(62),
+    MagicGuard(63),
+    DarkSight(64),
+    Booster(65),
+    PowerGuard(66),
+    MaxHP(67),
+    MaxMP(68),
+    Invincible(69),
+    SoulArrow(70),
+    Stun(71),
+    Poison(72),
+    Seal(73),
+    Darkness(74),
+    ComboCounter(75),
+    WeaponCharge(76),
+    HolySymbol(77),
+    MesoUp(78),
+    ShadowPartner(79),
+    PickPocket(80),
+    MesoGuard(81),
+    Thaw(82),
+    Weakness(83),
+    Curse(84),
+    Slow(85),
+    Morph(86),
+    Regen(87),
+    BasicStatUp(88),
+    Stance(89),
+    SharpEyes(90),
+    ManaReflection(91),
+    Attract(92),
+    NoBulletConsume(93),
+    Infinity(94),
+    AdvancedBless(95),
+    IllusionStep(96),
+    Blind(97),
+    Concentration(98),
+    BanMap(99),
+    MaxLevelBuff(100),
+    MesoUpByItem(101),
+    Ghost(102),
+    Barrier(103),
+    ReverseInput(104),
+    ItemUpByItem(105),
+    RespectPImmune(106),
+    RespectMImmune(107),
+    DefenseAtt(108),
+    DefenseState(109),
+    DojangBerserk(110),
+    DojangInvincible(111),
+    DojangShield(112),
+    SoulMasterFinal(113),
+    WindBreakerFinal(114),
+    BladeClone(114),
+    ElementalReset(115),
+    HideAttack(116),
+    EventRate(117),
+    ComboAbilityBuff(118),
+    ComboDrain(119),
+    ComboBarrier(120),
+    BodyPressure(121),
+    RepeatEffect(122),
+    ExpBuffRate(123),
+    StopPortion(124),
+    StopMotion(125),
+    Fear(126),
+    HiddenPieceOn(127),
+    MagicShield(128),
+    MagicResistance(129),
+    SoulStone(130),
+    Flying(131),
+    Frozen(132),
+    AssistCharge(133),
+    Enrage(134),
+    DrawBack(135),
+    NotDamaged(136),
+    FinalCut(137),
+    HowlingAttackDamage(138),
+    BeastFormDamageUp(139),
+    Dance(140),
+    EMHP(141),
+    EMMP(142),
+    EPAD(143),
+    EMAD(144),
+    EPDD(145),
+    // EMDD(146),
+    Guard(146),
+    Cyclone(147),
+    HowlingCritical(148),
+    HowlingMaxMP(149),
+    HowlingDefence(150),
+    HowlingEvasion(151),
+    Conversion(152),
+    Revive(153),
+    PinkbeanMinibeenMove(154),
+    Sneak(155),
+    Mechanic(156),
+    BeastFormMaxHP(157),
+    Dice(158),
+    BlessingArmor(159),
+    DamR(160),
+    TeleportMasteryOn(161),
+    CombatOrders(162),
+    Beholder(163),
+    DispelItemOption(164),
+    Inflation(165),
+    OnixDivineProtection(166),
+    Web(167),
+    Bless(168),
+    TimeBomb(169),
+    Disorder(170),
+    Thread(171),
+    Team(172),
+    Explosion(173),
+    BuffLimit(174),
+    STR(175),
+    INT(176),
+    DEX(177),
+    LUK(178),
+    DispelItemOptionByField(179),
+    DarkTornado(180),
+    PVPDamage(181),
+    PvPScoreBonus(182),
+    PvPInvincible(183),
+    PvPRaceEffect(184),
+    WeaknessMdamage(185),
+    Frozen2(186),
+    PVPDamageSkill(187),
+    AmplifyDamage(188),
+    IceKnight(189),
+    Shock(190),
+    InfinityForce(191),
+    IncMaxHP(192),
+    IncMaxMP(193),
+    HolyMagicShell(194),
+    KeyDownTimeIgnore(195),
+    ArcaneAim(196),
+    MasterMagicOn(197),
+    AsrR(198),
+    TerR(199),
+    DamAbsorbShield(200),
+    DevilishPower(201),
+    Roulette(202),
+    SpiritLink(203),
+    AsrRByItem(204),
+    Event(209), // not updated
+    CriticalBuff(206),
     DropRate(211),
     PlusExpRate(212),
     ItemInvincible(213),
@@ -575,17 +554,28 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     RideVehicleExpire(499),
     ;
 
-    private int bitPos;
-    private int val;
-    private int pos;
     public static final int length = 17;
+    public static final EnumSet<CharacterTemporaryStat> MOVING_AFFECTING_STAT = EnumSet.of(
+            Speed, Jump, Stun, Weakness, Slow, Morph, Ghost, BasicStatUp, Attract, DashSpeed, DashJump, Flying, Frozen,
+            Frozen2, Lapidification, IndieSpeed, IndieJump, KeyDownMoving, EnergyCharged, Mechanic, Magnet, MagnetArea,
+            VampDeath, VampDeathSummon, GiveMeHeal, DarkTornado, NewFlying, NaviFlying, UserControlMob, Dance,
+            SelfWeakness, BattlePvPHelenaWindSpirit, BattlePvPLeeMalNyunScaleUp, TouchMe, IndieForceSpeed,
+            IndieForceJump, RideVehicle, RideVehicleExpire
+    );
+    public static final EnumSet<CharacterTemporaryStat> RESET_BY_TIME_CTS = EnumSet.of(
+            Stun, Shock, Poison, Seal, Darkness, Weakness, WeaknessMdamage, Curse, Slow, /*TimeBomb,*/
+            Disorder, Thread, Attract, Magnet, MagnetArea, ReverseInput, BanMap, StopPortion, StopMotion,
+            Fear, Frozen, Frozen2, Web, NotDamaged, FinalCut, Lapidification, VampDeath, VampDeathSummon,
+            GiveMeHeal, TouchMe, Contagion, ComboUnlimited, CrossOverChain, Reincarnation, ComboCostInc,
+            DotBasedBuff, ExtremeArchery, QuiverCatridge, AdvancedQuiver, UserControlMob, ArmorPiercing,
+            CriticalGrowing, QuickDraw, BowMasterConcentration, ComboTempest, SiphonVitality, KnockBack, RWMovingEvar
+    );
     private static final Logger log = LogManager.getRootLogger();
-
     private static final List<CharacterTemporaryStat> ORDER = Arrays.asList(
             STR, INT, DEX, LUK, PAD, PDD, MAD, MDD, ACC, EVA, EVAR, Craft, Speed, Jump, EMHP, EMMP, EPAD, EMAD, EPDD,
-            EMDD, MagicGuard, DarkSight, Booster, PowerGuard, Guard, MaxHP, MaxMP, Invincible, SoulArrow, Stun, Shock,
+            MagicGuard, DarkSight, Booster, PowerGuard, Guard, MaxHP, MaxMP, Invincible, SoulArrow, Stun, Shock,
             Poison, Seal, Darkness, ComboCounter, WeaponCharge, ElementalCharge, HolySymbol, MesoUp, ShadowPartner,
-            PickPocket, MesoGuard, Thaw, Weakness, WeaknessMdamage, Curse, Slow, TimeBomb, BuffLimit, Team, DisOrder,
+            PickPocket, MesoGuard, Thaw, Weakness, WeaknessMdamage, Curse, Slow, TimeBomb, BuffLimit, Team, Disorder,
             Thread, Morph, Ghost, Regen, BasicStatUp, Stance, SharpEyes, ManaReflection, Attract, Magnet, MagnetArea,
             NoBulletConsume, StackBuff, Trinity, Infinity, AdvancedBless, IllusionStep, Blind, Concentration, BanMap,
             MaxLevelBuff, Barrier, DojangShield, ReverseInput, MesoUpByItem, ItemUpByItem, RespectPImmune,
@@ -640,10 +630,9 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             Unk478, BlackHeartedCurse, EyeForEye, BeastMode, TeamRoar, Unk482, Unk483, Unk487, Unk488, Unk489, Unk490,
             Unk491
     );
-
     private static final List<CharacterTemporaryStat> REMOTE_ORDER = Arrays.asList(
             Speed, ComboCounter, WeaponCharge, ElementalCharge, Stun, Shock, Darkness, Seal, Weakness, WeaknessMdamage,
-            Curse, Slow, PvPRaceEffect, IceKnight, TimeBomb, Team, DisOrder, Thread, Poison, ShadowPartner, Morph,
+            Curse, Slow, PvPRaceEffect, IceKnight, TimeBomb, Team, Disorder, Thread, Poison, ShadowPartner, Morph,
             Ghost, Attract, Magnet, MagnetArea, NoBulletConsume, BanMap, Barrier, DojangShield, ReverseInput,
             RespectPImmune, RespectMImmune, DefenseAtt, DefenseState, DojangBerserk, RepeatEffect, StopPortion,
             StopMotion, Fear, MagicShield, Frozen, Frozen2, Web, DrawBack, FinalCut, Cyclone, OnCapsule, Mechanic,
@@ -665,16 +654,14 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             HayatoMPR, HayatoCr, HayatoBoss, Stance, BattoujutsuAdvance, Unk478, BlackHeartedCurse, EyeForEye, Unk458,
             Unk483, Unk487, Unk488, Unk489, Unk491, Unk460
     );
-
     private static final List<CharacterTemporaryStat> INDIE_ORDER = Arrays.asList(
-            IndiePAD, IndieMAD, IndiePDD, IndieMDD, IndieMHP, IndieMHPR, IndieMMP, IndieMMPR, IndieACC, IndieEVA,
-            IndieJump, IndieSpeed, IndieAllStat, IndieDodgeCriticalTime, IndieEXP, IndieBooster, IndieFixedDamageR,
+            IndiePAD, IndieMAD, IndieDEF, IndieMHP, IndieMHPR, IndieMMP, IndieMMPR, IndieACC, IndieEVA, IndieJump,
+            IndieSpeed, IndieAllStat, IndieAllStatR, IndieDodgeCriticalTime, IndieEXP, IndieBooster, IndieFixedDamageR,
             PyramidStunBuff, PyramidFrozenBuff, PyramidFireBuff, PyramidBonusDamageBuff, IndieRelaxEXP, IndieSTR,
-            IndieDEX, IndieINT, IndieLUK, IndieDamR, IndieScriptBuff, IndieMDF, IndieMaxDamageOver, IndieAsrR,
-            IndieTerR, IndieCr, IndiePDDR, IndieCrMax, IndieBDR, IndieStatR, IndieStance, IndieIgnoreMobpdpR,
-            IndieEmpty, IndiePADR, IndieMADR, IndieCrMaxR, IndieEVAR, IndieMDDR, IndieDrainHP, IndiePMdR,
-            IndieMaxDamageOverR, IndieForceJump, IndieForceSpeed, IndieQrPointTerm, IndieUNK1, IndieUNK2, IndieUNK3,
-            IndieUNK4, IndieUNK5, IndieStatCount
+            IndieDEX, IndieINT, IndieLUK, IndieDamR, IndieScriptBuff, IndieMDF, IndieAsrR, IndieTerR, IndieCr,
+            IndiePDDR, IndieCrDmg, IndieBDR, IndieStatR, IndieStance, IndieIgnoreMobpdpR, IndieEmpty, IndiePADR,
+            IndieMADR, IndieEVAR, IndieDrainHP, IndiePMdR, IndieForceJump, IndieForceSpeed, IndieQrPointTerm,
+            IndieSummon, IndieCooltimeReduce, IndieNotDamaged, IndieKeyDownTime, IndieDamReduceR, IndieCrystalCharge
     );
 
     private static final List<CharacterTemporaryStat> ENCODE_INT = Arrays.asList(
@@ -683,23 +670,20 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             QuiverCatridge, ImmuneBarrier, NaviFlying, Dance, SetBaseDamageByBuff, DotHealHPPerSecond, Magnet,
             MagnetArea, VampDeath, VampDeathSummon, Cyclone, RWBarrier
     );
+    private int bitPos;
+    private int val;
+    private int pos;
 
-    public static final EnumSet<CharacterTemporaryStat> MOVING_AFFECTING_STAT = EnumSet.of(
-            Speed, Jump, Stun, Weakness, Slow, Morph, Ghost, BasicStatUp, Attract, DashSpeed, DashJump, Flying, Frozen,
-            Frozen2, Lapidification, IndieSpeed, IndieJump, KeyDownMoving, EnergyCharged, Mechanic, Magnet, MagnetArea,
-            VampDeath, VampDeathSummon, GiveMeHeal, DarkTornado, NewFlying, NaviFlying, UserControlMob, Dance,
-            SelfWeakness, BattlePvPHelenaWindSpirit, BattlePvPLeeMalNyunScaleUp, TouchMe, IndieForceSpeed,
-            IndieForceJump, RideVehicle, RideVehicleExpire
-    );
+    CharacterTemporaryStat(int val, int pos) {
+        this.val = val;
+        this.pos = pos;
+    }
 
-    public static final EnumSet<CharacterTemporaryStat> RESET_BY_TIME_CTS = EnumSet.of(
-            Stun, Shock, Poison, Seal, Darkness, Weakness, WeaknessMdamage, Curse, Slow, /*TimeBomb,*/
-            DisOrder, Thread, Attract, Magnet, MagnetArea, ReverseInput, BanMap, StopPortion, StopMotion,
-            Fear, Frozen, Frozen2, Web, NotDamaged, FinalCut, Lapidification, VampDeath, VampDeathSummon,
-            GiveMeHeal, TouchMe, Contagion, ComboUnlimited, CrossOverChain, Reincarnation, ComboCostInc,
-            DotBasedBuff, ExtremeArchery, QuiverCatridge, AdvancedQuiver, UserControlMob, ArmorPiercing,
-            CriticalGrowing, QuickDraw, BowMasterConcentration, ComboTempest, SiphonVitality, KnockBack, RWMovingEvar
-    );
+    CharacterTemporaryStat(int bitPos) {
+        this.bitPos = bitPos;
+        this.val = 1 << (31 - bitPos % 32);
+        this.pos = bitPos / 32;
+    }
 
     public static List<CharacterTemporaryStat> getOrderList() {
         return ORDER;
@@ -717,23 +701,37 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
         return ENCODE_INT;
     }
 
-
-    CharacterTemporaryStat(int val, int pos) {
-        this.val = val;
-        this.pos = pos;
-    }
-
-    CharacterTemporaryStat(int bitPos) {
-        this.bitPos = bitPos;
-        this.val = 1 << (31 - bitPos % 32);
-        this.pos = bitPos / 32;
-    }
-
     public static CharacterTemporaryStat getByBitPos(int parseInt) {
         return
                 Arrays.asList(values()).stream()
                         .filter(characterTemporaryStat -> characterTemporaryStat.getBitPos() == parseInt)
                         .collect(Collectors.toList()).get(0);
+    }
+
+    public static void main(String[] args) {
+        int a = Stigma.bitPos;
+//        int val = 1 << (31 - (a & 0x1f));
+//        int pos = a >> 5;
+        int val = 0x1000;
+        int pos = 0;
+        log.debug(String.format("value 0x%04x, pos %d", val, pos));
+        for (CharacterTemporaryStat cts : values()) {
+            if (cts.getVal() == val && cts.getPos() == pos) {
+                log.debug("Corresponds to " + cts);
+            }
+        }
+//        for (CharacterTemporaryStat cts : values()) {
+//            val = cts.getVal();
+//            for (int i = 0; i < 32; i++) {
+//                if (1 << i == val) {
+//                    val = 31 - i;
+//                }
+//            }
+//            if (val % 8 == 0) {
+//                System.out.println();
+//            }
+//            System.out.println(String.format("%s(%d),", cts.toString(), (cts.getPos() * 32) + val));
+//        }
     }
 
     public boolean isIndie() {
@@ -875,32 +873,6 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             default:
                 return false;
         }
-    }
-
-    public static void main(String[] args) {
-        int a = Stigma.bitPos;
-//        int val = 1 << (31 - (a & 0x1f));
-//        int pos = a >> 5;
-        int val = 0x1000;
-        int pos = 0;
-        log.debug(String.format("value 0x%04x, pos %d", val, pos));
-        for(CharacterTemporaryStat cts : values()) {
-            if(cts.getVal() == val && cts.getPos() == pos) {
-                log.debug("Corresponds to " + cts);
-            }
-        }
-//        for (CharacterTemporaryStat cts : values()) {
-//            val = cts.getVal();
-//            for (int i = 0; i < 32; i++) {
-//                if (1 << i == val) {
-//                    val = 31 - i;
-//                }
-//            }
-//            if (val % 8 == 0) {
-//                System.out.println();
-//            }
-//            System.out.println(String.format("%s(%d),", cts.toString(), (cts.getPos() * 32) + val));
-//        }
     }
 
     @Override

@@ -10,7 +10,6 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
-import net.swordie.ms.client.party.Party;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.FieldPacket;
@@ -26,7 +25,6 @@ import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobStat;
-import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
@@ -393,7 +391,6 @@ public class Mechanic extends Citizen {
         tsm.putCharacterStatValue(Speed, mechSkillId, si.getValue(indieSpeed, slv) + chr.getSkillStatValue(indieSpeed, BATTLE_PROGRAM), 0);
         tsm.putCharacterStatValue(EPAD, mechSkillId, si.getValue(epad, slv), 0);
         tsm.putCharacterStatValue(EPDD, mechSkillId, si.getValue(epdd, slv), 0);
-        tsm.putCharacterStatValue(EMDD, mechSkillId, si.getValue(emdd, slv), 0);
         tsm.putCharacterStatValue(CriticalBuff, mechSkillId, mechSkillId == TANK_MECH ? chr.getSkillStatValue(cr, TANK_MECH) : 0, 0);
         // handle Mechanized Defense System here, Metal Alloy Research is handled as passive
         if (chr.hasSkill(MECHANIZED_DEFENSE_SYSTEM)) {
@@ -401,8 +398,7 @@ public class Mechanic extends Citizen {
             int mdsSlv = chr.getSkillLevel(MECHANIZED_DEFENSE_SYSTEM);
             tsm.putCharacterStatValue(IndieMHPR, MECHANIZED_DEFENSE_SYSTEM, mdsSi.getValue(mhpR, mdsSlv), 0);
             tsm.putCharacterStatValue(IndieMMPR, MECHANIZED_DEFENSE_SYSTEM, mdsSi.getValue(mmpR, mdsSlv), 0);
-            tsm.putCharacterStatValue(IndiePDD, MECHANIZED_DEFENSE_SYSTEM, mdsSi.getValue(pddX, mdsSlv), 0);
-            tsm.putCharacterStatValue(IndieMDD, MECHANIZED_DEFENSE_SYSTEM, mdsSi.getValue(mddX, mdsSlv), 0);
+            tsm.putCharacterStatValue(IndieDEF, MECHANIZED_DEFENSE_SYSTEM, mdsSi.getValue(pddX, mdsSlv), 0);
             tsm.putCharacterStatValue(DamageReduce, MECHANIZED_DEFENSE_SYSTEM, mdsSi.getValue(ignoreMobDamR, mdsSlv), 0);
         }
         // put Mechanic and RideVehicle CTS and send

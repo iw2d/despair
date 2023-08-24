@@ -509,11 +509,6 @@ public class Bishop extends Magician {
                 o4.tStart = Util.getCurrentTime();
                 o4.tTerm = 0;
                 tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o6);
-                o5.nReason = skillID;
-                o5.nValue = si.getValue(indieMaxDamageOver, slv);
-                o5.tStart = Util.getCurrentTime();
-                o5.tTerm = 0;
-                tsm.putCharacterStatValue(IndieMaxDamageOver, o4);
                 o6.nReason = skillID;
                 o6.nValue = si.getValue(indieBooster, slv);
                 o6.tStart = Util.getCurrentTime();

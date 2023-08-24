@@ -201,19 +201,12 @@ public enum BaseStat {
             case EMAD:
                 stats.put(mad, o.nOption);
                 break;
-            case IndiePDD:
+            case IndieDEF:
                 stats.put(pdd, o.nValue);
                 break;
             case PDD:
             case EPDD:
                 stats.put(pdd, o.nOption);
-                break;
-            case IndieMDD:
-                stats.put(mdd, o.nValue);
-                break;
-            case MDD:
-            case EMDD:
-                stats.put(mdd, o.nOption);
                 break;
             case IndiePADR:
                 stats.put(padR, o.nValue);
@@ -223,9 +216,6 @@ public enum BaseStat {
                 break;
             case IndiePDDR:
                 stats.put(pddR, o.nValue);
-                break;
-            case IndieMDDR:
-                stats.put(mddR, o.nValue);
                 break;
             case IndieMHP:
                 stats.put(mhp, o.nValue);
@@ -308,8 +298,6 @@ public enum BaseStat {
             case IncCriticalDamMin:
                 stats.put(minCd, o.nValue);
                 break;
-            case IndieCrMax:
-            case IndieCrMaxR:
             case IncCriticalDamMax:
                 stats.put(maxCd, o.nValue);
                 break;

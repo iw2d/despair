@@ -90,13 +90,10 @@ public class ItemBuffs {
                     tsm.putCharacterStatValue(IndiePAD, o);
                     break;
                 case indiePdd:
-                    tsm.putCharacterStatValue(IndiePDD, o);
+                    tsm.putCharacterStatValue(IndieDEF, o);
                     break;
                 case indieMad:
                     tsm.putCharacterStatValue(IndieMAD, o);
-                    break;
-                case indieMdd:
-                    tsm.putCharacterStatValue(IndieMDD, o);
                     break;
                 case indieBDR:
                     tsm.putCharacterStatValue(IndieBDR, o);
@@ -144,7 +141,7 @@ public class ItemBuffs {
                     tsm.putCharacterStatValue(IndieQrPointTerm, o);
                     break;
                 case indieWaterSmashBuff:
-                    tsm.putCharacterStatValue(IndieUNK1, o);
+                    tsm.putCharacterStatValue(Event, o);
                     break;
                 case padRate:
                     tsm.putCharacterStatValue(IndiePADR, o);
@@ -154,9 +151,6 @@ public class ItemBuffs {
                     break;
                 case pddRate:
                     tsm.putCharacterStatValue(IndiePDDR, o);
-                    break;
-                case mddRate:
-                    tsm.putCharacterStatValue(IndieMDDR, o);
                     break;
                 case accRate:
                     tsm.putCharacterStatValue(ACCR, o);

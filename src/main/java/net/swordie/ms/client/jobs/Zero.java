@@ -32,7 +32,6 @@ import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.QuestData;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
-import net.swordie.ms.world.field.Field;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -409,16 +408,11 @@ public class Zero extends Job {
                     o3.tStart = Util.getCurrentTime();
                     o3.tTerm = 0;
                     tsm.putCharacterStatValue(IndiePAD, o3); //Indie
-                    o4.nReason = skillID;
-                    o4.nValue = si.getValue(indieMdd, slv);
-                    o4.tStart = Util.getCurrentTime();
-                    o4.tTerm = 0;
-                    tsm.putCharacterStatValue(IndieMDD, o4); //Indie
                     o5.nReason = skillID;
                     o5.nValue = si.getValue(indiePdd, slv);
                     o5.tStart = Util.getCurrentTime();
                     o5.tTerm = 0;
-                    tsm.putCharacterStatValue(IndiePDD, o5); //Indie
+                    tsm.putCharacterStatValue(IndieDEF, o5); //Indie
                     o6.nReason = skillID;
                     o6.nValue = si.getValue(indieTerR, slv);
                     o6.tStart = Util.getCurrentTime();
@@ -477,11 +471,6 @@ public class Zero extends Job {
                     o2.rOption = TIME_HOLDING_2;
                     o2.tOption = si.getValue(x, slv);
                     tsm.putCharacterStatValue(DamR, o2);
-                    o3.nReason = TIME_HOLDING_2;
-                    o3.nValue = si.getValue(z, slv);
-                    o3.tStart = Util.getCurrentTime();
-                    o3.tTerm = si.getValue(x, slv);
-                    tsm.putCharacterStatValue(IndieMaxDamageOverR, o3);
                 }
 
                 for (int skillId : chr.getSkillCoolTimes().keySet()) {

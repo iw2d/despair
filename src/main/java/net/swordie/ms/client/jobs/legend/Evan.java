@@ -382,14 +382,10 @@ public class Evan extends Job {
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
                 tsm.putCharacterStatValue(EMAD, o1);
-                o2.nOption = si.getValue(emdd, slv);
+                o2.nOption = si.getValue(epdd, slv);
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EMDD, o2);
-                o3.nOption = si.getValue(epdd, slv);
-                o3.rOption = skillID;
-                o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EPDD, o3);
+                tsm.putCharacterStatValue(EPDD, o2);
                 break;
             case SUMMON_ONYX_DRAGON:
                 summon = Summon.getSummonBy(chr, skillID, slv);

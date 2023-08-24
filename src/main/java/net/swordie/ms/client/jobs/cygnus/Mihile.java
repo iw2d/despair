@@ -369,7 +369,6 @@ public class Mihile extends Job {
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = duration;
                 tsm.putCharacterStatValue(IndiePDDR, o1);
-                tsm.putCharacterStatValue(IndieMDDR, o1);
                 o2.nValue = si.getValue(y, slv) + this.chr.getSkillStatValue(y, ENDURING_SPIRIT_PREPARATION);
                 o2.nReason = skillID;
                 o2.tStart = Util.getCurrentTime();

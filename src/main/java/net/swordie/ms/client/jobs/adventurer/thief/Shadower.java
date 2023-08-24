@@ -335,11 +335,6 @@ public class Shadower extends Thief {
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
                 tsm.putCharacterStatValue(IndieDamR, o2);
-                o3.nReason = FLIP_THE_COIN;
-                o3.nValue = stacks * si.getValue(indieMaxDamageOver, slv);
-                o3.tStart = Util.getCurrentTime();
-                o3.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieMaxDamageOver, o3);
                 chr.write(WvsContext.flipTheCoinEnabled((byte) 0));
                 break;
         }

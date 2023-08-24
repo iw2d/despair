@@ -184,7 +184,6 @@ public class DarkKnight extends Warrior {
         o2.rOption = HEX_OF_THE_EVIL_EYE;
         o2.tOption = si.getValue(time, slv);
         tsm.putCharacterStatValue(EPDD, o2);
-        tsm.putCharacterStatValue(EMDD, o2);
 
         o3.nReason = HEX_OF_THE_EVIL_EYE;
         o3.nValue = si.getValue(indieCr, slv);
