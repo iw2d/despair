@@ -1477,7 +1477,7 @@ public enum OutHeader {
     }
 
     public static boolean isSpamHeader(OutHeader outHeader) {
-        return false && spam.contains(outHeader);
+        return spam.contains(outHeader);
     }
 
 }

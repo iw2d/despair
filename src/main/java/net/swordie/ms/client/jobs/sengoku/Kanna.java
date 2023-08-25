@@ -244,7 +244,7 @@ public class Kanna extends Job {
                 o1.nValue = si.getValue(indieDamR, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1); //Indie
+                tsm.putCharacterStatValue(IndieAsrR, o1); //Indie
                 tsm.sendSetStatPacket();
                 break;
             case HAKU_REBORN:

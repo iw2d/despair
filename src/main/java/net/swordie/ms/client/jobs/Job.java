@@ -166,7 +166,7 @@ public abstract class Job {
 				o1.nValue = si.getValue(indieDamR, 1); //50% DamR
 				o1.tStart = Util.getCurrentTime();
 				o1.tTerm = si.getValue(time, 1);
-				tsm.putCharacterStatValue(IndieDamR, o1);
+				tsm.putCharacterStatValue(IndieAsrR, o1);
 
 				tsm.sendSetStatPacket();
 				break;
@@ -474,7 +474,7 @@ public abstract class Job {
 		o2.tStart = Util.getCurrentTime();
 		o2.tTerm = si.getValue(time, slv);
 		if (chr.getParty() == null) {
-			tsm.putCharacterStatValue(IndieDamR, o1);
+			tsm.putCharacterStatValue(IndieAsrR, o1);
 			tsm.sendResetStatPacket();
 		} else {
 			Position pos = inPacket.decodePosition();
@@ -486,7 +486,7 @@ public abstract class Job {
 					.toList();
 			for (PartyMember partyMember : partyMembers) {
 				TemporaryStatManager partyTsm = partyMember.getChr().getTemporaryStatManager();
-				partyTsm.putCharacterStatValue(IndieDamR, o1);
+				partyTsm.putCharacterStatValue(IndieAsrR, o1);
 				partyTsm.sendSetStatPacket();
 			}
 		}
@@ -621,7 +621,7 @@ public abstract class Job {
 				o1.nValue = si.getValue(indieDamR, slv);
 				o1.tStart = curTime;
 				o1.tTerm = si.getValue(time, slv);
-				tsm.putCharacterStatValue(IndieDamR, o1);
+				tsm.putCharacterStatValue(IndieAsrR, o1);
 				break;
 			default:
 				sendStat = false;

@@ -179,8 +179,7 @@ public class Kaiser extends Job {
         }
         o1.nOption = zDef;
         o1.rOption = REALIGN_DEFENDER_MODE;
-        tsm.putCharacterStatValue(PDD, o1);
-        tsm.putCharacterStatValue(MDD, o1);
+        tsm.putCharacterStatValue(DEF, o1);
         o2.nOption = zAcc;
         o2.rOption = REALIGN_DEFENDER_MODE;
         tsm.putCharacterStatValue(ACC, o2);

@@ -183,7 +183,7 @@ public class DarkKnight extends Warrior {
         o2.nOption = si.getValue(epdd, slv);
         o2.rOption = HEX_OF_THE_EVIL_EYE;
         o2.tOption = si.getValue(time, slv);
-        tsm.putCharacterStatValue(EPDD, o2);
+        tsm.putCharacterStatValue(EDEF, o2);
 
         o3.nReason = HEX_OF_THE_EVIL_EYE;
         o3.nValue = si.getValue(indieCr, slv);
@@ -310,11 +310,7 @@ public class DarkKnight extends Warrior {
                 o1.nOption = si.getValue(pdd, slv);
                 o1.rOption = skillID;
                 o1.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(PDD, o1);
-                o2.nOption = si.getValue(mdd, slv);
-                o2.rOption = skillID;
-                o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(MDD, o2);
+                tsm.putCharacterStatValue(DEF, o1);
                 break;
             case HYPER_BODY:
                 o1.nOption = si.getValue(x, slv) + this.chr.getSkillStatValue(x, HYPER_BODY_VITALITY);;
@@ -421,12 +417,12 @@ public class DarkKnight extends Warrior {
                     tsm.removeStatsBySkill(FINAL_PACT_INFO);
                     tsm.sendResetStatPacket();
                 }
-            } else if (!tsm.hasStatBySkillId(FINAL_PACT_INFO) || tsm.getOptByCTSAndSkill(IndieDamR, FINAL_PACT_INFO).nValue != damR) {
+            } else if (!tsm.hasStatBySkillId(FINAL_PACT_INFO) || tsm.getOptByCTSAndSkill(IndieAsrR, FINAL_PACT_INFO).nValue != damR) {
                 Option o1 = new Option();
                 o1.nValue = damR;
                 o1.nReason = FINAL_PACT_INFO;
                 o1.tStart = Util.getCurrentTime();
-                tsm.putCharacterStatValue(IndieDamR, o1);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
             }
         } else if (tsm.hasStatBySkillId(FINAL_PACT_INFO)) {
             tsm.removeStatsBySkill(FINAL_PACT_INFO);

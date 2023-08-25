@@ -888,7 +888,7 @@ public class TemporaryStatManager {
             removeStatsBySkill(aa.getSkillID());
             sendResetStatPacket();
         } else if (aa.getSkillID() == SUPPORT_UNIT_HEX || aa.getSkillID() == ENHANCED_SUPPORT_UNIT) {
-            removeStatsBySkill(IndieDamR, aa.getSkillID());
+            removeStatsBySkill(IndieAsrR, aa.getSkillID());
             sendResetStatPacket();
         }
     }

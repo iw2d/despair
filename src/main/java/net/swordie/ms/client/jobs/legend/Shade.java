@@ -3,7 +3,6 @@ package net.swordie.ms.client.jobs.legend;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
@@ -312,7 +311,7 @@ public class Shade extends Job {
                 o1.nValue = si.getValue(indieDamR, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indiePad, slv);
                 o2.tStart = Util.getCurrentTime();

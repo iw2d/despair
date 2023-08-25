@@ -714,9 +714,9 @@ public enum InHeader {
     E_N_D__N_P_C(906),
     E_N_D__L_I_F_E_P_O_O_L(907),
 
-    B_E_G_I_N__D_R_O_P_P_O_O_L(907), // TODO: check mismatch 905 - 912
-    DROP_PICK_UP_REQUEST(908),
-    E_N_D__D_R_O_P_P_O_O_L(909),
+    B_E_G_I_N__D_R_O_P_P_O_O_L(908),
+    DROP_PICK_UP_REQUEST(909),
+    E_N_D__D_R_O_P_P_O_O_L(910),
 
     B_E_G_I_N__R_E_A_C_T_O_R_P_O_O_L(910),
     REACTOR_HIT(911),
@@ -1073,6 +1073,6 @@ public enum InHeader {
     }
 
     public static boolean isSpamHeader(InHeader inHeaderByOp) {
-        return false && spam.contains(inHeaderByOp);
+        return spam.contains(inHeaderByOp);
     }
 }

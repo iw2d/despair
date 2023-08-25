@@ -390,7 +390,7 @@ public class Mechanic extends Citizen {
         tsm.putCharacterStatValue(EMMP, mechSkillId, si.getValue(emmp, slv), 0);
         tsm.putCharacterStatValue(Speed, mechSkillId, si.getValue(indieSpeed, slv) + chr.getSkillStatValue(indieSpeed, BATTLE_PROGRAM), 0);
         tsm.putCharacterStatValue(EPAD, mechSkillId, si.getValue(epad, slv), 0);
-        tsm.putCharacterStatValue(EPDD, mechSkillId, si.getValue(epdd, slv), 0);
+        tsm.putCharacterStatValue(EDEF, mechSkillId, si.getValue(epdd, slv), 0);
         tsm.putCharacterStatValue(CriticalBuff, mechSkillId, mechSkillId == TANK_MECH ? chr.getSkillStatValue(cr, TANK_MECH) : 0, 0);
         // handle Mechanized Defense System here, Metal Alloy Research is handled as passive
         if (chr.hasSkill(MECHANIZED_DEFENSE_SYSTEM)) {

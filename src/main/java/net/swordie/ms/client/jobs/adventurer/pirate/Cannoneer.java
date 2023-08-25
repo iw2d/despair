@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.adventurer.pirate;
 
-import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.*;
@@ -13,7 +12,6 @@ import net.swordie.ms.connection.packet.Effect;
 import net.swordie.ms.connection.packet.UserPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
-import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.MoveAbility;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
@@ -86,7 +84,7 @@ public class Cannoneer extends Pirate {
                 o.nOption = si.getValue(s, slv);
                 o.rOption = 0;
                 o.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IncCriticalDamMin, o);
+                tsm.putCharacterStatValue(IncCriticalDam, o);
                 tsm.sendSetStatPacket();
                 break;
             case 3: // Slow Debuff
@@ -151,7 +149,7 @@ public class Cannoneer extends Pirate {
                     o2.nOption = si.getValue(x, slv);
                     o2.rOption = skillID;
                     o2.tOption = si.getValue(subTime, slv);
-                    tsm.putCharacterStatValue(IncCriticalDamMax, o2);
+                    tsm.putCharacterStatValue(IncCriticalDam, o2);
                     tsm.sendSetStatPacket();
                 }
                 break;

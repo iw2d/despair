@@ -3,7 +3,6 @@ package net.swordie.ms.client.jobs.cygnus;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
@@ -254,7 +253,7 @@ public class WindArcher extends Noblesse {
                 o2.nValue = si.getValue(indieDamR, slv);
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o2); //Indie
+                tsm.putCharacterStatValue(IndieAsrR, o2); //Indie
                 break;
             case BOW_BOOSTER:
                 o1.nOption = si.getValue(x, slv);
@@ -313,7 +312,7 @@ public class WindArcher extends Noblesse {
                 o2.nValue = si.getValue(indieDamR, slv);
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o2); //Indie
+                tsm.putCharacterStatValue(IndieAsrR, o2); //Indie
                 o3.nReason = skillID;
                 o3.nValue = si.getValue(indieCr, slv);
                 o3.tStart = Util.getCurrentTime();
@@ -323,7 +322,7 @@ public class WindArcher extends Noblesse {
                 o4.nValue = si.getValue(indieAsrR, slv);
                 o4.tStart = Util.getCurrentTime();
                 o4.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieAsrR, o4); //Indie
+                tsm.putCharacterStatValue(IndieIDK, o4); //Indie
                 o5.nReason = skillID;
                 o5.nValue = si.getValue(indieTerR, slv);
                 o5.tStart = Util.getCurrentTime();

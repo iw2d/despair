@@ -313,7 +313,7 @@ public class Buccaneer extends Pirate {
                 o1.nValue = si.getValue(indiePadR, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1); // DamR according to skill description
+                tsm.putCharacterStatValue(IndieAsrR, o1); // DamR according to skill description
                 break;
             case STIMULATING_CONVERSATION:
                 o1.nOption = 1;
@@ -324,7 +324,7 @@ public class Buccaneer extends Pirate {
                 o2.nValue = si.getValue(indieDamR, slv);
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o2);
+                tsm.putCharacterStatValue(IndieAsrR, o2);
                 if (stimulatingConversationTimer != null && !stimulatingConversationTimer.isDone()) {
                     stimulatingConversationTimer.cancel(true);
                 }

@@ -1,6 +1,5 @@
 package net.swordie.ms.client.jobs.adventurer.thief;
 
-import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.items.Item;
@@ -334,7 +333,7 @@ public class Shadower extends Thief {
                 o2.nValue = stacks * si.getValue(indieDamR, slv);
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o2);
+                tsm.putCharacterStatValue(IndieAsrR, o2);
                 chr.write(WvsContext.flipTheCoinEnabled((byte) 0));
                 break;
         }

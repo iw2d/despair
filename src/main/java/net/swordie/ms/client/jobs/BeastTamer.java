@@ -204,7 +204,7 @@ public class BeastTamer extends Job {
                 o1.nValue = mc.getValue(indieDamR, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = mc.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
                 break;
             case MEOW_CARD_GREEN:
                 o1.nReason = randomMeowCard;
@@ -230,7 +230,7 @@ public class BeastTamer extends Job {
                 o1.nValue = mc.getValue(indieDamR, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = mc.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
                 o2.nReason = randomMeowCard;
                 o2.nValue = mc.getValue(indieBooster, slv);
                 o2.tStart = Util.getCurrentTime();
@@ -320,7 +320,7 @@ public class BeastTamer extends Job {
         tsm.putCharacterStatValue(CriticalBuff, o1);
         o2.nOption = si.getValue(y, slv);
         o2.rOption = CAT_CLAWS;
-        tsm.putCharacterStatValue(IncCriticalDamMin, o2);
+        tsm.putCharacterStatValue(IncCriticalDam, o2);
         tsm.sendSetStatPacket();
     }
 
@@ -618,7 +618,7 @@ public class BeastTamer extends Job {
                 o2.nOption = si.getValue(y, slv);
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(q, slv);
-                tsm.putCharacterStatValue(IncCriticalDamMin, o2);
+                tsm.putCharacterStatValue(IncCriticalDam, o2);
                 o3.nOption = si.getValue(z, slv);
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(q, slv);
@@ -672,7 +672,7 @@ public class BeastTamer extends Job {
                 o3.nOption = si.getValue(epdd, slv);
                 o3.rOption = skillID;
                 o3.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EPDD, o3);
+                tsm.putCharacterStatValue(EDEF, o3);
                 o4.nOption = si.getValue(acc, slv);
                 o4.rOption = skillID;
                 o4.tOption = si.getValue(time, slv);
@@ -707,7 +707,7 @@ public class BeastTamer extends Job {
                 o1.nValue = si.getValue(indieDamR, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
                 o2.nOption = 1;
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);

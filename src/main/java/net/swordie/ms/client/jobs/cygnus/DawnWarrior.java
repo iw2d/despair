@@ -190,7 +190,7 @@ public class DawnWarrior extends Noblesse {
             o2.nValue = siRS.getValue(indieDamR, slvRS) + chr.getSkillStatValue(v, MASTER_OF_THE_SWORD);
             o2.nReason = RISING_SUN;
             o2.tStart = Util.getCurrentTime();
-            tsm.putCharacterStatValue(IndieDamR, o2);
+            tsm.putCharacterStatValue(IndieAsrR, o2);
             o3.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? chr.getSkillStatValue(w, MASTER_OF_THE_SWORD) : siRS.getValue(indieBooster, slvRS);
             o3.nReason = RISING_SUN;
             o3.tStart = Util.getCurrentTime();
@@ -223,7 +223,7 @@ public class DawnWarrior extends Noblesse {
             o4.nValue = siRS.getValue(indieDamR, slvRS) + chr.getSkillStatValue(v, MASTER_OF_THE_SWORD);
             o4.nReason = EQUINOX_CYCLE_SUN;
             o4.tStart = Util.getCurrentTime();
-            tsm.putCharacterStatValue(IndieDamR, o4);
+            tsm.putCharacterStatValue(IndieAsrR, o4);
             o5.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? chr.getSkillStatValue(w, MASTER_OF_THE_SWORD) : siRS.getValue(indieBooster, slvRS);
             o5.nReason = EQUINOX_CYCLE_SUN;
             o5.tStart = Util.getCurrentTime();
@@ -344,7 +344,7 @@ public class DawnWarrior extends Noblesse {
                     // remove all stats except posetype
                     tsm.removeStatsBySkill(IndieCr, FALLING_MOON);
                     tsm.removeStatsBySkill(BuckShot, FALLING_MOON);
-                    tsm.removeStatsBySkill(IndieDamR, RISING_SUN);
+                    tsm.removeStatsBySkill(IndieAsrR, RISING_SUN);
                     tsm.removeStatsBySkill(IndieBooster, RISING_SUN);
                     tsm.removeStatsBySkill(EQUINOX_CYCLE);
                     tsm.removeStatsBySkill(EQUINOX_CYCLE_MOON);
@@ -367,7 +367,7 @@ public class DawnWarrior extends Noblesse {
                     o4.nReason = EQUINOX_CYCLE_SUN;
                     o4.tStart = Util.getCurrentTime();
                     o4.tTerm = si.getValue(time, slv);
-                    tsm.putCharacterStatValue(IndieDamR, o4);
+                    tsm.putCharacterStatValue(IndieAsrR, o4);
                     o5.nValue = chr.hasSkill(MASTER_OF_THE_SWORD) ? chr.getSkillStatValue(w, MASTER_OF_THE_SWORD) : chr.getSkillStatValue(indieBooster, RISING_SUN);
                     o5.nReason = EQUINOX_CYCLE_SUN;
                     o5.tStart = Util.getCurrentTime();

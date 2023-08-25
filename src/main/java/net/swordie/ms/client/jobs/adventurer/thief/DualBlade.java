@@ -3,13 +3,11 @@ package net.swordie.ms.client.jobs.adventurer.thief;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
-import net.swordie.ms.connection.packet.MobPool;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.*;
@@ -274,7 +272,7 @@ public class DualBlade extends Thief {
                 o2.nReason = skillID;
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o2);
+                tsm.putCharacterStatValue(IndieAsrR, o2);
                 break;
             case ASURAS_ANGER:
                 o1.nOption = 1;

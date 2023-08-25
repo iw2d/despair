@@ -273,7 +273,7 @@ public class Kinesis extends Job {
                 o1.nReason = skillID;
                 o1.tStart = curTime;
                 o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
                 break;
             case PSYCHIC_REINFORCEMENT:
                 o1.nValue = si.getValue(indieMadR, slv);
@@ -292,7 +292,7 @@ public class Kinesis extends Job {
                 o2.nReason = skillID;
                 o2.tStart = curTime;
                 o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o2);
+                tsm.putCharacterStatValue(IndieAsrR, o2);
                 break;
             case KINETIC_JAUNT:
                 o1.nOption = 1;

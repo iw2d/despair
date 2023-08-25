@@ -190,7 +190,7 @@ public class NightWalker extends Noblesse {
                 o4.nValue = si.getValue(indieDamR, slv);
                 o4.tStart = Util.getCurrentTime();
                 o4.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o4);
+                tsm.putCharacterStatValue(IndieAsrR, o4);
                 o5.nOption = 1;
                 o5.rOption = skillID;
                 o5.tOption = si.getValue(time, slv);
@@ -301,8 +301,7 @@ public class NightWalker extends Noblesse {
             o3.nOption = stacks * chr.getSkillStatValue(x, VITALITY_SIPHON_STEEL_SKIN);
             o3.rOption = VITALITY_SIPHON;
             o3.tOption = duration;
-            tsm.putCharacterStatValue(PDD, o3);
-            tsm.putCharacterStatValue(MDD, o3);
+            tsm.putCharacterStatValue(DEF, o3);
         }
         if (chr.hasSkill(VITALITY_SIPHON_PREPARATION)) {
             o4.nOption = stacks * chr.getSkillStatValue(x, VITALITY_SIPHON_PREPARATION);

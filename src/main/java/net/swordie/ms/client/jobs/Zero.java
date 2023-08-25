@@ -397,7 +397,7 @@ public class Zero extends Job {
                     o1.nValue = si.getValue(indieAsrR, slv);
                     o1.tStart = Util.getCurrentTime();
                     o1.tTerm = 0;
-                    tsm.putCharacterStatValue(IndieAsrR, o1); //Indie
+                    tsm.putCharacterStatValue(IndieIDK, o1); //Indie
                     o2.nReason = skillID;
                     o2.nValue = si.getValue(indieMad, slv);
                     o2.tStart = Util.getCurrentTime();

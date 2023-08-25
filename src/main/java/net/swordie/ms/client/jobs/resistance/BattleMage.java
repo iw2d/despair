@@ -437,7 +437,7 @@ public class BattleMage extends Citizen {
                 tsm.putCharacterStatValue(Enrage, o1);
                 o2.nOption = si.getValue(y, slv);
                 o2.rOption = skillID;
-                tsm.putCharacterStatValue(EnrageCrDamMin, o2);
+                tsm.putCharacterStatValue(EnrageCrDam, o2);
                 o3.nOption = si.getValue(z, slv);
                 o3.rOption = skillID;
                 tsm.putCharacterStatValue(CriticalBuff, o3);
@@ -480,13 +480,13 @@ public class BattleMage extends Citizen {
             o2.nValue = si.getValue(indieAsrR, slv);
             o2.tStart = Util.getCurrentTime();
             o2.tTerm = duration;
-            tsm.putCharacterStatValue(IndieAsrR, o2);
+            tsm.putCharacterStatValue(IndieIDK, o2);
         } else if (skillId == DARK_AURA) {
             o2.nReason = skillId;
             o2.nValue = si.getValue(indieDamR, slv);
             o2.tStart = Util.getCurrentTime();
             o2.tTerm = duration;
-            tsm.putCharacterStatValue(IndieDamR, o2);
+            tsm.putCharacterStatValue(IndieAsrR, o2);
             if (this.chr.hasSkill(DARK_AURA_BOSS)) {
                 o3.nReason = skillId;
                 o3.nValue = this.chr.getSkillStatValue(indieBDR, DARK_AURA_BOSS);

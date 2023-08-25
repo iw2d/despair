@@ -386,7 +386,7 @@ public class Paladin extends Warrior {
                 o3.nReason = PARASHOCK_GUARD;
                 o3.nValue = si.getValue(z, slv);
                 o3.tStart = Util.getCurrentTime();
-                tsm.putCharacterStatValue(IndiePDDR, o3);
+                tsm.putCharacterStatValue(IndieDEFR, o3);
                 parashockGuard();
                 break;
             case ELEMENTAL_FORCE:
@@ -394,7 +394,7 @@ public class Paladin extends Warrior {
                 o1.nValue = si.getValue(indieDamR, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
                 break;
             case SACROSANCTITY:
                 o1.nOption = 1;

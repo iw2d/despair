@@ -123,7 +123,7 @@ public class Jett extends Job {
                 o2.nValue = si.getValue(indieDamR, slv);
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o2);
+                tsm.putCharacterStatValue(IndieAsrR, o2);
                 break;
             case SLIPSTREAM_SUIT:
                 o1.nOption = si.getValue(x, slv);

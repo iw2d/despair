@@ -46,6 +46,11 @@ public class MobPool {
     public static OutPacket changeController(Mob mob, boolean hasBeenInit, boolean isController) {
         OutPacket outPacket = new OutPacket(OutHeader.MOB_CHANGE_CONTROLLER);
         outPacket.encodeByte(isController);
+        if (isController && false) { // sub_A388E0(2)
+            outPacket.encodeInt(0);
+            outPacket.encodeInt(0);
+            outPacket.encodeInt(0);
+        }
         outPacket.encodeInt(mob.getObjectId());
         if (isController) {
             outPacket.encodeByte(mob.getCalcDamageIndex());

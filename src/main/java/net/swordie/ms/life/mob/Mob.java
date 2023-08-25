@@ -1890,7 +1890,7 @@ public class Mob extends Life {
         outPacket.encodePosition(getPosition());
         outPacket.encodeByte(getMoveAction());
         int tid = getTemplateId();
-        if (tid == 8910000 || tid == 8910100 || tid == 9990033) { // is_banban_boss
+        if (tid == 8910000 || tid == 8910100 || tid == 9990033) { // is_banban_boss_mob
             outPacket.encodeByte(0); // fake?
         }
         if (getCurFoodhold() == null) {
@@ -1911,7 +1911,7 @@ public class Mob extends Life {
             outPacket.encodeInt(getOption());
         }
         outPacket.encodeByte(getTeamForMCarnival());
-        outPacket.encodeInt(getHp() > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) getHp());
+        outPacket.encodeLong(getHp() > Long.MAX_VALUE ? Long.MAX_VALUE : getHp());
         outPacket.encodeInt(getEffectItemID());
         if (isPatrolMob()) {
             outPacket.encodeInt(getPosition().getX() - getRange());
@@ -1955,6 +1955,7 @@ public class Mob extends Life {
         if (sms != null) {
             sms.encode(outPacket);
         }
+        outPacket.encodeByte(0); // bool
         size = 0;
         outPacket.encodeInt(size);
         for (int i = 0; i < size; i++) {

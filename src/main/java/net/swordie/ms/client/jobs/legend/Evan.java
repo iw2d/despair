@@ -274,7 +274,7 @@ public class Evan extends Job {
         o1.nReason = PARTNERS;
         o1.tStart = Util.getCurrentTime();
         o1.tTerm = si.getValue(time, slv);
-        tsm.putCharacterStatValue(IndieDamR, o1);
+        tsm.putCharacterStatValue(IndieAsrR, o1);
     }
 
     @Override
@@ -385,7 +385,7 @@ public class Evan extends Job {
                 o2.nOption = si.getValue(epdd, slv);
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(EPDD, o2);
+                tsm.putCharacterStatValue(EDEF, o2);
                 break;
             case SUMMON_ONYX_DRAGON:
                 summon = Summon.getSummonBy(chr, skillID, slv);

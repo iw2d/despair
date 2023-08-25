@@ -12,7 +12,6 @@ import net.swordie.ms.enums.AssistType;
 import net.swordie.ms.life.AffectedArea;
 import net.swordie.ms.life.Summon;
 import net.swordie.ms.world.field.Field;
-import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.life.mob.MobStat;
@@ -247,7 +246,7 @@ public class PinkBean extends Job {
                 o1.nValue = si.getValue(indieAsrR, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieAsrR, o1);
+                tsm.putCharacterStatValue(IndieIDK, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieExp, slv);
                 o2.tStart = Util.getCurrentTime();
@@ -270,7 +269,7 @@ public class PinkBean extends Job {
                 o1.nValue = si.getValue(indieAsrR, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieAsrR, o1);
+                tsm.putCharacterStatValue(IndieIDK, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieExp, slv);
                 o2.tStart = Util.getCurrentTime();

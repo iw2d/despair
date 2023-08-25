@@ -2,7 +2,6 @@ package net.swordie.ms.client.jobs.adventurer.archer;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
@@ -291,7 +290,7 @@ public class Bowmaster extends Archer {
                     o2.nValue = si.getValue(indieDamR, slv);
                     o2.nReason = skillID;
                     o2.tStart = Util.getCurrentTime();
-                    tsm.putCharacterStatValue(IndieDamR, o2);
+                    tsm.putCharacterStatValue(IndieAsrR, o2);
                 }
                 break;
             case ENCHANTED_QUIVER:

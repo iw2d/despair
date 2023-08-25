@@ -4,19 +4,15 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.PartyBooster;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
-import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.TSIndex;
-import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
-import net.swordie.ms.world.field.Field;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -198,7 +194,7 @@ public class ThunderBreaker extends Noblesse {
                 o2.nValue = si.getValue(indieDamR, slv);
                 o2.tStart = Util.getCurrentTime();
                 o2.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o2);
+                tsm.putCharacterStatValue(IndieAsrR, o2);
                 // update lightning elemental buff
                 if (tsm.hasStat(IgnoreTargetDEF)) {
                     int stacks = tsm.getOption(IgnoreTargetDEF).mOption;

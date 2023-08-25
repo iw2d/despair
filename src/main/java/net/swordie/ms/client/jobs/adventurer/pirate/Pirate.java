@@ -8,18 +8,10 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.adventurer.Beginner;
 import net.swordie.ms.connection.InPacket;
-import net.swordie.ms.connection.packet.Effect;
-import net.swordie.ms.connection.packet.UserPacket;
-import net.swordie.ms.connection.packet.UserRemote;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Util;
-import net.swordie.ms.world.field.Field;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -131,7 +123,7 @@ public class Pirate extends Beginner {
             o2.nValue = si.getValue(indieDamR, slv);
             o2.tStart = Util.getCurrentTime();
             o2.tTerm = si.getValue(time, slv);
-            tsm.putCharacterStatValue(IndieDamR, o2);
+            tsm.putCharacterStatValue(IndieAsrR, o2);
             tsm.sendSetStatPacket();
         }
     }

@@ -66,8 +66,12 @@ public class DropPool {
         outPacket.encodeByte(ownType); // 3 = high drop
         outPacket.encodePosition(dropPos);
         outPacket.encodeInt(sourceID);
+        // new v178
+        outPacket.encodeByte(0);
+        outPacket.encodeByte(false); // bIsMegaCoin (head of a professor on it)
+        // end
         byte enterType = dropEnterType.getVal();
-        if(enterType != 2) {
+        if (enterType != 2) {
             outPacket.encodePosition(tempPos);
             outPacket.encodeInt(delay);
         }
@@ -84,7 +88,7 @@ public class DropPool {
         outPacket.encodeByte(unkBool);
         outPacket.encodeShort(fallingVY);
         outPacket.encodeByte(fadeInEffect);
-        outPacket.encodeByte(makeType);
+        // outPacket.encodeByte(makeType); // removed v178
         outPacket.encodeInt(collisionPickup); // decode4, but is bCollisionPickUp?
         outPacket.encodeByte(ItemGrade.getHiddenGradeByVal(drop.getItemGrade()).getVal());
         outPacket.encodeByte(prepareCollisionPickUp);

@@ -3,7 +3,6 @@ package net.swordie.ms.client.jobs.resistance.demon;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.SkillStat;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
@@ -15,7 +14,6 @@ import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.constants.SkillConstants;
-import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.ForceAtomEnum;
 import net.swordie.ms.enums.Stat;
 import net.swordie.ms.handlers.EventManager;
@@ -374,7 +372,7 @@ public class DemonAvenger extends Job {
                 o1.nValue = si.getValue(indieDamR, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
                 // HP consumption from Skills = 0;
                 break;
         }

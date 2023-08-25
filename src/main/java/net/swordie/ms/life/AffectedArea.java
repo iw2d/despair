@@ -12,7 +12,6 @@ import net.swordie.ms.client.jobs.adventurer.archer.Bowmaster;
 import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 import net.swordie.ms.client.jobs.adventurer.thief.NightLord;
 import net.swordie.ms.client.jobs.adventurer.thief.Shadower;
-import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.jobs.cygnus.BlazeWizard;
 import net.swordie.ms.client.jobs.legend.Aran;
 import net.swordie.ms.client.jobs.legend.Shade;
@@ -319,7 +318,7 @@ public class AffectedArea extends Life {
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
                 o1.tStart = Util.getCurrentTime();
-                tsm.putCharacterStatValue(IndieDamR, o1); // Indie
+                tsm.putCharacterStatValue(IndieAsrR, o1); // Indie
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieBooster, slv);
                 o2.tStart = Util.getCurrentTime();
@@ -341,7 +340,7 @@ public class AffectedArea extends Life {
                 o1.nValue = si.getValue(z, slv) + getOwner().getSkillStatValue(SkillStat.x, SUPPORT_UNIT_HEX_PARTY);
                 o1.nReason = skillID;
                 o1.tStart = Util.getCurrentTime();
-                tsm.putCharacterStatValue(IndieDamR, o1);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
                 break;
             case Xenon.TEMPORAL_POD:
                 o1.nOption = 2;

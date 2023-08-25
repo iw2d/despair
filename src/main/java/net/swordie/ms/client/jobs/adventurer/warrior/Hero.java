@@ -392,7 +392,7 @@ public class Hero extends Warrior {
                 tsm.putCharacterStatValue(Enrage, o1);
                 o2.nOption = si.getValue(y, slv);
                 o2.rOption = skillID;
-                tsm.putCharacterStatValue(EnrageCrDamMin, o2);
+                tsm.putCharacterStatValue(EnrageCrDam, o2);
                 break;
             case CRY_VALHALLA:
                 o1.nReason = skillID;

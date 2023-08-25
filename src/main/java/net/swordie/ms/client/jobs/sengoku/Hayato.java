@@ -9,9 +9,7 @@ import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
-import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.SkillConstants;
-import net.swordie.ms.enums.Stat;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.connection.InPacket;
@@ -23,8 +21,6 @@ import net.swordie.ms.connection.packet.UserLocal;
 import net.swordie.ms.util.Util;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
 import static net.swordie.ms.client.character.skills.SkillStat.*;
@@ -271,12 +267,12 @@ public class Hayato extends Job {
                 break;
             case SUMMER_RAIN:
             case HITOKIRI_HUNDRED_STRIKE:
-                if((tsm.getOptByCTSAndSkill(IndieDamR, SUMMER_RAIN) == null) || (tsm.getOptByCTSAndSkill(IndieDamR, HITOKIRI_HUNDRED_STRIKE) == null)) {
+                if((tsm.getOptByCTSAndSkill(IndieAsrR, SUMMER_RAIN) == null) || (tsm.getOptByCTSAndSkill(IndieAsrR, HITOKIRI_HUNDRED_STRIKE) == null)) {
                     o1.nReason = skillID;
                     o1.nValue = 15;
                     o1.tStart = Util.getCurrentTime();
                     o1.tTerm = 120;
-                    tsm.putCharacterStatValue(IndieDamR, o1); //Indie
+                    tsm.putCharacterStatValue(IndieAsrR, o1); //Indie
                     tsm.sendSetStatPacket();
                     swordEnergy = 0;
                     chr.write(UserLocal.modHayatoCombo(swordEnergy));

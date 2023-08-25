@@ -31,7 +31,6 @@ import net.swordie.ms.util.Util;
 
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import static net.swordie.ms.client.character.skills.SkillStat.*;
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
@@ -144,7 +143,7 @@ public class Mihile extends Job {
                         o3.nReason = SOUL_LINK;
                         o3.tStart = Util.getCurrentTime();
                         o3.tTerm = 2;
-                        ptTsm.putCharacterStatValue(IndieAsrR, o3);
+                        ptTsm.putCharacterStatValue(IndieIDK, o3);
                         o4.nValue = si.getValue(w, slv);
                         o4.nReason = SOUL_LINK;
                         o4.tStart = Util.getCurrentTime();
@@ -163,7 +162,7 @@ public class Mihile extends Job {
         o5.nReason = SOUL_LINK_HIDE;
         o5.tStart = Util.getCurrentTime();
         o5.tTerm = 0;
-        tsm.putCharacterStatValue(IndieDamR, o5);
+        tsm.putCharacterStatValue(IndieAsrR, o5);
         tsm.sendSetStatPacket();
     }
 
@@ -368,7 +367,7 @@ public class Mihile extends Job {
                 o1.nReason = skillID;
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = duration;
-                tsm.putCharacterStatValue(IndiePDDR, o1);
+                tsm.putCharacterStatValue(IndieDEFR, o1);
                 o2.nValue = si.getValue(y, slv) + this.chr.getSkillStatValue(y, ENDURING_SPIRIT_PREPARATION);
                 o2.nReason = skillID;
                 o2.tStart = Util.getCurrentTime();
@@ -414,14 +413,14 @@ public class Mihile extends Job {
                 tsm.putCharacterStatValue(Enrage, o1);
                 o2.nOption = si.getValue(y, slv);
                 o2.rOption = skillID;
-                tsm.putCharacterStatValue(EnrageCrDamMin, o2);
+                tsm.putCharacterStatValue(EnrageCrDam, o2);
                 break;
             case SACRED_CUBE:
                 o1.nReason = skillID;
                 o1.nValue = si.getValue(indieDamR, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
                 o2.nReason = skillID;
                 o2.nValue = si.getValue(indieMhpR, slv);
                 o2.tStart = Util.getCurrentTime();

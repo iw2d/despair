@@ -369,7 +369,7 @@ public class AngelicBuster extends Job {
         if(!chr.hasSkill(AFFINITY_HEART_IV)) {
             return;
         }
-        if(tsm.getOptByCTSAndSkill(IndieDamR, AFFINITY_HEART_IV) == null) {
+        if(tsm.getOptByCTSAndSkill(IndieAsrR, AFFINITY_HEART_IV) == null) {
             Skill skill = chr.getSkill(AFFINITY_HEART_IV);
             SkillInfo si = SkillData.getSkillInfoById(skill.getSkillId());
             Option o = new Option();
@@ -377,7 +377,7 @@ public class AngelicBuster extends Job {
             o.nReason = skill.getSkillId();
             o.tStart = Util.getCurrentTime();
             o.tTerm = 5;
-            tsm.putCharacterStatValue(IndieDamR, o);
+            tsm.putCharacterStatValue(IndieAsrR, o);
             tsm.sendSetStatPacket();
         }
     }
@@ -401,7 +401,7 @@ public class AngelicBuster extends Job {
         o2.nReason = TRINITY;
         o2.tStart = Util.getCurrentTime();
         o2.tTerm = 5;
-        tsm.putCharacterStatValue(IndieDamR, o2);
+        tsm.putCharacterStatValue(IndieAsrR, o2);
         tsm.putCharacterStatValue(IndieIgnoreMobpdpR, o2);
         tsm.sendSetStatPacket();
     }
@@ -466,7 +466,7 @@ public class AngelicBuster extends Job {
                 o2.nOption = si.getValue(y, slv);
                 o2.rOption = skillID;
                 o2.tOption = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IncCriticalDamMin, o2);
+                tsm.putCharacterStatValue(IncCriticalDam, o2);
                 break;
             case SOUL_SEEKER_EXPERT:
                 o1.nOption = 1;

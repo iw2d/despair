@@ -538,7 +538,7 @@ public class WildHunter extends Citizen {
                 o1.nValue = si.getValue(indieDamR, slv);
                 o1.tStart = Util.getCurrentTime();
                 o1.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieDamR, o1);
+                tsm.putCharacterStatValue(IndieAsrR, o1);
                 break;
             case HUNTING_ASSISTANT_UNIT:
             case DRILL_SALVO:
