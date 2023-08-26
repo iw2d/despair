@@ -3694,7 +3694,7 @@ public class Char {
 	}
 
 	public int getBulletIDForAttack() {
-		// Dummy bullet IDs for Jett (0x00DCE1F0)
+		// Dummy bullet IDs for Jett
 		switch (JobConstants.JobEnum.getJobById(getJob())) {
 			case JETT1:
 				return 2330010;

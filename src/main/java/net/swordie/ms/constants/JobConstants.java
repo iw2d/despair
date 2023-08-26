@@ -984,7 +984,7 @@ public class JobConstants {
     }
 
     public static boolean isBeginnerJob(short jobId) {
-        // bool __cdecl is_beginner_job(int) (0x004859D0)
+        // bool __cdecl is_beginner_job(int)
         switch (jobId) {
             case 0:
             case 1000:
@@ -1015,7 +1015,7 @@ public class JobConstants {
     }
 
     public static int getJobLevel(short jobId) {
-        // int __cdecl get_job__level(int) (0x00485D40)
+        // int __cdecl get_job__level(int)
         int prefix;
         if (isBeginnerJob(jobId) || (jobId % 100 == 0) || jobId == 501 || jobId == 3101 || jobId == 508) {
             return 1;

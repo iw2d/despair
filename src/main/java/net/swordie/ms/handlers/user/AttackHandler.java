@@ -602,7 +602,7 @@ public class AttackHandler {
             mai.currentAnimationName = inPacket.decodeString();
             mai.animationDeltaL = inPacket.decodeInt();
         }
-        // post-hook for PACKETMAKER::MakeAttackInfoPacket(a, oPacket) (0x0178A800)
+        // post-hook for PACKETMAKER::MakeAttackInfoPacket(a, oPacket)
         if (ServerConstants.MAKE_ATTACK_INFO_PACKET_HOOK) {
             /*
                 int* abCritical = ((int*) a) + 22;

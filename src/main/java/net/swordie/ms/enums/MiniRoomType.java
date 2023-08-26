@@ -3,7 +3,7 @@ package net.swordie.ms.enums;
 import java.util.Arrays;
 
 public enum MiniRoomType {
-    // CMiniRoomBaseDlg::MiniRoomFactory(int nType) (0x00BB02A0)
+    // CMiniRoomBaseDlg::MiniRoomFactory(int nType)
     OMOK(1),
     MEMORY_GAME(2),
     BATTLE_RPS(3),

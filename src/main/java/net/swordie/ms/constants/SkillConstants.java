@@ -77,7 +77,7 @@ public class SkillConstants {
     public static final int[] DICE_STAT_VALUE_DD = { 0, 0, 40, 30, 25, 30, 40, 30 };
 
     public static boolean isSkillNeedMasterLevel(int skillId) {
-        // bool __cdecl is_skill_need_master_level(int) (0x00601370)
+        // bool __cdecl is_skill_need_master_level(int)
         if (isIgnoreMasterLevel(skillId)
                 || (skillId / 1000000 == 92 && (skillId % 10000 == 0))
                 || isMakingSkillRecipe(skillId)
@@ -92,7 +92,7 @@ public class SkillConstants {
     }
 
     public static boolean isAddedSpDualAndZeroSkill(int skillId) {
-        // bool __cdecl is_added_sp_dual_and_zero_skill(int) (0x00601300)
+        // bool __cdecl is_added_sp_dual_and_zero_skill(int)
         switch (skillId) {
             case 4311003:
             case 4321006:
@@ -178,7 +178,7 @@ public class SkillConstants {
     }
 
     public static boolean isIgnoreMasterLevel(int skillId) {
-        // bool __cdecl is_ignore_master_level(int) (0x00601200)
+        // bool __cdecl is_ignore_master_level(int)
         switch (skillId) {
             case 1120012:
             case 1320011:
