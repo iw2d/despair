@@ -91,7 +91,7 @@ public class AttackHandler {
                     chr.dbgChatMsg(String.format("Wrong attack info parse (probably)! SkillID = %d, Mob ID = %d", skillID, mai.mobId));
                 } else { // this check was making the sponge not die because it skips the last bit of hp from the dead mob
                     long totalDamage = 0;
-                    for (int dmg : mai.damages) {
+                    for (long dmg : mai.damages) {
                         totalDamage += dmg;
                     }
                     if (mob.getHp() > 0) {
@@ -212,9 +212,9 @@ public class AttackHandler {
                 mai.rect = new Rect(inPacket.decodePosition(), inPacket.decodePosition());
                 mai.idk6 = inPacket.decodeShort();
                 mai.hitAction = inPacket.decodeByte();
-                int[] damages = new int[ai.hits];
+                long[] damages = new long[ai.hits];
                 for (int j = 0; j < ai.hits; j++) {
-                    damages[j] = inPacket.decodeInt();
+                    damages[j] = inPacket.decodeLong();
                 }
                 mai.damages = damages;
                 mai.mobUpDownYRange = inPacket.decodeInt();
@@ -271,9 +271,9 @@ public class AttackHandler {
             mai.calcDamageStatIndexAndDoomed = inPacket.decodeByte(); // 1st bit for bDoomed, rest for calcDamageStatIndex
             mai.rect = inPacket.decodeShortRect();
             short idk6 = inPacket.decodeShort();
-            int[] damages = new int[ai.hits];
+            long[] damages = new long[ai.hits];
             for (int j = 0; j < ai.hits; j++) {
-                damages[j] = inPacket.decodeInt();
+                damages[j] = inPacket.decodeLong();
             }
             mai.damages = damages;
             mai.mobUpDownYRange = inPacket.decodeInt();
@@ -315,6 +315,13 @@ public class AttackHandler {
         }
         inPacket.decodeInt(); // crc
         int skillID = ai.skillId;
+
+        // UNKNOWN_ATTACK_PACKET_DATA
+        inPacket.decodeByte();
+        inPacket.decodeShort();
+        inPacket.decodeInt();
+        // ~
+
         if (SkillConstants.isKeyDownSkill(skillID) || SkillConstants.isSuperNovaSkill(skillID)) {
             ai.keyDown = inPacket.decodeInt();
         }
@@ -421,9 +428,9 @@ public class AttackHandler {
             } else {
                 mai.idk6 = inPacket.decodeShort();
             }
-            mai.damages = new int[ai.hits];
+            mai.damages = new long[ai.hits];
             for (int j = 0; j < ai.hits; j++) {
-                mai.damages[j] = inPacket.decodeInt();
+                mai.damages[j] = inPacket.decodeLong();
             }
             mai.mobUpDownYRange = inPacket.decodeInt();
             inPacket.decodeInt(); // crc
@@ -444,7 +451,7 @@ public class AttackHandler {
             if (skillID == 27121052 || skillID == 80001837 || skillID == DISTORTION_BOMB) {
                 ai.x = inPacket.decodeShort();
                 ai.y = inPacket.decodeShort();
-            } else if (header == InHeader.USER_MAGIC_ATTACK && skillID != 32111016 && !SkillConstants.isKinesisPsychicAreaSkill(skillID)) {
+            } else if (header == InHeader.USER_MAGIC_ATTACK && skillID != 32111016 && inPacket.getUnreadAmount() >= 16) {
                 short forcedX = inPacket.decodeShort();
                 short forcedY = inPacket.decodeShort();
                 boolean dragon = inPacket.decodeByte() != 0;
@@ -569,9 +576,9 @@ public class AttackHandler {
             mai.calcDamageStatIndexAndDoomed = inPacket.decodeByte();
             mai.hitX = inPacket.decodeShort();
             mai.hitY = inPacket.decodeShort();
-            mai.damages = new int[inPacket.decodeByte()];
+            mai.damages = new long[inPacket.decodeByte()];
             for (int j = 0; j < mai.damages.length; j++) {
-                mai.damages[j] = inPacket.decodeInt();
+                mai.damages[j] = inPacket.decodeLong();
             }
             ai.mobAttackInfo.add(mai);
         }

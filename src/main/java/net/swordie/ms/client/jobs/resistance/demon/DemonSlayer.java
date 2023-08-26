@@ -273,7 +273,7 @@ public class DemonSlayer extends Job {
         }
         leechAuraCD = Util.getCurrentTimeLong() + (si.getValue(y, slv) * 1000L);
         // convert damage to hp
-        int damage = attackInfo.mobAttackInfo.stream().mapToInt(mai -> Arrays.stream(mai.damages).sum()).sum();
+        long damage = attackInfo.mobAttackInfo.stream().mapToLong(mai -> Arrays.stream(mai.damages).sum()).sum();
         int damageR = tsm.getOption(VampiricTouch).nOption;
         int healAmount = (int) (damage * ((double) damageR / 100D));
         int healMaxR = si.getValue(w, slv);

@@ -1416,6 +1416,36 @@ public class SkillConstants {
         return skillID >= 33001007 && skillID <= 33001015;
     }
 
+    public static boolean isShadowAssaultSkill(int skillID) {
+        return skillID >= 400041002 && skillID <= 400041005;
+    }
+
+    public static boolean isSomeFifthSkillForRemote(int skillId) {
+        // sub_12237C0
+        switch (skillId) {
+            case 400051003:
+            case 400051008:
+            case 400051016:
+            case 400041034:
+            case 400041020:
+            case 400041016:
+            case 400021078:
+            case 400021080:
+            case 400021009:
+            case 400021010:
+            case 400021011:
+            case 400021028:
+            case 400021047:
+            case 400021048:
+            case 400011004:
+            case 152121004:
+            case 152001002:
+            case 152120003:
+                return true;
+        }
+        return false;
+    }
+
     public static boolean isMatching(int rootId, int job) {
         boolean matchingStart = job / 100 == rootId / 100;
         boolean matching = matchingStart;

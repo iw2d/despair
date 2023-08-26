@@ -144,7 +144,7 @@ public class Marksman extends Archer {
 
         long totalDamage = 0;
         for (MobAttackInfo mai : ai.mobAttackInfo) {
-            for(int dmg : mai.damages) {
+            for (long dmg : mai.damages) {
                 totalDamage += dmg;
             }
         }

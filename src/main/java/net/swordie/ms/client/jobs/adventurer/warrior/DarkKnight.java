@@ -514,7 +514,7 @@ public class DarkKnight extends Warrior {
                 if (mob.isBoss()) {
                     lowerFinalPactKillCount();
                 } else {
-                    int totaldmg = Arrays.stream(mai.damages).sum();
+                    long totaldmg = Arrays.stream(mai.damages).sum();
                     if (totaldmg >= mob.getHp()) {
                         lowerFinalPactKillCount();
                     }

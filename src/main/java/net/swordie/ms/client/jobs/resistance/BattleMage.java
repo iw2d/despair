@@ -265,7 +265,7 @@ public class BattleMage extends Citizen {
         }
         drainingAuraCD = Util.getCurrentTimeLong() + (si.getValue(subTime, slv) * 1000L);
         // convert damage to hp
-        int damage = attackInfo.mobAttackInfo.stream().mapToInt(mai -> Arrays.stream(mai.damages).sum()).sum();
+        long damage = attackInfo.mobAttackInfo.stream().mapToLong(mai -> Arrays.stream(mai.damages).sum()).sum();
         int damageR = si.getValue(x, slv);
         int healAmount = (int) (damage * ((double) damageR / 100D));
         int healMaxR = 15; // in description

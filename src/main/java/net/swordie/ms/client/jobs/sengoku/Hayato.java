@@ -384,7 +384,7 @@ public class Hayato extends Job {
             if(mob == null) {
                 continue;
             }
-            int totaldmg = Arrays.stream(mai.damages).sum();
+            long totaldmg = Arrays.stream(mai.damages).sum();
 
             if(totaldmg >= mob.getHp()) {
 
