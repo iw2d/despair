@@ -22,41 +22,43 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IndieJump(9),
     IndieSpeed(10),
     IndieAllStat(11),
-    IndieAllStatR(12),
-    IndieDodgeCriticalTime(13),
-    IndieEXP(14),
-    IndieBooster(15),
-    IndieFixedDamageR(16),
-    PyramidStunBuff(17),
-    PyramidFrozenBuff(18),
-    PyramidFireBuff(19),
-    PyramidBonusDamageBuff(20),
-    IndieRelaxEXP(21), // idk
+    IndieDodgeCriticalTime(12),
+    IndieEXP(13),
+    IndieBooster(14),
+    IndieFixedDamageR(15),
+    PyramidStunBuff(16),
+    PyramidFrozenBuff(17),
+    PyramidFireBuff(18),
+    PyramidBonusDamageBuff(19),
+    IndieRelaxEXP(20),
+    IndieSTR(21),
     IndieDEX(22),
     IndieINT(23),
     IndieLUK(24),
     IndieDamR(25),
-    IndieAsrR(26), // idk
-    IndieScriptBuff(27),
-    IndieMDF(28),
-    IndieIDK(29),
-    IndieTerR(30),
-    IndieCr(31),
-    IndieDEFR(32),
-    IndieCrDmg(33),
-    IndieBDR(34),
-    IndieStatR(35),
-    IndieStance(36),
-    IndieIgnoreMobpdpR(37),
-    IndieEmpty(38),
-    IndiePADR(39),
-    IndieMADR(40),
+    IndieMDF(26),
+    IndieMaxDamageOver(27),
+    IndieAsrR(28),
+    IndieTerR(29),
+    IndieCr(30),
+    IndieDEFR(31),
+    IndieCrDmg(32),
+    IndieBDR(33),
+    IndieStatR(34),
+    IndieStance(35),
+    IndieIgnoreMobpdpR(36),
+    IndieEmpty(37),
+    IndiePADR(38),
+    IndieMADR(39),
+    IndieCrMaxR(40),
     IndieEVAR(41),
-    IndieDrainHP(42),
-    IndiePMdR(43),
-    IndieForceJump(44),
-    IndieForceSpeed(45),
-    IndieQrPointTerm(46),
+    IndieMDDR(42),
+    IndieDrainHP(43),
+    IndiePMdR(44),
+    IndieMaxDamageOverR(45),
+    IndieForceJump(46),
+    IndieForceSpeed(47),
+    IndieQrPointTerm(48),
     IndieStatCount(54),
 
 
@@ -335,7 +337,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     DEXR(316),
     Albatross(317),
     Translucence(318),
-    PoseType(319),
+    PoseType(319), // v178
     LightOfSpirit(320),
     ElementSoul(321),
     GlimmeringTime(322),
@@ -387,7 +389,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     ElementDarkness(368),
     FlareTrick(369),
     Ember(370),
-    Dominion(371), // from 372
+    Dominion(371), // v178
     SiphonVitality(372),
     DarknessAscension(373),
     BossWaitingLinesBuff(374),
@@ -623,12 +625,13 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     );
 
     private static final List<CharacterTemporaryStat> INDIE_ORDER = Arrays.asList(
-            IndiePAD, IndieMAD, IndieDEF, IndieMHP, IndieMHPR, IndieMMP, IndieMMPR, IndieACC, IndieEVA,
-            IndieJump, IndieSpeed, IndieAllStat, IndieDodgeCriticalTime, IndieEXP, IndieBooster, IndieFixedDamageR,
-            PyramidStunBuff, PyramidFrozenBuff, PyramidFireBuff, PyramidBonusDamageBuff, IndieRelaxEXP, IndieDEX,
-            IndieINT, IndieLUK, IndieDamR, IndieAsrR, IndieScriptBuff, IndieMDF, IndieIDK, IndieTerR, IndieCr,
-            IndieDEFR, IndieBDR, IndieStatR, IndieStance, IndieIgnoreMobpdpR, IndieEmpty, IndiePADR, IndieMADR,
-            IndieEVAR, IndieDrainHP, IndiePMdR, IndieForceJump, IndieForceSpeed, IndieQrPointTerm, IndieStatCount
+            IndiePAD, IndieMAD, IndieDEF, IndieMHP, IndieMHPR, IndieMMP, IndieMMPR, IndieACC, IndieEVA, IndieJump,
+            IndieSpeed, IndieAllStat, IndieDodgeCriticalTime, IndieEXP, IndieBooster, IndieFixedDamageR,
+            PyramidStunBuff, PyramidFrozenBuff, PyramidFireBuff, PyramidBonusDamageBuff, IndieRelaxEXP, IndieSTR,
+            IndieDEX, IndieINT, IndieLUK, IndieDamR, IndieMDF, IndieMaxDamageOver, IndieAsrR, IndieTerR, IndieCr,
+            IndieDEFR, IndieCrDmg, IndieBDR, IndieStatR, IndieStance, IndieIgnoreMobpdpR, IndieEmpty, IndiePADR,
+            IndieMADR, IndieCrMaxR, IndieEVAR, IndieMDDR, IndieDrainHP, IndiePMdR, IndieMaxDamageOverR, IndieForceJump,
+            IndieForceSpeed, IndieQrPointTerm, IndieStatCount
     );
 
     private static final List<CharacterTemporaryStat> ENCODE_INT = Arrays.asList(
@@ -691,7 +694,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     }
 
     public boolean isIndie() {
-        return INDIE_ORDER.contains(this);
+        return bitPos < IndieStatCount.bitPos;
     }
 
     public boolean isEncodeInt() {

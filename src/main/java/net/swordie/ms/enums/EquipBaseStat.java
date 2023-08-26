@@ -14,10 +14,8 @@ public enum EquipBaseStat {
     iMaxMP(0x80, 0),
     iPAD(0x100, 0),
     iMAD(0x200, 0),
-    iPDD(0x400, 0),
-    iMDD(0x800, 0),
-    iACC(0x1000, 0),
-    iEVA(0x2000, 0),
+    iDEF(0x400, 0),
+    // iPDD -> iDEF; iMDD, iACC, iEVA removed
     iCraft(0x4000, 0),
     iSpeed(0x8000, 0),
     iJump(0x10000, 0),

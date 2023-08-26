@@ -64,6 +64,8 @@ public class Summon extends Life {
     private Position[] kishinPositions = new Position[2];
     private int maxHP;
     private int hp;
+    private int state;
+    private int count;
     private boolean fromDarkOmen;
     private boolean expired;
 
@@ -408,5 +410,21 @@ public class Summon extends Life {
             field.setKishin(false);
         }
         field.broadcastPacket(Summoned.summonedRemoved(this, LeaveType.ANIMATION));
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

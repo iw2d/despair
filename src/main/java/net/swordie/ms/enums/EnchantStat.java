@@ -10,7 +10,7 @@ public enum EnchantStat implements Comparable<EnchantStat> {
     DEX(0x8),
     INT(0x10),
     LUK(0x20),
-    PDD(0x40),
+    DEF(0x40),
     MDD(0x80),
     MHP(0x100),
     MMP(0x200),
@@ -43,18 +43,12 @@ public enum EnchantStat implements Comparable<EnchantStat> {
                 return EquipBaseStat.iInt;
             case LUK:
                 return EquipBaseStat.iLuk;
-            case PDD:
-                return EquipBaseStat.iPDD;
-            case MDD:
-                return EquipBaseStat.iMDD;
+            case DEF:
+                return EquipBaseStat.iDEF;
             case MHP:
                 return EquipBaseStat.iMaxHP;
             case MMP:
                 return EquipBaseStat.iMaxMP;
-            case ACC:
-                return EquipBaseStat.iACC;
-            case EVA:
-                return EquipBaseStat.iEVA;
             case JUMP:
                 return EquipBaseStat.iJump;
             case SPEED:
@@ -78,18 +72,12 @@ public enum EnchantStat implements Comparable<EnchantStat> {
                 return INT;
             case iLuk:
                 return LUK;
-            case iPDD:
-                return PDD;
-            case iMDD:
-                return MDD;
+            case iDEF:
+                return DEF;
             case iMaxHP:
                 return MHP;
             case iMaxMP:
                 return MMP;
-            case iACC:
-                return ACC;
-            case iEVA:
-                return EVA;
             case iJump:
                 return JUMP;
             case iSpeed:

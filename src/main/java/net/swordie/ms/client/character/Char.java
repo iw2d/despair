@@ -760,7 +760,7 @@ public class Char {
 					// TODO int int int int int int byte int int
 				}
 			}
-			outPacket.encodeInt(getId());
+			outPacket.encodeInt(0);
 			for (int i = 0; i < 3; i++) {
 				outPacket.encodeInt(0);
 				outPacket.encodeInt(0);
@@ -906,7 +906,7 @@ public class Char {
 			// VirtualEquipInventory::Decode (Android)
 			for (Item item : getEquippedInventory().getItems()) {
 				Equip equip = (Equip) item;
-				if (item.getBagIndex() >= BodyPart.MechBase.getVal() && item.getBagIndex() < BodyPart.MechEnd.getVal()) {
+				if (item.getBagIndex() >= BodyPart.VEIBase.getVal() && item.getBagIndex() < BodyPart.VEIEnd.getVal()) {
 					outPacket.encodeShort(equip.getBagIndex());
 					equip.encode(outPacket);
 				}
@@ -915,7 +915,8 @@ public class Char {
 		}
 		if (mask.isInMask(DBChar.ItemSlotInstall)) {																	// (a2 & 0x10) != 0
 			// sub_B19F20
-			outPacket.encodeShort(0);
+			outPacket.encodeShort(0); // 20001 ~ 20048
+			outPacket.encodeShort(0); // 20049~20051
 		}
 		if (mask.isInMask(DBChar.ItemSlotConsume)) {
 			for (Item item : getConsumeInventory().getItems()) {

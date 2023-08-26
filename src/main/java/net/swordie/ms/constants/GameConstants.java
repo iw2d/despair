@@ -564,7 +564,7 @@ public class GameConstants {
         if (equip.isCash() || (ItemData.getEquipById(equip.getItemId()).getTuc() <= 0 && !ItemConstants.isTucIgnoreItem(equip.getItemId()))) {
             return 0;
         }
-        if (es == EnchantStat.PDD) {
+        if (es == EnchantStat.DEF) {
             return (int) (equip.getiPDD() * (ItemConstants.isOverall(equip.getItemId()) ? 0.10 : 0.05));
         }
         if (es == EnchantStat.MDD) {

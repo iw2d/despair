@@ -486,6 +486,10 @@ public class DemonAvenger extends Job {
 
     @Override
     public void handleWarp() {
+        // overload is cleared in client, this will reset the buff icon
+        TemporaryStatManager tsm = chr.getTemporaryStatManager();
+        tsm.removeStat(OverloadCount, false);
+        tsm.sendResetStatPacket();
         // clear bounce map
         shieldBounceMap.clear();
         super.handleWarp();

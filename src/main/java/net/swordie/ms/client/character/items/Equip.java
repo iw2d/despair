@@ -1026,116 +1026,107 @@ public class Equip extends Item {
         // GW_ItemSlotEquipBase
         int mask = getStatMask(0);
         outPacket.encodeInt(mask);
-        if (hasStat(EquipBaseStat.tuc)) {
+        if (hasStat(EquipBaseStat.tuc)) { /// 0x01
             outPacket.encodeByte(getTuc());
         }
-        if (hasStat(EquipBaseStat.cuc)) {
+        if (hasStat(EquipBaseStat.cuc)) { // 0x02
             outPacket.encodeByte(getCuc());
         }
-        if (hasStat(EquipBaseStat.iStr)) {
+        if (hasStat(EquipBaseStat.iStr)) { // 0x04
             outPacket.encodeShort(getTotalStat(EquipBaseStat.iStr));
         }
-        if (hasStat(EquipBaseStat.iDex)) {
+        if (hasStat(EquipBaseStat.iDex)) { // 0x08
             outPacket.encodeShort(getTotalStat(EquipBaseStat.iDex));
         }
-        if (hasStat(EquipBaseStat.iInt)) {
+        if (hasStat(EquipBaseStat.iInt)) { // 0x10
             outPacket.encodeShort(getTotalStat(EquipBaseStat.iInt));
         }
-        if (hasStat(EquipBaseStat.iLuk)) {
+        if (hasStat(EquipBaseStat.iLuk)) { // 0x20
             outPacket.encodeShort(getTotalStat(EquipBaseStat.iLuk));
         }
-        if (hasStat(EquipBaseStat.iMaxHP)) {
+        if (hasStat(EquipBaseStat.iMaxHP)) { // 0x40
             outPacket.encodeShort(getTotalStat(EquipBaseStat.iMaxHP));
         }
-        if (hasStat(EquipBaseStat.iMaxMP)) {
+        if (hasStat(EquipBaseStat.iMaxMP)) { // 0x80
             outPacket.encodeShort(getTotalStat(EquipBaseStat.iMaxMP));
         }
-        if (hasStat(EquipBaseStat.iPAD)) {
+        if (hasStat(EquipBaseStat.iPAD)) { // 0x100
             outPacket.encodeShort(getTotalStat(EquipBaseStat.iPAD));
         }
-        if (hasStat(EquipBaseStat.iMAD)) {
+        if (hasStat(EquipBaseStat.iMAD)) { // 0x200
             outPacket.encodeShort(getTotalStat(EquipBaseStat.iMAD));
         }
-        if (hasStat(EquipBaseStat.iPDD)) {
-            outPacket.encodeShort(getTotalStat(EquipBaseStat.iPDD));
+        if (hasStat(EquipBaseStat.iDEF)) { // 0x400
+            outPacket.encodeShort(getTotalStat(EquipBaseStat.iDEF));
         }
-        if (hasStat(EquipBaseStat.iMDD)) {
-            outPacket.encodeShort(getTotalStat(EquipBaseStat.iMDD));
-        }
-        if (hasStat(EquipBaseStat.iACC)) {
-            outPacket.encodeShort(getTotalStat(EquipBaseStat.iACC));
-        }
-        if (hasStat(EquipBaseStat.iEVA)) {
-            outPacket.encodeShort(getTotalStat(EquipBaseStat.iEVA));
-        }
-        if (hasStat(EquipBaseStat.iCraft)) {
+        if (hasStat(EquipBaseStat.iCraft)) { // 0x4000
             outPacket.encodeShort(getiCraft());
         }
-        if (hasStat(EquipBaseStat.iSpeed)) {
+        if (hasStat(EquipBaseStat.iSpeed)) { // 0x8000
             outPacket.encodeShort(getTotalStat(EquipBaseStat.iSpeed));
         }
-        if (hasStat(EquipBaseStat.iJump)) {
+        if (hasStat(EquipBaseStat.iJump)) { // 0x10000
             outPacket.encodeShort(getTotalStat(EquipBaseStat.iJump));
         }
-        if (hasStat(EquipBaseStat.attribute)) {
+        if (hasStat(EquipBaseStat.attribute)) { // 0x20000
             outPacket.encodeShort(getAttribute());
         }
-        if (hasStat(EquipBaseStat.levelUpType)) {
+        if (hasStat(EquipBaseStat.levelUpType)) { // 0x40000
             outPacket.encodeByte(getLevelUpType());
         }
-        if (hasStat(EquipBaseStat.level)) {
+        if (hasStat(EquipBaseStat.level)) { // 0x80000
             outPacket.encodeByte(getLevel());
         }
-        if (hasStat(EquipBaseStat.exp)) {
+        if (hasStat(EquipBaseStat.exp)) { // 0x100000
             outPacket.encodeLong(getExp());
         }
-        if (hasStat(EquipBaseStat.durability)) {
+        if (hasStat(EquipBaseStat.durability)) { // 0x200000
             outPacket.encodeInt(getDurability());
         }
-        if (hasStat(EquipBaseStat.iuc)) {
+        if (hasStat(EquipBaseStat.iuc)) { // 0x400000
             outPacket.encodeInt(getIuc()); // hammer
         }
-        if (hasStat(EquipBaseStat.iPvpDamage)) {
+        if (hasStat(EquipBaseStat.iPvpDamage)) { // 0x800000
             outPacket.encodeShort(getiPvpDamage());
         }
-        if (hasStat(EquipBaseStat.iReduceReq)) {
+        if (hasStat(EquipBaseStat.iReduceReq)) { // 0x1000000
             outPacket.encodeByte(getTotalStat(EquipBaseStat.iReduceReq));
         }
-        if (hasStat(EquipBaseStat.specialAttribute)) {
+        if (hasStat(EquipBaseStat.specialAttribute)) { // 0x2000000
             outPacket.encodeShort(getSpecialAttribute());
         }
-        if (hasStat(EquipBaseStat.durabilityMax)) {
+        if (hasStat(EquipBaseStat.durabilityMax)) { // 0x4000000
             outPacket.encodeInt(getDurabilityMax());
         }
-        if (hasStat(EquipBaseStat.iIncReq)) {
+        if (hasStat(EquipBaseStat.iIncReq)) { // 0x8000000
             outPacket.encodeByte(getiIncReq());
         }
-        if (hasStat(EquipBaseStat.growthEnchant)) {
+        if (hasStat(EquipBaseStat.growthEnchant)) { // 0x10000000
             outPacket.encodeByte(getGrowthEnchant()); // ygg
         }
-        if (hasStat(EquipBaseStat.psEnchant)) {
+        if (hasStat(EquipBaseStat.psEnchant)) { // 0x20000000
             outPacket.encodeByte(getPsEnchant()); // final strike
         }
-        if (hasStat(EquipBaseStat.bdr)) {
+        if (hasStat(EquipBaseStat.bdr)) { // 0x40000000
             outPacket.encodeByte(getBdr() + getfBoss()); // bd
         }
-        if (hasStat(EquipBaseStat.imdr)) {
+        if (hasStat(EquipBaseStat.imdr)) { // 0x80000000
             outPacket.encodeByte(getImdr()); // ied
         }
         outPacket.encodeInt(getStatMask(1)); // mask 2
-        if (hasStat(EquipBaseStat.damR)) {
+        if (hasStat(EquipBaseStat.damR)) { // 0x01
             outPacket.encodeByte(getTotalStat(EquipBaseStat.damR)); // td
         }
-        if (hasStat(EquipBaseStat.statR)) {
+        if (hasStat(EquipBaseStat.statR)) { // 0x02
             outPacket.encodeByte(getTotalStat(EquipBaseStat.statR)); // as
         }
-        if (hasStat(EquipBaseStat.cuttable)) {
+        if (hasStat(EquipBaseStat.cuttable)) { // 0x04
             outPacket.encodeByte(getCuttable()); // sok
         }
-        if (hasStat(EquipBaseStat.exGradeOption)) {
+        if (hasStat(EquipBaseStat.exGradeOption)) { // 0x08
             outPacket.encodeLong(getExGradeOption());
         }
-        if (hasStat(EquipBaseStat.hyperUpgrade)) {
+        if (hasStat(EquipBaseStat.hyperUpgrade)) { // 0x10
             outPacket.encodeInt(getHyperUprade());
         }
         // GW_ItemSlotEquipOpt
@@ -1207,14 +1198,8 @@ public class Equip extends Item {
                 return getiPad() + getfATT() + getEnchantStat(EnchantStat.PAD) + getSocketStat(ScrollStat.incPAD);
             case iMAD:
                 return getiMad() + getfMATT() + getEnchantStat(EnchantStat.MAD) + getSocketStat(ScrollStat.incMAD);
-            case iPDD:
-                return getiPDD() + getfDEF() + getEnchantStat(EnchantStat.PDD) + getSocketStat(ScrollStat.incPDD);
-            case iMDD:
-                return getiMDD() + getfDEF() + getEnchantStat(EnchantStat.MDD) + getSocketStat(ScrollStat.incMDD);
-            case iACC:
-                return getiAcc() + getEnchantStat(EnchantStat.ACC) + getSocketStat(ScrollStat.incACC);
-            case iEVA:
-                return getiEva() + getEnchantStat(EnchantStat.EVA) + getSocketStat(ScrollStat.incEVA);
+            case iDEF:
+                return getiPDD() + getfDEF() + getEnchantStat(EnchantStat.DEF) + getSocketStat(ScrollStat.incPDD);
             case iCraft:
                 return getiCraft();
             case iSpeed:
@@ -1311,17 +1296,8 @@ public class Equip extends Item {
             case iMAD:
                 setiMad((short) amount);
                 break;
-            case iPDD:
+            case iDEF:
                 setiPDD((short) amount);
-                break;
-            case iMDD:
-                setiMDD((short) amount);
-                break;
-            case iACC:
-                setiAcc((short) amount);
-                break;
-            case iEVA:
-                setiEva((short) amount);
                 break;
             case iCraft:
                 setiCraft((short) amount);
@@ -1417,14 +1393,8 @@ public class Equip extends Item {
                 return getiPad();
             case iMAD:
                 return getiMad();
-            case iPDD:
+            case iDEF:
                 return getiPDD();
-            case iMDD:
-                return getiMDD();
-            case iACC:
-                return getiAcc();
-            case iEVA:
-                return getiEva();
             case iCraft:
                 return getiCraft();
             case iSpeed:
@@ -1494,8 +1464,7 @@ public class Equip extends Item {
                 return getfATT();
             case iMAD:
                 return getfMATT();
-            case iPDD:
-            case iMDD:
+            case iDEF:
                 return getfDEF();
             case iSpeed:
                 return getfSpeed();
@@ -1540,8 +1509,7 @@ public class Equip extends Item {
             case iMAD:
                 setfMATT(amount);
                 break;
-            case iPDD:
-            case iMDD:
+            case iDEF:
                 setfDEF(amount);
                 break;
             case iSpeed:
@@ -1583,10 +1551,8 @@ public class Equip extends Item {
                 return getEnchantStat(EnchantStat.PAD);
             case iMAD:
                 return getEnchantStat(EnchantStat.MAD);
-            case iPDD:
-                return getEnchantStat(EnchantStat.PDD);
-            case iMDD:
-                return getEnchantStat(EnchantStat.MDD);
+            case iDEF:
+                return getEnchantStat(EnchantStat.DEF);
             case iSpeed:
                 return getEnchantStat(EnchantStat.SPEED);
             case iJump:
@@ -1620,7 +1586,7 @@ public class Equip extends Item {
         TreeMap<EnchantStat, Integer> res = new TreeMap<>(comparator);
         for (EnchantStat es : EnchantStat.values()) {
             int curAmount = (int) getBaseStat(es.getEquipBaseStat());
-            if (curAmount > 0 || es == EnchantStat.PAD || es == EnchantStat.MAD || es == EnchantStat.PDD || es == EnchantStat.MDD) {
+            if (curAmount > 0 || es == EnchantStat.PAD || es == EnchantStat.MAD || es == EnchantStat.DEF || es == EnchantStat.MDD) {
                 res.put(es, GameConstants.getEnchantmentValByChuc(this, es, getChuc(), curAmount));
             }
         }
@@ -1830,10 +1796,7 @@ public class Equip extends Item {
                 res += getTotalStat(EquipBaseStat.iMAD);
                 break;
             case pdd:
-                res += getTotalStat(EquipBaseStat.iPDD);
-                break;
-            case mdd:
-                res += getTotalStat(EquipBaseStat.iMDD);
+                res += getTotalStat(EquipBaseStat.iDEF);
                 break;
             case mhp:
                 res += getTotalStat(EquipBaseStat.iMaxHP);
@@ -1849,12 +1812,6 @@ public class Equip extends Item {
                 break;
             case ied:
                 res += getTotalStat(EquipBaseStat.imdr);
-                break;
-            case eva:
-                res += getTotalStat(EquipBaseStat.iEVA);
-                break;
-            case acc:
-                res += getTotalStat(EquipBaseStat.iACC);
                 break;
             case speed:
                 res += getTotalStat(EquipBaseStat.iSpeed);

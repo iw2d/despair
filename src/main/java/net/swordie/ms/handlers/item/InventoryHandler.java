@@ -16,6 +16,7 @@ import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.loaders.ItemData;
+import net.swordie.ms.loaders.StringData;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.world.field.Field;

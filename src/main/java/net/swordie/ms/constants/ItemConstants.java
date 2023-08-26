@@ -1582,7 +1582,7 @@ public class ItemConstants {
             } else {
                 possibleStat.add(EnchantStat.PAD);
             }
-            possibleStat.add(EnchantStat.PDD);
+            possibleStat.add(EnchantStat.DEF);
             possibleStat.add(EnchantStat.MDD);
             chances = new int[]{100, 70, 30};
             attStats = new int[]{0, 1, 2, 3};
@@ -1650,7 +1650,7 @@ public class ItemConstants {
                 }
             }
             if (armor) {
-                stats.put(EnchantStat.PDD, armorDef[tier] + stats.getOrDefault(EnchantStat.PDD, 0));
+                stats.put(EnchantStat.DEF, armorDef[tier] + stats.getOrDefault(EnchantStat.DEF, 0));
                 stats.put(EnchantStat.MDD, armorDef[tier] + stats.getOrDefault(EnchantStat.MDD, 0));
                 stats.put(EnchantStat.MHP, armorHp[tier] + stats.getOrDefault(EnchantStat.MHP, 0));
             }

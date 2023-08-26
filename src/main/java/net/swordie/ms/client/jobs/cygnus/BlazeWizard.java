@@ -214,6 +214,7 @@ public class BlazeWizard extends Noblesse {
             chr.getField().spawnSummon(summon);
         } else {
             summon.setSummonTerm(duration);
+            // Buggy, TODO
         }
         // set stat
         Option o1 = new Option();

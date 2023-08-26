@@ -320,25 +320,25 @@ public enum BaseStat {
             case ZeroAuraStr:
                 stats.put(str, o.nOption);
                 break;
-            case IndieDEX:
+            case IndieSTR:
                 stats.put(str, o.nValue);
                 break;
             case DEX:
                 stats.put(dex, o.nOption);
                 break;
-            case IndieINT:
+            case IndieDEX:
                 stats.put(dex, o.nValue);
                 break;
             case INT:
                 stats.put(inte, o.nOption);
                 break;
-            case IndieLUK:
+            case IndieINT:
                 stats.put(inte, o.nValue);
                 break;
             case LUK:
                 stats.put(luk, o.nOption);
                 break;
-            case IndieDamR:
+            case IndieLUK:
                 stats.put(luk, o.nValue);
                 break;
             case DEXR:
@@ -353,12 +353,12 @@ public enum BaseStat {
             case DamR:
                 stats.put(damR, o.nOption);
                 break;
-            case IndieAsrR:
+            case IndieDamR:
                 stats.put(damR, o.nValue);
             case BeastFormDamageUp:
                 stats.put(padR, o.nOption);
                 break;
-            case IndieIDK:
+            case IndieAsrR:
                 stats.put(asr, o.nValue);
                 break;
             case AsrR:
@@ -446,9 +446,6 @@ public enum BaseStat {
                 break;
             case EMMP:
                 stats.put(mmp, o.nOption);
-                break;
-            case IndieScriptBuff:
-                stats.put(buffTimeR, o.nValue);
                 break;
             case ArcaneAim:
                 stats.put(damR, o.nOption);

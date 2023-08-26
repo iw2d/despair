@@ -143,7 +143,7 @@ public class Mihile extends Job {
                         o3.nReason = SOUL_LINK;
                         o3.tStart = Util.getCurrentTime();
                         o3.tTerm = 2;
-                        ptTsm.putCharacterStatValue(IndieIDK, o3);
+                        ptTsm.putCharacterStatValue(IndieAsrR, o3);
                         o4.nValue = si.getValue(w, slv);
                         o4.nReason = SOUL_LINK;
                         o4.tStart = Util.getCurrentTime();

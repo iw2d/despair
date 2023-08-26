@@ -1412,6 +1412,10 @@ public class SkillConstants {
         return false;
     }
 
+    public static boolean isSummonJaguarSkill(int skillID) {
+        return skillID >= 33001007 && skillID <= 33001015;
+    }
+
     public static boolean isMatching(int rootId, int job) {
         boolean matchingStart = job / 100 == rootId / 100;
         boolean matching = matchingStart;

@@ -180,7 +180,7 @@ public class WvsContext {
                     (invType == EQUIP && (op.getOldPos() < 0 || op.getNewPos() < 0)));
 
             outPacket.encodeByte(op.getOp().getVal());
-            outPacket.encodeByte(op.getInvType().getVal());
+            outPacket.encodeByte(invType.getVal());
             outPacket.encodeShort(op.getOldPos());
             switch (op.getOp()) {
                 case Add:
@@ -208,6 +208,11 @@ public class WvsContext {
                     break;
                 case UpdateBagQuantity:
                     outPacket.encodeShort(op.getNewPos());
+                    break;
+                case BagRemove:
+                    break;
+                case BagToBag:
+                    outPacket.encodeShort(op.getItem().getQuantity());
                     break;
                 case BagNewItem:
                     op.getItem().encode(outPacket);

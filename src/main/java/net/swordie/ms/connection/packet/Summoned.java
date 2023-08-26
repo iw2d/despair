@@ -6,6 +6,7 @@ import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.jobs.resistance.Mechanic;
 import net.swordie.ms.client.jobs.sengoku.Kanna;
 import net.swordie.ms.connection.OutPacket;
+import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.LeaveType;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.Summon;
@@ -109,7 +110,11 @@ public class Summoned {
         outPacket.encodeByte(summon.isJaguarActive());
         outPacket.encodeInt(summon.getSummonTerm());
         outPacket.encodeByte(summon.isAttackActive());
-
+        outPacket.encodeInt(summon.isFlip() ? 0 : 1);
+        if (SkillConstants.isSummonJaguarSkill(summon.getSkillID())) {
+            outPacket.encodeByte(summon.getState());
+            outPacket.encodeInt(summon.getCount());
+        }
         return outPacket;
     }
 

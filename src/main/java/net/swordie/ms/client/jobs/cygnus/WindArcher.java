@@ -322,7 +322,7 @@ public class WindArcher extends Noblesse {
                 o4.nValue = si.getValue(indieAsrR, slv);
                 o4.tStart = Util.getCurrentTime();
                 o4.tTerm = si.getValue(time, slv);
-                tsm.putCharacterStatValue(IndieIDK, o4); //Indie
+                tsm.putCharacterStatValue(IndieAsrR, o4); //Indie
                 o5.nReason = skillID;
                 o5.nValue = si.getValue(indieTerR, slv);
                 o5.tStart = Util.getCurrentTime();

@@ -216,7 +216,7 @@ public class RuneStone {
         o4.nValue = si.getValue(indieAsrR, slv);
         o4.tStart = Util.getCurrentTime();
         o4.tTerm = si.getValue(time, slv);
-        tsm.putCharacterStatValue(IndieIDK, o4);
+        tsm.putCharacterStatValue(IndieAsrR, o4);
         tsm.putCharacterStatValue(IndieTerR, o4);
 
         tsm.sendSetStatPacket();

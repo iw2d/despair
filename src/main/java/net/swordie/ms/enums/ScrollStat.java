@@ -69,7 +69,7 @@ public enum ScrollStat {
     }
 
     public static EquipBaseStat[] getRandStats() {
-        return new EquipBaseStat[]{iStr, iDex, iInt, iLuk, iMaxHP, iMaxMP, iPAD, iMAD, iPDD, iMDD, iACC, iEVA};
+        return new EquipBaseStat[]{iStr, iDex, iInt, iLuk, iMaxHP, iMaxMP, iPAD, iMAD, iDEF};
     }
 
     public EquipBaseStat getEquipStat() {
@@ -87,13 +87,7 @@ public enum ScrollStat {
             case incMAD:
                 return iMAD;
             case incPDD:
-                return iPDD;
-            case incMDD:
-                return iMDD;
-            case incACC:
-                return iACC;
-            case incEVA:
-                return iEVA;
+                return iDEF;
             case incMHP:
                 return iMaxHP;
             case incMMP:
