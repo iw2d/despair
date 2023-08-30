@@ -2,11 +2,8 @@ package net.swordie.ms.connection.packet;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
+import net.swordie.ms.client.character.items.*;
 import net.swordie.ms.client.character.social.MarriageRecord;
-import net.swordie.ms.client.character.items.BodyPart;
-import net.swordie.ms.client.character.items.Equip;
-import net.swordie.ms.client.character.items.PetItem;
-import net.swordie.ms.client.character.items.ScrollUpgradeInfo;
 import net.swordie.ms.client.character.keys.FuncKeyMap;
 import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.PsychicArea;
@@ -312,16 +309,19 @@ public class FieldPacket {
         CharacterStat cs = chr.getAvatarData().getCharacterStat();
         outPacket.encodeInt(chr.getId());
         outPacket.encodeByte(false); // Star Planet
+
         outPacket.encodeByte(chr.getStat(Stat.level));
         outPacket.encodeShort(chr.getJob());
         outPacket.encodeShort(chr.getStat(Stat.subJob));
         outPacket.encodeByte(cs.getPvpGrade());
         outPacket.encodeInt(cs.getPop()); //Fame
+
         MarriageRecord marriage = chr.getMarriageRecord();
         outPacket.encodeByte(marriage != null);
         if(marriage != null) {
             marriage.encode(outPacket);
         }
+
         List<Short> makingSkills = new ArrayList<>();
         for (short i = 9200; i <= 9204; i++) {
             if (chr.getMakingSkillLevel(i * 10000) > 0) {
@@ -332,6 +332,7 @@ public class FieldPacket {
         for (Short makingSkill : makingSkills) {
             outPacket.encodeShort(makingSkill);
         }
+
         outPacket.encodeString(chr.getGuild() == null ? "-" : chr.getGuild().getName());
         outPacket.encodeString(chr.getGuild() == null || chr.getGuild().getAlliance() == null ? "-" :
                 chr.getGuild().getAlliance().getName());
@@ -382,12 +383,23 @@ public class FieldPacket {
         // End FarmUserInfo::Decode
         outPacket.encodeInt(0);
         outPacket.encodeInt(0);
+
         //Chairs
-        outPacket.encodeInt(0); //chair amount(size)
-        outPacket.encodeInt(0);
+        List<Integer> chairs = chr.getInstallInventory().getItems().stream().filter(i -> (i.getItemId() / 10000 == 301)).mapToInt(Item::getItemId).boxed().toList();
+        outPacket.encodeInt(chairs.size()); //chair amount(size)
+        for (int itemId : chairs) {
+            outPacket.encodeInt(itemId);
+        }
+
+        // sub_1EF99F0 -> sub_1EF9900
         outPacket.encodeInt(30);
         outPacket.encodeInt(0);
-
+        int size = 0;
+        outPacket.encodeInt(size);
+        for (int i = 0; i < size; i++) {
+            outPacket.encodeInt(0);
+        }
+        // ~sub
 
         return outPacket;
     }

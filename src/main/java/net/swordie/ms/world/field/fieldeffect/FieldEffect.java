@@ -17,6 +17,8 @@ public class FieldEffect {
     private int arg4;
     private int arg5;
     private int arg6;
+    private long longArg1;
+    private long longArg2;
 
     public void encode(OutPacket outPacket) {
         outPacket.encodeByte(getFieldEffectType().getVal());
@@ -31,8 +33,8 @@ public class FieldEffect {
                 break;
             case MobHPTag:
                 outPacket.encodeInt(getArg1());     // Mob Template ID
-                outPacket.encodeInt(getArg2());     // Mob HP
-                outPacket.encodeInt(getArg3());     // Mob max HP
+                outPacket.encodeLong(getLongArg1());// Mob HP
+                outPacket.encodeLong(getLongArg2());// Mob max HP
                 outPacket.encodeByte(getArg4());    // HP Tag Colour
                 outPacket.encodeByte(getArg5());    // HP Tab BG Colour
                 break;
@@ -102,10 +104,8 @@ public class FieldEffect {
         fieldEffect.setFieldEffectType(FieldEffectType.MobHPTag);
 
         fieldEffect.setArg1(mob.getTemplateId());
-        int maxHP = Util.maxInt(mob.getMaxHp());
-        double ratio = mob.getMaxHp() / (double) Integer.MAX_VALUE;
-        fieldEffect.setArg2(ratio > 1 ? (int) (mob.getHp() / ratio) : (int) mob.getHp());
-        fieldEffect.setArg3(maxHP);
+        fieldEffect.setLongArg1(mob.getHp());
+        fieldEffect.setLongArg2(mob.getMaxHp());
         fieldEffect.setArg4(mob.getHpTagColor());
         fieldEffect.setArg5(mob.getHpTagBgcolor());
 
@@ -283,4 +283,19 @@ public class FieldEffect {
         this.arg6 = arg6;
     }
 
+    public long getLongArg1() {
+        return longArg1;
+    }
+
+    public void setLongArg1(long longArg1) {
+        this.longArg1 = longArg1;
+    }
+
+    public long getLongArg2() {
+        return longArg2;
+    }
+
+    public void setLongArg2(long longArg2) {
+        this.longArg2 = longArg2;
+    }
 }

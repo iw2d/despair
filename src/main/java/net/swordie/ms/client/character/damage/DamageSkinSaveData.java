@@ -42,7 +42,6 @@ public class DamageSkinSaveData {
         outPacket.encodeInt(getItemID());
         outPacket.encodeByte(isNotSave());
         outPacket.encodeString(getDescription());
-        outPacket.encodeInt(0);
     }
 
     public long getId() {
