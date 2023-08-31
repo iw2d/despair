@@ -1894,8 +1894,7 @@ public class Char {
 		getNonAddBaseStats().clear();
 		Map<BaseStat, Integer> stats = getBaseStats();
 		stats.put(BaseStat.cr, 5);
-		stats.put(BaseStat.minCd, 20);
-		stats.put(BaseStat.maxCd, 50);
+		stats.put(BaseStat.crDmg, 0);
 		stats.put(BaseStat.pdd, 9);
 		stats.put(BaseStat.mdd, 9);
 		stats.put(BaseStat.acc, 11);

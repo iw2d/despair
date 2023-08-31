@@ -42,8 +42,7 @@ public enum BaseStat {
     mmp,
     mmpR,
     cr, // Crit rate
-    minCd, // Min crit damage
-    maxCd, // Max crit damage
+    crDmg, // Crit Damage
     damR, // Damage %
     fd, // Final damage (total damage)
     bd, // Boss damage
@@ -292,11 +291,10 @@ public enum BaseStat {
                 stats.put(cr, o.nOption);
                 break;
             case EnrageCrDam:
-                stats.put(minCd, o.nOption);
+                stats.put(crDmg, o.nOption);
                 break;
             case IncCriticalDam:
-                stats.put(minCd, o.nValue);
-                stats.put(maxCd, o.nValue);
+                stats.put(crDmg, o.nValue);
                 break;
             case IndieEXP:
             case IndieRelaxEXP:
@@ -420,7 +418,7 @@ public enum BaseStat {
                 break;
             case SharpEyes:
                 stats.put(cr, o.nOption >> 8);
-                stats.put(maxCd, o.nOption & 0xFF);
+                stats.put(crDmg, o.nOption & 0xFF);
                 stats.put(ied, o.mOption);
                 break;
             case CriticalBuff:
@@ -514,8 +512,7 @@ public enum BaseStat {
                     stats.put(pddR, -o.bOption);
                     stats.put(mddR, -o.bOption);
                 } else if (o.rOption == Marksman.RECKLESS_HUNT_XBOW) {
-                    stats.put(minCd, o.xOption);
-                    stats.put(maxCd, o.nOption);
+                    stats.put(crDmg, o.xOption); // TODO
                     stats.put(evaR, -o.bOption);
                 }
                 break;
@@ -524,7 +521,7 @@ public enum BaseStat {
                 break;
             case BullsEye:
                 stats.put(cr, o.nOption >> 8);
-                stats.put(maxCd, o.nOption & 0xFF);
+                stats.put(crDmg, o.nOption & 0xFF);
                 break;
             case FinalCut:
                 stats.put(fd, o.nOption - 100);

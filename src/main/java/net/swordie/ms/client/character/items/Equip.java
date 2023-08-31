@@ -1837,10 +1837,9 @@ public class Equip extends Item {
             case reduceCooltime:
                 res += getSocketStat(ScrollStat.reduceCooltime);
                 break;
-            case minCd:
+            case crDmg:
                 res += getSocketStat(ScrollStat.incCriticaldamageMin);
-                break;
-            case maxCd:
+                res += getSocketStat(ScrollStat.incCriticaldamageMax);
                 res += getSocketStat(ScrollStat.incCriticaldamageMax);
                 break;
             case evaR:

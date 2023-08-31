@@ -492,8 +492,8 @@ public class TemporaryStatManager {
         if (setStatMask.has(HayatoStance)) {
             outPacket.encodeInt(getOption(HayatoStance).xOption);
         }
-        if (setStatMask.has(Unk460)) {
-            outPacket.encodeInt(getOption(Unk460).xOption);
+        if (setStatMask.has(CharacterTemporaryStat.Unk487)) {
+            outPacket.encodeInt(getOption(CharacterTemporaryStat.Unk487).xOption);
         }
         outPacket.encodeByte(0); // DefenseAtt
         outPacket.encodeByte(0); // DefenseState
@@ -541,7 +541,7 @@ public class TemporaryStatManager {
             outPacket.encodeInt(getOption(IgnoreTargetDEF).mOption);
         }
         if (setStatMask.has(StopForceAtomInfo)) {
-            // getStopForceAtom().encode(outPacket);
+            getStopForceAtom().encode(outPacket);
         }
         if (setStatMask.has(SmashStack)) {
             outPacket.encodeInt(getOption(SmashStack).xOption);
@@ -550,7 +550,7 @@ public class TemporaryStatManager {
             // for (int zoneState : getMobZoneStates()) {
             //     outPacket.encodeInt(zoneState);
             // }
-            // outPacket.encodeInt(0); // notify end
+            outPacket.encodeInt(0); // notify end
         }
         if (setStatMask.has(Slow)) {
             outPacket.encodeByte(getOption(Slow).bOption);
@@ -609,6 +609,9 @@ public class TemporaryStatManager {
         if (setStatMask.has(AdvancedBless)) {
             outPacket.encodeInt(getOption(AdvancedBless).xOption);
         }
+        if (setStatMask.has(Unk357)) {
+            outPacket.encodeInt(getOption(Unk357).xOption);
+        }
         if (setStatMask.has(DotHealHPPerSecond)) {
             outPacket.encodeInt(getOption(DotHealHPPerSecond).xOption);
         }
@@ -666,6 +669,30 @@ public class TemporaryStatManager {
         if (setStatMask.has(Stigma)) {
             outPacket.encodeInt(getOption(Stigma).bOption);
         }
+        if (setStatMask.has(ExtraSkillCTS)) {
+            outPacket.encodeInt(getOption(ExtraSkillCTS).xOption);
+        }
+        if (setStatMask.has(CriticalGrowing)) {
+            outPacket.encodeInt(getOption(CriticalGrowing).xOption);
+        }
+        if (setStatMask.has(PickPocket)) {
+            outPacket.encodeInt(getOption(PickPocket).xOption);
+        }
+        if (setStatMask.has(DemonicFrenzy)) {
+            outPacket.encodeShort(getOption(DemonicFrenzy).xOption);
+        }
+        if (setStatMask.has(Unk404)) {
+            outPacket.encodeShort(getOption(Unk404).xOption);
+        }
+        if (setStatMask.has(RhoAias)) {
+            outPacket.encodeInt(getOption(RhoAias).xOption);
+            outPacket.encodeInt(getOption(RhoAias).cOption);
+            outPacket.encodeInt(getOption(RhoAias).bOption);
+            outPacket.encodeInt(getOption(RhoAias).wOption);
+        }
+        if (setStatMask.has(VampDeath)) {
+            outPacket.encodeInt(getOption(VampDeath).xOption);
+        }
         for (int i = 0; i < TSIndex.values().length; i++) {
             if (setStatMask.has(TSIndex.getCTSFromTwoStatIndex(i))) {
                 getTwoStates().get(i).encode(outPacket);
@@ -679,11 +706,10 @@ public class TemporaryStatManager {
             outPacket.encodeInt(getOption(UsingScouter).nOption);
             outPacket.encodeInt(getOption(UsingScouter).xOption);
         }
-        // from here on: new stats found in 176 idb
         if (setStatMask.has(NewFlying)) {
             outPacket.encodeInt(getOption(NewFlying).xOption);
         }
-        if (setStatMask.has(Unk485)) {
+        if (setStatMask.has(Unk512)) {
             /* not exactly 2 bytes:
             c = 0;
             while(true) {
@@ -695,13 +721,18 @@ public class TemporaryStatManager {
                 c += 7;
             }
              */
-            outPacket.encodeByte(getOption(Unk485).xOption);
-            outPacket.encodeByte(getOption(Unk485).yOption);
+            outPacket.encodeByte(getOption(Unk512).xOption);
+            outPacket.encodeByte(getOption(Unk512).yOption);
         }
-        if (setStatMask.has(Unk486)) {
+        if (setStatMask.has(Unk513)) {
             // 1st byte is normal, 2nd one is like in Unk485
-            outPacket.encodeByte(getOption(Unk486).xOption);
-            outPacket.encodeByte(getOption(Unk486).yOption);
+            outPacket.encodeByte(getOption(Unk513).xOption);
+            outPacket.encodeByte(getOption(Unk513).yOption);
+        }
+        if (setStatMask.has(Unk520)) {
+            outPacket.encodeInt(getOption(Unk520).xOption);
+            outPacket.encodeInt(getOption(Unk520).yOption);
+            outPacket.encodeInt(getOption(Unk520).zOption);
         }
     }
 
@@ -735,7 +766,7 @@ public class TemporaryStatManager {
                     break;
                 case BladeStance:
                 case ImmuneBarrier:
-                case Unk460:
+                case Unk487:
                     outPacket.encodeInt(option.xOption);
                     break;
                 case FullSoulMP:
@@ -783,6 +814,24 @@ public class TemporaryStatManager {
         }
         if (ctsSet.contains(Stigma)) {
             outPacket.encodeInt(getOption(Stigma).bOption);
+        }
+        if (ctsSet.contains(DivineEcho)) {
+            outPacket.encodeShort(getOption(DivineEcho).xOption);
+        }
+        if (ctsSet.contains(DemonicFrenzy)) {
+            outPacket.encodeShort(getOption(DemonicFrenzy).xOption);
+        }
+        if (ctsSet.contains(Unk404)) {
+            outPacket.encodeShort(getOption(Unk404).xOption);
+        }
+        if (ctsSet.contains(RhoAias)) {
+            outPacket.encodeInt(getOption(RhoAias).xOption);
+            outPacket.encodeInt(getOption(RhoAias).cOption);
+            outPacket.encodeInt(getOption(RhoAias).bOption);
+            outPacket.encodeInt(getOption(RhoAias).wOption);
+        }
+        if (ctsSet.contains(VampDeath)) {
+            outPacket.encodeInt(getOption(VampDeath).xOption);
         }
         if (getStopForceAtom() != null) {
             getStopForceAtom().encode(outPacket);

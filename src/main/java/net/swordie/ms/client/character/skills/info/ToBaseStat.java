@@ -143,8 +143,8 @@ public class ToBaseStat {
         int slv = chr.getSkillLevel(WildHunter.JAGUAR_LINK);
         int count = o.nOption;
         stats.put(BaseStat.cr, count * si.getValue(y, slv));
-        stats.put(BaseStat.minCd, count * si.getValue(w, slv));
-        stats.put(BaseStat.maxCd, count * si.getValue(z, slv));
+        stats.put(BaseStat.crDmg, count * si.getValue(w, slv)); // TODO
+        stats.put(BaseStat.crDmg, count * si.getValue(z, slv));
     }
 }
 

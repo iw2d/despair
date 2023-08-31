@@ -468,9 +468,9 @@ public enum SkillStat {
             case indieAllStat:
                 return BaseStat.allStat;
             case criticaldamageMin:
-                return BaseStat.minCd;
             case criticaldamageMax:
-                return BaseStat.maxCd;
+            case criticaldamage:
+                return BaseStat.crDmg;
             case cr:
             case indieCr:
                 return BaseStat.cr;

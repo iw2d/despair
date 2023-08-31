@@ -276,6 +276,7 @@ public class MobPool {
         outPacket.encodeInt(castingTime);
         outPacket.encodeByte(reverseGauge);
         outPacket.encodeByte(notShowUI);
+        outPacket.encodeByte(0); // unk
 
         return outPacket;
     }

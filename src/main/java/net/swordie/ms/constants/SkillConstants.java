@@ -1830,7 +1830,7 @@ public class SkillConstants {
                 stats.remove(BaseStat.damR); // damR handled as a buff
                 break;
             case DarkKnight.FINAL_PACT_COOLDOWN:
-                stats.remove(BaseStat.minCd); // ??
+                stats.remove(BaseStat.crDmg); // ??
                 break;
             case DarkKnight.SACRIFICE:
                 stats.remove(BaseStat.bd);

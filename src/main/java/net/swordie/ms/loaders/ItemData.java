@@ -1705,10 +1705,8 @@ public class ItemData {
                                 io.addStatValue(level, BaseStat.dropR, value);
                                 break;
                             case "incCriticaldamageMin":
-                                io.addStatValue(level, BaseStat.minCd, value);
-                                break;
                             case "incCriticaldamageMax":
-                                io.addStatValue(level, BaseStat.maxCd, value);
+                                io.addStatValue(level, BaseStat.crDmg, value);
                                 break;
                             case "incPADlv":
                                 io.addStatValue(level, BaseStat.padLv, value);

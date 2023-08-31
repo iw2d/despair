@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created on 1/2/2018.
@@ -56,9 +55,13 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IndieDrainHP(43),
     IndiePMdR(44),
     IndieMaxDamageOverR(45),
-    IndieForceJump(46),
-    IndieForceSpeed(47),
-    IndieQrPointTerm(48),
+    IndieForceJump(43), // v178
+    IndieForceSpeed(44), // v178
+    IndieQrPointTerm(45), // TODO: check unk indies
+    IndieUnk46(46),
+    IndieUnk47(47),
+    IndieUnk48(48),
+    IndieHyperStat(49), // new v178
     IndieStatCount(54),
 
 
@@ -109,13 +112,13 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     BanMap(99),
     MaxLevelBuff(100), // from 103 - is this echo of the hero?!
 
-    MesoUpByItem(104),
+    MesoUpByItem(101),
     Ghost(102), // from 105
     Barrier(103), // from 106
     ReverseInput(104),
     ItemUpByItem(105),
     RespectPImmune(106),
-    RespectMImmune(117),
+    RespectMImmune(107),
     DefenseAtt(108),
 
     DefenseState(109),
@@ -256,11 +259,10 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     PainMark(237),
     Magnet(238), // from 244
     MagnetArea(239), // from 245
-    Unk240(240), // new v178
-    Unk241(241), // new v178
+    GuidedArrow(240), // new v178
+    ExtraSkillCTS(241), // new v178
     VampDeath(242),
     BlessingArmorIncPAD(243),
-
     KeyDownAreaMoving(244),
     Larkness(245),
     StackBuff(246), // from 250
@@ -402,134 +404,154 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     JaguarSummoned(381),
     JaguarCount(382),
     SSFShootingAttack(383), // from 384
-    DevilCry(384), // TODO: check the CTS onwards
-    ShieldAttack(386),
-    BMageAura(387),
-    DarkLighting(388),
-    AttackCountX(389),
-    BMageDeath(390),
-    BombTime(391),
-    NoDebuff(392),
-    BattlePvPMikeShield(393),
-    BattlePvPMikeBugle(394),
-    XenonAegisSystem(395),
-    AngelicBursterSoulSeeker(396),
-    HiddenPossession(397),
-    NightWalkerBat(398),
-    NightLordMark(399),
-
-    WizardIgnite(400),
-    FireBarrier(401),
-    ChangeFoxMan(402),
-    BattlePvPHelenaMark(403),
-    BattlePvPHelenaWindSpirit(404),
-    BattlePvPLangEProtection(405),
-    BattlePvPLeeMalNyunScaleUp(406),
-    BattlePvPRevive(407),
-
-    PinkbeanAttackBuff(408),
-    PinkbeanRelax(409),
-    PinkbeanRollingGrade(410),
-    PinkbeanYoYoStack(411),
-    RandAreaAttack(412),
-    NextAttackEnhance(413),
-    AranBeyonderDamAbsorb(414),
-    AranCombotempastOption(415),
-
-    NautilusFinalAttack(416),
-    ViperTimeLeap(417),
-    RoyalGuardState(418),
-    RoyalGuardPrepare(419),
-    MichaelSoulLink(420),
-    MichaelStanceLink(421),
-    TriflingWhimOnOff(422),
-    AddRangeOnOff(423),
-
-    KinesisPsychicPoint(424),
-    KinesisPsychicOver(425),
-    KinesisPsychicShield(426),
-    KinesisIncMastery(427),
-    KinesisPsychicEnergeShield(428),
-    BladeStance(429),
-    DebuffActiveSkillHPCon(430),
-    DebuffIncHP(431),
-
-    BowMasterMortalBlow(432),
-    AngelicBursterSoulResonance(433),
-    Fever(434),
-    IgnisRore(435),
-    RpSiksin(436),
-    TeleportMasteryRange(437),
-    FixCoolTime(438),
-    IncMobRateDummy(439),
-
-    AdrenalinBoost(440),
-    AranSmashSwing(441),
-    AranDrain(442),
-    AranBoostEndHunt(443),
-    HiddenHyperLinkMaximization(444),
-    RWCylinder(445),
-    RWCombination(446),
-    RWMagnumBlow(447),
-
-    RWBarrier(448),
-    RWBarrierHeal(449),
-    RWMaximizeCannon(450),
-    RWOverHeat(451),
-    UsingScouter(452),
-    RWMovingEvar(453),
-    Stigma(454),
-    Unk455(455),
-
-    Unk456(456),
-    Unk457(457),
-    Unk458(458),
+    DevilCry(384),
+    ShieldAttack(385),
+    BMageAura(386),
+    DarkLighting(387),
+    AttackCountX(388),
+    BMageDeath(389),
+    BombTime(390),
+    NoDebuff(391),
+    BattlePvPMikeShield(392),
+    BattlePvPMikeBugle(393),
+    XenonAegisSystem(394),
+    AngelicBursterSoulSeeker(395),
+    HiddenPossession(396),
+    NightWalkerBat(397),
+    NightLordMark(398),
+    WizardIgnite(399),
+    FireBarrier(400), // v178
+    ChangeFoxMan(401),
+    DivineEcho(402), // new v178
+    DemonicFrenzy(403), // new v178
+    Unk404(404), // new v178
+    BattlePvPHelenaMark(405), // v178
+    BattlePvPHelenaWindSpirit(406),
+    BattlePvPLangEProtection(407),
+    BattlePvPLeeMalNyunScaleUp(408),
+    BattlePvPRevive(409),
+    PinkbeanAttackBuff(410),
+    PinkbeanRelax(411),
+    PinkbeanYoYoStack(412),
+    PinkbeanRollingGrade(413),
+    RandAreaAttack(414),
+    NextAttackEnhance(415), // v178
+    AranBeyonderDamAbsorb(416),
+    AranCombotempastOption(417),
+    NautilusFinalAttack(418),
+    ViperTimeLeap(419),
+    RoyalGuardState(420),
+    RoyalGuardPrepare(421),
+    MichaelSoulLink(422), // v178
+    MichaelStanceLink(423),
+    TriflingWhimOnOff(424),
+    AddRangeOnOff(425),
+    KinesisPsychicPoint(426),
+    KinesisPsychicOver(427),
+    KinesisPsychicShield(428),
+    KinesisIncMastery(429),
+    KinesisPsychicEnergeShield(430), // v178
+    BladeStance(431), // v178
+    DebuffActiveSkillHPCon(432),
+    DebuffIncHP(433),
+    BowMasterMortalBlow(434),
+    AngelicBursterSoulResonance(435),
+    Fever(436), // v178
+    IgnisRore(437),
+    RpSiksin(438),
+    TeleportMasteryRange(439),
+    FixCoolTime(440),
+    IncMobRateDummy(441),
+    AdrenalinBoost(442), // v178
+    AranSmashSwing(443),
+    AranDrain(444),
+    AranBoostEndHunt(445),
+    HiddenHyperLinkMaximization(446),
+    RWCylinder(447),
+    RWCombination(448),
+    RWMagnumBlow(449), // v178
+    RWBarrier(450), // v178
+    RWBarrierHeal(451),
+    RWMaximizeCannon(452),
+    RWOverHeat(453),
+    UsingScouter(454),
+    RWMovingEvar(455), // v178
+    Stigma(456),
+    MahasFury(457),
+    RuneCooltime(458),
     Unk459(459),
     Unk460(460),
-    HayatoStance(461),
-    HayatoStanceBonus(462),
-    EyeForEye(463),
-
-    WillowDodge(464),
-    Unk465(465),
-    HayatoPAD(466),
-    HayatoHPR(467),
-    HayatoMPR(468),
-    HayatoBooster(469),
-    Unk470(470),
-    Unk471(471),
-
-    Jinsoku(472),
-    HayatoCr(473),
-    HakuBlessing(474),
-    HayatoBoss(475),
-    BattoujutsuAdvance(476),
-    Unk477(477),
-    Unk478(478),
-    BlackHeartedCurse(479),
-
-    BeastMode(480),
-    TeamRoar(481),
-    Unk482(482),
+    Unk461(461),
+    MeltDown(462),
+    SparkleBurstStage(463),
+    LightningCascade(464),
+    BulletParty(465),
+    Unk466(466),
+    AuraScythe(467),
+    Benediction(468),
+    VoidStrike(469),
+    ReduceHitDmgOnlyHPR(470),
+    WeaponAura(471),
+    ManaOverload(472),
+    RhoAias(473),
+    PsychicTornado(474),
+    SpreadThrow(475),
+    WindEnergy(476),
+    MassDestructionRockets(477),
+    ShadowAssault(478),
+    BlitzShield(479),
+    SplitShot(480),
+    FreudBlessing(481),
+    OverloadMode(482),
     Unk483(483),
     Unk484(484),
     Unk485(485),
     Unk486(486),
     Unk487(487),
+    HayatoStance(488), // v178
+    HayatoStanceBonus(489),
+    EyeForEye(490),
+    WillowDodge(491),
+    Unk492(492),
+    HayatoPAD(493),
+    HayatoHPR(494),
+    HayatoMPR(495),
+    HayatoBooster(496), // v178
+    Unk477(477),
+    Unk478(478),
 
-    Unk488(488),
-    Unk489(489),
-    Unk490(490),
-    Unk491(491),
+    Jinsoku(499), // v178
+    HayatoCr(500),
+    HakuBlessing(501),
+    HayatoBoss(502),
+    BattoujutsuAdvance(503),
+    Unk504(504),
+    Unk505(505),
+    BlackHeartedCurse(506),
+    BeastMode(507), // v178
+    TeamRoar(508), // v178
+    Unk509(509),
+    Unk510(510),
+    Unk511(511),
+    Unk512(512),
+    Unk513(513),
+    Unk514(514),
+    Unk515(515),
+    Unk516(516),
+    Unk517(517),
+    Unk518(518),
+    Unk519(519),
+    Unk520(520),
 
-    EnergyCharged(492),
-    DashSpeed(493),
-    DashJump(494),
-    RideVehicle(495),
-    PartyBooster(496),
-    GuidedBullet(497),
-    Undead(498),
-    RideVehicleExpire(499),
+    // TSB
+    EnergyCharged(521),
+    DashSpeed(522),
+    DashJump(523),
+    RideVehicle(524),
+    PartyBooster(525),
+    GuidedBullet(526),
+    Undead(527),
+    RideVehicleExpire(528),
     ;
 
     private int bitPos;
@@ -543,8 +565,8 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             MagicGuard, DarkSight, Booster, PowerGuard, Guard, MaxHP, MaxMP, Invincible, SoulArrow, Stun, Shock,
             Poison, Seal, Darkness, ComboCounter, WeaponCharge, ElementalCharge, HolySymbol, MesoUp, ShadowPartner,
             PickPocket, MesoGuard, Thaw, Weakness, WeaknessMdamage, Curse, Slow, TimeBomb, BuffLimit, Team, Disorder,
-            Thread, Morph, Ghost, BasicStatUp, Stance, SharpEyes, ManaReflection, Attract, Magnet, MagnetArea,
-            Unk240, Unk241, NoBulletConsume, StackBuff, Trinity, Infinity, AdvancedBless, IllusionStep, Blind,
+            Thread, Morph, Ghost, Regen, BasicStatUp, Stance, SharpEyes, ManaReflection, Attract, Magnet, MagnetArea,
+            GuidedArrow, ExtraSkillCTS, NoBulletConsume, StackBuff, Trinity, Infinity, AdvancedBless, IllusionStep, Blind,
             Concentration, BanMap, MaxLevelBuff, Barrier, DojangShield, ReverseInput, MesoUpByItem, ItemUpByItem,
             RespectPImmune, RespectMImmune, DefenseAtt, DefenseState, DojangBerserk, DojangInvincible, SoulMasterFinal,
             WindBreakerFinal, ElementalReset, HideAttack, EventRate, ComboAbilityBuff, ComboDrain, ComboBarrier,
@@ -566,7 +588,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             PowerTransferGauge, AffinitySlug, SoulExalt, HiddenPieceOn, BossShield, MobZoneState, GiveMeHeal, TouchMe,
             Contagion, ComboUnlimited, IgnorePCounter, IgnoreAllCounter, IgnorePImmune, IgnoreAllImmune, FinalJudgement,
             Unk275, KnightsAura, IceAura, FireAura, VengeanceOfAngel, HeavensDoor, Preparation, BullsEye,
-            IncEffectHPPotion, IncEffectMPPotion, SoulMP, SoulSkillDamageUp, BleedingToxin, IgnoreMobDamR, Asura,
+            IncEffectHPPotion, IncEffectMPPotion, SoulMP, FullSoulMP, SoulSkillDamageUp, BleedingToxin, IgnoreMobDamR, Asura,
             OmegaBlaster, FlipTheCoin, UnityOfPower, Stimulate, ReturnTeleport, CapDebuff, DropRIncrease, IgnoreMobpdpR,
             BdR, Exceed, DiabolikRecovery, FinalAttackProp, ExceedOverload, DevilishPower, OverloadCount, BuckShot,
             FireBomb, HalfstatByDebuff, SurplusSupply, SetBaseDamage, AmaranthGenerator, StrikerHyperElectric,
@@ -575,53 +597,58 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             Reincarnation, DotBasedBuff, BlessEnsenble, ExtremeArchery, QuiverCatridge, AdvancedQuiver, UserControlMob,
             ImmuneBarrier, ArmorPiercing, ZeroAuraStr, ZeroAuraSpd, CriticalGrowing, QuickDraw, BowMasterConcentration,
             TimeFastABuff, TimeFastBBuff, GatherDropR, AimBox2D, CursorSniping,  IncMonsterBattleCaptureRate,
-            DebuffTolerance, Unk275, DotHealHPPerSecond, SpiritGuard, PreReviveOnce, SetBaseDamageByBuff, LimitMP,
+            DebuffTolerance, Unk357, DotHealHPPerSecond, SpiritGuard, PreReviveOnce, SetBaseDamageByBuff, LimitMP,
             ReflectDamR, ComboTempest, MHPCutR, MMPCutR, SelfWeakness, ElementDarkness, FlareTrick, Ember, Dominion,
             SiphonVitality, DarknessAscension, BossWaitingLinesBuff, DamageReduce, ShadowServant, ShadowIllusion,
             AddAttackCount, ComplusionSlant, JaguarSummoned, JaguarCount, SSFShootingAttack, DevilCry, ShieldAttack,
             BMageAura, DarkLighting, AttackCountX, BMageDeath, BombTime, NoDebuff, XenonAegisSystem,
             AngelicBursterSoulSeeker, HiddenPossession, NightWalkerBat, NightLordMark, WizardIgnite,
-            BattlePvPHelenaMark, BattlePvPHelenaWindSpirit, BattlePvPLangEProtection, BattlePvPLeeMalNyunScaleUp,
-            BattlePvPRevive, PinkbeanAttackBuff, RandAreaAttack, BattlePvPMikeShield, BattlePvPMikeBugle, PinkbeanRelax,
-            PinkbeanYoYoStack, NextAttackEnhance, AranBeyonderDamAbsorb, AranCombotempastOption, NautilusFinalAttack,
-            ViperTimeLeap, RoyalGuardState, RoyalGuardPrepare, MichaelSoulLink, MichaelStanceLink, TriflingWhimOnOff,
-            AddRangeOnOff, KinesisPsychicPoint, KinesisPsychicOver, KinesisPsychicShield, KinesisIncMastery,
-            KinesisPsychicEnergeShield, BladeStance, DebuffActiveSkillHPCon, DebuffIncHP, BowMasterMortalBlow,
-            AngelicBursterSoulResonance, Fever, IgnisRore, RpSiksin, TeleportMasteryRange, FireBarrier, ChangeFoxMan,
-            FixCoolTime, IncMobRateDummy, AdrenalinBoost, AranSmashSwing, AranDrain, AranBoostEndHunt,
-            HiddenHyperLinkMaximization, RWCylinder, RWCombination, RWMagnumBlow, RWBarrier, RWBarrierHeal,
-            RWMaximizeCannon, RWOverHeat, RWMovingEvar, Stigma, Unk455, IncMaxDamage, Unk456, Unk457, Unk458, Unk459,
-            Unk460, PyramidFireBuff, HayatoStance, HayatoBooster, HayatoStanceBonus, WillowDodge, Unk465,
-            HayatoPAD, HayatoHPR, HayatoMPR, Jinsoku, HayatoCr, HakuBlessing, HayatoBoss, BattoujutsuAdvance, Unk477,
-            Unk478, BlackHeartedCurse, EyeForEye, BeastMode, TeamRoar, Unk482, Unk483, Unk487, Unk488, Unk489, Unk490,
-            Unk491
-        );
+            DemonicFrenzy, Unk404, BattlePvPHelenaMark, BattlePvPHelenaWindSpirit, BattlePvPLangEProtection,
+            BattlePvPLeeMalNyunScaleUp, BattlePvPRevive, PinkbeanAttackBuff, RandAreaAttack, BattlePvPMikeShield,
+            BattlePvPMikeBugle, PinkbeanRelax, PinkbeanRollingGrade, WindEnergy, NextAttackEnhance, AranBeyonderDamAbsorb,
+            AranCombotempastOption, NautilusFinalAttack, ViperTimeLeap, RoyalGuardState, RoyalGuardPrepare,
+            MichaelSoulLink, MichaelStanceLink, TriflingWhimOnOff, AddRangeOnOff, KinesisPsychicPoint,
+            KinesisPsychicOver, KinesisPsychicShield, KinesisIncMastery, KinesisPsychicEnergeShield, BladeStance,
+            DebuffActiveSkillHPCon, DebuffIncHP, BowMasterMortalBlow, AngelicBursterSoulResonance, Fever, IgnisRore,
+            RpSiksin, TeleportMasteryRange, FireBarrier, ChangeFoxMan, FixCoolTime, IncMobRateDummy, AdrenalinBoost,
+            AranSmashSwing, AranDrain, AranBoostEndHunt, HiddenHyperLinkMaximization, RWCylinder, RWCombination,
+            RWMagnumBlow, RWBarrier, RWBarrierHeal, RWMaximizeCannon, RWOverHeat, RWMovingEvar, Stigma, MahasFury,
+            RuneCooltime, Unk459, Unk460, Unk461, MeltDown, SparkleBurstStage, LightningCascade, BulletParty, Unk466,
+            AuraScythe, Benediction, VoidStrike, ReduceHitDmgOnlyHPR, DivineEcho, WeaponAura, ManaOverload, RhoAias,
+            PsychicTornado, SpreadThrow, MassDestructionRockets, ShadowAssault, BlitzShield, SplitShot, FreudBlessing,
+            OverloadMode, IncMaxDamage, Unk483, Unk484, Unk485, Unk486, Unk487, IndieHyperStat, HayatoStance,
+            HayatoBooster, HayatoStanceBonus, WillowDodge, Unk492, HayatoPAD, HayatoHPR, HayatoMPR, Jinsoku, HayatoCr,
+            HakuBlessing, HayatoBoss, BattoujutsuAdvance, Unk504, Unk505, BlackHeartedCurse, EyeForEye, BeastMode,
+            TeamRoar, Unk509, Unk510, Unk511, Unk512, Unk513, Unk514, Unk515, Unk516, Unk517, Unk518, Unk519, Unk520
+    );
 
     private static final List<CharacterTemporaryStat> REMOTE_ORDER = Arrays.asList(
             Speed, ComboCounter, WeaponCharge, ElementalCharge, Stun, Shock, Darkness, Seal, Weakness, WeaknessMdamage,
             Curse, Slow, PvPRaceEffect, TimeBomb, Team, Disorder, Thread, Poison, Poison, ShadowPartner, DarkSight,
             SoulArrow, Morph, Ghost, Attract, Magnet, MagnetArea, NoBulletConsume, BanMap, Barrier, DojangShield,
             ReverseInput, RespectPImmune, RespectMImmune, DefenseAtt, DefenseState, DojangBerserk, DojangInvincible,
-            RepeatEffect, Unk483, StopPortion, StopMotion, Fear, MagicShield, Flying, Frozen, Frozen2, Web, DrawBack,
-            FinalCut, OnCapsule, OnCapsule, Sneak, BeastFormDamageUp, Mechanic, BlessingArmor, BlessingArmorIncPAD,
+            RepeatEffect, StopPortion, StopMotion, Fear, MagicShield, Flying, Frozen, Frozen2, Web, DrawBack,
+            FinalCut, Cyclone, OnCapsule, OnCapsule, Sneak, BeastFormDamageUp, Mechanic, BlessingArmor, BlessingArmorIncPAD,
             Inflation, Explosion, DarkTornado, AmplifyDamage, HideAttack, HolyMagicShell, DevilishPower, SpiritLink,
             Event, VampiricTouch, DeathMark, PainMark, Lapidification, VampDeath, VampDeathSummon, VenomSnake,
-            PyramidEffect, KillingPoint, PinkbeanRollingGrade, IgnoreTargetDEF, Invisible, Judgement, KeyDownAreaMoving,
+            PyramidEffect, KillingPoint, IgnoreTargetDEF, Invisible, Judgement, KeyDownAreaMoving,
             StackBuff, BlessOfDarkness, Larkness, ReshuffleSwitch, SpecialAction, StopForceAtomInfo, SoulGazeCriDamR,
             PowerTransferGauge, AffinitySlug, SoulExalt, HiddenPieceOn, SmashStack, MobZoneState, GiveMeHeal, TouchMe,
             Contagion, Contagion, ComboUnlimited, IgnorePCounter, IgnoreAllCounter, IgnorePImmune, IgnoreAllImmune,
-            FinalJudgement, KnightsAura, IceAura, FireAura, VengeanceOfAngel, HeavensDoor, DamAbsorbShield,
+            FinalJudgement, Unk275, KnightsAura, IceAura, FireAura, VengeanceOfAngel, HeavensDoor, DamAbsorbShield,
             AntiMagicShell, NotDamaged, BleedingToxin, WindBreakerFinal, IgnoreMobDamR, Asura, OmegaBlaster,
             UnityOfPower, Stimulate, ReturnTeleport, CapDebuff, OverloadCount, FireBomb, SurplusSupply, NewFlying,
             NaviFlying, AmaranthGenerator, CygnusElementSkill, StrikerHyperElectric, EventPointAbsorb, EventAssemble,
             Albatross, Translucence, PoseType, LightOfSpirit, ElementSoul, GlimmeringTime, Reincarnation, Beholder,
             QuiverCatridge, ArmorPiercing, UserControlMob, ZeroAuraStr, ZeroAuraSpd, ImmuneBarrier, ImmuneBarrier,
             FullSoulMP, Dance, SpiritGuard, ComboTempest, HalfstatByDebuff, ComplusionSlant, JaguarSummoned, BMageAura,
-            BombTime, DarkLighting, AttackCountX, FireBarrier, KeyDownMoving, MichaelSoulLink,
-            KinesisPsychicEnergeShield, BladeStance, BladeStance, Fever, AdrenalinBoost, RWBarrier, RWMagnumBlow,
-            Stigma, CursorSniping, BeastMode, TeamRoar, HayatoStance, HayatoBooster, HayatoStanceBonus,
-            HayatoPAD, HayatoHPR, HayatoMPR, HayatoCr, HayatoBoss, Stance, BattoujutsuAdvance, Unk484,
-            BlackHeartedCurse, EyeForEye, Unk458, Unk487, Unk488, Unk489, Unk491, Unk460
+            MeltDown, SparkleBurstStage, LightningCascade, BulletParty, Unk466, AuraScythe, Benediction, DarkLighting,
+            AttackCountX, FireBarrier, KeyDownMoving, MichaelSoulLink, KinesisPsychicEnergeShield,  BladeStance,
+            BladeStance, Fever, AdrenalinBoost, RWBarrier, RWMagnumBlow, GuidedArrow, ExtraSkillCTS, Stigma, DivineEcho,
+            RhoAias, PsychicTornado, MahasFury, ManaOverload, CursorSniping, Unk483, BeastMode, TeamRoar, HayatoStance,
+            HayatoStance, HayatoBooster, HayatoStanceBonus, HayatoPAD, HayatoHPR, HayatoMPR, HayatoCr, HayatoBoss,
+            Stance, BattoujutsuAdvance, Unk505, BlackHeartedCurse, EyeForEye, Unk485, Unk510, Unk514, Unk515, Unk516,
+            Unk518, Unk519, Unk520, Unk487
     );
 
     private static final List<CharacterTemporaryStat> INDIE_ORDER = Arrays.asList(
@@ -631,22 +658,22 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             IndieDEX, IndieINT, IndieLUK, IndieDamR, IndieMDF, IndieMaxDamageOver, IndieAsrR, IndieTerR, IndieCr,
             IndieDEFR, IndieCrDmg, IndieBDR, IndieStatR, IndieStance, IndieIgnoreMobpdpR, IndieEmpty, IndiePADR,
             IndieMADR, IndieCrMaxR, IndieEVAR, IndieMDDR, IndieDrainHP, IndiePMdR, IndieMaxDamageOverR, IndieForceJump,
-            IndieForceSpeed, IndieQrPointTerm, IndieStatCount
+            IndieForceSpeed, IndieQrPointTerm, IndieHyperStat, IndieStatCount
     );
 
     private static final List<CharacterTemporaryStat> ENCODE_INT = Arrays.asList(
-            RideVehicle, RideVehicleExpire, CarnivalDefence, SpiritLink, DojangLuckyBonus, SoulGazeCriDamR,
-            PowerTransferGauge, ReturnTeleport, ShadowPartner, AranSmashSwing, IncMaxDamage, Unk487, SetBaseDamage,
-            QuiverCatridge, ImmuneBarrier, NaviFlying, Dance, SetBaseDamageByBuff, DotHealHPPerSecond, Magnet,
-            MagnetArea, VampDeath, VampDeathSummon, Cyclone, RWBarrier
+            ShadowPartner, Dance, SpiritLink, CarnivalDefence, DojangLuckyBonus, MagnetArea, VampDeath, SoulGazeCriDamR,
+            PowerTransferGauge, IncMaxDamage, OmegaBlaster, ReturnTeleport, SetBaseDamage, NaviFlying, QuiverCatridge,
+            ImmuneBarrier, Unk357, DotHealHPPerSecond, SetBaseDamageByBuff, DivineEcho, AranSmashSwing, Unk514,
+            RideVehicle, RideVehicleExpire
     );
 
     public static final EnumSet<CharacterTemporaryStat> MOVING_AFFECTING_STAT = EnumSet.of(
-            Speed, Jump, Stun, Weakness, Slow, Morph, Ghost, BasicStatUp, Attract, DashSpeed, DashJump, Flying, Frozen,
-            Frozen2, Lapidification, IndieSpeed, IndieJump, KeyDownMoving, EnergyCharged, Mechanic, Magnet, MagnetArea,
-            VampDeath, VampDeathSummon, GiveMeHeal, DarkTornado, NewFlying, NaviFlying, UserControlMob, Dance,
-            SelfWeakness, BattlePvPHelenaWindSpirit, BattlePvPLeeMalNyunScaleUp, TouchMe, IndieForceSpeed,
-            IndieForceJump, RideVehicle, RideVehicleExpire
+            IndieJump, IndieSpeed, IndieForceJump, IndieForceSpeed, Speed, Jump, Stun, Weakness, Slow, Morph,
+            BasicStatUp, Attract, Ghost, Flying, Frozen, Dance, Mechanic, DarkTornado, Frozen2, Lapidification,
+            KeyDownMoving, Magnet, MagnetArea, VampDeath, VampDeathSummon, GiveMeHeal, TouchMe, NewFlying,
+            NaviFlying, UserControlMob, SelfWeakness, BattlePvPHelenaWindSpirit, BattlePvPLeeMalNyunScaleUp,
+            EnergyCharged, DashSpeed, DashJump, RideVehicle, RideVehicleExpire
     );
 
     public static final EnumSet<CharacterTemporaryStat> RESET_BY_TIME_CTS = EnumSet.of(
@@ -655,7 +682,8 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             Fear, Frozen, Frozen2, Web, NotDamaged, FinalCut, Lapidification, VampDeath, VampDeathSummon,
             GiveMeHeal, TouchMe, Contagion, ComboUnlimited, CrossOverChain, Reincarnation, ComboCostInc,
             DotBasedBuff, ExtremeArchery, QuiverCatridge, AdvancedQuiver, UserControlMob, ArmorPiercing,
-            CriticalGrowing, QuickDraw, BowMasterConcentration, ComboTempest, SiphonVitality, KnockBack, RWMovingEvar
+            CriticalGrowing, QuickDraw, BowMasterConcentration, ComboTempest, SiphonVitality, KnockBack,
+            RWMovingEvar
     );
 
     public static List<CharacterTemporaryStat> getOrderList() {
@@ -690,7 +718,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
         return
                 Arrays.asList(values()).stream()
                         .filter(characterTemporaryStat -> characterTemporaryStat.getBitPos() == parseInt)
-                        .collect(Collectors.toList()).get(0);
+                        .toList().get(0);
     }
 
     public boolean isIndie() {
@@ -733,15 +761,19 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case BlessOfDarkness:
             case ImmuneBarrier:
             case Dance:
+            case OmegaBlaster:
             case SpiritGuard:
             case KinesisPsychicEnergeShield:
             case AdrenalinBoost:
             case RWBarrier:
             case RWMagnumBlow:
-            case HayatoStance:
-            case Unk487:
-            case Unk488:
-            case Unk489:
+            case Unk357:
+            case MahasFury:
+            case ManaOverload:
+            case PsychicTornado:
+            case Unk514:
+            case DivineEcho:
+            case RhoAias:
                 return true;
             default:
                 return false;
@@ -794,10 +826,9 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case AdrenalinBoost:
             case RWBarrier:
             case RWMagnumBlow:
-            case HayatoStance:
-            case Unk488:
-            case Unk489:
-            case Unk460:
+            case ManaOverload:
+            case MahasFury:
+            case PsychicTornado:
                 return true;
             default:
                 return false;
@@ -821,42 +852,6 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             default:
                 return false;
         }
-    }
-
-    public boolean isRemoteSkip() {
-        // for troublesome CTS that cause error38
-        switch (this) {
-            case EnergyCharged:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    public static void main(String[] args) {
-        int a = Stigma.bitPos;
-//        int val = 1 << (31 - (a & 0x1f));
-//        int pos = a >> 5;
-        int val = 0x1000;
-        int pos = 0;
-        log.debug(String.format("value 0x%04x, pos %d", val, pos));
-        for(CharacterTemporaryStat cts : values()) {
-            if(cts.getVal() == val && cts.getPos() == pos) {
-                log.debug("Corresponds to " + cts);
-            }
-        }
-//        for (CharacterTemporaryStat cts : values()) {
-//            val = cts.getVal();
-//            for (int i = 0; i < 32; i++) {
-//                if (1 << i == val) {
-//                    val = 31 - i;
-//                }
-//            }
-//            if (val % 8 == 0) {
-//                System.out.println();
-//            }
-//            System.out.println(String.format("%s(%d),", cts.toString(), (cts.getPos() * 32) + val));
-//        }
     }
 
     @Override
