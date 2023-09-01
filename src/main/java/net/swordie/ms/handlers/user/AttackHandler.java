@@ -602,12 +602,13 @@ public class AttackHandler {
             mai.currentAnimationName = inPacket.decodeString();
             mai.animationDeltaL = inPacket.decodeInt();
         }
+        inPacket.decodeByte(); // unk
         // post-hook for PACKETMAKER::MakeAttackInfoPacket(a, oPacket)
         if (ServerConstants.MAKE_ATTACK_INFO_PACKET_HOOK) {
             /*
-                int* abCritical = ((int*) a) + 22;
+                int* abCritical = reinterpret_cast<int*>(a) + 38;
                 for (int i = 0; i < 15; ++i) {
-                    COutPacket__Encode1(oPacket, *(abCritical + i));
+                    _COutPacket__Encode1(oPacket, *(abCritical + i));
                 }
              */
             for (int j = 0; j < 15; j++) {

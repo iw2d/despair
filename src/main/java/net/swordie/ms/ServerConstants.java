@@ -28,6 +28,6 @@ public class ServerConstants {
 	public static final String SSL_STORE_PASSWORD = "changeme";
 
 	// Client Hooks
-	public static final boolean MAKE_ATTACK_INFO_PACKET_HOOK = false; // PACKETMAKER::MakeAttackInfoPacket(a, oPacket)
+	public static final boolean MAKE_ATTACK_INFO_PACKET_HOOK = true; // PACKETMAKER::MakeAttackInfoPacket(a, oPacket)
 	public static final boolean CLIENT_SIDED_SKILL_HOOK = false;
 }
