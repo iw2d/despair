@@ -988,7 +988,7 @@ public class Char {
 		}
 		if (mask.isInMask(DBChar.SkillRecord)) {                                                                        // (a2 & 0x100) != 0
 			boolean encodeSkills = getSkills().size() > 0;
-			outPacket.encodeByte(0x69); // bad
+			outPacket.encodeByte(encodeSkills);
 			if (encodeSkills) {
 				outPacket.encodeShort(getSkills().size());
 				for (Skill skill : getSkills()) {

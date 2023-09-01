@@ -798,12 +798,8 @@ public class FieldPacket {
         return outPacket;
     }
 
-    public static OutPacket runeActSuccess(RuneType runeType, int time) {
+    public static OutPacket runeActSuccess() {
         OutPacket outPacket = new OutPacket(OutHeader.RUNE_ACT_SUCCESS);
-
-        outPacket.encodeInt(runeType.getVal());
-        outPacket.encodeInt(time);
-
         return outPacket;
     }
 

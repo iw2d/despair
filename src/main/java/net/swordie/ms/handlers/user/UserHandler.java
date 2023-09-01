@@ -162,8 +162,7 @@ public class UserHandler {
     }
 
     @Handler(op = InHeader.USER_GROWTH_HELPER_REQUEST)
-    public static void handleUserGrowthRequestHelper(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleUserGrowthRequestHelper(Char chr, InPacket inPacket) {
         Field field = chr.getField();
         if ((field.getFieldLimit() & FieldOption.TeleportItemLimit.getVal()) > 0) {
             chr.dispose();
@@ -190,8 +189,7 @@ public class UserHandler {
 
 
     @Handler(op = InHeader.FUNC_KEY_MAPPED_MODIFIED)
-    public static void handleFuncKeyMappedModified(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleFuncKeyMappedModified(Char chr, InPacket inPacket) {
         int updateType = inPacket.decodeInt();
         switch (updateType) {
             case 0:
@@ -215,8 +213,7 @@ public class UserHandler {
 
 
     @Handler(op = InHeader.USER_CHARACTER_INFO_REQUEST)
-    public static void handleUserCharacterInfoRequest(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleUserCharacterInfoRequest(Char chr, InPacket inPacket) {
         Field field = chr.getField();
         inPacket.decodeInt(); // tick
         int requestID = inPacket.decodeInt();
@@ -224,25 +221,25 @@ public class UserHandler {
         if (requestChar == null) {
             chr.chatMessage(SystemNotice, "The character you tried to find could not be found.");
         } else {
-            c.write(FieldPacket.characterInfo(requestChar));
+            chr.write(FieldPacket.characterInfo(requestChar));
         }
     }
 
 
     @Handler(op = InHeader.EVENT_UI_REQ)
-    public static void handleEventUiReq(Client c, InPacket inPacket) {
+    public static void handleEventUiReq(Char chr, InPacket inPacket) {
         //TODO: get opcodes for CUIContext::OnPacket
     }
 
 
     @Handler(op = InHeader.BATTLE_RECORD_ON_OFF_REQUEST)
-    public static void handleBattleRecordOnOffRequest(Client c, InPacket inPacket) {
+    public static void handleBattleRecordOnOffRequest(Char chr, InPacket inPacket) {
         // CBattleRecordMan::RequestOnCalc
         boolean on = inPacket.decodeByte() != 0;
         boolean isNew = inPacket.decodeByte() != 0;
         boolean clear = inPacket.decodeByte() != 0;
-        c.getChr().setBattleRecordOn(on);
-        c.write(BattleRecordMan.serverOnCalcRequestResult(on));
+        chr.setBattleRecordOn(on);
+        chr.write(BattleRecordMan.serverOnCalcRequestResult(on));
     }
 
     @Handler(op = InHeader.USER_SIT_REQUEST)
@@ -287,8 +284,7 @@ public class UserHandler {
     }
 
     @Handler(op = InHeader.USER_EMOTION)
-    public static void handleUserEmotion(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleUserEmotion(Char chr, InPacket inPacket) {
         int emotion = inPacket.decodeInt();
         int duration = inPacket.decodeInt();
         boolean byItemOption = inPacket.decodeByte() != 0;
@@ -298,8 +294,7 @@ public class UserHandler {
     }
 
     @Handler(op = InHeader.USER_ACTIVATE_EFFECT_ITEM)
-    public static void handleUserActivateEffectItem(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleUserActivateEffectItem(Char chr, InPacket inPacket) {
         int itemId = inPacket.decodeInt();
         if (chr.hasItem(itemId)) {
             chr.setActiveEffectItemID(itemId);
@@ -307,8 +302,7 @@ public class UserHandler {
     }
 
     @Handler(op = InHeader.USER_SOUL_EFFECT_REQUEST)
-    public static void handleUserSoulEffectRequest(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleUserSoulEffectRequest(Char chr, InPacket inPacket) {
         boolean set = inPacket.decodeByte() != 0;
         chr.getField().broadcastPacket(UserPacket.SetSoulEffect(chr.getId(), set));
     }
@@ -372,27 +366,26 @@ public class UserHandler {
     }
 
     @Handler(op = InHeader.RUNE_STONE_USE_REQ)
-    public static void handleRuneStoneUseRequest(Client c, InPacket inPacket) {
+    public static void handleRuneStoneUseRequest(Char chr, InPacket inPacket) {
         int unknown = inPacket.decodeInt(); // unknown
         RuneType runeType = RuneType.getByVal((byte) inPacket.decodeInt());
 
-        Char chr = c.getChr();
         int minLevel = chr.getField().getMobs().stream().mapToInt(m -> m.getForcedMobStat().getLevel()).min().orElse(0);
 
         // User is on RuneStone Cooldown
-        if ((c.getChr().getRuneCooldown() + (GameConstants.RUNE_COOLDOWN_TIME * 60000)) < Util.getCurrentTimeLong()) {
+        if ((chr.getRuneCooldown() + (GameConstants.RUNE_COOLDOWN_TIME * 60000)) < Util.getCurrentTimeLong()) {
 
             // Rune is too strong for user
-            if (minLevel > c.getChr().getStat(Stat.level)) {
-                c.write(FieldPacket.runeStoneUseAck(4));
+            if (minLevel > chr.getStat(Stat.level)) {
+                chr.write(FieldPacket.runeStoneUseAck(4));
                 return;
             }
 
             // Send Arrow Message
-            c.write(FieldPacket.runeStoneUseAck(5));
+            chr.write(FieldPacket.runeStoneUseAck(5));
         } else {
-            long minutes = (((c.getChr().getRuneCooldown() + (GameConstants.RUNE_COOLDOWN_TIME * 60000)) - Util.getCurrentTimeLong()) / 60000);
-            long seconds = (((c.getChr().getRuneCooldown() + (GameConstants.RUNE_COOLDOWN_TIME * 60000)) - Util.getCurrentTimeLong()) / 1000);
+            long minutes = (((chr.getRuneCooldown() + (GameConstants.RUNE_COOLDOWN_TIME * 60000)) - Util.getCurrentTimeLong()) / 60000);
+            long seconds = (((chr.getRuneCooldown() + (GameConstants.RUNE_COOLDOWN_TIME * 60000)) - Util.getCurrentTimeLong()) / 1000);
             chr.chatScriptMessage("You cannot use another Rune for " +
                     (minutes > 0 ?
                             minutes + " minute" + (minutes > 1 ? "s" : "") + " and " + (seconds - (minutes * 60)) + " second" + ((seconds - (minutes * 60)) > 1 ? "s" : "") + "" :
@@ -403,18 +396,18 @@ public class UserHandler {
     }
 
     @Handler(op = InHeader.RUNE_STONE_SKILL_REQ)
-    public static void handleRuneStoneSkillRequest(Client c, InPacket inPacket) {
+    public static void handleRuneStoneSkillRequest(Char chr, InPacket inPacket) {
         boolean success = inPacket.decodeByte() != 0; //Successfully done the Arrow Shit for runes
 
         if (success) {
-            RuneStone runeStone = c.getChr().getField().getRuneStone();
+            RuneStone runeStone = chr.getField().getRuneStone();
 
-            c.getChr().getField().useRuneStone(c, runeStone);
+            chr.getField().useRuneStone(chr, runeStone);
             //c.write(FieldPacket.runeStoneSkillAck(runeStone.getRuneType()));
-            runeStone.activateRuneStoneEffect(c.getChr());
-            c.getChr().setRuneCooldown(Util.getCurrentTimeLong());
+            runeStone.activateRuneStoneEffect(chr);
+            chr.setRuneCooldown(Util.getCurrentTimeLong());
         }
-        c.getChr().dispose();
+        chr.dispose();
     }
 
     @Handler(op = InHeader.MONSTER_COLLECTION_EXPLORE_REQ)

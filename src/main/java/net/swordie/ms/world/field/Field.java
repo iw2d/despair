@@ -1359,13 +1359,12 @@ public class Field {
         }
     }
 
-    public void useRuneStone(Client c, RuneStone runeStone) {
-        broadcastPacket(FieldPacket.completeRune(c.getChr()));
+    public void useRuneStone(Char chr, RuneStone runeStone) {
+        broadcastPacket(FieldPacket.runeActSuccess());
         broadcastPacket(FieldPacket.runeStoneDisappear());
-        c.write(FieldPacket.runeStoneSkillAck(runeStone.getRuneType()));
+        chr.write(FieldPacket.runeStoneSkillAck(runeStone.getRuneType()));
 
         setRuneStone(null);
-
         EventManager.addEvent(this::spawnRuneStone, GameConstants.RUNE_RESPAWN_TIME, TimeUnit.MINUTES);
     }
 
