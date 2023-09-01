@@ -46,13 +46,14 @@ public class UserPool {
         outPacket.encodeShort(chr.getJob());
         outPacket.encodeShort(cs.getSubJob());
         outPacket.encodeInt(chr.getTotalChuc());
+        outPacket.encodeInt(0); // nTotalAF
         al.encode(outPacket);
         if (JobConstants.isZero(chr.getJob())) {
             chr.getAvatarData().getZeroAvatarLook().encode(outPacket);
         }
         outPacket.encodeInt(chr.getDriverID());
         outPacket.encodeInt(chr.getPassengerID()); // dwPassenserID
-        // new 176: sub_191E2D0
+        // sub_1E0E4F0
         outPacket.encodeInt(0);
         outPacket.encodeInt(0);
         int size = 0;
@@ -61,30 +62,53 @@ public class UserPool {
             outPacket.encodeInt(0);
             outPacket.encodeInt(0);
         }
-        // end sub_191E2D0
-        outPacket.encodeInt(chr.getChocoCount());
-        outPacket.encodeInt(chr.getActiveEffectItemID());
-        outPacket.encodeInt(chr.getMonkeyEffectItemID());
-        outPacket.encodeInt(chr.getActiveNickItemID());
-        outPacket.encodeInt(chr.getDamageSkin().getDamageSkinID());
-        outPacket.encodeInt(0); // ptPos.x?
-        outPacket.encodeInt(al.getDemonWingID());
-        outPacket.encodeInt(al.getKaiserWingID());
-        outPacket.encodeInt(al.getKaiserTailID());
+        // ~sub_1E0E4F0
+
+        // *pAvatarHairEquip for CAvatar::ForcingAppearance
+        outPacket.encodeInt(0); // 23
+        outPacket.encodeInt(0); // 25
+        outPacket.encodeInt(0); // 21
+        outPacket.encodeInt(0); // 12
+        outPacket.encodeInt(0); // 13
+        outPacket.encodeInt(0); // 7
+        outPacket.encodeInt(0); // 24
+        outPacket.encodeInt(0); // 27
+        outPacket.encodeInt(0); // 15
+        // ~
+
         outPacket.encodeInt(chr.getCompletedSetItemID());
         outPacket.encodeShort(chr.getFieldSeatID());
 
         PortableChair chair = chr.getChair() != null ? chr.getChair() : new PortableChair(0, ChairType.None);
-        chair.encode(outPacket);
+        outPacket.encodeInt(chair.getItemID());
+        boolean hasPortableChairMsg = chair.getType() == ChairType.TextChair;
+        outPacket.encodeInt(hasPortableChairMsg ? 1 : 0); // why is this an int
+        if (hasPortableChairMsg) {
+            outPacket.encodeString(chair.getMsg());
+        }
+        int towerIDSize = 0;
+        outPacket.encodeInt(towerIDSize);
+        for (int i = 0; i < towerIDSize; i++) {
+            outPacket.encodeInt(0); // towerChairID
+        }
+        outPacket.encodeInt(0); // this + 93552
+        outPacket.encodeInt(0); // this + 93556
+        boolean unkBool = false;
+        outPacket.encodeByte(unkBool);
+        if (unkBool) { // sub_130ADA0
+            outPacket.encodeInt(0);
+            outPacket.encodeInt(0);
+        }
 
-        outPacket.encodeInt(0); // unk
         outPacket.encodePosition(chr.getPosition());
         outPacket.encodeByte(chr.getMoveAction());
         outPacket.encodeShort(chr.getFoothold());
-        outPacket.encodeByte(0); // ? new
+
+        outPacket.encodeByte(0); // unk - something related to skill?
+        outPacket.encodeByte(0); // custom chair info - sub_B04560
 
         // Pet Handling
-        for(Pet pet : chr.getPets()) {
+        for (Pet pet : chr.getPets()) {
             if(pet.getId() == 0) {
                 continue;
             }
@@ -94,7 +118,7 @@ public class UserPool {
         }
         outPacket.encodeByte(0); // indicating that pets are no longer being encoded
 
-        outPacket.encodeByte(0); // if true, encode something. idk what (v4->vfptr[35].Update)(v4, iPacket);
+        outPacket.encodeByte(0); // unk while loop
 
         // Familiar Handling
         Familiar familiar = chr.getActiveFamiliar();
@@ -155,7 +179,7 @@ public class UserPool {
             outPacket.encodeString(chr.getCustomizeEffectMsg());
         }
         outPacket.encodeByte(chr.getSoulEffect());
-        if(tsm.hasStat(CharacterTemporaryStat.RideVehicle)) {
+        if (tsm.hasStat(CharacterTemporaryStat.RideVehicle)) {
             int vehicleID = tsm.getTSBByTSIndex(TSIndex.RideVehicle).getOption().nOption;
             if(vehicleID == 1932249) { // is_mix_vehicle
                 size = 0;
@@ -196,7 +220,7 @@ public class UserPool {
         outPacket.encodeInt(0);
         boolean bool = false;
         outPacket.encodeByte(bool);
-        if(bool) {
+        if (bool) {
             size = 0;
             outPacket.encodeInt(size);
             for (int i = 0; i < size; i++) {
@@ -205,7 +229,7 @@ public class UserPool {
         }
         int someID = 0;
         outPacket.encodeInt(someID);
-        if(someID > 0) {
+        if (someID > 0) {
             outPacket.encodeInt(0);
             outPacket.encodeInt(0);
             outPacket.encodeInt(0);
@@ -213,13 +237,13 @@ public class UserPool {
             outPacket.encodeShort(0);
         }
         outPacket.encodeInt(0);
-        // start sub_16D99C0
+        // sub_1BAA810
         size = 0;
         outPacket.encodeInt(size);
         for (int i = 0; i < size; i++) {
             outPacket.encodeInt(0);
         }
-        // end sub_16D99C0
+        // ~sub_1BAA810
         return outPacket;
     }
 

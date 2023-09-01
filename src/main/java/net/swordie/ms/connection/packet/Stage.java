@@ -114,10 +114,9 @@ public class Stage {
             outPacket.encodeString("");
         }
         // FreezeAndHotEventInfo::Decode
-        outPacket.encodeByte(0); // nAccountType
-        outPacket.encodeInt(0); // dwAccountID
+        chr.getFreezeHotEventInfo().encode(outPacket);
         // CUser::DecodeEventBestFriendInfo
-        outPacket.encodeInt(0); // dwEventBestFriendAID
+        outPacket.encodeInt(chr.getEventBestFriendAID());
         // sub_1BAA810
         outPacket.encodeInt(0);
         return outPacket;

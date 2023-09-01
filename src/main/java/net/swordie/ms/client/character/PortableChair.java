@@ -71,18 +71,4 @@ public class PortableChair {
         this.type = type;
     }
 
-    public void encode(OutPacket outPacket) {
-        outPacket.encodeInt(getItemID());
-        boolean hasPortableChairMsg = getType() == ChairType.TextChair;
-        outPacket.encodeInt(hasPortableChairMsg ? 1 : 0); // why is this an int
-        if (hasPortableChairMsg) {
-            outPacket.encodeString(getMsg());
-        }
-        int towerIDSize = 0;
-        outPacket.encodeInt(towerIDSize);
-        for (int i = 0; i < towerIDSize; i++) {
-            outPacket.encodeInt(0); // towerChairID
-        }
-        outPacket.encodeInt(0); // this is for chairs with randEffect%d, e.g. 3010289
-    }
 }

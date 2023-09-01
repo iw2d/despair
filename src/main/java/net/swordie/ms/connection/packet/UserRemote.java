@@ -13,6 +13,7 @@ import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.AvatarModifiedMask;
+import net.swordie.ms.enums.ChairType;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.movement.MovementInfo;
 import net.swordie.ms.util.Position;
@@ -320,6 +321,7 @@ public class UserRemote {
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         tsm.encodeForRemote(outPacket, false);
         outPacket.encodeShort(delay);
+        outPacket.encodeByte(tsm.hasNewMovingAffectingStat());
 
         return outPacket;
     }
@@ -344,9 +346,33 @@ public class UserRemote {
     public static OutPacket remoteSetActivePortableChair(Char chr, PortableChair chair) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_SET_ACTIVE_PORTABLE_CHAIR);
         outPacket.encodeInt(chr.getId());
-        chair.encode(outPacket);
-        outPacket.encodeInt(0); // TODO: meso chairs and unk
-        outPacket.encodeInt(0);
+
+        outPacket.encodeInt(chair.getItemID());
+        boolean hasPortableChairMsg = chair.getType() == ChairType.TextChair;
+        outPacket.encodeInt(hasPortableChairMsg ? 1 : 0); // why is this an int
+        if (hasPortableChairMsg) {
+            outPacket.encodeString(chair.getMsg());
+        }
+
+        outPacket.encodeInt(0); // this + 93552
+        outPacket.encodeInt(0); // this + 93556
+
+        int towerIDSize = 0;
+        outPacket.encodeInt(towerIDSize);
+        for (int i = 0; i < towerIDSize; i++) {
+            outPacket.encodeInt(0); // towerChairID
+        }
+
+        boolean unkBool = false;
+        outPacket.encodeByte(unkBool);
+        if (unkBool) { // sub_130ADA0
+            outPacket.encodeInt(0);
+            outPacket.encodeInt(0);
+        }
+
+        outPacket.encodeInt(chair.getMeso());
+        outPacket.encodeByte(0); // custom chair info - sub_B04560
+
         return outPacket;
     }
 
