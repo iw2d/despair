@@ -7,7 +7,6 @@ import net.swordie.ms.client.User;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Inventory;
 import net.swordie.ms.client.character.items.Item;
-import net.swordie.ms.client.character.items.ItemAttribute;
 import net.swordie.ms.client.trunk.Trunk;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.db.DatabaseManager;

@@ -1005,29 +1005,6 @@ public class FieldPacket {
         return outPacket;
     }
 
-    public static OutPacket giveSpecialSkillBar(int skillID) {
-        OutPacket outPacket = new OutPacket(OutHeader.GIVE_SPECIAL_SKILL_BAR);
-
-        if (skillID == 0) {
-            outPacket.encodeInt(0);
-        } else {
-            // Unknown Packet Structure..
-            // This is entirely from a sniff.
-            // Can't find this packet anywhere in KMST idb nor v206 idb
-            outPacket.encodeInt(13); // unknown, from sniff
-            outPacket.encodeInt(13); // unknown, from sniff
-            outPacket.encodeByte(1); // unknown, from sniff
-            outPacket.encodeInt(0); // unknown, from sniff
-
-            outPacket.encodeInt(skillID);
-            outPacket.encodeInt(1); // slv (?)
-
-            outPacket.encodeArr(new byte[22]); // unknown, from sniff
-        }
-
-        return outPacket;
-    }
-
     public static OutPacket golluxOpenPortal(Char chr, String action, int show) {
         OutPacket outPacket = new OutPacket(OutHeader.GOLLUX_PORTAL_OPEN);
 
@@ -1049,8 +1026,8 @@ public class FieldPacket {
         return outPacket;
     }
 
-    public static OutPacket footholdAppear(String footholdName, boolean show, Position pos) {
-        OutPacket outPacket = new OutPacket(OutHeader.FOOT_HOLD_APPEAR);
+    public static OutPacket syncDynamicFoothold(String footholdName, boolean show, Position pos) {
+        OutPacket outPacket = new OutPacket(OutHeader.SYNC_DYNAMIC_FOOTHOLD);
 
         int loopSize = 1;
 

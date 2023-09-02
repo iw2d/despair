@@ -35,152 +35,62 @@ public class CashShop {
     }
 
     public void encodeSaleInfo(OutPacket outPacket) {
-        short size = 0;
-//        outPacket.encodeShort(getSaleItems().size());
-//        for(int i = 0; i < size; i++) {
-//            outPacket.encodeInt(cii.getItemID());
-//            cii.encode(outPacket);
-//            cii.encode(outPacket);
-//            // TODO
-//        }
-//        size = 0;
-//        outPacket.encodeShort(size);
-//        for (int i = 0; i < size; i++) {
-//            outPacket.encodeInt(5160013);
-//            outPacket.encodeString("ayy");
-//        }
-        size = 1;
-        outPacket.encodeInt(size); // int per size
-        for (int i = 0; i < size; i++) {
-            outPacket.encodeInt(0);
-        }
-//        size = 1;
-//        outPacket.encodeShort(size);
-//        for (int i = 0; i < size; i++) {
-//            outPacket.encodeInt(0);
-//            outPacket.encodeString("");
-//        }
-        size = 1;
-        outPacket.encodeInt(size); // randomItemCount
-        for (int i = 0; i < size; i++) {
-            outPacket.encodeArr(new byte[20]);
-//            int itemID = 0;
-//            outPacket.encodeInt(itemID); // itemID
-//            if(itemID / 1000 == 5533) {
-//                outPacket.encodeInt(0);
-//            }
+        // unk - decodeBuffer(4 * int);
+        outPacket.encodeInt(0);
 
-        }
-//        outPacket.encodeInt(5160013);
+        // ModifiedData
+        // short * (int, CS_COMMODITY::DecodeModifiedData)
+        outPacket.encodeShort(0);
 
-
+        // CashRandomItem
+        // int * (int, int * (int))
+        outPacket.encodeInt(0);
     }
 
-    public void encodeMainBest(OutPacket outPacket) {
-        int size = 0;
-        outPacket.encodeShort(size); // was int in kmst?
-        for (int i = 0; i < size; i++) {
-            outPacket.encodeByte(1); // nClass
-            outPacket.encodeInt(5160013); // nQuestID?
-        }
-    }
-
-    public void encodeCustomizedPackage(OutPacket outPacket) {
-        int size = 0;
-        outPacket.encodeInt(size);
-        for (int i = 0; i < size; i++) {
-            outPacket.encodeByte(2); // nClass
-            outPacket.encodeInt(5160013); // nQuestID?
-        }
-    }
-
-    public void encodeSearchHelper(OutPacket outPacket) {
-        int size = 0;
-        outPacket.encodeInt(size);
-        for (int i = 0; i < size; i++) {
-//            outPacket.encodeString("ayy"); // sKeyword
-//            outPacket.encodeString("lmao"); // sMsg
-            outPacket.encodeArr(new byte[10]);
-        }
-    }
-
+    // CCashShop::CCashShop
     public void encode(OutPacket outPacket) {
-//        outPacket.encodeArr(new byte[1 + 4 + 4 + 2 + 4 /*nox*/ + 1080 + 1 + 1 + 1 + 4 + 1 + 1 + 1 + 8 + 1 + 1 + 4 + 1 + 1 + /*extra*/2]);
         // CCashShop::LoadData
         outPacket.encodeByte(!isBetaTest());
+
+        // CWvsContext::SetSaleInfo
         encodeSaleInfo(outPacket);
-        encodeMainBest(outPacket);
-        encodeCustomizedPackage(outPacket);
-//        encodeSearchHelper(outPacket); // not in gms?
-//        // buffer aBest, 3 inner loops (int (category) + int (gender) + int (sn))
+
         outPacket.encodeArr(new byte[1080]);
-        short size = 0;
-//        outPacket.encodeShort(size + 1);
-//        for (int i = 0; i < size; i++) {
-//            outPacket.encodeInt(0); // nSN
-//            outPacket.encodeInt(0); // nStockState: CS_StockState IDA
-//        }
-//        outPacket.encodeShort(size);
-//        for (int i = 0; i < size; i++) {
-//            // CS_LIMITGOODS, size 116
-//            outPacket.encodeInt(0);
-//            for (int j = 0; j < 10; j++) {
-//                outPacket.encodeInt(0); // nSN
-//            }
-//            outPacket.encodeInt(0); // CS_LimitGoodsState
-//            outPacket.encodeInt(0); // nOriginCount
-//            outPacket.encodeInt(0); // nRemainCount
-//            outPacket.encodeInt(0); // dwConditionFlag
-//            outPacket.encodeInt(0); // nDateStart
-//            outPacket.encodeInt(0); // nDateEnd
-//            outPacket.encodeInt(0); // nHourStart
-//            outPacket.encodeInt(0); // nHourEnd
-//            for (int j = 0; j < 7; j++) {
-//                outPacket.encodeByte(0); // abWeek
-//            }
-//            outPacket.encodeByte(0); // nBackgrndType
-//            outPacket.encodeString(""); // sNoticeMsg
-//            outPacket.encodeInt(0); // nRepeatMin
-//            // TODO Incomplete
-//        }
-        // END CCashShop::LoadData
 
-        outPacket.encodeShort(0); // not in idb?
-        // self
-        outPacket.encodeByte(true);
-        outPacket.encodeByte(true);
-        outPacket.encodeByte(true);
+        // CS_STOCK
+        // short * (int, int) [ nSN, nStockState ]
+        outPacket.encodeShort(0);
 
+        // CS_LIMITGOODS
+        // short * (116)
+        outPacket.encodeShort(0);
+
+        // sub_9E8330
+        // short * (68)
+        outPacket.encodeShort(0);
+
+        // ~CCashShop::LoadData
+
+
+        outPacket.encodeByte(0);
+        outPacket.encodeByte(0);
+        outPacket.encodeByte(0);
         outPacket.encodeInt(0);
-
-        outPacket.encodeByte(0);
         outPacket.encodeByte(0);
         outPacket.encodeByte(0);
 
+        // ignored
+        outPacket.encodeByte(0);
+        outPacket.encodeByte(0);
         outPacket.encodeLong(0);
 
-
+        // byte * (string)
         outPacket.encodeByte(0);
-        boolean someBool = false;
-        outPacket.encodeByte(someBool);
-        if(someBool) { // ^
-            outPacket.encodeString("ayy");
-        }
+
         outPacket.encodeInt(0);
-        someBool = false;
-        outPacket.encodeByte(someBool);
-        if(someBool) { // ^
-            outPacket.encodeLong(0);
-        }
         outPacket.encodeByte(0);
-
-
-        // kmst
-//        outPacket.encodeByte(isEventOn());
-//        outPacket.encodeByte(isLockerTransfer());
-//        outPacket.encodeByte(isRefundAvailable());
-//        outPacket.encodeByte(isUsingOTP());
-//        outPacket.encodeByte(isUsingNewOTP());
+        outPacket.encodeLong(0);
+        outPacket.encodeByte(0);
     }
 
     public boolean isEventOn() {

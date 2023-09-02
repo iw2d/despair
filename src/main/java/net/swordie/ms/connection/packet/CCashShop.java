@@ -11,7 +11,6 @@ import net.swordie.ms.enums.CashItemType;
 import net.swordie.ms.enums.CashShopActionType;
 import net.swordie.ms.enums.CashShopInfoType;
 import net.swordie.ms.handlers.header.OutHeader;
-import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.world.shop.cashshop.CashItemInfo;
 import net.swordie.ms.world.shop.cashshop.CashShop;

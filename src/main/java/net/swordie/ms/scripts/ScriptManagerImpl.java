@@ -2787,7 +2787,7 @@ public class ScriptManagerImpl implements ScriptManager {
 	}
 
 	public void changeFootHold(String footholdName, boolean show, int x, int y) {
-		chr.getField().broadcastPacket(FieldPacket.footholdAppear(footholdName, show, new Position(x, y)));
+		chr.getField().broadcastPacket(FieldPacket.syncDynamicFoothold(footholdName, show, new Position(x, y)));
 	}
 
 	public boolean hasMobById(int mobID) {

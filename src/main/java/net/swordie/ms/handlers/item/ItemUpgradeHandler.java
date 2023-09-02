@@ -498,7 +498,7 @@ public class ItemUpgradeHandler {
 
     @Handler(op = InHeader.EGO_EQUIP_GAUGE_COMPLETE_RETURN)
     public static void handleEgoEquipGaugeCompleteReturn(Client c, InPacket inPacket) {
-        OutPacket outPacket = new OutPacket(OutHeader.GAUGE_COMPLETE);
+        OutPacket outPacket = new OutPacket(OutHeader.EGO_EQUIP_GAUGE_COMPLETE);
         c.write(outPacket);
     }
 

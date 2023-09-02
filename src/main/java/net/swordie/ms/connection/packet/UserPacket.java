@@ -5,7 +5,6 @@ import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.enums.ChatUserType;
 import net.swordie.ms.client.character.skills.PsychicLock;
 import net.swordie.ms.handlers.header.OutHeader;
-import net.swordie.ms.life.Summon;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.room.MiniRoom;
 import net.swordie.ms.loaders.containerclasses.MobSkillInfo;
@@ -189,7 +188,7 @@ public class UserPacket {
     }
 
     public static OutPacket checkUpgradeItemResult(int index, boolean show) {
-        OutPacket outPacket = new OutPacket(OutHeader.CHECK_UPGRADE_ITEM_RESULT);
+        OutPacket outPacket = new OutPacket(OutHeader.EGO_EQUIP_CHECK_UPGRADE_ITEM_RESULT);
 
         outPacket.encodeByte(show);
         outPacket.encodeString(""); //does nothing and not named in kmst idb.
