@@ -1412,6 +1412,24 @@ public class SkillConstants {
         return false;
     }
 
+    public static boolean isUserCloneSummon(int skillID) {
+        switch (skillID) {
+            case 14111024:
+            case 14121054:
+            case 14121055:
+            case 14121056:
+            case 131001017:
+            case 131003017:
+            case 400011005:
+            case 400031007:
+            case 400031008:
+            case 400031009:
+            case 400041028:
+                return true;
+        }
+        return false;
+    }
+
     public static boolean isSummonJaguarSkill(int skillID) {
         return skillID >= 33001007 && skillID <= 33001015;
     }

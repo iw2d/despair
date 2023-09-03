@@ -93,16 +93,20 @@ public class Summoned {
         outPacket.encodeInt(summon.getBulletID());
         AvatarLook al = summon.getAvatarLook();
         outPacket.encodeByte(al != null);
-        if(al != null) {
+        if (al != null) {
             al.encode(outPacket);
         }
-        if(summon.getSkillID() == Mechanic.ROCK_N_SHOCK) { // Tesla Coil
+        if (summon.getSkillID() == Mechanic.ROCK_N_SHOCK) { // Tesla Coil
             outPacket.encodeByte(summon.getTeslaCoilState());
             for(Position pos : summon.getTeslaCoilPositions()) {
                 outPacket.encodePosition(pos);
             }
         }
-        if(summon.getSkillID() == Kanna.KISHIN_SHOUKAN) { // Kishin Shoukan
+        if (SkillConstants.isUserCloneSummon(summon.getSkillID())) {
+            outPacket.encodeInt(summon.getActionDelay()); // in ms
+            outPacket.encodeInt(summon.getMovementDelay()); // unsure what this exactly is
+        }
+        if (summon.getSkillID() == Kanna.KISHIN_SHOUKAN) { // Kishin Shoukan
             for(Position pos : summon.getKishinPositions()) {
                 outPacket.encodePosition(pos);
             }

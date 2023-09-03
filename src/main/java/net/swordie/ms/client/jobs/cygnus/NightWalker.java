@@ -523,6 +523,9 @@ public class NightWalker extends Noblesse {
                     summon.setFlyMob(false);
                     summon.setAvatarLook(chr.getAvatarData().getAvatarLook());
                     summon.setMoveAbility(MoveAbility.WalkClone);
+                    summon.setAssistType(AssistType.None);
+                    summon.setActionDelay((i - (skillID - 1)) * 400);
+                    summon.setMovementDelay((i - (skillID - 1)) * 30);
                     field.spawnSummon(summon);
                 }
                 break;
@@ -558,6 +561,8 @@ public class NightWalker extends Noblesse {
         summon.setAssistType(AssistType.None);
         summon.setAvatarLook(chr.getAvatarData().getAvatarLook());
         summon.setMoveAbility(MoveAbility.WalkClone);
+        summon.setActionDelay(400);
+        summon.setMovementDelay(30);
         chr.getField().spawnSummon(summon);
         // set buff
         Option o1 = new Option();

@@ -66,6 +66,8 @@ public class Summon extends Life {
     private int hp;
     private int state;
     private int count;
+    private int actionDelay = 400;
+    private int movementDelay = 30;
     private boolean fromDarkOmen;
     private boolean expired;
 
@@ -426,5 +428,21 @@ public class Summon extends Life {
 
     public void setCount(int count) {
         this.count = count;
+    }
+
+    public int getActionDelay() {
+        return actionDelay;
+    }
+
+    public void setActionDelay(int actionDelay) {
+        this.actionDelay = actionDelay;
+    }
+
+    public int getMovementDelay() {
+        return movementDelay;
+    }
+
+    public void setMovementDelay(int movementDelay) {
+        this.movementDelay = movementDelay;
     }
 }

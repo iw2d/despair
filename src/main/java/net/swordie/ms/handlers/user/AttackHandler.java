@@ -318,14 +318,15 @@ public class AttackHandler {
 
         // UNKNOWN_ATTACK_PACKET_DATA
         inPacket.decodeByte();
-        inPacket.decodeShort();
+        inPacket.decodeShort(); // nBulletItemPos
         inPacket.decodeInt();
         // ~
 
         if (SkillConstants.isKeyDownSkill(skillID) || SkillConstants.isSuperNovaSkill(skillID)) {
             ai.keyDown = inPacket.decodeInt();
         }
-        if (SkillConstants.isRushBombSkill(skillID) || skillID == 5300007 || skillID == 27120211 || skillID == 14111023) {
+        if (SkillConstants.isRushBombSkill(skillID) || skillID == 5300007 || skillID == 27120211 || skillID == 14111023
+                || skillID == 400031003 || skillID == 400031004 || skillID == 80011389 || skillID == 80011390) {
             ai.grenadeId = inPacket.decodeInt();
         }
         if (SkillConstants.isZeroSkill(skillID)) {
@@ -378,27 +379,15 @@ public class AttackHandler {
             inPacket.decodeInt(); // hardcoded 0
         }
         if (header == InHeader.USER_SHOOT_ATTACK) {
-            // this looks correct in ida, but completely wrong when comparing it to the actual packet
-//            ai.shootRange = inPacket.decodeByte();
-//            if (!SkillConstants.isShootSkillNotConsumingBullets(skillID)
-//                    || chr.getTemporaryStatManager().hasStat(CharacterTemporaryStat.SoulArrow)) {
-//                ai.bulletCount = inPacket.decodeInt();
-//            }
-            int bulletSlot = inPacket.decodeInt();
+            int bulletSlot = inPacket.decodeShort();
             byte idk = inPacket.decodeByte();
             if ((bulletSlot == 0 || idk == 0) && (ai.buckShot & 0x40) != 0 && !SkillConstants.isFieldAttackObjSkill(skillID)) {
-                int maybeID = inPacket.decodeInt();
+                //int maybeID = inPacket.decodeInt(); // int needs to be read here?
             }
             ai.rect = inPacket.decodeShortRect();
         }
         if (skillID == 5111009) {
             ai.ignorePCounter = inPacket.decodeByte() != 0;
-        }
-        if (header == InHeader.USER_MELEE_ATTACK && SkillConstants.isNoConsumeBullet2(skillID)) {
-            inPacket.decodeShort();
-            if (((ai.buckShot >> 6) & 1) != 0 || SkillConstants.isNoConsumeBullet(skillID)) {
-                inPacket.decodeInt();
-            }
         }
         if (skillID == 25111005) {
             ai.spiritCoreEnhance = inPacket.decodeInt();
