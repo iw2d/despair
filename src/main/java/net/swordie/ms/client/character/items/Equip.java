@@ -112,7 +112,6 @@ public class Equip extends Item {
     private boolean hasIUCMax = false;
 
     // flame stats
-    // TODO: refactor these to be in a different table
     private short fSTR;
     private short fDEX;
     private short fINT;
@@ -1765,7 +1764,6 @@ public class Equip extends Item {
     }
 
     public double getBaseStat(BaseStat baseStat) {
-        // TODO: Sockets
         double res = 0;
         for (int i = 0; i < getOptions().size() - 1; i++) { // last one is anvil => skipped
             int id = getOptions().get(i);
@@ -2146,7 +2144,6 @@ public class Equip extends Item {
     }
 
     public Set<Integer> getNonAddBaseStat(BaseStat baseStat) {
-        // TODO: Sockets
         Set<Integer> res = new HashSet<>();
         for (int i = 0; i < getOptions().size() - 1; i++) { // last one is anvil => skipped
             int id = getOptions().get(i);

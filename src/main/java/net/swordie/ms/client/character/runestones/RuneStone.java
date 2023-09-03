@@ -128,9 +128,7 @@ public class RuneStone {
                 runeBuffID = LIBERATE_THE_RUNE_OF_DARKNESS;
                 break;
             case Riches:
-
                 //TODO  Drop stuff from the sky
-
                 applyRuneRiches(chr);
                 runeBuffID = LIBERATE_THE_RUNE_OF_RICHES;
                 break;

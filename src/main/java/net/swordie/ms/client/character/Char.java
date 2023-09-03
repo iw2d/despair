@@ -33,10 +33,7 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.character.social.*;
-import net.swordie.ms.client.friend.Friend;
-import net.swordie.ms.client.friend.FriendFlag;
-import net.swordie.ms.client.friend.FriendRecord;
-import net.swordie.ms.client.friend.FriendshipRingRecord;
+import net.swordie.ms.client.friend.*;
 import net.swordie.ms.client.guild.Guild;
 import net.swordie.ms.client.guild.GuildMember;
 import net.swordie.ms.client.guild.result.GuildResult;
@@ -378,7 +375,6 @@ public class Char {
 	private Familiar activeFamiliar;
 	@Transient
 	private boolean skillCDBypass = false;
-	// TODO Move this to CharacterStat?
 	@Transient
 	private Map<BaseStat, Integer> baseStats = new HashMap<>();
 	@Transient
@@ -760,7 +756,6 @@ public class Char {
 			if (getMonsterBattleMobInfos() != null) {
 				for (MonsterBattleMobInfo mbmi : getMonsterBattleMobInfos()) {
 					mbmi.encode(outPacket);
-					// TODO int int int int int int byte int int
 				}
 			}
 			outPacket.encodeInt(0);
@@ -949,17 +944,14 @@ public class Char {
 			}
 			outPacket.encodeByte(0);
 		}
-		// BagDatas
+		// TODO BagDatas
 		if (mask.isInMask(DBChar.ItemSlotConsume)) {
-			// TODO
 			outPacket.encodeInt(0);
 		}
 		if (mask.isInMask(DBChar.ItemSlotInstall)) {
-			// TODO
 			outPacket.encodeInt(0);
 		}
 		if (mask.isInMask(DBChar.ItemSlotEtc)) {
-			// TODO
 			outPacket.encodeInt(0);
 		}
 		// End bagdatas
@@ -2781,6 +2773,32 @@ public class Char {
 		afterMigrate();
 	}
 
+	public void initFriendStatus() {
+		for (Friend f : getFriends()) {
+			Char friendChr = getWorld().getCharByID(f.getFriendID());
+			if (friendChr != null) {
+				f.setChr(friendChr);
+				friendChr.getFriendByCharID(getId()).setChr(this);
+			}
+			f.setFlag(friendChr != null
+					? FriendFlag.FriendOnline
+					: FriendFlag.FriendOffline);
+		}
+		for (Friend f : getAccount().getFriends()) {
+			Account friendAcc = getWorld().getAccountByID(f.getFriendAccountID());
+			if (friendAcc != null && friendAcc.getCurrentChr() != null) {
+				f.setChr(friendAcc.getCurrentChr());
+				Friend me = friendAcc.getFriendByAccID(getAccount().getId());
+				if (me != null) {
+					me.setChr(this);
+				}
+			}
+			f.setFlag(friendAcc != null
+					? FriendFlag.AccountFriendOnline
+					: FriendFlag.AccountFriendOffline);
+		}
+	}
+
 	/**
 	 * Adds a given amount of exp to this Char. Immediately checks for level-up possibility, and
 	 * sends the updated
@@ -3585,6 +3603,25 @@ public class Char {
 	}
 
 	public void setOnline(boolean online) {
+		for (Friend friend : getFriends()) {
+			if (!friend.isOnline()) {
+				continue;
+			}
+			Char chr = friend.getChr();
+			Friend me;
+			if (friend.isAccount()) {
+				me = chr.getAccount().getFriendByAccID(getAccount().getId());
+			} else {
+				me = chr.getFriendByCharID(getId());
+			}
+			if (me != null) {
+				me.setChr(online ? this : null);
+				me.setFlag(friend.isAccount() ?
+						online ? FriendFlag.AccountFriendOnline : FriendFlag.AccountFriendOffline
+						: online ? FriendFlag.FriendOnline : FriendFlag.FriendOffline);
+				chr.write(WvsContext.friendResult(FriendResult.updateFriend(me)));
+			}
+		}
 		Party party = getParty();
 		if (party != null) {
 			PartyMember pm = party.getPartyMemberByID(getId());

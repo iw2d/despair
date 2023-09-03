@@ -182,7 +182,6 @@ public enum BaseStat {
 
     public static Map<BaseStat, Integer> getFromCTS(Char chr, CharacterTemporaryStat ctsArg, Option o) {
         Map<BaseStat, Integer> stats = new HashMap<>();
-        // TODO: Left at "Albatross" in CTS
         SkillInfo si;
         int slv;
         switch (ctsArg) {

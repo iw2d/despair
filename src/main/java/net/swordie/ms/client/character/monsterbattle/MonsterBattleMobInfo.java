@@ -5,6 +5,13 @@ import net.swordie.ms.connection.OutPacket; /**
  */
 public class MonsterBattleMobInfo {
     public void encode(OutPacket outPacket) {
-
+        outPacket.encodeInt(0);
+        outPacket.encodeInt(0);
+        outPacket.encodeInt(0);
+        outPacket.encodeInt(0);
+        outPacket.encodeInt(0);
+        outPacket.encodeByte(0);
+        outPacket.encodeInt(0);
+        outPacket.encodeInt(0);
     }
 }

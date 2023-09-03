@@ -1,5 +1,6 @@
 package net.swordie.ms.client.friend;
 
+import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.OutPacket;
 
 import javax.persistence.*;
@@ -27,6 +28,8 @@ public class Friend {
     private String memo;
     @Transient
     private boolean inShop;
+    @Transient
+    private Char chr;
 
     public void encode(OutPacket outPacket) {
         outPacket.encodeInt(getFriendID());
@@ -135,6 +138,24 @@ public class Friend {
 
     public boolean isAccount() {
         return getFlag() > 4;
+    }
+
+    public Char getChr() {
+        return chr;
+    }
+
+    public void setChr(Char chr) {
+        this.chr = chr;
+    }
+
+    public void write(OutPacket outPacket) {
+        if (isOnline()) {
+            chr.write(outPacket);
+        }
+    }
+
+    public boolean isOnline() {
+        return getChr() != null;
     }
 
 }

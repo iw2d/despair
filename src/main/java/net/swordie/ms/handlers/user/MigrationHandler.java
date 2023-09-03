@@ -8,7 +8,7 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.HyperTPRock;
 import net.swordie.ms.client.character.damage.DamageSkinType;
 import net.swordie.ms.client.character.skills.TownPortal;
-import net.swordie.ms.client.friend.result.LoadFriendResult;
+import net.swordie.ms.client.friend.FriendResult;
 import net.swordie.ms.client.jobs.JobManager;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.connection.InPacket;
@@ -108,7 +108,7 @@ public class MigrationHandler {
             c.write(FieldPacket.funcKeyMappedManInit(chr.getFuncKeyMap()));
         }
         c.write(FieldPacket.quickslotInit(chr.getQuickslotKeys()));
-        c.write(WvsContext.friendResult(new LoadFriendResult(chr.getAllFriends())));
+        c.write(WvsContext.friendResult(FriendResult.loadFriends(chr.getAllFriends())));
         c.write(WvsContext.macroSysDataInit(chr.getMacros()));
         c.write(UserLocal.damageSkinSaveResult(DamageSkinType.Req_SendInfo, null, chr));
         c.write(WvsContext.mapTransferResult(MapTransferType.RegisterListSend, (byte) 5, chr.getHyperRockFields()));

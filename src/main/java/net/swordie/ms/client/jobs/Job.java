@@ -756,7 +756,7 @@ public abstract class Job {
 				return;
 			}
 
-			// Beast Tamer - Bear Reborn		TODO
+			// Beast Tamer - Bear Reborn
 			else if (tsm.getOptByCTSAndSkill(ReviveOnce, BeastTamer.BEAR_REBORN) != null) {
 				((BeastTamer) chr.getJobHandler()).reviveByBearReborn();
 				return;

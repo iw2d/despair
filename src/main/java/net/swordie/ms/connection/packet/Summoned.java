@@ -152,8 +152,7 @@ public class Summoned {
         }
         outPacket.encodeByte(counter); // bCounterAttack
         outPacket.encodeByte(ai.attackAction == 0);
-        outPacket.encodeShort(ai.attackAction); // ?
-        outPacket.encodeShort(ai.attackAction); // ? TODO, one of these is probably attackAction
+        outPacket.encodePosition(ai.pos);
 
         return outPacket;
     }

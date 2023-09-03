@@ -5,7 +5,9 @@ import net.swordie.ms.ServerConfig;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.commands.*;
+import net.swordie.ms.client.friend.Friend;
 import net.swordie.ms.connection.InPacket;
+import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.ChatSocket;
 import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.connection.packet.UserPacket;
@@ -73,8 +75,6 @@ public class ChatHandler {
 
                 try {
                     ICommand iCommand = null;
-
-                    // TODO replace this switch statement with something prettier
                     switch (msg.charAt(0)) {
                         case ServerConfig.PLAYER_COMMAND:
                             iCommand = (PlayerCommand) commandClass.getConstructor().newInstance();
@@ -83,7 +83,6 @@ public class ChatHandler {
                             iCommand = (AdminCommand) commandClass.getConstructor().newInstance();
                             break;
                     }
-
                     commandClass.getDeclaredMethod("execute", Char.class, String[].class)
                             .invoke(iCommand, chr, msg.split(" "));
 
@@ -149,7 +148,10 @@ public class ChatHandler {
         }
         switch (type) {
             case 0: // buddy
-                // TODO
+                OutPacket outPacket = FieldPacket.groupMessage(GroupMessageType.Party, chr.getName(), msg);
+                for (Friend friend : chr.getFriends()) {
+                    friend.write(outPacket);
+                }
                 break;
             case 1: // party
                 if (chr.getParty() != null) {

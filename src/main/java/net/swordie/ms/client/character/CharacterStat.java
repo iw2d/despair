@@ -102,7 +102,6 @@ public class CharacterStat {
         characterCard = new CharacterCard(0, 0, (byte) 0);
         accountLastLogout = new SystemTime(1970, 1);
         nextAvailableFameTime = FileTime.fromType(FileTime.Type.PLAIN_ZERO);
-        // TODO fill in default vals
     }
 
     public CharacterStat(String name, int job) {
@@ -359,7 +358,7 @@ public class CharacterStat {
         outPacket.encodeInt(getGachExp());
         outPacket.encodeInt((int) getPosMap());
         outPacket.encodeByte(getPortal());
-        outPacket.encodeInt(0); // TODO figure out
+        outPacket.encodeInt(0); // playtime?
         outPacket.encodeShort(getSubJob());
         if (JobConstants.isDemon(getJob()) || JobConstants.isXenon(getJob()) || JobConstants.isBeastTamer(getJob())) {
             outPacket.encodeInt(getDefFaceAcc());

@@ -17,7 +17,7 @@ import net.swordie.ms.client.character.skills.TownPortal;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.friend.Friend;
-import net.swordie.ms.client.friend.result.FriendResult;
+import net.swordie.ms.client.friend.FriendResult;
 import net.swordie.ms.client.guild.Guild;
 import net.swordie.ms.client.guild.bbs.GuildBBSPacket;
 import net.swordie.ms.client.guild.result.GuildResult;
@@ -26,7 +26,6 @@ import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
 import net.swordie.ms.client.party.PartyResult;
 import net.swordie.ms.connection.OutPacket;
-import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.util.AntiMacro;
@@ -364,7 +363,6 @@ public class WvsContext {
         outPacket.encodeInt(qrKey);
         outPacket.encodeByte(true);
         outPacket.encodeByte(state);
-        // TODO probably missing something here
 
         return outPacket;
     }
@@ -730,7 +728,6 @@ public class WvsContext {
     public static OutPacket friendResult(FriendResult friendResult) {
         OutPacket outPacket = new OutPacket(OutHeader.FRIEND_RESULT);
 
-        outPacket.encodeByte(friendResult.getType().getVal());
         friendResult.encode(outPacket);
 
         return outPacket;
