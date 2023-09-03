@@ -33,7 +33,7 @@ public enum TSIndex {
         return Arrays.stream(TSIndex.values()).filter(tse -> tse.getIndex() == index).findFirst().orElse(null);
     }
 
-    public static CharacterTemporaryStat getCTSFromTwoStatIndex(int index) {
+    public static CharacterTemporaryStat getCTSFromTwoStateIndex(int index) {
         switch(index) {
             case 0:
                 return CharacterTemporaryStat.EnergyCharged;
@@ -90,7 +90,7 @@ public enum TSIndex {
     public static List<CharacterTemporaryStat> getAllCTS() {
         List<CharacterTemporaryStat> characterTemporaryStats = new ArrayList<>();
         for (int i = 0; i < TSIndex.values().length; i++) {
-            characterTemporaryStats.add(getCTSFromTwoStatIndex(i));
+            characterTemporaryStats.add(getCTSFromTwoStateIndex(i));
         }
         return characterTemporaryStats;
     }

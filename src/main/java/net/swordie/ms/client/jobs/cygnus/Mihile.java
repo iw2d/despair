@@ -315,7 +315,7 @@ public class Mihile extends Job {
             case ROYAL_GUARD_4:
             case ROYAL_GUARD_5:
                 if (ServerConstants.CLIENT_SIDED_SKILL_HOOK) {
-                    chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skillID, (byte) slv, 0)), chr);
+                    chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skillID, chr.getLevel(), slv, 0)), chr);
                     // cooldown handled by client hook
                 } else {
                     o1.nOption = 1;
@@ -323,8 +323,8 @@ public class Mihile extends Job {
                     o1.tOption = si.getValue(x, slv) + (tsm.hasStatBySkillId(SACRED_CUBE) ? chr.getSkillStatValue(y, SACRED_CUBE) : 0);
                     o1.setInMillis(true);
                     tsm.putCharacterStatValue(RoyalGuardPrepare, o1);
-                    chr.write(UserPacket.effect(Effect.skillUse(skillID, (byte) slv, 0)));
-                    chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skillID, (byte) slv, 0)), chr);
+                    chr.write(UserPacket.effect(Effect.skillUse(skillID, chr.getLevel(), slv, 0)));
+                    chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(skillID, chr.getLevel(), slv, 0)), chr);
                     chr.setSkillCooldown(ROYAL_GUARD_BUFF, slv);
                 }
                 break;

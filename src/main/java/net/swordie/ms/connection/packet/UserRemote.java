@@ -205,6 +205,7 @@ public class UserRemote {
         }
         outPacket.encodeInt(chr.getCompletedSetItemID());
         outPacket.encodeInt(chr.getTotalChuc());
+        outPacket.encodeInt(0); // TotalAF
 
         return outPacket;
     }

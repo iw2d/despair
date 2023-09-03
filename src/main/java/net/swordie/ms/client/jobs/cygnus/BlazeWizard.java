@@ -409,8 +409,8 @@ public class BlazeWizard extends Noblesse {
         chr.write(FieldPacket.teleport(new Position(position.getX() + (chr.isLeft() ? + 350 : - 350), position.getY()), chr));
 
         // Hit effect
-        chr.write(UserPacket.effect(Effect.skillUse(PHOENIX_RUN_EFFECTS, (byte) slv, 0)));
-        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(PHOENIX_RUN_EFFECTS, (byte) slv, 0)));
+        chr.write(UserPacket.effect(Effect.skillUse(PHOENIX_RUN_EFFECTS, chr.getLevel(), slv, 0)));
+        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(PHOENIX_RUN_EFFECTS, chr.getLevel(), slv, 0)));
 
         // Backstep effect
         chr.write(UserPacket.effect(Effect.skillAffected(PHOENIX_RUN_EFFECTS, (byte) slv, 0)));

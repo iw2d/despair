@@ -694,7 +694,7 @@ public class TemporaryStatManager {
             outPacket.encodeInt(getOption(VampDeath).xOption);
         }
         for (int i = 0; i < TSIndex.values().length; i++) {
-            if (setStatMask.has(TSIndex.getCTSFromTwoStatIndex(i))) {
+            if (setStatMask.has(TSIndex.getCTSFromTwoStateIndex(i))) {
                 getTwoStates().get(i).encode(outPacket);
             }
         }
@@ -840,7 +840,7 @@ public class TemporaryStatManager {
         }
         outPacket.encodeInt(getViperEnergyCharge());
         for (int i = 0; i < TSIndex.values().length; i++) {
-            if (ctsSet.contains(TSIndex.getCTSFromTwoStatIndex(i))) {
+            if (ctsSet.contains(TSIndex.getCTSFromTwoStateIndex(i))) {
                 getTwoStates().get(i).encode(outPacket);
             }
         }

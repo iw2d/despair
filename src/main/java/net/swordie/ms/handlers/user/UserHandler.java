@@ -520,7 +520,7 @@ public class UserHandler {
             field.broadcastPacket(UserRemote.effect(chrId, Effect.showUnregisteredSkill(skillId, slv, 0, chr.isLeft())));
 
         } else if (SkillConstants.isHomeTeleportSkill(skillId)) {
-            field.broadcastPacket(UserRemote.effect(chrId, Effect.skillUse(skillId, slv, 0)));
+            field.broadcastPacket(UserRemote.effect(chrId, Effect.skillUse(skillId, chr.getLevel(), slv, 0)));
 
         } else if (skillId == BattleMage.DARK_SHOCK) {
             Position origin = inPacket.decodePositionInt();

@@ -46,7 +46,6 @@ public class Effect {
 
     public void encode(OutPacket outPacket) {
         outPacket.encodeByte(getUserEffectType().getVal());
-
         switch (getUserEffectType()) {
             case SkillUse:
             case SkillUseBySummoned:
@@ -198,8 +197,8 @@ public class Effect {
             outPacket.encodeInt(getArg4()); // Summon ID
         }
         outPacket.encodeInt(skillID); // Skill id
-        outPacket.encodeByte(getArg2()); // slv ?
-        outPacket.encodeByte(getArg3()); // slv ?
+        outPacket.encodeByte(getArg2()); // chr Level
+        outPacket.encodeByte(getArg3()); // slv
         if (skillID == Evan.DRAGON_FURY) { // Dragon Fury
             outPacket.encodeByte(getArg5()); // bCreate
         } else if (skillID == DarkKnight.FINAL_PACT) {
@@ -433,13 +432,13 @@ public class Effect {
         field.broadcastPacket(UserRemote.effect(chr.getId(), Effect.avatarOriented("Effect/BasicEff.img/FameGradeUp/back")));
     }
 
-    public static Effect skillUse(int skillID, byte slv, int bySummonedID) {
+    public static Effect skillUse(int skillID, int chrLevel, int slv, int bySummonedID) {
         Effect effect = new Effect();
 
         effect.setUserEffectType(bySummonedID == 0 ? SkillUse : SkillUseBySummoned);
         effect.setArg4(bySummonedID);
         effect.setArg1(skillID);
-        effect.setArg2(slv);
+        effect.setArg2(chrLevel);
         effect.setArg3(slv);
 
         return effect;

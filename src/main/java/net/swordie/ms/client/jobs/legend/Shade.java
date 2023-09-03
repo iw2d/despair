@@ -466,8 +466,8 @@ public class Shade extends Job {
         chr.write(UserPacket.effect(Effect.skillSpecial(SUMMON_OTHER_SPIRIT)));
         chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillSpecial(SUMMON_OTHER_SPIRIT)), chr);
 
-        chr.write(UserPacket.effect(Effect.skillUse(25111211, (byte) 1, 0)));
-        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(25111211, (byte) 1, 0)), chr);
+        chr.write(UserPacket.effect(Effect.skillUse(25111211, chr.getLevel(), 1, 0)));
+        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(25111211, chr.getLevel(), 1, 0)), chr);
 
         Option o1 = new Option();
         o1.nOption = 1;
@@ -488,8 +488,8 @@ public class Shade extends Job {
         tsm.removeStatsBySkill(skillId);
         tsm.sendResetStatPacket();
         chr.chatMessage("You have survived a fatal attack with Close Call.");
-        chr.write(UserPacket.effect(Effect.skillUse(CLOSE_CALL, (byte) 1, 0)));
-        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(CLOSE_CALL, (byte) 1, 0)), chr);
+        chr.write(UserPacket.effect(Effect.skillUse(CLOSE_CALL, chr.getLevel(), 1, 0)));
+        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(CLOSE_CALL, chr.getLevel(), 1, 0)), chr);
         return true;
     }
 

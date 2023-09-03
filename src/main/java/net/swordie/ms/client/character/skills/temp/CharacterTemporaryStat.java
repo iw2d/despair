@@ -65,18 +65,18 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IndieStatCount(54),
 
 
-    PAD(55), // from 57
+    PAD(55),
     DEF(56),
     MAD(57),
     ACC(58),
     EVA(59),
     Craft(60),
     Speed(61),
-    Jump(62), // from 65
+    Jump(62),
     MagicGuard(63),
     DarkSight(64),
     Booster(65),
-    PowerGuard(66), // from 69
+    PowerGuard(66),
     MaxHP(67),
     MaxMP(68),
     Invincible(69),
@@ -87,34 +87,34 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Darkness(74),
     ComboCounter(75),
     WeaponCharge(76),
-    HolySymbol(77), // from 80
+    HolySymbol(77),
     MesoUp(78),
     ShadowPartner(79),
     PickPocket(80),
     MesoGuard(81),
     Thaw(82),
-    Weakness(83), // from 86
+    Weakness(83),
     Curse(84),
-    Slow(85), // from 88
-    Morph(86), // from 89
-    Regen(87), // from 90
+    Slow(85),
+    Morph(86),
+    Regen(87),
     BasicStatUp(88),
     Stance(89),
-    SharpEyes(90), // from 93
+    SharpEyes(90),
     ManaReflection(91),
-    Attract(92), // from 95
-    NoBulletConsume(93), // from 96
-    Infinity(94), // from 97
-    AdvancedBless(95), // from 98
+    Attract(92),
+    NoBulletConsume(93),
+    Infinity(94),
+    AdvancedBless(95),
     IllusionStep(96),
     Blind(97),
     Concentration(98),
     BanMap(99),
-    MaxLevelBuff(100), // from 103 - is this echo of the hero?!
+    MaxLevelBuff(100),
 
     MesoUpByItem(101),
-    Ghost(102), // from 105
-    Barrier(103), // from 106
+    Ghost(102),
+    Barrier(103),
     ReverseInput(104),
     ItemUpByItem(105),
     RespectPImmune(106),
@@ -124,7 +124,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     DefenseState(109),
     DojangBerserk(110),
     DojangInvincible(111),
-    DojangShield(112), // from 115
+    DojangShield(112),
     SoulMasterFinal(113),
     WindBreakerFinal(114),
     ElementalReset(115),
@@ -132,36 +132,36 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     EventRate(117),
     ComboAbilityBuff(118),
     ComboDrain(119),
-    ComboBarrier(120), // from 123
-    BodyPressure(121), // from 124
+    ComboBarrier(120),
+    BodyPressure(121),
     RepeatEffect(122),
     ExpBuffRate(123),
     StopPortion(124),
     StopMotion(125),
-    Fear(126), // from 129
+    Fear(126),
     HiddenPieceOn(127),
-    MagicShield(128), // from 131
+    MagicShield(128),
     MagicResistance(129),
     SoulStone(130),
-    Flying(131), // from 134
-    Frozen(132), // from 135
+    Flying(131),
+    Frozen(132),
     AssistCharge(133),
-    Enrage(134), // from 137
+    Enrage(134),
     DrawBack(135),
     NotDamaged(136),
     FinalCut(137),
     HowlingAttackDamage(138),
     BeastFormDamageUp(139),
-    Dance(140), // from 143
+    Dance(140),
 
-    EMHP(141), // from 144
+    EMHP(141),
     EMMP(142),
     EPAD(143),
     EMAD(144),
-    EDEF(145), // from 145 (EPDD)
-    Guard(146), // from 150
-    Cyclone(147), // from 151
-    HowlingCritical(148), // from 152
+    EDEF(145),
+    Guard(146),
+    Cyclone(147),
+    HowlingCritical(148),
     HowlingMaxMP(149),
     HowlingDefence(150),
     HowlingEvasion(151),
@@ -170,77 +170,77 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     PinkbeanMinibeenMove(154),
     Sneak(155),
 
-    Mechanic(156), // from 160
-    BeastFormMaxHP(157), // from 161
+    Mechanic(156),
+    BeastFormMaxHP(157),
     Dice(158),
-    BlessingArmor(159), // from 163
-    DamR(160), // from 164
+    BlessingArmor(159),
+    DamR(160),
     TeleportMasteryOn(161),
     CombatOrders(162),
     Beholder(163),
 
-    DispelItemOption(164), // from 168
+    DispelItemOption(164),
     Inflation(165),
     OnixDivineProtection(166),
-    Web(167), // from 171
+    Web(167),
     Bless(168),
-    TimeBomb(169), // from 173
+    TimeBomb(169),
     Disorder(170),
     Thread(171),
 
     Team(172),
     Explosion(173),
-    BuffLimit(174), // from 178
+    BuffLimit(174),
     STR(175),
     INT(176),
     DEX(177),
-    LUK(178), // from 182
-    DispelItemOptionByField(179), // from 183
+    LUK(178),
+    DispelItemOptionByField(179),
 
     DarkTornado(180), // Cygnus Attack
     PVPDamage(181),
     PvPScoreBonus(182),
     PvPInvincible(183),
     PvPRaceEffect(184),
-    WeaknessMdamage(185), // from 185
-    Frozen2(186), // from 186
+    WeaknessMdamage(185),
+    Frozen2(186),
     PVPDamageSkill(187),
     AmplifyDamage(188),
     IceKnight(189),
-    Shock(190), // from 194
+    Shock(190),
     InfinityForce(191),
-    IncMaxHP(192), // from 196
-    IncMaxMP(193), // from 197
-    HolyMagicShell(194), // from 198
-    KeyDownTimeIgnore(195), // from 199
+    IncMaxHP(192),
+    IncMaxMP(193),
+    HolyMagicShell(194),
+    KeyDownTimeIgnore(195),
     ArcaneAim(196),
-    MasterMagicOn(197), // from 201
-    AsrR(198), // from 202
-    TerR(200),
-    DamAbsorbShield(200), // from 204
+    MasterMagicOn(197),
+    AsrR(198),
+    TerR(199),
+    DamAbsorbShield(200),
     DevilishPower(201),
-    Roulette(202), // from 206
+    Roulette(202),
     SpiritLink(203),
 
-    AsrRByItem(204), // from 208
+    AsrRByItem(204),
     Event(205),
-    CriticalBuff(206), // from 210
+    CriticalBuff(206),
     DropRate(207),
     PlusExpRate(208),
     ItemInvincible(209),
     Awake(210),
     ItemCritical(211),
     // ItemEvade Removed
-    Event2(212), // from 217
-    VampiricTouch(213), // from 218
+    Event2(212),
+    VampiricTouch(213),
     DDR(214),
     IncCriticalDam(215), // TODO check
     IncTerR(216),
-    IncAsrR(217), // from 223
+    IncAsrR(217),
     DeathMark(218),
-    UsefulAdvancedBless(219), // from 225
+    UsefulAdvancedBless(219),
     Lapidification(220),
-    VenomSnake(221), // from 227
+    VenomSnake(221),
     CarnivalAttack(222),
     CarnivalDefence(223),
     CarnivalExp(224),
@@ -248,62 +248,62 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     PyramidEffect(226),
     KillingPoint(227),
     HollowPointBullet(228),
-    KeyDownMoving(229), // from 235
-    IgnoreTargetDEF(230), // from 236
+    KeyDownMoving(229),
+    IgnoreTargetDEF(230),
     ReviveOnce(231),
-    Invisible(232), // from 238
+    Invisible(232),
     EnrageCr(233),
-    EnrageCrDam(234), // from 240
+    EnrageCrDam(234),
     Judgement(235),
     DojangLuckyBonus(236),
     PainMark(237),
-    Magnet(238), // from 244
-    MagnetArea(239), // from 245
+    Magnet(238),
+    MagnetArea(239),
     GuidedArrow(240), // new v178
     ExtraSkillCTS(241), // new v178
     VampDeath(242),
     BlessingArmorIncPAD(243),
     KeyDownAreaMoving(244),
     Larkness(245),
-    StackBuff(246), // from 250
+    StackBuff(246),
     BlessOfDarkness(247),
     AntiMagicShell(248),
     LifeTidal(249),
     HitCriDamR(250),
     SmashStack(251),
-    PartyBarrier(252), // from 256
+    PartyBarrier(252),
     ReshuffleSwitch(253),
     SpecialAction(254),
-    VampDeathSummon(255), // from 259
+    VampDeathSummon(255),
     StopForceAtomInfo(256),
     SoulGazeCriDamR(257),
     SoulRageCount(258),
     PowerTransferGauge(259),
     AffinitySlug(260),
-    Trinity(261), // from 265
+    Trinity(261),
     IncMaxDamage(262),
     BossShield(263),
     MobZoneState(264),
     GiveMeHeal(265),
     TouchMe(266),
     Contagion(267),
-    ComboUnlimited(268), // from 272
-    SoulExalt(269), // from 273
+    ComboUnlimited(268),
+    SoulExalt(269),
     IgnorePCounter(270),
     IgnoreAllCounter(271),
     IgnorePImmune(272),
     IgnoreAllImmune(273),
-    FinalJudgement(274), // from 278
+    FinalJudgement(274),
     Unk275(275), // TODO check from BossShield ~ Unk275
-    IceAura(276), // from 279
+    IceAura(276),
     FireAura(277),
     VengeanceOfAngel(278),
     HeavensDoor(279),
     Preparation(280),
     BullsEye(281),
     IncEffectHPPotion(282),
-    IncEffectMPPotion(283), // from 286
-    BleedingToxin(284), // from 287
+    IncEffectMPPotion(283),
+    BleedingToxin(284),
 
     IgnoreMobDamR(285), // reserve for RuneStone LIBERATE_THE_RECOVERY_RUNE
     Asura(286),
@@ -312,25 +312,25 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     UnityOfPower(289),
     Stimulate(290),
     ReturnTeleport(291),
-    DropRIncrease(292), // from 294
+    DropRIncrease(292),
     IgnoreMobpdpR(293),
     BdR(294),
-    CapDebuff(295), // from 297
+    CapDebuff(295),
     Exceed(296),
     DiabolikRecovery(297),
     FinalAttackProp(298),
     ExceedOverload(299),
-    OverloadCount(300), // from 302
+    OverloadCount(300),
     BuckShot(301),
     FireBomb(302),
     HalfstatByDebuff(303),
     SurplusSupply(304),
     SetBaseDamage(305),
-    EVAR(306), // from 308
-    NewFlying(307), // from 309
+    EVAR(306),
+    NewFlying(307),
     AmaranthGenerator(308),
-    OnCapsule(309), // from 311
-    CygnusElementSkill(310), // from 312
+    OnCapsule(309),
+    CygnusElementSkill(310),
     StrikerHyperElectric(311),
     EventPointAbsorb(312),
     EventAssemble(313),
@@ -348,18 +348,18 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     SoulMP(325),
     FullSoulMP(326),
     SoulSkillDamageUp(327),
-    ElementalCharge(328), // from 330
+    ElementalCharge(328),
     Restoration(329),
     CrossOverChain(330),
     ChargeBuff(331),
     Reincarnation(332),
-    KnightsAura(333), // from 335
+    KnightsAura(333),
     ChillingStep(334),
     DotBasedBuff(335),
     BlessEnsenble(336),
     ComboCostInc(337),
     ExtremeArchery(338),
-    NaviFlying(339), // from 341
+    NaviFlying(339),
     QuiverCatridge(340),
     AdvancedQuiver(341),
     UserControlMob(342),
@@ -373,9 +373,9 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     TimeFastABuff(350),
     TimeFastBBuff(351),
     GatherDropR(352),
-    AimBox2D(353), // from 355
+    AimBox2D(353),
     IncMonsterBattleCaptureRate(354),
-    CursorSniping(355), // from 357
+    CursorSniping(355),
     DebuffTolerance(356),
     Unk357(357), // new v178?
     DotHealHPPerSecond(358),
@@ -399,11 +399,11 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     ShadowServant(376),
     ShadowIllusion(377),
     KnockBack(378),
-    AddAttackCount(379), // from 380
+    AddAttackCount(379),
     ComplusionSlant(380),
     JaguarSummoned(381),
     JaguarCount(382),
-    SSFShootingAttack(383), // from 384
+    SSFShootingAttack(383),
     DevilCry(384),
     ShieldAttack(385),
     BMageAura(386),

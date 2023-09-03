@@ -260,8 +260,8 @@ public class Magician extends Beginner {
 
                 if (!showedEffect) {
                     showedEffect = true;
-                    chr.write(UserPacket.effect(Effect.skillUse(getMPEaterSkill().getSkillId(), (byte) slv, 0)));
-                    chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(getMPEaterSkill().getSkillId(), (byte) slv, 0)));
+                    chr.write(UserPacket.effect(Effect.skillUse(getMPEaterSkill().getSkillId(), chr.getLevel(), slv, 0)));
+                    chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(getMPEaterSkill().getSkillId(), chr.getLevel(), slv, 0)));
                 }
             }
         }

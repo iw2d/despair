@@ -218,8 +218,8 @@ public class Bowmaster extends Archer {
         tsm.putCharacterStatValue(BowMasterConcentration, o1);
         tsm.sendSetStatPacket();
         if (count < 20) {
-            chr.write(UserPacket.effect(Effect.skillUse(FOCUSED_FURY, (byte) slv, 0)));
-            chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(FOCUSED_FURY, (byte) slv, 0)));
+            chr.write(UserPacket.effect(Effect.skillUse(FOCUSED_FURY, chr.getLevel(), slv, 0)));
+            chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(FOCUSED_FURY, chr.getLevel(), slv, 0)));
         }
     }
 
@@ -232,8 +232,8 @@ public class Bowmaster extends Archer {
         int cd = si.getValue(y, slv) * 1000;
         nextArmorBreak = Util.getCurrentTimeLong() + cd;
         chr.write(UserLocal.skillCooltimeSetM(ARMOR_BREAK, cd));
-        chr.write(UserPacket.effect(Effect.skillUse(ARMOR_BREAK, (byte) slv, 0)));
-        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(ARMOR_BREAK, (byte) slv, 0)));
+        chr.write(UserPacket.effect(Effect.skillUse(ARMOR_BREAK, chr.getLevel(), slv, 0)));
+        chr.getField().broadcastPacket(UserRemote.effect(chr.getId(), Effect.skillUse(ARMOR_BREAK, chr.getLevel(), slv, 0)));
     }
 
     @Override
