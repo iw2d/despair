@@ -1427,7 +1427,7 @@ public class ScriptManagerImpl implements ScriptManager {
 		NpcShopDlg nsd = NpcData.getShopById(shopID);
 		if (nsd != null) {
 			chr.setShop(nsd);
-			chr.write(ShopDlg.openShop(0, nsd));
+			chr.write(ShopDlg.openShop(chr, 0, nsd));
 		} else {
 			chat(String.format("Could not find shop with id %d.", shopID));
 			log.error(String.format("Could not find shop with id %d.", shopID));

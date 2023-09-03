@@ -3,6 +3,7 @@ package net.swordie.ms.world.shop;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.FileTimeConverter;
+import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.ItemGrade;
 import net.swordie.ms.util.FileTime;
 
@@ -49,6 +50,10 @@ public class NpcShopItem {
     private long unitPrice;
     private short maxPerSlot;
     private int discountPerc;
+    @Transient
+    private boolean isQuest;
+    @Transient
+    private boolean isBuyBack;
 
     public NpcShopItem() {
         sellStart = FileTime.fromType(FileTime.Type.ZERO_TIME);
@@ -58,64 +63,75 @@ public class NpcShopItem {
 
     public void encode(OutPacket outPacket) {
         outPacket.encodeInt(getItemID());
+        outPacket.encodeInt(getTabIndex());
+        outPacket.encodeInt(getItemPeriod()); // time usage of item, in minutes (0 = no time limit)
+        outPacket.encodeInt(getPotentialGrade());
         outPacket.encodeInt(getPrice());
+
         outPacket.encodeByte(getDiscountPerc());
+
         outPacket.encodeInt(getTokenItemID());
         outPacket.encodeInt(getTokenPrice());
         outPacket.encodeInt(getPointQuestID());
         outPacket.encodeInt(getPointPrice());
         outPacket.encodeInt(getStarCoin());
-        outPacket.encodeInt(getQuestExID());
-        outPacket.encodeString(getQuestExKey());
-        outPacket.encodeInt(getQuestExValue());
-        outPacket.encodeInt(getItemPeriod());
+
+        // byte -> sub_10FCFD0 (int, byte, str, int, str, str, int -> (int * long))
+        outPacket.encodeByte(0);
+
+        outPacket.encodeInt(getBuyLimit());
         outPacket.encodeInt(getLevelLimited());
         outPacket.encodeShort(getShowLevMin());
         outPacket.encodeShort(getShowLevMax());
-        outPacket.encodeInt(getQuestID());
-        outPacket.encodeFT(getSellStart());
-        outPacket.encodeFT(getSellEnd());
-        outPacket.encodeInt(getTabIndex());
-        outPacket.encodeByte(isWorldBlock());
-        outPacket.encodeInt(getPotentialGrade());
-        outPacket.encodeInt(getBuyLimit());
+
+        // BuyLimit::DecodeResetInfo
         if (getBuyLimitInfo() != null) {
             getBuyLimitInfo().encode(outPacket);
         } else {
             new BuyLimitInfo().encode(outPacket);
         }
-        int prefix = getItemID() / 10000;
-        if (prefix != 207 && prefix != 233) {
-            outPacket.encodeShort(getQuantity());
-        } else {
+
+        outPacket.encodeByte(false); // bIsDisabled
+        outPacket.encodeFT(getSellStart());
+        outPacket.encodeFT(getSellEnd());
+
+        outPacket.encodeInt(0); // ? setting it to >0 will make the item not show up
+        outPacket.encodeInt(getQuestExID()); // Adventure: id=100161, key=lv | Alliance: id=500345, key=grade
+        outPacket.encodeString(getQuestExKey());
+        outPacket.encodeInt(getQuestExValue());
+
+        if (ItemConstants.isRechargable(getItemID())) {
             outPacket.encodeLong(getUnitPrice());
+        } else {
+            outPacket.encodeShort(getQuantity());
         }
         outPacket.encodeShort(getMaxPerSlot());
-        outPacket.encodeByte(getItem() != null);
-        if (getItem() != null) {
-            getItem().encode(outPacket);
-        }
-        // wtf is the following
-        boolean idkProperty = false;
-        if(idkProperty) {
-            boolean bool2 = false;
-            outPacket.encodeByte(bool2);
-            if(bool2) {
+
+        if (isQuest()) {
+            byte type = 0;
+            outPacket.encodeByte(type);
+            if (type == 1) {
                 outPacket.encodeByte(0);
             }
         }
-        // sub_71F670
+
+        // sub_B0E150 - read leaf info?
         outPacket.encodeInt(0);
         outPacket.encodeInt(0);
         outPacket.encodeInt(0);
         outPacket.encodeInt(0);
-        outPacket.encodeArr(new byte[32]); // decodeBuffer(32)
-        // end sub_71F670
+        outPacket.encodeArr(new byte[0x20]); // decodeBuffer(32), npc id (4) + int (4) x4? Example id = 78 96 8F 00 (9410168)
+        // ~sub_B0E150
+
+        outPacket.encodeByte(isBuyBack());
+        if (isBuyBack()) {
+            item.encode(outPacket);
+        }
     }
+
     public int getItemID() {
         return itemID;
     }
-
 
     /**
      * Sets the item id of this item.
@@ -387,5 +403,21 @@ public class NpcShopItem {
 
     public void setShopID(int shopID) {
         this.shopID = shopID;
+    }
+
+    public boolean isQuest() {
+        return isQuest;
+    }
+
+    public void setQuest(boolean quest) {
+        isQuest = quest;
+    }
+
+    public boolean isBuyBack() {
+        return isBuyBack;
+    }
+
+    public void setBuyBack(boolean buyBack) {
+        isBuyBack = buyBack;
     }
 }

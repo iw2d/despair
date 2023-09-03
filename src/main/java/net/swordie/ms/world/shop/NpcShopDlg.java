@@ -12,6 +12,16 @@ import java.util.List;
  * Created on 3/27/2018.
  */
 public class NpcShopDlg {
+	private static final List<NpcShopItem> projectiles = ItemConstants.getRechargeablesList().stream()
+			.filter(itemId -> ItemData.getItemInfoByID(itemId) != null)
+			.map(itemId -> {
+				NpcShopItem nsi = new NpcShopItem();
+				nsi.setItemID(itemId);
+				nsi.setUnitPrice(1);
+				nsi.setMaxPerSlot((short) ItemData.getItemInfoByID(itemId).getSlotMax());
+				return nsi;
+			})
+			.toList();
 
 	private int shopID;
 	private int selectNpcItemID;
@@ -20,37 +30,29 @@ public class NpcShopDlg {
 	private int shopVerNo;
 	private List<NpcShopItem> items = new ArrayList<>();
 
-	public void generateProjectiles() {
-		for (int i : ItemConstants.getRechargeablesList()) {
-			ItemInfo ii = ItemData.getItemInfoByID(i);
-			if (ii == null) {
-				// atm just 2070014 (2070014) that somewhy isn't found
-				continue;
-			}
-			NpcShopItem nsi = new NpcShopItem();
-			nsi.setItemID(i);
-			nsi.setUnitPrice(1);
-			nsi.setMaxPerSlot((short) ii.getSlotMax());
-			addItem(nsi);
-		}
-	}
 
-	public void encode(OutPacket outPacket) {
+	public void encode(OutPacket outPacket, List<NpcShopItem> buyBack) {
 		outPacket.encodeInt(getSelectNpcItemID());
 		outPacket.encodeInt(getNpcTemplateID());
 		outPacket.encodeInt(getStarCoin());
-		// start gms only
+		outPacket.encodeInt(getShopVerNo());
+
 		boolean hasQuest = false;
 		outPacket.encodeByte(hasQuest);
 		if (hasQuest) {
-			// just a guess that this is for quests
-			outPacket.encodeInt(0); // questID?
-			outPacket.encodeString(""); // questKey?
+			byte size = 0;
+			outPacket.encodeByte(size);
+			for (int i = 0; i < size; i++) {
+				// just a guess that this is for quests
+				outPacket.encodeInt(0); // questID?
+				outPacket.encodeString(""); // questKey?
+			}
 		}
-		// end gms only
-		outPacket.encodeInt(getShopVerNo());
-		outPacket.encodeShort(getItems().size());
+
+		outPacket.encodeShort(getItems().size() + buyBack.size() + projectiles.size());
 		getItems().forEach(item -> item.encode(outPacket));
+		buyBack.forEach(item -> item.encode(outPacket));
+		projectiles.forEach(item -> item.encode(outPacket));
 	}
 
 	public int getShopID() {
@@ -107,7 +109,7 @@ public class NpcShopDlg {
 
 	public NpcShopItem getItemByIndex(int idx) {
 		NpcShopItem nsi = null;
-		if (idx >= 0 || idx < getItems().size()) {
+		if (idx >= 0 && idx < getItems().size()) {
 			return getItems().get(idx);
 		}
 		return nsi;

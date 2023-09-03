@@ -82,6 +82,7 @@ import net.swordie.ms.world.field.*;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
 import net.swordie.ms.world.gach.GachaponManager;
 import net.swordie.ms.world.shop.NpcShopDlg;
+import net.swordie.ms.world.shop.NpcShopItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -421,6 +422,8 @@ public class Char {
 	private List<Integer> quickslotKeys;
 	@Transient
 	private Android android;
+	@Transient
+	private List<NpcShopItem> buyBack = new ArrayList<>();
 	@Transient
 	private Map<Integer, PsychicArea> psychicAreas;
 	@Transient
@@ -3264,6 +3267,15 @@ public class Char {
 		}
 	}
 
+	public void consumeItemBySlot(InvType invType, int slot, int quantity) {
+		Item item = getInventoryByType(invType).getItemBySlot(slot);
+		if (item != null) {
+			int consumed = quantity > item.getQuantity() ? 0 : item.getQuantity() - quantity;
+			item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
+			consumeItem(item);
+		}
+	}
+
 	public boolean hasItem(int itemID) {
 		return getInventories().stream().anyMatch(inv -> inv.containsItem(itemID));
 	}
@@ -4905,11 +4917,14 @@ public class Char {
 				return true;
 			}
 		}
-		SkillInfo si = SkillData.getSkillInfoById(skillID);
-		if (si == null) {
-			return true;
+		int bulletCon = 1;
+		if (skillID != 0) {
+			SkillInfo si = SkillData.getSkillInfoById(skillID);
+			if (si == null) {
+				return true;
+			}
+			bulletCon = si.getValue(SkillStat.bulletCount, slv) + si.getValue(SkillStat.bulletConsume, slv);
 		}
-		int bulletCon = si.getValue(SkillStat.bulletCount, slv) + si.getValue(SkillStat.bulletConsume, slv);
 		if (bulletCon <= 0) {
 			return true;
 		}
@@ -5179,6 +5194,38 @@ public class Char {
 				setAndroid(newAndroid);
 			}
 		}
+	}
+
+	public List<NpcShopItem> getBuyBack() {
+		return buyBack;
+	}
+
+	public void addItemToBuyBack(Item item) {
+		NpcShopItem nsi = new NpcShopItem();
+		nsi.setItemID(item.getItemId());
+		nsi.setItem(item);
+		nsi.setBuyBack(true);
+		int cost;
+		if (ItemConstants.isEquip(item.getItemId())) {
+			cost = ((Equip) item).getPrice();
+		} else {
+			cost = ItemData.getItemInfoByID(item.getItemId()).getPrice() * item.getQuantity();
+		}
+		nsi.setPrice(cost);
+		nsi.setQuantity((short) item.getQuantity());
+		getBuyBack().add(nsi);
+	}
+
+	public NpcShopItem getBuyBackItemBySlot(int slot) {
+		NpcShopItem nsi = null;
+		if (slot >= 0 && slot < getBuyBack().size()) {
+			return getBuyBack().get(slot);
+		}
+		return nsi;
+	}
+
+	public void removeBuyBackItem(NpcShopItem nsi) {
+		getBuyBack().remove(nsi);
 	}
 
 	public int getNewForceAtomKey() {

@@ -136,6 +136,7 @@ public class WvsContext {
                 case subJob:
                     outPacket.encodeShort(jobId);
                     outPacket.encodeShort((Short) value);
+                    break;
             }
         }
 

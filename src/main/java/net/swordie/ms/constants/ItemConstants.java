@@ -499,7 +499,7 @@ public class ItemConstants {
     }
 
     public static boolean isWeapon(int itemID) {
-        return itemID >= 1210000 && itemID < 1600000;
+        return itemID >= 1210000 && itemID < 1600000 || itemID / 10000 == 170;
     }
 
     public static boolean isSecondary(int itemID) {

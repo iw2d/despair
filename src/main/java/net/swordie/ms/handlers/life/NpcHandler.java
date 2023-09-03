@@ -10,6 +10,7 @@ import net.swordie.ms.client.character.quest.QuestManager;
 import net.swordie.ms.client.trunk.*;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
+import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.ChatType;
 import net.swordie.ms.enums.InvType;
@@ -26,17 +27,16 @@ import net.swordie.ms.loaders.QuestData;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.loaders.containerclasses.QuestInfo;
 import net.swordie.ms.scripts.ScriptType;
+import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.world.gach.GachaponConstants;
 import net.swordie.ms.world.gach.result.GachaponDlgType;
 import net.swordie.ms.world.gach.result.GachaponResult;
-import net.swordie.ms.world.shop.NpcShopDlg;
-import net.swordie.ms.world.shop.NpcShopItem;
-import net.swordie.ms.world.shop.ShopRequestType;
-import net.swordie.ms.world.shop.result.MsgShopResult;
-import net.swordie.ms.world.shop.result.ShopResultType;
+import net.swordie.ms.world.shop.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.time.LocalDateTime;
 
 public class NpcHandler {
 
@@ -65,7 +65,7 @@ public class NpcHandler {
             if (nsd != null) {
                 chr.getScriptManager().stop(ScriptType.Npc); // reset contents before opening shop?
                 chr.setShop(nsd);
-                chr.write(ShopDlg.openShop(0, nsd));
+                chr.write(ShopDlg.openShop(chr, 0, nsd));
                 chr.chatMessage(String.format("Opening shop %s", npc.getTemplateId()));
                 return;
             } else {
@@ -129,63 +129,59 @@ public class NpcHandler {
                 int itemID = inPacket.decodeInt();
                 short quantity = inPacket.decodeShort();
                 NpcShopItem nsi = nsd.getItemByIndex(itemIndex);
+                if (nsi == null) {
+                    itemIndex -= nsd.getItems().size();
+                    nsi = chr.getBuyBackItemBySlot(itemIndex);
+                }
                 if (nsi == null || nsi.getItemID() != itemID) {
                     chr.chatMessage("The server's item at that position was different than the client's.");
                     log.warn(String.format("Possible hack: expected shop itemID %d, got %d (chr %d)", nsi.getItemID(), itemID, chr.getId()));
                     return;
                 }
-                if (quantity < 0) {
-                    chr.getOffenseManager().addOffense(Offense.Type.Editing,
-                            "User tried buying negative quantity from NPC shop");
-                    chr.dispose();
+                if (nsi.getMaxPerSlot() > 0 && nsi.getMaxPerSlot() < quantity) {
+                    chr.write(ShopDlg.shopResult(ShopResult.msg(ShopResultType.FullInvMsg)));
+                    System.out.println("Shop MaxPerSlot: " + nsi.getMaxPerSlot() + " expected: " + quantity);
+                    chr.getOffenseManager().addOffense(Offense.Type.Editing, "Tried buying more quantity than max per slot");
                     return;
                 }
-                if (nsi.getMaxPerSlot() == 0 ? quantity != 1 : quantity > nsi.getMaxPerSlot()) {
-                    chr.getOffenseManager().addOffense(Offense.Type.Editing,
-                            String.format("Possible hack: max slot for shop itemID %d is %d, got %d",
-                            nsi.getItemID(), nsi.getMaxPerSlot(), quantity));
-                    chr.dispose();
+                if (!chr.canHold(itemID)) {
+                    chr.write(ShopDlg.shopResult(ShopResult.msg(ShopResultType.FullInvMsg)));
                     return;
-                }
-                int itemQuantity = nsi.getQuantity() > 0 ? nsi.getQuantity() : 1;
-                if (itemQuantity == 1 && quantity == 1 ? !chr.canHold(itemID) : !chr.canHold(itemID, itemQuantity * quantity)) {
-                    chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.FullInvMsg)));
-                    return;
-                }
-                int buyLimit = nsi.getBuyLimit();
-                if (buyLimit > 0) {
-                    int amountBought = chr.getItemBoughtAmounts().getOrDefault(nsi.getId(), 0);
-                    int amountLeft = buyLimit - amountBought;
-                    if (quantity > amountLeft) {
-                        chr.chatMessage("Can't buy this item more than " + buyLimit + " times.");
-                        return;
-                    }
                 }
                 if (nsi.getTokenItemID() != 0) {
                     int cost = nsi.getTokenPrice() * quantity;
                     if (chr.hasItemCount(nsi.getTokenItemID(), cost)) {
                         chr.consumeItem(nsi.getTokenItemID(), cost);
                     } else {
-                        chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.NotEnoughMesosMsg)));
+                        chr.write(ShopDlg.shopResult(ShopResult.msg(ShopResultType.NotEnoughMesosMsg)));
                         return;
                     }
                 } else {
                     long cost = nsi.getPrice() * quantity;
                     if (chr.getMoney() < cost) {
-                        chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.NotEnoughMesosMsg)));
+                        chr.write(ShopDlg.shopResult(ShopResult.msg(ShopResultType.NotEnoughMesosMsg)));
                         return;
                     }
                     chr.deductMoney(cost);
                 }
-                if(buyLimit>0) {
-                    int amountBought = chr.getItemBoughtAmounts().getOrDefault(nsi.getId(), 0);
-                    amountBought += quantity;
-                    chr.addItemBoughtAmount(nsi.getId(), amountBought);
+                Item item;
+                if (nsi.isBuyBack()) {
+                    item = nsi.getItem();
+                    chr.removeBuyBackItem(nsi);
+                } else {
+                    int itemQuantity = nsi.getQuantity() > 0 ? nsi.getQuantity() : 1;
+                    item = ItemData.getItemDeepCopy(itemID);
+                    item.setQuantity(quantity * itemQuantity);
+                    if (nsi.getItemPeriod() > 0) {
+                        item.setDateExpire(FileTime.fromDate(LocalDateTime.now().plusMinutes(nsi.getItemPeriod())));
+                    }
                 }
-                Item item = ItemData.getItemDeepCopy(itemID);
-                item.setQuantity(quantity * itemQuantity);
                 chr.addItemToInventory(item);
-                chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.Success)));
+                if (nsi.isBuyBack()) {
+                    chr.write(ShopDlg.shopResult(ShopResult.update(chr, nsd)));
+                } else {
+                    chr.write(ShopDlg.shopResult(ShopResult.buy(0, item.getItemId(), 0)));
+                }
                 break;
             case RECHARGE:
                 short slot = inPacket.decodeShort();
@@ -197,14 +193,14 @@ public class NpcHandler {
                 ItemInfo ii = ItemData.getItemInfoByID(item.getItemId());
                 long cost = ii.getSlotMax() - item.getQuantity();
                 if (chr.getMoney() < cost) {
-                    chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.NotEnoughMesosMsg)));
+                    chr.write(ShopDlg.shopResult(ShopResult.msg(ShopResultType.NotEnoughMesosMsg)));
                     return;
                 }
                 chr.deductMoney(cost);
-                item.addQuantity(ii.getSlotMax());
+                item.setQuantity(ii.getSlotMax());
                 chr.write(WvsContext.inventoryOperation(true, false,
                         InventoryOperation.UpdateQuantity, slot, (short) 0, 0, item));
-                chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.Success)));
+                chr.write(ShopDlg.shopResult(ShopResult.success()));
                 break;
             case SELL:
                 slot = inPacket.decodeShort();
@@ -212,7 +208,7 @@ public class NpcHandler {
                 quantity = inPacket.decodeShort();
                 InvType it = ItemConstants.getInvTypeByItemID(itemID);
                 item = chr.getInventoryByType(it).getItemBySlot(slot);
-                if (item == null || item.getItemId() != itemID) {
+                if (item == null || item.getItemId() != itemID || item.getQuantity() < quantity) {
                     chr.chatMessage("Could not find that item.");
                     return;
                 }
@@ -225,7 +221,7 @@ public class NpcHandler {
                 if (!chr.hasItemCount(itemID, quantity)) {
                     chr.getOffenseManager().addOffense(Offense.Type.Editing,
                             String.format("Possible hack: User tried to sell %d amount of item %d while owning less",
-                            quantity, itemID));
+                                    quantity, itemID));
                     chr.dispose();
                     return;
                 }
@@ -234,9 +230,17 @@ public class NpcHandler {
                 } else {
                     cost = ItemData.getItemInfoByID(itemID).getPrice() * quantity;
                 }
-                chr.consumeItem(itemID, quantity);
+                if (chr.getMoney() + cost > GameConstants.MAX_MONEY) {
+                    chr.write(ShopDlg.shopResult(ShopResult.msg(ShopResultType.TooManyMesosMsg)));
+                    return;
+                }
+                Item buyBackItem = item.deepCopy();
+                buyBackItem.setQuantity(quantity);
+                chr.consumeItemBySlot(it, slot, quantity);
                 chr.addMoney(cost);
-                chr.write(ShopDlg.shopResult(new MsgShopResult(ShopResultType.Success)));
+                buyBackItem.setId(item.getId());
+                chr.addItemToBuyBack(buyBackItem);
+                chr.write(ShopDlg.shopResult(ShopResult.update(chr, nsd)));
                 break;
             case CLOSE:
                 chr.setShop(null);

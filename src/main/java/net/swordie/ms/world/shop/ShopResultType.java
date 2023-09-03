@@ -1,4 +1,4 @@
-package net.swordie.ms.world.shop.result;
+package net.swordie.ms.world.shop;
 
 /**
  * Created on 3/29/2018.
@@ -12,11 +12,11 @@ public enum ShopResultType {
     DoNotMeetReqsMsg(5),
     CannotBePurchasedRnMsg(6),
     FullInvMsg(7),
-    RechargeSuccess(8),
+    Update(8),
     PlayerNotEnoughInStockMsg(9),
     GeneralErrorMsg(10),
     TooManyMesosMsg(11),
-    MesoCapPerTransaction2mMsg(12),
+    MesoCapPerTransaction2BMsg(12),
     CannotHoldMoreMesosMsg(13),
     Success(14),
     NotEnoughInStockMsg2(15),
@@ -37,6 +37,8 @@ public enum ShopResultType {
     CannotBeDoneOnThisWorldMsgByte(33),
     ItemDetailsChangedMsg(34),
     Below15LimitMsg(35),
+    Error(36),
+    RequestedTransactionCannotBeMade(37)
     ;
 
     private int val;
