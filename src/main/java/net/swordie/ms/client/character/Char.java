@@ -1719,7 +1719,12 @@ public class Char {
 		setJobHandler(JobManager.getJobById(jobId, this));
 		getJobHandler().handleSetJob(jobId);
 		// set subJob
-		short subJob = (short) (JobConstants.isDualBlade(jobId) ? 1 : 0);
+		short subJob = 0;
+		if (JobConstants.isDualBlade(jobId)) {
+			subJob = 1;
+		} else if (JobConstants.isCannonShooter(jobId)) {
+			subJob = 2;
+		}
 		getAvatarData().getCharacterStat().setSubJob(subJob);
 		Map<Stat, Object> stats = Collections.singletonMap(Stat.subJob, subJob);
 		getClient().write(WvsContext.statChanged(stats, jobId));

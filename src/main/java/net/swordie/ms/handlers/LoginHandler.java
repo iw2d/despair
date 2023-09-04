@@ -345,6 +345,8 @@ public class LoginHandler {
         CharacterStat cs = chr.getAvatarData().getCharacterStat();
         if (curSelectedRace == JobConstants.LoginJob.DUAL_BLADE.getJobType()) {
             cs.setSubJob(1);
+        } else if (curSelectedRace == JobConstants.LoginJob.CANNONER.getJobType()) {
+            cs.setSubJob(2);
         }
         cs.setCharacterId(chr.getId());
         cs.setCharacterIdForLog(chr.getId());
