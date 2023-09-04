@@ -41,11 +41,14 @@ public class ScriptMan {
                 outPacket.encodeInt(nmt.getDelay());
                 break;
             case AskMenu:
-            case AskAccept:
             case AskYesNo:
                 if((nsi.getParam() & 4) != 0) {
                     outPacket.encodeInt(nsi.getOverrideSpeakerTemplateID());
                 }
+                outPacket.encodeString(nsi.getText());
+                break;
+            case AskAccept:
+                outPacket.encodeInt(nsi.getOverrideSpeakerTemplateID());
                 outPacket.encodeString(nsi.getText());
                 break;
             case SayImage:
