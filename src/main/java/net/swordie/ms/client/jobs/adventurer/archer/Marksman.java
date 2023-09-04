@@ -231,7 +231,7 @@ public class Marksman extends Archer {
                 summon.setMoveAbility(MoveAbility.Stop);
                 summon.setMaxHP(si.getValue(x, slv));
                 Position position = inPacket.decodePosition();
-                summon.setCurFoothold((short) chr.getField().findFootHoldBelow(position).getId());
+                summon.setCurFoothold((short) chr.getField().findFootholdBelow(position).getId());
                 summon.setPosition(position);
                 summon.setMaxHP(si.getValue(x, slv));
                 summon.setHp(summon.getMaxHP());

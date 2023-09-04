@@ -1,6 +1,5 @@
 package net.swordie.ms.world.field;
 
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Item;
@@ -72,6 +71,7 @@ public class Field {
     private boolean town, swim, fly, reactorShuffle, expeditionOnly, partyOnly, needSkillForFly;
     private Set<Portal> portals;
     private Set<Foothold> footholds;
+    private FootholdNode footholdRoot;
     private Map<Integer, Life> lifes;
     private List<Char> chars;
     private Map<Life, Char> lifeToControllers;
@@ -107,6 +107,7 @@ public class Field {
         this.rect = new Rect();
         this.portals = new HashSet<>();
         this.footholds = new HashSet<>();
+        this.footholdRoot = new FootholdNode();
         this.lifes = new ConcurrentHashMap<>();
         this.chars = new CopyOnWriteArrayList<>();
         this.lifeToControllers = new HashMap<>();
@@ -381,23 +382,24 @@ public class Field {
         this.burningFieldLevel = burningFieldLevel;
     }
 
-    public Foothold findFootHoldBelow(Position pos) {
-        Set<Foothold> footholds = getFootholds().stream().filter(fh -> fh.getX1() <= pos.getX() && fh.getX2() >= pos.getX()).collect(Collectors.toSet());
-        Foothold res = null;
-        int lastY = Integer.MAX_VALUE;
-        for (Foothold fh : footholds) {
-            int y = fh.getYFromX(pos.getX());
-            if (res == null && y >= pos.getY()) {
-                res = fh;
-                lastY = y;
-            } else {
-                if (y < lastY && y >= pos.getY()) {
-                    res = fh;
-                    lastY = y;
-                }
+    public Foothold findFootholdBelow(Position pos) {
+        FootholdNode.SearchResult result = new FootholdNode.SearchResult();
+        int x = pos.getX();
+        int y = pos.getY();
+        footholdRoot.searchDown(match -> {
+            if (match.isWall()) {
+                return;
             }
-        }
-        return res;
+            if (!match.hasPositionInsideX(x)) {
+                return;
+            }
+            var my = match.getYFromX(x);
+            if (my < y) {
+                return;
+            }
+            result.setIf(res -> res.getYFromX(x) >= my, match);
+        }, x, y);
+        return result.get();
     }
 
     public Tuple<Foothold, Foothold> getMinMaxNonWallFH() {
@@ -424,6 +426,7 @@ public class Field {
 
     public void addFoothold(Foothold foothold) {
         getFootholds().add(foothold);
+        footholdRoot.insert(foothold);
     }
 
     public void setFixedMobCapacity(int fixedMobCapacity) {
@@ -1082,7 +1085,7 @@ public class Field {
      * @param ownerID   The owner's character ID.
      */
     public void drop(Set<DropInfo> dropInfos, Position position, int ownerID) {
-        drop(dropInfos, findFootHoldBelow(position), position, ownerID, 100, 100);
+        drop(dropInfos, findFootholdBelow(position), position, ownerID, 100, 100);
     }
 
     public void drop(Drop drop, Position position) {
@@ -1098,7 +1101,7 @@ public class Field {
      */
     public void drop(Drop drop, Position position, boolean fromReactor) {
         int x = position.getX();
-        Position posTo = new Position(x, findFootHoldBelow(position).getYFromX(x));
+        Position posTo = new Position(x, findFootholdBelow(position).getYFromX(x));
         drop(drop, position, posTo, fromReactor);
     }
 
@@ -1200,7 +1203,7 @@ public class Field {
                     drop.setItem(ItemData.getItemDeepCopy(itemID));
                     drop.getItem().setQuantity(quantity);
                     Position startPos = new Position(startPosX, startPosY);
-                    Position endPos = new Position(endPosX, findFootHoldBelow(new Position(endPosX, startPosY-25)).getY1());
+                    Position endPos = new Position(endPosX, findFootholdBelow(new Position(endPosX, startPosY-25)).getY1());
                     drop(drop, startPos, endPos, true, delay * i2);
                 }
             }
@@ -1301,7 +1304,7 @@ public class Field {
         npc.setCy(pY);
         npc.setRx0(pX + 50);
         npc.setRx1(pX - 50);
-        npc.setFh(findFootHoldBelow(new Position(pX, pY -2)).getId());
+        npc.setFh(findFootholdBelow(new Position(pX, pY -2)).getId());
         npc.setNotRespawnable(true);
         if (npc.getField() == null) {
             npc.setField(this);

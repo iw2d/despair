@@ -326,7 +326,7 @@ public class Cannoneer extends Pirate {
                 summon.setFlyMob(false);
                 summon.setMoveAbility(MoveAbility.Stop);
                 Position position = inPacket.decodePosition();
-                Foothold foothold = chr.getField().findFootHoldBelow(position);
+                Foothold foothold = chr.getField().findFootholdBelow(position);
                 summon.setCurFoothold((short) foothold.getId());
                 summon.setPosition(position);
                 chr.getField().spawnSummon(summon);

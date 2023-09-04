@@ -3,7 +3,6 @@ package net.swordie.ms.client.jobs.cygnus;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.info.HitInfo;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.info.SkillInfo;
@@ -23,7 +22,6 @@ import net.swordie.ms.life.mob.MobTemporaryStat;
 import net.swordie.ms.loaders.SkillData;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Util;
-import net.swordie.ms.world.field.Field;
 
 import java.util.concurrent.TimeUnit;
 
@@ -205,7 +203,7 @@ public class BlazeWizard extends Noblesse {
             summon.setCharLevel((byte) chr.getStat(Stat.level));
             summon.setPosition(chr.getPosition().deepCopy());
             summon.setMoveAction((byte) 1);
-            summon.setCurFoothold((short) chr.getField().findFootHoldBelow(summon.getPosition()).getId());
+            summon.setCurFoothold((short) chr.getField().findFootholdBelow(summon.getPosition()).getId());
             summon.setMoveAbility(MoveAbility.Walk);
             summon.setEnterType(EnterType.Animation);
             summon.setFlyMob(false);
@@ -351,7 +349,7 @@ public class BlazeWizard extends Noblesse {
         summon.setCharLevel((byte) chr.getStat(Stat.level));
         summon.setPosition(chr.getPosition().deepCopy());
         summon.setMoveAction((byte) 1);
-        summon.setCurFoothold((short) chr.getField().findFootHoldBelow(summon.getPosition()).getId());
+        summon.setCurFoothold((short) chr.getField().findFootholdBelow(summon.getPosition()).getId());
         summon.setMoveAbility(MoveAbility.Walk);
         summon.setEnterType(EnterType.Animation);
         summon.setFlyMob(skillId == FIRES_OF_CREATION_FOX);

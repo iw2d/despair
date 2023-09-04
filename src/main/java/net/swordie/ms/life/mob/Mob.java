@@ -1354,7 +1354,7 @@ public class Mob extends Life {
         }
         int fhID = getFh();
         if (fhID == 0) {
-            Foothold fhBelow = getField().findFootHoldBelow(getPosition());
+            Foothold fhBelow = getField().findFootholdBelow(getPosition());
             if (fhBelow != null) {
                 fhID = fhBelow.getId();
             }
@@ -1670,7 +1670,7 @@ public class Mob extends Life {
         Position pos = getPosition();
         Foothold fh = field.getFootholdById(getFh());
         if (fh == null) {
-            fh = field.findFootHoldBelow(pos);
+            fh = field.findFootholdBelow(pos);
         }
         if (fh == null) {
             // Edge case where the mob is spawned on some weird foothold
@@ -1894,7 +1894,7 @@ public class Mob extends Life {
             outPacket.encodeByte(0); // fake?
         }
         if (getCurFoodhold() == null) {
-            setCurFoodhold(getField().findFootHoldBelow(getPosition()));
+            setCurFoodhold(getField().findFootholdBelow(getPosition()));
             if (getCurFoodhold() == null) {
                 setCurFoodhold(getField().getFootholdById(0));
             }

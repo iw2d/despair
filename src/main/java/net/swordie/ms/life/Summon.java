@@ -226,7 +226,7 @@ public class Summon extends Life {
         summon.setCharLevel((byte) chr.getStat(Stat.level));
         summon.setPosition(chr.getPosition().deepCopy());
         summon.setMoveAction((byte) 1);
-        summon.setCurFoothold((short) chr.getField().findFootHoldBelow(summon.getPosition()).getId());
+        summon.setCurFoothold((short) chr.getField().findFootholdBelow(summon.getPosition()).getId());
         summon.setMoveAbility(MoveAbility.Walk);
         summon.setAssistType(AssistType.Attack);
         summon.setEnterType(EnterType.Animation);
@@ -264,7 +264,7 @@ public class Summon extends Life {
         kishinLeft.setFlyMob(true);
         Position kishLeftPos = new Position(chr.getPosition().getX() - 250, chr.getPosition().getY());
         kishinLeft.setPosition(kishLeftPos);
-        kishinLeft.setCurFoothold((short) field.findFootHoldBelow(kishLeftPos).getId());
+        kishinLeft.setCurFoothold((short) field.findFootholdBelow(kishLeftPos).getId());
         kishinLeft.setMoveAbility(MoveAbility.Stop);
         kishinLeft.setMoveAction((byte) 0);
         kishinLeft.setKishinPositions(new Position[] {
@@ -278,7 +278,7 @@ public class Summon extends Life {
         kishinRight.setFlyMob(true);
         Position kishRightPos = new Position(chr.getPosition().getX() + 250, chr.getPosition().getY());
         kishinRight.setPosition(kishRightPos);
-        kishinRight.setCurFoothold((short) field.findFootHoldBelow(kishRightPos).getId());
+        kishinRight.setCurFoothold((short) field.findFootholdBelow(kishRightPos).getId());
         kishinRight.setMoveAbility(MoveAbility.Stop);
         kishinRight.setMoveAction((byte) 5);
         kishinLeft.setKishinPositions(new Position[] {

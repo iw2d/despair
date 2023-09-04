@@ -109,7 +109,7 @@ public class DarkKnight extends Warrior {
         summon.setCharLevel((byte) chr.getStat(Stat.level));
         summon.setPosition(chr.getPosition().deepCopy());
         summon.setMoveAction((byte) 1);
-        summon.setCurFoothold((short) chr.getField().findFootHoldBelow(summon.getPosition()).getId());
+        summon.setCurFoothold((short) chr.getField().findFootholdBelow(summon.getPosition()).getId());
         summon.setFlyMob(true);
         summon.setMoveAbility(MoveAbility.Fly);
         summon.setAssistType(AssistType.Heal);

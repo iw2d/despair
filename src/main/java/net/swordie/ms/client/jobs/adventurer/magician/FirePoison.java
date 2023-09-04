@@ -2,7 +2,6 @@ package net.swordie.ms.client.jobs.adventurer.magician;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.skills.Option;
-import net.swordie.ms.client.character.skills.Skill;
 import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
@@ -100,7 +99,7 @@ public class FirePoison extends Magician {
         Field field = chr.getField();
         viralSlime.setFlyMob(false);
         viralSlime.setPosition(position);
-        viralSlime.setCurFoothold((short) chr.getField().findFootHoldBelow(position).getId());
+        viralSlime.setCurFoothold((short) chr.getField().findFootholdBelow(position).getId());
         viralSlime.setMoveAbility(MoveAbility.WalkRandom);
         viralSlime.setAssistType(AssistType.Attack);
         field.spawnAddSummon(viralSlime);

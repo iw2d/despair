@@ -157,6 +157,10 @@ public class Foothold {
         return new Position(randX, getYFromX(randX));
     }
 
+    public boolean hasPositionInsideX(int x) {
+        return x >= getX1() && x <= getX2();
+    }
+
     /**
      * Checks whether or not this Foothold is a wall (i.e., vertical)
      * @return whether or not this Foothold is a wall

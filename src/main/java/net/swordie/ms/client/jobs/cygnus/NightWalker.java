@@ -554,7 +554,7 @@ public class NightWalker extends Noblesse {
         summon.setCharLevel((byte) chr.getStat(Stat.level));
         summon.setPosition(chr.getPosition().deepCopy());
         summon.setMoveAction((byte) 1);
-        summon.setCurFoothold((short) chr.getField().findFootHoldBelow(summon.getPosition()).getId());
+        summon.setCurFoothold((short) chr.getField().findFootholdBelow(summon.getPosition()).getId());
         summon.setEnterType(EnterType.Animation);
         summon.setFlyMob(false);
         summon.setAttackActive(false);

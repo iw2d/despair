@@ -16,7 +16,6 @@ import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.life.drop.Drop;
 import net.swordie.ms.loaders.ItemData;
-import net.swordie.ms.loaders.StringData;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.world.field.Field;
@@ -84,7 +83,7 @@ public class InventoryHandler {
             }
             int x = chr.getPosition().getX();
             int y = chr.getPosition().getY();
-            Foothold fh = chr.getField().findFootHoldBelow(new Position(x, y - GameConstants.DROP_HEIGHT));
+            Foothold fh = chr.getField().findFootholdBelow(new Position(x, y - GameConstants.DROP_HEIGHT));
             chr.getField().drop(drop, chr.getPosition(), new Position(x, fh.getYFromX(x)));
             drop.setCanBePickedUpByPet(false);
             if (fullDrop) {

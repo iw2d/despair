@@ -1393,7 +1393,7 @@ public class ScriptManagerImpl implements ScriptManager {
 		npc.setCy(y);
 		npc.setRx0(x + 50);
 		npc.setRx1(x - 50);
-		npc.setFh(chr.getField().findFootHoldBelow(new Position(x, y -2)).getId());
+		npc.setFh(chr.getField().findFootholdBelow(new Position(x, y -2)).getId());
 		npc.setNotRespawnable(true);
 		if (npc.getField() == null) {
 			npc.setField(field);
@@ -2205,7 +2205,7 @@ public class ScriptManagerImpl implements ScriptManager {
 			if(Util.succeedProp(proc)) {
 				int randomX = new Random().nextInt(field.getWidth()) + xLeft;
 				Position position = new Position(randomX, yTop);
-				Foothold foothold = field.findFootHoldBelow(position);
+				Foothold foothold = field.findFootholdBelow(position);
 				if (foothold != null) {
 					int footholdY = foothold.getYFromX(position.getX());
 					int height = position.getY() - footholdY;

@@ -123,12 +123,18 @@ public class Rect {
      * rect.top < pos.y < rect.bottom.
      */
     public boolean hasPositionInside(Position position) {
-        if(position == null) {
+        if (position == null) {
             return false;
         }
-        int x = position.getX();
-        int y = position.getY();
+        return hasPositionInside(position.getX(), position.getY());
+    }
+
+    public boolean hasPositionInside(int x, int y) {
         return x >= left && y >= top && x <= right && y <= bottom;
+    }
+
+    public boolean hasPositionInsideX(int x) {
+        return x >= left && x <= right;
     }
 
     /**
@@ -182,5 +188,18 @@ public class Rect {
         int randX = Util.getRandom(getLeft(), getRight());
         int randY = Util.getRandom(getTop(), getBottom());
         return new Position(randX, randY);
+    }
+
+    public Position getCenter() {
+        int cx = (getLeft() + getRight()) / 2;
+        int cy = (getTop() + getBottom()) / 2;
+        return new Position(cx, cy);
+    }
+
+    public void union(Rect rect) {
+        setLeft(Math.min(getLeft(), rect.getLeft()));
+        setTop(Math.min(getTop(), rect.getTop()));
+        setRight(Math.max(getRight(), rect.getRight()));
+        setBottom(Math.max(getBottom(), rect.getBottom()));
     }
 }

@@ -388,7 +388,7 @@ public class WindArcher extends Noblesse {
                 summon.setMoveAction((byte) 0);
                 summon.setMoveAbility(MoveAbility.Stop);
                 Position position = inPacket.decodePosition();
-                summon.setCurFoothold((short) chr.getField().findFootHoldBelow(position).getId());
+                summon.setCurFoothold((short) chr.getField().findFootholdBelow(position).getId());
                 summon.setPosition(position);
                 summon.setAttackActive(false);
                 summon.setAssistType(AssistType.None);

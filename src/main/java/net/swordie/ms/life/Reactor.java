@@ -2,11 +2,8 @@ package net.swordie.ms.life;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.OutPacket;
-import net.swordie.ms.constants.ItemConstants;
-import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.handlers.EventManager;
 import net.swordie.ms.life.drop.DropInfo;
-import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.loaders.containerclasses.ReactorInfo;
 import net.swordie.ms.loaders.ReactorData;
 import net.swordie.ms.connection.packet.ReactorPool;
@@ -152,7 +149,7 @@ public class Reactor extends Life {
         if (fhID == 0) {
             Position pos = getPosition();
             pos.setY(pos.getY());
-            Foothold fhBelow = getField().findFootHoldBelow(pos);
+            Foothold fhBelow = getField().findFootholdBelow(pos);
             if (fhBelow != null) {
                 fhID = fhBelow.getId();
             }

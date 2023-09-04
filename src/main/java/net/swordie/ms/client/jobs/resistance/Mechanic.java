@@ -296,7 +296,7 @@ public class Mechanic extends Citizen {
                 summon.setCharLevel((byte) chr.getStat(Stat.level));
                 summon.setPosition(position);
                 summon.setMoveAction((byte) 1);
-                summon.setCurFoothold((short) field.findFootHoldBelow(summon.getPosition()).getId());
+                summon.setCurFoothold((short) field.findFootholdBelow(summon.getPosition()).getId());
                 summon.setEnterType(EnterType.Animation);
                 summon.setFlyMob(false);
                 summon.setSummonTerm(0);
@@ -326,7 +326,7 @@ public class Mechanic extends Citizen {
                 duration = getBuffedSummonDuration(si.getValue(time, slv) + this.chr.getSkillStatValue(time, SUPPORT_UNIT_HEX_PERSIST));
                 summon = Summon.getSummonBy(chr, skillID, slv, duration);
                 summon.setPosition(position);
-                summon.setCurFoothold((short) field.findFootHoldBelow(summon.getPosition()).getId());
+                summon.setCurFoothold((short) field.findFootholdBelow(summon.getPosition()).getId());
                 summon.setFlyMob(false);
                 summon.setMoveAbility(MoveAbility.Stop);
                 summon.setAssistType(AssistType.None);
@@ -347,7 +347,7 @@ public class Mechanic extends Citizen {
                 field = chr.getField();
                 summon = Summon.getSummonBy(chr, skillID, slv);
                 summon.setPosition(position);
-                summon.setCurFoothold((short) field.findFootHoldBelow(summon.getPosition()).getId());
+                summon.setCurFoothold((short) field.findFootholdBelow(summon.getPosition()).getId());
                 summon.setFlyMob(false);
                 summon.setMoveAbility(MoveAbility.Stop);
                 summon.setAssistType(AssistType.AttackManual);
@@ -359,7 +359,7 @@ public class Mechanic extends Citizen {
                 field = chr.getField();
                 summon = Summon.getSummonBy(chr, skillID, slv);
                 summon.setPosition(position);
-                summon.setCurFoothold((short) field.findFootHoldBelow(summon.getPosition()).getId());
+                summon.setCurFoothold((short) field.findFootholdBelow(summon.getPosition()).getId());
                 summon.setFlyMob(false);
                 summon.setMoveAbility(MoveAbility.Stop);
                 summon.setAssistType(AssistType.None);
@@ -491,7 +491,7 @@ public class Mechanic extends Citizen {
         summon.setCharLevel((byte) chr.getStat(Stat.level));
         summon.setPosition(parent.getPosition());
         summon.setMoveAction((byte) 1);
-        summon.setCurFoothold((short) field.findFootHoldBelow(parent.getPosition()).getId());
+        summon.setCurFoothold((short) field.findFootholdBelow(parent.getPosition()).getId());
         summon.setEnterType(EnterType.Animation);
         summon.setFlyMob(false);
         summon.setSummonTerm(0);
