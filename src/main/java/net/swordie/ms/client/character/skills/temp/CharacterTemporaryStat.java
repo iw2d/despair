@@ -624,7 +624,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
 
     private static final List<CharacterTemporaryStat> REMOTE_ORDER = Arrays.asList(
             Speed, ComboCounter, WeaponCharge, ElementalCharge, Stun, Shock, Darkness, Seal, Weakness, WeaknessMdamage,
-            Curse, Slow, PvPRaceEffect, TimeBomb, Team, Disorder, Thread, Poison, Poison, ShadowPartner, DarkSight,
+            Curse, Slow, PvPRaceEffect, TimeBomb, Team, Disorder, Thread, Poison, ShadowPartner, DarkSight,
             SoulArrow, Morph, Ghost, Attract, Magnet, MagnetArea, NoBulletConsume, BanMap, Barrier, DojangShield,
             ReverseInput, RespectPImmune, RespectMImmune, DefenseAtt, DefenseState, DojangBerserk, DojangInvincible,
             RepeatEffect, StopPortion, StopMotion, Fear, MagicShield, Flying, Frozen, Frozen2, Web, DrawBack,
@@ -634,19 +634,19 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             PyramidEffect, KillingPoint, IgnoreTargetDEF, Invisible, Judgement, KeyDownAreaMoving,
             StackBuff, BlessOfDarkness, Larkness, ReshuffleSwitch, SpecialAction, StopForceAtomInfo, SoulGazeCriDamR,
             PowerTransferGauge, AffinitySlug, SoulExalt, HiddenPieceOn, SmashStack, MobZoneState, GiveMeHeal, TouchMe,
-            Contagion, Contagion, ComboUnlimited, IgnorePCounter, IgnoreAllCounter, IgnorePImmune, IgnoreAllImmune,
+            Contagion, ComboUnlimited, IgnorePCounter, IgnoreAllCounter, IgnorePImmune, IgnoreAllImmune,
             FinalJudgement, Unk275, KnightsAura, IceAura, FireAura, VengeanceOfAngel, HeavensDoor, DamAbsorbShield,
             AntiMagicShell, NotDamaged, BleedingToxin, WindBreakerFinal, IgnoreMobDamR, Asura, OmegaBlaster,
             UnityOfPower, Stimulate, ReturnTeleport, CapDebuff, OverloadCount, FireBomb, SurplusSupply, NewFlying,
             NaviFlying, AmaranthGenerator, CygnusElementSkill, StrikerHyperElectric, EventPointAbsorb, EventAssemble,
             Albatross, Translucence, PoseType, LightOfSpirit, ElementSoul, GlimmeringTime, Reincarnation, Beholder,
-            QuiverCatridge, ArmorPiercing, UserControlMob, ZeroAuraStr, ZeroAuraSpd, ImmuneBarrier, ImmuneBarrier,
-            FullSoulMP, Dance, SpiritGuard, ComboTempest, HalfstatByDebuff, ComplusionSlant, JaguarSummoned, BMageAura,
+            QuiverCatridge, ArmorPiercing, UserControlMob, ZeroAuraStr, ZeroAuraSpd, ImmuneBarrier, FullSoulMP,
+            AntiMagicShell, Dance, SpiritGuard, ComboTempest, HalfstatByDebuff, ComplusionSlant, JaguarSummoned, BMageAura,
             MeltDown, SparkleBurstStage, LightningCascade, BulletParty, Unk466, AuraScythe, Benediction, DarkLighting,
             AttackCountX, FireBarrier, KeyDownMoving, MichaelSoulLink, KinesisPsychicEnergeShield,  BladeStance,
-            BladeStance, Fever, AdrenalinBoost, RWBarrier, RWMagnumBlow, GuidedArrow, ExtraSkillCTS, Stigma, DivineEcho,
+            Fever, AdrenalinBoost, RWBarrier, RWMagnumBlow, GuidedArrow, ExtraSkillCTS, Stigma, DivineEcho,
             RhoAias, PsychicTornado, MahasFury, ManaOverload, CursorSniping, Unk483, BeastMode, TeamRoar, HayatoStance,
-            HayatoStance, HayatoBooster, HayatoStanceBonus, HayatoPAD, HayatoHPR, HayatoMPR, HayatoCr, HayatoBoss,
+            HayatoBooster, HayatoStanceBonus, HayatoPAD, HayatoHPR, HayatoMPR, HayatoCr, HayatoBoss,
             Stance, BattoujutsuAdvance, Unk505, BlackHeartedCurse, EyeForEye, Unk485, Unk510, Unk514, Unk515, Unk516,
             Unk518, Unk519, Unk520, Unk487
     );
@@ -759,21 +759,26 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case MagicShield:
             case PyramidEffect:
             case BlessOfDarkness:
-            case ImmuneBarrier:
-            case Dance:
             case OmegaBlaster:
+            case ImmuneBarrier:
+            case FullSoulMP:
+            case Dance:
             case SpiritGuard:
             case KinesisPsychicEnergeShield:
+            case BladeStance:
             case AdrenalinBoost:
             case RWBarrier:
             case RWMagnumBlow:
-            case Unk357:
-            case MahasFury:
-            case ManaOverload:
-            case PsychicTornado:
-            case Unk514:
             case DivineEcho:
             case RhoAias:
+            case PsychicTornado:
+            case MahasFury:
+            case ManaOverload:
+            case Unk514:
+            case Unk515:
+            case Unk516:
+            case Unk519:
+            case Unk520:
                 return true;
             default:
                 return false;
@@ -789,11 +794,12 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case Cyclone:
             case OnCapsule:
             case KillingPoint:
-            case PinkbeanRollingGrade:
+            case PinkbeanYoYoStack:
             case ReturnTeleport:
             case FireBomb:
             case SurplusSupply:
             case AntiMagicShell:
+            case Unk487:
                 return true;
             default:
                 return false;
@@ -818,7 +824,7 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case OnCapsule:
             case PyramidEffect:
             case KillingPoint:
-            case PinkbeanRollingGrade:
+            case PinkbeanYoYoStack:
             case StackBuff:
             case BlessOfDarkness:
             case SurplusSupply:
@@ -826,9 +832,14 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case AdrenalinBoost:
             case RWBarrier:
             case RWMagnumBlow:
-            case ManaOverload:
-            case MahasFury:
             case PsychicTornado:
+            case MahasFury:
+            case ManaOverload:
+            case Unk515:
+            case Unk516:
+            case Unk519:
+            case Unk520:
+            case Unk487:
                 return true;
             default:
                 return false;
@@ -841,13 +852,14 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
             case SoulArrow:
             case DojangInvincible:
             case Flying:
+            case OnCapsule:
             case Sneak:
             case BeastFormDamageUp:
             case BlessingArmor:
             case BlessingArmorIncPAD:
             case HolyMagicShell:
             case VengeanceOfAngel:
-            case FullSoulMP:
+            case UserControlMob:
                 return true;
             default:
                 return false;

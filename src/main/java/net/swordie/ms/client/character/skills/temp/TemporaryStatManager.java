@@ -506,11 +506,11 @@ public class TemporaryStatManager {
         if (setStatMask.has(KillingPoint)) {
             outPacket.encodeByte(getOption(KillingPoint).nOption);
         }
-        if (setStatMask.has(PinkbeanRollingGrade)) {
-            outPacket.encodeByte(getOption(PinkbeanRollingGrade).nOption);
+        if (setStatMask.has(PinkbeanYoYoStack)) {
+            outPacket.encodeByte(getOption(PinkbeanYoYoStack).nOption);
         }
         if (setStatMask.has(Judgement)) {
-            outPacket.encodeInt(getOption(Judgement).xOption); // byte would  err38
+            outPacket.encodeInt(getOption(Judgement).xOption);
         }
         if (setStatMask.has(StackBuff)) {
             outPacket.encodeByte(getOption(StackBuff).mOption);
@@ -678,6 +678,9 @@ public class TemporaryStatManager {
         if (setStatMask.has(PickPocket)) {
             outPacket.encodeInt(getOption(PickPocket).xOption);
         }
+        if (setStatMask.has(DivineEcho)) {
+            outPacket.encodeShort(getOption(DivineEcho).xOption);
+        }
         if (setStatMask.has(DemonicFrenzy)) {
             outPacket.encodeShort(getOption(DemonicFrenzy).xOption);
         }
@@ -700,7 +703,7 @@ public class TemporaryStatManager {
         }
         encodeIndieTempStat(outPacket);
         if (setStatMask.has(DarkSight)) {
-            outPacket.encodeInt(getOption(DarkSight).mOption);
+            // no decode?
         }
         if (setStatMask.has(UsingScouter)) {
             outPacket.encodeInt(getOption(UsingScouter).nOption);
@@ -725,7 +728,7 @@ public class TemporaryStatManager {
             outPacket.encodeByte(getOption(Unk512).yOption);
         }
         if (setStatMask.has(Unk513)) {
-            // 1st byte is normal, 2nd one is like in Unk485
+            // 1st byte is normal, 2nd one is like in Unk512
             outPacket.encodeByte(getOption(Unk513).xOption);
             outPacket.encodeByte(getOption(Unk513).yOption);
         }
@@ -741,12 +744,22 @@ public class TemporaryStatManager {
         statMask.remove(EnergyCharged); // causes error38
         statMask.encode(outPacket);
         List<CharacterTemporaryStat> remoteStatList = statMask.sorted(getRemoteOrderList());
+        boolean antiMagicShellEncoded = false;
         for (CharacterTemporaryStat cts : remoteStatList) {
             Option option = getOption(cts);
-            switch (cts) {
-                case Poison: // Why does this get encoded, then immediately overwritten?
+            if (cts == AntiMagicShell) {
+                // appears twice but in a different place
+                if (!antiMagicShellEncoded) {
                     outPacket.encodeShort(option.nOption);
-                    break;
+                    outPacket.encodeInt(option.rOption);
+                    antiMagicShellEncoded = true;
+                } else {
+                    outPacket.encodeByte(option.bOption);
+                }
+            }
+            if (cts == Poison) {
+                // immediately overwritten
+                outPacket.encodeShort(option.nOption);
             }
             if (!cts.isNotEncodeAnything()) {
                 if (cts.isRemoteEncode1()) {
@@ -766,15 +779,17 @@ public class TemporaryStatManager {
                     break;
                 case BladeStance:
                 case ImmuneBarrier:
-                case Unk487:
                     outPacket.encodeInt(option.xOption);
                     break;
                 case FullSoulMP:
                     outPacket.encodeInt(option.rOption);
                     outPacket.encodeInt(option.xOption);
                     break;
-                case AntiMagicShell:
-                    outPacket.encodeByte(option.bOption);
+                case HayatoStance:
+                    outPacket.encodeInt(option.xOption);
+                    break;
+                case Unk487:
+                    outPacket.encodeInt(option.xOption);
                     break;
             }
         }

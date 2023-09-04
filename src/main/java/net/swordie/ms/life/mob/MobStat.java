@@ -135,20 +135,7 @@ public enum MobStat implements Comparator<MobStat> {
     }
 
     public boolean isMovementAffectingStat() {
-        switch(this) {
-            case Speed:
-            case Stun:
-            case Freeze:
-            case RiseByToss:
-            case Lifting:
-            case Smite:
-            case TempMoveAbility:
-            case StatResetSkill:
-            case RWLiftPress:
-                return true;
-            default:
-                return false;
-        }
+        return MOVING_AFFECTING_STAT.contains(this);
     }
 
     public int getBitPos() {
