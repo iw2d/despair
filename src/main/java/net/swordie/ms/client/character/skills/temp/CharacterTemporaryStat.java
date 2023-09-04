@@ -49,18 +49,16 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     IndieEmpty(37),
     IndiePADR(38),
     IndieMADR(39),
-    IndieCrMaxR(40),
-    IndieEVAR(41),
-    IndieMDDR(42),
-    IndieDrainHP(43),
-    IndiePMdR(44),
-    IndieMaxDamageOverR(45),
+    IndieEVAR(39),
+    IndieUnk40(40),
+    IndieUnk41(41),
+    IndiePMdR(42),
     IndieForceJump(43), // v178
     IndieForceSpeed(44), // v178
-    IndieQrPointTerm(45), // TODO: check unk indies
-    IndieUnk46(46),
+    IndieQrPointTerm(45), // idk
+    IndieUnk46(46), // error38
     IndieUnk47(47),
-    IndieUnk48(48),
+    IndieUnk48(48), // error38
     IndieHyperStat(49), // new v178
     IndieStatCount(54),
 
@@ -234,9 +232,9 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     Event2(212),
     VampiricTouch(213),
     DDR(214),
-    IncCriticalDam(215), // TODO check
+    IncCriticalDam(215), // increases DEF?
     IncTerR(216),
-    IncAsrR(217),
+    IncAsrR(217), // could not trigger effect
     DeathMark(218),
     UsefulAdvancedBless(219),
     Lapidification(220),
@@ -654,11 +652,11 @@ public enum CharacterTemporaryStat implements Comparator<CharacterTemporaryStat>
     private static final List<CharacterTemporaryStat> INDIE_ORDER = Arrays.asList(
             IndiePAD, IndieMAD, IndieDEF, IndieMHP, IndieMHPR, IndieMMP, IndieMMPR, IndieACC, IndieEVA, IndieJump,
             IndieSpeed, IndieAllStat, IndieDodgeCriticalTime, IndieEXP, IndieBooster, IndieFixedDamageR,
-            PyramidStunBuff, PyramidFrozenBuff, PyramidFireBuff, PyramidBonusDamageBuff, IndieRelaxEXP, IndieSTR,
-            IndieDEX, IndieINT, IndieLUK, IndieDamR, IndieMDF, IndieMaxDamageOver, IndieAsrR, IndieTerR, IndieCr,
-            IndieDEFR, IndieCrDmg, IndieBDR, IndieStatR, IndieStance, IndieIgnoreMobpdpR, IndieEmpty, IndiePADR,
-            IndieMADR, IndieCrMaxR, IndieEVAR, IndieMDDR, IndieDrainHP, IndiePMdR, IndieMaxDamageOverR, IndieForceJump,
-            IndieForceSpeed, IndieQrPointTerm, IndieHyperStat, IndieStatCount
+            PyramidStunBuff, PyramidFrozenBuff, PyramidFireBuff, PyramidBonusDamageBuff, IndieRelaxEXP,
+            IndieSTR, IndieDEX, IndieINT, IndieLUK, IndieDamR, IndieMDF, IndieMaxDamageOver, IndieAsrR, IndieTerR,
+            IndieCr, IndieDEFR, IndieCrDmg, IndieBDR, IndieStatR, IndieStance, IndieIgnoreMobpdpR, IndieEmpty,
+            IndiePADR, IndieMADR, IndieEVAR, IndieUnk40, IndieUnk41, IndiePMdR, IndieForceJump, IndieForceSpeed,
+            IndieQrPointTerm, IndieUnk46, IndieUnk47, IndieUnk48, IndieHyperStat
     );
 
     private static final List<CharacterTemporaryStat> ENCODE_INT = Arrays.asList(

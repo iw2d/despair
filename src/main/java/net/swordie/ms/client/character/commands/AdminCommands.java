@@ -18,6 +18,7 @@ import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.JobManager;
+import net.swordie.ms.client.jobs.adventurer.pirate.Buccaneer;
 import net.swordie.ms.client.jobs.nova.Kaiser;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
@@ -52,7 +53,6 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -71,9 +71,18 @@ public class AdminCommands {
 
     @Command(names = {"test"}, requiredType = Admin)
     public static class Test extends AdminCommand {
-
         public static void execute(Char chr, String[] args) {
-            chr.chatMessage(chr.getQuestManager().getQuestById(QuestConstants.WILD_HUNTER_JAGUAR_STORAGE_ID).getQRValue());
+            TemporaryStatManager tsm = chr.getTemporaryStatManager();
+            tsm.removeAllStats();
+            tsm.sendResetStatPacket();
+
+            Option o1 = new Option();
+            o1.nValue = 500;
+            o1.nReason = Buccaneer.MAPLE_WARRIOR_BUCC;
+            o1.tStart = Util.getCurrentTime();
+            o1.tTerm = 500;
+            tsm.putCharacterStatValue(CharacterTemporaryStat.getByBitPos(Integer.parseInt(args[1])), o1);
+            tsm.sendSetStatPacket();
         }
     }
 
