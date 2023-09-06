@@ -366,12 +366,15 @@ public class World {
     }
 
     public Set<AuctionItem> getAuctionRecentListings() {
-        return getAuctionHouse().stream().filter(auctionItem -> !auctionItem.getEndDate().isExpired()).collect(Collectors.toSet());
+        return getAuctionHouse().stream()
+                .filter(ai -> ai.getState() == AuctionState.Init && !ai.getEndDate().isExpired())
+                .limit(50)
+                .collect(Collectors.toSet());
     }
 
     public Set<AuctionItem> getAuctionItemsWithFilter(boolean stringQuery, String query, Set<Integer> itemIdList, AuctionEnum subType,
-                                                      long priceMin, long priceMax, AuctionPotType apt, int levelMin, int levelMax) {
-        return getAuctionHouse().stream()
+                                            long priceMin, long priceMax, AuctionPotType apt, int levelMin, int levelMax) {
+         return getAuctionHouse().stream()
                 .filter(ai -> {
                     if (ai.getEndDate().isExpired() || ai.getState() != AuctionState.Init) {
                         return false;
@@ -404,7 +407,7 @@ public class World {
                     }
                     return true;
                 })
-                .limit(500)
+                .limit(100)
                 .collect(Collectors.toSet());
     }
 

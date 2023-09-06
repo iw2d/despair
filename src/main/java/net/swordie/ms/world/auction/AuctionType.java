@@ -14,7 +14,7 @@ public enum AuctionType {
     PurchaseSingle(3),
     Bid(4),
     AveragePriceAutoBuy(5),
-    Complete(6),
+    Collect(6),
     SearchItemList(7),
     MyItemList(8),
     MyHistory(9),

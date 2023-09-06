@@ -36,12 +36,11 @@ public class AuctionHandler {
         World world = chr.getWorld();
         int auctionId;
         AuctionItem ai;
-        AuctionItem sellItem;
         switch (at) {
             case Enter:
                 chr.write(FieldPacket.auctionResult(AuctionResult.items(AuctionType.MyItemList, acc.getSellingAuctionItems())));
                 chr.write(FieldPacket.auctionResult(AuctionResult.items(AuctionType.MyHistory, acc.getCompletedAuctionItems())));
-                chr.write(FieldPacket.auctionResult(AuctionResult.searchResult(-1, 0, world.getAuctionRecentListings())));
+                chr.write(FieldPacket.auctionResult(AuctionResult.searchResult(world.getAuctionRecentListings())));
                 break;
             case ListItem:
                 if (acc.getSellingAuctionItems().size() >= GameConstants.AUCTION_LIST_SLOTS) {
@@ -58,131 +57,37 @@ public class AuctionHandler {
                 inPacket.decodeByte(); // unk
                 Item item = chr.getInventoryByType(invType).getItemBySlot(pos);
                 if (item == null || item.getItemId() != itemId) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 6))); // failure due to unknown error
+                    chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.ListItem, 6))); // failure due to unknown error
                     return;
                 }
-                long cost = GameConstants.AUCTION_DEPOSIT_AMOUNT;
-                if (cost > chr.getMoney()) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 3)));
-                    return;
-                }
-                if (unitPrice < GameConstants.AUCTION_MIN_PRICE || unitPrice > GameConstants.AUCTION_MAX_PRICE) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 1)));
-                    return;
-                }
-                chr.deductMoney(GameConstants.AUCTION_DEPOSIT_AMOUNT);
-                chr.consumeItem(item, quant, true);
-                item = item.deepCopy();
-                item.setQuantity(quant);
-                ai = acc.createAndAddAuctionByItem(item, chr, unitPrice);
-                DatabaseManager.saveToDB(item);
-                DatabaseManager.saveToDB(ai);
-                chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 0)));
+                handleListItem(chr, item, quant, unitPrice);
                 break;
             case CancelListing:
                 auctionId = inPacket.decodeInt();
                 ai = acc.getAuctionById(auctionId);
-                if (ai == null || ai.getState() != AuctionState.Init) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 5)));
-                    return;
-                }
-                ai.setEndDate(FileTime.currentTime());
-                ai.setState(AuctionState.Expire);
-                DatabaseManager.saveToDB(ai);
-                chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 0)));
+                handleCancelListing(chr, ai);
                 break;
             case PurchaseSingle:
                 auctionId = inPacket.decodeInt();
                 ai = world.getAuctionById(auctionId);
-                if (ai == null || ai.getState() != AuctionState.Init || ai.getAccountID() == acc.getId()) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 7)));
-                    return;
-                }
-                cost = ai.getDirectPrice();
-                if (cost > chr.getMoney()) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 4)));
-                    return;
-                }
-                ai.setBidUserID(chr.getId());
-                ai.setBidUsername(chr.getName());
-                ai.setState(AuctionState.Sold);
-                ai.setEndDate(FileTime.currentTime());
-                ai.setSoldQuantity(ai.getSoldQuantity() + 1);
-                sellItem = acc.createAndAddAuctionByItem(ai.getItem(), chr, ai.getPrice());
-                sellItem.setDirectPrice(ai.getDirectPrice());
-                sellItem.setEndDate(FileTime.currentTime());
-                sellItem.setState(AuctionState.Reserve);
-                DatabaseManager.saveToDB(ai);
-                DatabaseManager.saveToDB(sellItem);
-                chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 0)));
+                handlePurchaseSingle(chr, ai);
                 break;
             case PurchaseMultiple:
                 auctionId = inPacket.decodeInt();
                 long price = inPacket.decodeLong();
                 int buyQuant = inPacket.decodeInt();
                 ai = world.getAuctionById(auctionId);
-                if (ai == null || ai.getQuantity() <= 0 || ai.getState() != AuctionState.Init
-                        || ai.getAccountID() == acc.getId()) {
+                handlePurchaseMultiple(chr, ai, buyQuant);
+                break;
+            case Collect:
+                if (inPacket.getUnreadAmount() != 60) {
                     chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 8)));
                     return;
                 }
-                buyQuant = Math.min(buyQuant, ai.getQuantity());
-                cost = ai.getDirectPrice() * buyQuant;
-                if (cost > chr.getMoney()) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 4)));
-                    return;
-                }
-                chr.deductMoney(cost);
-                ai.setSoldQuantity(ai.getSoldQuantity() + buyQuant);
-                if (ai.getQuantity() == buyQuant) {
-                    ai.setBidUserID(chr.getId());
-                    ai.setBidUsername(chr.getName());
-                    ai.setState(AuctionState.Sold);
-                    ai.setEndDate(FileTime.currentTime());
-                    sellItem = acc.createAndAddAuctionByItem(ai.getItem(), chr, ai.getPrice());
-                    sellItem.setDirectPrice(ai.getDirectPrice() * buyQuant);
-                    sellItem.setEndDate(FileTime.currentTime());
-                    sellItem.setState(AuctionState.Reserve);
-                } else {
-                    ai.getItem().setQuantity(ai.getQuantity() - buyQuant);
-                    Item splitItem = ai.getItem().deepCopy();
-                    splitItem.setQuantity(buyQuant);
-                    sellItem = acc.createAndAddAuctionByItem(splitItem, chr, ai.getPrice());
-                    sellItem.setDirectPrice(ai.getDirectPrice() * buyQuant);
-                    sellItem.setEndDate(FileTime.currentTime());
-                    sellItem.setState(AuctionState.Reserve);
-                }
-                DatabaseManager.saveToDB(ai);
-                DatabaseManager.saveToDB(sellItem);
-                chr.write(FieldPacket.auctionResult(AuctionResult.purchaseMultiple(ai)));
-                break;
-            case Complete:
-                if (inPacket.getUnreadAmount() == 60) {
-                    inPacket.decodeLong();
-                    auctionId = inPacket.decodeInt();
-                    ai = acc.getAuctionById(auctionId);
-                    if (ai == null || (ai.getState() != AuctionState.Reserve && ai.getState() != AuctionState.Expire)) {
-                        chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 8)));
-                        return;
-                    }
-                    item = ai.getItem();
-                    invType = item.getInvType();
-                    if (chr.getInventoryByType(invType).isFull()) {
-                        chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 3)));
-                        return;
-                    }
-                    ai.setState(ai.getState() == AuctionState.Expire ? AuctionState.Done : AuctionState.BidSuccessDone);
-                    chr.addItemToInventory(item);
-                    DatabaseManager.saveToDB(ai);
-                } else {
-                    auctionId = inPacket.decodeInt();
-                    ai = acc.getAuctionById(auctionId);
-                    long collectMoney = (long) (ai.getDeposit() + (ai.getDirectPrice() * ai.getSoldQuantity()) * GameConstants.AUCTION_TAX);
-                    ai.setState(AuctionState.SoldDone);
-                    DatabaseManager.saveToDB(ai);
-                    chr.addMoney(collectMoney);
-                }
-                chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 0)));
+                inPacket.decodeLong();
+                auctionId = inPacket.decodeInt();
+                ai = acc.getAuctionById(auctionId);
+                handleCollect(chr, ai);
                 break;
             case SearchItemList:
                 inPacket.decodeByte(); // unk
@@ -200,11 +105,9 @@ public class AuctionHandler {
                 int type1 = inPacket.decodeInt();
                 int type2 = inPacket.decodeInt();
                 AuctionEnum subType = AuctionInvType.getByVal(type1).getSubByVal(type2);
-
                 if (inPacket.decodeByte() != 0) {
-                    inPacket.decodeInt(); // unk
+                    subType = subType.getSubByVal(inPacket.decodeInt());
                 }
-
                 boolean advancedSearchAnd = inPacket.decodeByte() != 0;
                 boolean priceRange = inPacket.decodeByte() != 0;
                 long priceMin = 0;
@@ -213,12 +116,10 @@ public class AuctionHandler {
                     priceMin = inPacket.decodeLong();
                     priceMax = inPacket.decodeLong();
                 }
-
                 AuctionPotType apt = AuctionPotType.All;
                 if (inPacket.decodeByte() != 0) {
                     apt = AuctionPotType.getByVal(inPacket.decodeByte());
                 }
-
                 boolean levelRange = inPacket.decodeByte() != 0;
                 int levelMin = 0;
                 int levelMax = Integer.MAX_VALUE;
@@ -226,15 +127,7 @@ public class AuctionHandler {
                     levelMin = inPacket.decodeInt();
                     levelMax = inPacket.decodeInt();
                 }
-                // ignoring advanced search options
-                Set<AuctionItem> searchResult = world.getAuctionItemsWithFilter(
-                        stringQuery, query, itemIdList, subType, priceMin, priceMax, apt, levelMin, levelMax
-                );
-                if (searchResult.size() == 0) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 2)));
-                } else {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.searchResult(type1, type2, searchResult)));
-                }
+                handleSearchItemList(chr, stringQuery, query, itemIdList, subType, priceMin, priceMax, apt, levelMin, levelMax);
                 break;
             case MyItemList:
                 chr.write(FieldPacket.auctionResult(AuctionResult.items(AuctionType.MyItemList, acc.getSellingAuctionItems())));
@@ -248,6 +141,146 @@ public class AuctionHandler {
             default:
                 log.warn(String.format("Unhandled auction type %s", at));
                 break;
+        }
+    }
+
+    public static void handleListItem(Char chr, Item item, int quant, long unitPrice) {
+        long cost = GameConstants.AUCTION_DEPOSIT_AMOUNT;
+        if (cost > chr.getMoney()) {
+            chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.ListItem, 3)));
+            return;
+        }
+        if (unitPrice < GameConstants.AUCTION_MIN_PRICE || unitPrice > GameConstants.AUCTION_MAX_PRICE) {
+            chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.ListItem, 1)));
+            return;
+        }
+        chr.deductMoney(GameConstants.AUCTION_DEPOSIT_AMOUNT);
+        chr.consumeItem(item, quant, true);
+        item = item.deepCopy();
+        item.setQuantity(quant);
+        AuctionItem ai = chr.getAccount().createAndAddAuctionByItem(item, chr, unitPrice);
+        DatabaseManager.saveToDB(item);
+        DatabaseManager.saveToDB(ai);
+        chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.ListItem, 0)));
+    }
+
+    public static void handleCancelListing(Char chr, AuctionItem ai) {
+        if (ai == null || ai.getState() != AuctionState.Init) {
+            chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.CancelListing, 5)));
+            return;
+        }
+        ai.setEndDate(FileTime.currentTime());
+        ai.setState(AuctionState.Expire);
+        DatabaseManager.saveToDB(ai);
+        chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.CancelListing, 0)));
+    }
+
+    public static void handlePurchaseSingle(Char chr, AuctionItem ai) {
+        if (ai == null || ai.getState() != AuctionState.Init || ai.getAccountID() == chr.getAccount().getId()) {
+            chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.PurchaseSingle, 7)));
+            return;
+        }
+        long cost = ai.getDirectPrice();
+        if (cost > chr.getMoney()) {
+            chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.PurchaseSingle, 4)));
+            return;
+        }
+        chr.deductMoney(cost);
+        ai.setBidUserID(chr.getId());
+        ai.setBidUsername(chr.getName());
+        ai.setState(AuctionState.Sold);
+        ai.setEndDate(FileTime.currentTime());
+        ai.setSoldQuantity(ai.getSoldQuantity() + 1);
+        DatabaseManager.saveToDB(ai);
+        // create entry for buyer
+        AuctionItem boughtItem = chr.getAccount().createAndAddAuctionByItem(ai.getItem(), chr, ai.getPrice());
+        boughtItem.setEndDate(FileTime.currentTime());
+        boughtItem.setState(AuctionState.Reserve);
+        chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.PurchaseSingle, 0)));
+    }
+
+    public static void handlePurchaseMultiple(Char chr, AuctionItem ai, int quant) {
+        if (ai == null || ai.getQuantity() <= 0 || ai.getState() != AuctionState.Init
+                || ai.getAccountID() == chr.getAccount().getId()) {
+            chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.PurchaseMultiple, 8)));
+            return;
+        }
+        int buyQuant = Math.min(quant, ai.getQuantity());
+        long cost = ai.getPrice() * buyQuant;
+        if (cost > chr.getMoney()) {
+            chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.PurchaseMultiple, 4)));
+            return;
+        }
+        chr.deductMoney(cost);
+        if (ai.getQuantity() == buyQuant) {
+            ai.setBidUserID(chr.getId());
+            ai.setBidUsername(chr.getName());
+            ai.setSoldQuantity(buyQuant);
+            ai.setState(AuctionState.Sold);
+            ai.setEndDate(FileTime.currentTime());
+            DatabaseManager.saveToDB(ai);
+            // create entry for buyer
+            AuctionItem boughtItem = chr.getAccount().createAndAddAuctionByItem(ai.getItem(), chr, ai.getPrice());
+            boughtItem.setEndDate(FileTime.currentTime());
+            boughtItem.setState(AuctionState.Reserve);
+            DatabaseManager.saveToDB(boughtItem);
+        } else {
+            ai.getItem().setQuantity(ai.getQuantity() - buyQuant);
+            DatabaseManager.saveToDB(ai);
+            // create entry for buyer
+            Item splitItem = ai.getItem().deepCopy();
+            splitItem.setQuantity(buyQuant);
+            AuctionItem boughtItem = chr.getAccount().createAndAddAuctionByItem(splitItem, chr, ai.getPrice());
+            boughtItem.setEndDate(FileTime.currentTime());
+            boughtItem.setState(AuctionState.Reserve);
+            DatabaseManager.saveToDB(boughtItem);
+            // create entry for seller
+            AuctionItem sellItem = ai.deepCopy();
+            sellItem.setItem(splitItem);
+            sellItem.setSoldQuantity(buyQuant);
+            sellItem.setEndDate(FileTime.currentTime());
+            sellItem.setState(AuctionState.Sold);
+            chr.getWorld().addAuction(sellItem, true);
+        }
+        chr.write(FieldPacket.auctionResult(AuctionResult.purchaseMultiple(ai)));
+    }
+
+    public static void handleCollect(Char chr, AuctionItem ai) {
+        if (ai == null || (ai.getState() != AuctionState.Sold && ai.getState() != AuctionState.Reserve && ai.getState() != AuctionState.Expire)) {
+            chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.Collect, 8)));
+            return;
+        }
+        if (ai.getState() == AuctionState.Sold) {
+            long collectMoney = (long) ((ai.getPrice() * ai.getSoldQuantity()) * GameConstants.AUCTION_TAX);
+            if (!chr.canAddMoney(collectMoney)) {
+                chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.Collect, 5)));
+                return;
+            }
+            ai.setState(AuctionState.SoldDone);
+            DatabaseManager.saveToDB(ai);
+            chr.addMoney(collectMoney);
+        } else {
+            Item item = ai.getItem();
+            InvType invType = item.getInvType();
+            if (chr.getInventoryByType(invType).isFull()) {
+                chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.Collect, 3)));
+                return;
+            }
+            ai.setState(ai.getState() == AuctionState.Expire ? AuctionState.Done : AuctionState.BidSuccessDone);
+            chr.addItemToInventory(item);
+            DatabaseManager.saveToDB(ai);
+        }
+        chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.Collect, 0)));
+    }
+
+    public static void handleSearchItemList(Char chr, boolean stringQuery, String query, Set<Integer> itemIdList, AuctionEnum subType,
+                                            long priceMin, long priceMax, AuctionPotType apt, int levelMin, int levelMax) {
+        // ignoring advanced search options
+        Set<AuctionItem> searchResult = chr.getWorld().getAuctionItemsWithFilter(stringQuery, query, itemIdList, subType, priceMin, priceMax, apt, levelMin, levelMax);
+        if (searchResult.size() == 0) {
+            chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.SearchItemList, 2)));
+        } else {
+            chr.write(FieldPacket.auctionResult(AuctionResult.searchResult(searchResult)));
         }
     }
 }

@@ -31,7 +31,7 @@ public class AuctionResult implements Encodable {
             case ListItem:
             case CancelListing:
             case PurchaseSingle:
-            case Complete:
+            case Collect:
             case Exit:
                 outPacket.encodeByte(code);
                 break;
@@ -93,11 +93,10 @@ public class AuctionResult implements Encodable {
         return ar;
     }
 
-    public static AuctionResult searchResult(int invType, int subType, Set<AuctionItem> items) {
+    public static AuctionResult searchResult(Set<AuctionItem> items) {
         AuctionResult ar = new AuctionResult(AuctionType.SearchItemList);
         ar.code = (byte) 0;
-        ar.byte1 = (byte) invType;
-        ar.byte2 = (byte) subType;
+        ar.byte1 = (byte) 1;
         ar.items = items;
         return ar;
     }

@@ -309,20 +309,20 @@ public class Account {
         getAuctionItems().add(item);
     }
 
-    public AuctionItem createAndAddAuctionByItem(Item item, Char sellingChar, long price) {
+    public AuctionItem createAndAddAuctionByItem(Item item, Char chr, long price) {
         AuctionItem ai = new AuctionItem();
         ai.setItem(item);
         ai.setRegDate(FileTime.currentTime());
         ai.setEndDate(FileTime.fromDate(FileTime.currentTime().toLocalDateTime().plusHours(GameConstants.AUCTION_LIST_TIME)));
         ai.setAccountID(getId());
-        ai.setCharID(sellingChar.getId());
-        ai.setCharName(sellingChar.getName());
-        ai.setDirectPrice(price);
+        ai.setCharID(chr.getId());
+        ai.setCharName(chr.getName());
+        ai.setPrice(price);
         ai.setItemType(item.getInvType().getVal());
         ai.setItemName(StringData.getItemStringById(item.getItemId()));
         ai.setDeposit(GameConstants.AUCTION_DEPOSIT_AMOUNT);
         addAuction(ai);
-        sellingChar.getClient().getWorld().addAuction(ai, true);
+        chr.getWorld().addAuction(ai, true);
         return ai;
     }
 

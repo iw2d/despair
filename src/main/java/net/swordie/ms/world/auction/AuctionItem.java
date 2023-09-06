@@ -5,6 +5,7 @@ import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.Encodable;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.FileTimeConverter;
+import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.AuctionState;
 import net.swordie.ms.loaders.StringData;
 import net.swordie.ms.util.FileTime;
@@ -25,8 +26,6 @@ public class AuctionItem implements Encodable {
     private int itemType;
     private String charName;
     private long price;
-    private long secondPrice;
-    private long directPrice;
     @Convert(converter = FileTimeConverter.class)
     private FileTime endDate;
     private int bidUserID;
@@ -69,7 +68,7 @@ public class AuctionItem implements Encodable {
         outPacket.encodeInt(getBidWorld()); // nBidWorld
         outPacket.encodeLong(getOid()); // nNexonOID
         outPacket.encodeFT(getRegDate()); // ftRegDate
-        outPacket.encodeLong(getDeposit()); // nDeposit
+        outPacket.encodeLong(0); // nDeposit
         outPacket.encodeInt(getSsType()); // nSSType
 
         // GW_ItemSlotBase::Decode
@@ -86,7 +85,7 @@ public class AuctionItem implements Encodable {
         outPacket.encodeInt(getState().getVal());
         outPacket.encodeLong(getDirectPrice());
         outPacket.encodeFT(getEndDate());
-        outPacket.encodeLong(getDeposit());
+        outPacket.encodeLong(0); // nDeposit
         outPacket.encodeInt(getItem().getQuantity());
         outPacket.encodeInt(ServerConfig.WORLD_ID); // nWorldID
     }
@@ -157,19 +156,14 @@ public class AuctionItem implements Encodable {
     }
 
     public long getSecondPrice() {
-        return secondPrice;
-    }
-
-    public void setSecondPrice(long secondPrice) {
-        this.secondPrice = secondPrice;
+        return price;
     }
 
     public long getDirectPrice() {
-        return directPrice;
-    }
-
-    public void setDirectPrice(long directPrice) {
-        this.directPrice = directPrice;
+        if (item.getQuantity() > 1 && !ItemConstants.isThrowingItem(item.getItemId())) {
+            return price * getQuantity();
+        }
+        return price;
     }
 
     public FileTime getEndDate() {
@@ -264,8 +258,6 @@ public class AuctionItem implements Encodable {
         ai.itemType = itemType;
         ai.charName = charName;
         ai.price = price;
-        ai.secondPrice = secondPrice;
-        ai.directPrice = directPrice;
         ai.endDate = endDate;
         ai.bidUserID = bidUserID;
         ai.bidUsername = bidUsername;

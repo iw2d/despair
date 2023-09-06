@@ -168,8 +168,6 @@ create table auctionitems
     itemType     int,
     charName     varchar(255),
     price        bigint,
-    secondprice  bigint,
-    directprice  bigint,
     endDate      datetime,
     biduserid    int,
     bidusername  varchar(255),
