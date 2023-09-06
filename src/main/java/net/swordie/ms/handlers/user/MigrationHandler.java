@@ -131,7 +131,7 @@ public class MigrationHandler {
     public static void handleUserTransferFieldRequest(Client c, InPacket inPacket) {
         Char chr = c.getChr();
         if (inPacket.getUnreadAmount() == 0) {
-            // Coming back from the cash shop
+            // Coming back from the cash shop / auction house
 //            chr.warp(chr.getOrCreateFieldByCurrentInstanceType(chr.getFieldID()));
             c.getChannelInstance().addClientInTransfer(c.getChannel(), chr.getId(), c);
             c.write(ClientSocket.migrateCommand(true, (short) c.getChannelInstance().getPort()));

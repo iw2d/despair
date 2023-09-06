@@ -1,25 +1,30 @@
 package net.swordie.ms.world.auction;
 
+import net.swordie.ms.client.character.damage.DamageSkinType;
 import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.enums.ItemGrade;
+import net.swordie.ms.util.Util;
 
 /**
  * @author Sjonnie
  * Created on 11/21/2018.
  */
 public enum AuctionPotType {
-    All,
-    Normal,
-    Rare,
-    Epic,
-    Unique,
-    Legendary;
+    All(-1),
+    Normal(0),
+    Rare(1),
+    Epic(2),
+    Unique(3),
+    Legendary(4);
+
+    private int val;
+
+    AuctionPotType(int val) {
+        this.val = val;
+    }
 
     public static AuctionPotType getByVal(int val) {
-        if (val == -1) {
-            return All;
-        }
-        return values()[val];
+        return Util.findWithPred(values(), dst -> dst.val == val);
     }
 
     public boolean isMatching(Equip equip) {

@@ -7,38 +7,22 @@ import net.swordie.ms.util.Util;
  * Created on 9/27/2018.
  */
 public enum AuctionType {
-    Initialize(0),
-    ItemList_2(1),
-    AuctionCancel_2(2),
-    Purchase_2(3),
+    // Refer to Etc.wz/AuctionData.img
+    Enter(0),
+    ListItem(1),
+    CancelListing(2),
+    PurchaseSingle(3),
     Bid(4),
-    PurchaseReq(5),
-    ReqSuccess(6),
-    SearchSuccess(7),
-    UnkError(8),
-    UnkError_2(9),
-    ListItem(10),
-    ItemListAgain(11),
-    AuctionCancel(12),
-    UnkError_3(13),
-
-    PurchaseSingle(20), // PurchaseSuccess
-    PurchaseMultiple(21), // PurchaseSuccess
-    Collect(30),
-    Reclaim(31),
-    SearchItems(40),
-    SearchMarketPlace(41),
-    WishListAdd(45), // WishlistSuccess
-    WishList(46),
-    WishListRemove(47),
-    LoadSellItems(50),
-    LoadSoldItems(51),
-    Unk60(60),
-    SellItemAdd(70), // sellItem
-    SoldItemAdd(71),
-    WishlistAdd(72), // wishlist
-    Unk73(73),
-
+    AveragePriceAutoBuy(5),
+    Complete(6),
+    SearchItemList(7),
+    MyItemList(8),
+    MyHistory(9),
+    AveragePrice(10),
+    Haggle(11),
+    PurchaseMultiple(12),
+    Unk13(13),
+    Exit(14),
     ;
 
     private int val;

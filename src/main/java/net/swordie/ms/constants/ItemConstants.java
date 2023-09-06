@@ -471,7 +471,7 @@ public class ItemConstants {
     }
 
     public static boolean isThrowingItem(int itemID) {
-        return isThrowingStar(itemID) || isBullet(itemID) || isBowArrow(itemID);
+        return isThrowingStar(itemID) || isBullet(itemID);
     }
 
     public static boolean isThrowingStar(int itemID) {

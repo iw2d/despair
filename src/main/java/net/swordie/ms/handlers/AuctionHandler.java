@@ -7,7 +7,6 @@ import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.connection.packet.FieldPacket;
 import net.swordie.ms.constants.GameConstants;
-import net.swordie.ms.enums.AuctionResultCode;
 import net.swordie.ms.enums.AuctionState;
 import net.swordie.ms.enums.InvType;
 import net.swordie.ms.handlers.header.InHeader;
@@ -17,6 +16,7 @@ import net.swordie.ms.world.auction.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class AuctionHandler {
@@ -26,157 +26,81 @@ public class AuctionHandler {
 
     @Handler(op = InHeader.AUCTION_REQUEST)
     public static void handleAuctionRequest(Char chr, InPacket inPacket) {
-        int type = inPacket.decodeInt();
+        int type = inPacket.decodeByte();
         AuctionType at = AuctionType.getType(type);
         if (at == null) {
-            chr.write(FieldPacket.auctionResult(AuctionResult.error(AuctionType.SearchItems, AuctionResultCode.Unknown)));
             log.error(String.format("Unknown auction request type %d", type));
             return;
         }
         Account acc = chr.getAccount();
         World world = chr.getWorld();
+        int auctionId;
         AuctionItem ai;
+        AuctionItem sellItem;
         switch (at) {
-            case Initialize:
-                chr.write(FieldPacket.auctionResult(AuctionResult.showSoldItems(acc.getCompletedAuctionItems())));
-                chr.write(FieldPacket.auctionResult(AuctionResult.showSellingItems(acc.getSellingAuctionItems())));
-
-                // TODO: wishlist -> AuctionResult.wishList
-                chr.write(FieldPacket.auctionResult(AuctionResult.initialize()));
-
-                chr.write(FieldPacket.auctionResult(AuctionResult.showMarketplaceItems(world.getAuctionMarketPlaceItems(), AuctionResultCode.Load)));
-                chr.write(FieldPacket.auctionResult(AuctionResult.showSearchItems(world.getAuctionRecentListings())));
-                break;
-            case SearchItems:
-            case SearchMarketPlace:
-                boolean expired = at == AuctionType.SearchMarketPlace;
-                inPacket.decodeByte(); // ?
-                AuctionInvType auctionInvType = AuctionInvType.getByVal(inPacket.decodeInt());
-                if (at == AuctionType.SearchItems) {
-                    inPacket.decodeInt(); // ?
-                }
-                String query1 = inPacket.decodeString();
-                String query2 = inPacket.decodeString();
-                AuctionEnum subType = auctionInvType.getSubByVal(inPacket.decodeInt()).getSubByVal(inPacket.decodeInt());
-                int minLv = inPacket.decodeInt();
-                int maxLv = inPacket.decodeInt();
-                long minPrice = inPacket.decodeLong();
-                long maxPrice = inPacket.decodeLong();
-                AuctionPotType apt = AuctionPotType.getByVal(inPacket.decodeInt());
-                boolean andSearch = inPacket.decodeByte() != 0;
-                int addOptionSize = inPacket.decodeInt();
-                // TODO
-                Set<AuctionItem> items = world.getAuctionItemsWithFilter(query1.toLowerCase(), query2.toLowerCase(),
-                        subType, minLv, maxLv, minPrice, maxPrice, apt, andSearch, expired);
-                if (at == AuctionType.SearchItems) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.showSearchItems(items)));
-                } else {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.showMarketplaceItems(items)));
-                }
-                break;
-            case WishList:
-                //  items = new HashSet<>();
-                //    items.add(AuctionItem.testItem());
+            case Enter:
+                chr.write(FieldPacket.auctionResult(AuctionResult.items(AuctionType.MyItemList, acc.getSellingAuctionItems())));
+                chr.write(FieldPacket.auctionResult(AuctionResult.items(AuctionType.MyHistory, acc.getCompletedAuctionItems())));
+                chr.write(FieldPacket.auctionResult(AuctionResult.searchResult(-1, 0, world.getAuctionRecentListings())));
                 break;
             case ListItem:
-                inPacket.decodeInt(); // auction type
+                if (acc.getSellingAuctionItems().size() >= GameConstants.AUCTION_LIST_SLOTS) {
+                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 4)));
+                    return;
+                }
+                inPacket.decodeInt(); // auction Type
                 int itemId = inPacket.decodeInt();
                 int quant = inPacket.decodeInt();
                 long unitPrice = inPacket.decodeLong();
                 int listHours = inPacket.decodeInt(); // always 24?
                 InvType invType = InvType.getInvTypeByVal(inPacket.decodeByte());
                 int pos = inPacket.decodeInt();
+                inPacket.decodeByte(); // unk
                 Item item = chr.getInventoryByType(invType).getItemBySlot(pos);
-                if (item == null || item.getItemId() != itemId) { // Should allow Untradeable Items to be listed now?
-                    chr.write(FieldPacket.auctionResult(AuctionResult.error(at, AuctionResultCode.NotExist)));
+                if (item == null || item.getItemId() != itemId) {
+                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 6))); // failure due to unknown error
                     return;
                 }
                 long cost = GameConstants.AUCTION_DEPOSIT_AMOUNT;
-                if (cost > chr.getMoney() || unitPrice < GameConstants.AUCTION_MIN_PRICE
-                        || unitPrice > GameConstants.AUCTION_MAX_PRICE) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.error(at, AuctionResultCode.InsufficientFunds)));
+                if (cost > chr.getMoney()) {
+                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 3)));
+                    return;
+                }
+                if (unitPrice < GameConstants.AUCTION_MIN_PRICE || unitPrice > GameConstants.AUCTION_MAX_PRICE) {
+                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 1)));
                     return;
                 }
                 chr.deductMoney(GameConstants.AUCTION_DEPOSIT_AMOUNT);
-                chr.consumeItem(item, quant);
+                chr.consumeItem(item, quant, true);
                 item = item.deepCopy();
                 item.setQuantity(quant);
-                DatabaseManager.saveToDB(item);
                 ai = acc.createAndAddAuctionByItem(item, chr, unitPrice);
-                chr.write(FieldPacket.auctionResult(AuctionResult.listItem(ai)));
-                // Intended fallthrough to display all items again
-            case LoadSellItems:
-                items = acc.getSellingAuctionItems();
-                chr.write(FieldPacket.auctionResult(AuctionResult.showSellingItems(items)));
+                DatabaseManager.saveToDB(item);
+                DatabaseManager.saveToDB(ai);
+                chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 0)));
                 break;
-            case AuctionCancel:
-                int auctionId = inPacket.decodeInt();
+            case CancelListing:
+                auctionId = inPacket.decodeInt();
                 ai = acc.getAuctionById(auctionId);
                 if (ai == null || ai.getState() != AuctionState.Init) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.error(at, AuctionResultCode.NotExist)));
+                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 5)));
                     return;
                 }
                 ai.setEndDate(FileTime.currentTime());
                 ai.setState(AuctionState.Expire);
                 DatabaseManager.saveToDB(ai);
-                // show items again
-                items = acc.getSellingAuctionItems();
-                chr.write(FieldPacket.auctionResult(AuctionResult.showSellingItems(items)));
-                break;
-            case LoadSoldItems:
-                items = acc.getCompletedAuctionItems();
-                chr.write(FieldPacket.auctionResult(AuctionResult.showSoldItems(items)));
-                break;
-            case Reclaim:
-                auctionId = inPacket.decodeInt();
-                ai = acc.getAuctionById(auctionId);
-                if (ai == null || (ai.getState() != AuctionState.Reserve && ai.getState() != AuctionState.Expire)) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.error(at, AuctionResultCode.NotExist)));
-                    return;
-                }
-                item = ai.getItem();
-                invType = item.getInvType();
-                if (chr.getInventoryByType(invType).isFull()) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.error(at, AuctionResultCode.InsufficientSlots)));
-                    return;
-                }
-                ai.setState(ai.getState() == AuctionState.Expire ? AuctionState.Done : AuctionState.BidSuccessDone);
-                chr.addItemToInventory(item);
-                items = acc.getCompletedAuctionItems();
-                DatabaseManager.saveToDB(ai);
-                chr.write(FieldPacket.auctionResult(AuctionResult.showSoldItems(items)));
-                break;
-            case ItemListAgain:
-                auctionId = inPacket.decodeInt();
-                ai = acc.getAuctionById(auctionId);
-                if (ai == null || ai.getState() != AuctionState.Expire) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.error(at, AuctionResultCode.NotExist)));
-                    return;
-                }
-                cost = GameConstants.AUCTION_DEPOSIT_AMOUNT;
-                if (cost > chr.getMoney()) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.error(at, AuctionResultCode.InsufficientFunds)));
-                    return;
-                }
-                chr.deductMoney(GameConstants.AUCTION_DEPOSIT_AMOUNT);
-                AuctionItem newAi = ai.deepCopy();
-                chr.write(FieldPacket.auctionResult(AuctionResult.listItem(newAi)));
-                chr.getWorld().addAuction(ai, true);
-                acc.addAuction(ai);
-                DatabaseManager.saveToDB(ai);
-                items = acc.getCompletedAuctionItems();
-                chr.write(FieldPacket.auctionResult(AuctionResult.showSoldItems(items)));
+                chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 0)));
                 break;
             case PurchaseSingle:
                 auctionId = inPacket.decodeInt();
                 ai = world.getAuctionById(auctionId);
                 if (ai == null || ai.getState() != AuctionState.Init || ai.getAccountID() == acc.getId()) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.error(at, AuctionResultCode.NotExist)));
+                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 7)));
                     return;
                 }
                 cost = ai.getDirectPrice();
                 if (cost > chr.getMoney()) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.error(at, AuctionResultCode.InsufficientFunds)));
+                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 4)));
                     return;
                 }
                 ai.setBidUserID(chr.getId());
@@ -184,14 +108,13 @@ public class AuctionHandler {
                 ai.setState(AuctionState.Sold);
                 ai.setEndDate(FileTime.currentTime());
                 ai.setSoldQuantity(ai.getSoldQuantity() + 1);
-                DatabaseManager.saveToDB(ai);
-                AuctionItem sellItem;
                 sellItem = acc.createAndAddAuctionByItem(ai.getItem(), chr, ai.getPrice());
                 sellItem.setDirectPrice(ai.getDirectPrice());
                 sellItem.setEndDate(FileTime.currentTime());
                 sellItem.setState(AuctionState.Reserve);
+                DatabaseManager.saveToDB(ai);
                 DatabaseManager.saveToDB(sellItem);
-                chr.write(FieldPacket.auctionResult(AuctionResult.purchaseItem(at, auctionId)));
+                chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 0)));
                 break;
             case PurchaseMultiple:
                 auctionId = inPacket.decodeInt();
@@ -200,13 +123,13 @@ public class AuctionHandler {
                 ai = world.getAuctionById(auctionId);
                 if (ai == null || ai.getQuantity() <= 0 || ai.getState() != AuctionState.Init
                         || ai.getAccountID() == acc.getId()) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.error(at, AuctionResultCode.NotExist)));
+                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 8)));
                     return;
                 }
                 buyQuant = Math.min(buyQuant, ai.getQuantity());
                 cost = ai.getDirectPrice() * buyQuant;
                 if (cost > chr.getMoney()) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.error(at, AuctionResultCode.InsufficientFunds)));
+                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 4)));
                     return;
                 }
                 chr.deductMoney(cost);
@@ -231,27 +154,100 @@ public class AuctionHandler {
                 }
                 DatabaseManager.saveToDB(ai);
                 DatabaseManager.saveToDB(sellItem);
-                chr.write(FieldPacket.auctionResult(AuctionResult.purchaseItem(at, auctionId)));
+                chr.write(FieldPacket.auctionResult(AuctionResult.purchaseMultiple(ai)));
                 break;
-            case Collect:
-                auctionId = inPacket.decodeInt();
-                ai = acc.getAuctionById(auctionId);
-                if (ai == null || ai.getState() != AuctionState.Sold) {
-                    chr.write(FieldPacket.auctionResult(AuctionResult.error(at, AuctionResultCode.NotExist)));
-                    return;
+            case Complete:
+                if (inPacket.getUnreadAmount() == 60) {
+                    inPacket.decodeLong();
+                    auctionId = inPacket.decodeInt();
+                    ai = acc.getAuctionById(auctionId);
+                    if (ai == null || (ai.getState() != AuctionState.Reserve && ai.getState() != AuctionState.Expire)) {
+                        chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 8)));
+                        return;
+                    }
+                    item = ai.getItem();
+                    invType = item.getInvType();
+                    if (chr.getInventoryByType(invType).isFull()) {
+                        chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 3)));
+                        return;
+                    }
+                    ai.setState(ai.getState() == AuctionState.Expire ? AuctionState.Done : AuctionState.BidSuccessDone);
+                    chr.addItemToInventory(item);
+                    DatabaseManager.saveToDB(ai);
+                } else {
+                    auctionId = inPacket.decodeInt();
+                    ai = acc.getAuctionById(auctionId);
+                    long collectMoney = (long) (ai.getDeposit() + (ai.getDirectPrice() * ai.getSoldQuantity()) * GameConstants.AUCTION_TAX);
+                    ai.setState(AuctionState.SoldDone);
+                    DatabaseManager.saveToDB(ai);
+                    chr.addMoney(collectMoney);
                 }
-                // Could also handle bids here if implemented
-                // Just assuming that only buyout is possible right now
-                long collectMoney = (long) (ai.getDeposit() + (ai.getDirectPrice() * ai.getSoldQuantity()) * GameConstants.AUCTION_TAX);
-                ai.setState(AuctionState.SoldDone);
-                DatabaseManager.saveToDB(ai);
-                chr.addMoney(collectMoney);
-                items = acc.getCompletedAuctionItems();
-                chr.write(FieldPacket.auctionResult(AuctionResult.showSoldItems(items)));
+                chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 0)));
+                break;
+            case SearchItemList:
+                inPacket.decodeByte(); // unk
+                String query = "";
+                Set<Integer> itemIdList = new HashSet<>();
+                boolean stringQuery = inPacket.decodeByte() != 0;
+                if (stringQuery) {
+                    query = inPacket.decodeString();
+                } else {
+                    int count = inPacket.decodeInt();
+                    for (int i = 0; i < count; i++) {
+                        itemIdList.add(inPacket.decodeInt());
+                    }
+                }
+                int type1 = inPacket.decodeInt();
+                int type2 = inPacket.decodeInt();
+                AuctionEnum subType = AuctionInvType.getByVal(type1).getSubByVal(type2);
+
+                if (inPacket.decodeByte() != 0) {
+                    inPacket.decodeInt(); // unk
+                }
+
+                boolean advancedSearchAnd = inPacket.decodeByte() != 0;
+                boolean priceRange = inPacket.decodeByte() != 0;
+                long priceMin = 0;
+                long priceMax = Long.MAX_VALUE;
+                if (priceRange) {
+                    priceMin = inPacket.decodeLong();
+                    priceMax = inPacket.decodeLong();
+                }
+
+                AuctionPotType apt = AuctionPotType.All;
+                if (inPacket.decodeByte() != 0) {
+                    apt = AuctionPotType.getByVal(inPacket.decodeByte());
+                }
+
+                boolean levelRange = inPacket.decodeByte() != 0;
+                int levelMin = 0;
+                int levelMax = Integer.MAX_VALUE;
+                if (levelRange) {
+                    levelMin = inPacket.decodeInt();
+                    levelMax = inPacket.decodeInt();
+                }
+                // ignoring advanced search options
+                Set<AuctionItem> searchResult = world.getAuctionItemsWithFilter(
+                        stringQuery, query, itemIdList, subType, priceMin, priceMax, apt, levelMin, levelMax
+                );
+                if (searchResult.size() == 0) {
+                    chr.write(FieldPacket.auctionResult(AuctionResult.of(at, 2)));
+                } else {
+                    chr.write(FieldPacket.auctionResult(AuctionResult.searchResult(type1, type2, searchResult)));
+                }
+                break;
+            case MyItemList:
+                chr.write(FieldPacket.auctionResult(AuctionResult.items(AuctionType.MyItemList, acc.getSellingAuctionItems())));
+                break;
+            case MyHistory:
+                chr.write(FieldPacket.auctionResult(AuctionResult.items(AuctionType.MyHistory, acc.getCompletedAuctionItems())));
+                break;
+            case Exit:
+                chr.write(FieldPacket.auctionResult(AuctionResult.of(AuctionType.Exit, 0)));
                 break;
             default:
                 log.warn(String.format("Unhandled auction type %s", at));
-
+                break;
         }
     }
 }

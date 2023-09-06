@@ -3242,11 +3242,12 @@ public class Char {
 	 * Removes a certain amount of an item from this Char.
 	 * @param item the item to remove
 	 * @param quantity the amount to remove
+	 * @param removable true: enables to remove throwing item from slot
 	 */
-	public void consumeItem(Item item, int quantity) {
+	public void consumeItem(Item item, int quantity, boolean removable) {
 		int consumed = quantity > item.getQuantity() ? 0 : item.getQuantity() - quantity;
 		item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
-		consumeItem(item);
+		consumeItem(item, removable);
 	}
 
 	/**
@@ -3256,24 +3257,39 @@ public class Char {
 	 * @param item The Item to consume, which is currently in the Char's inventory.
 	 */
 	public void consumeItem(Item item) {
+		consumeItem(item, false);
+	}
+
+	/**
+	 * Consumes a single {@link Item} from this Char's {@link Inventory}. Will remove the Item if it
+	 * has a quantity of 1.
+	 *
+	 * @param item      The Item to consume, which is currently in the Char's inventory.
+	 * @param removable true: enables to remove throwing item from slot
+	 */
+	public void consumeItem(Item item, boolean removable) {
 		Inventory inventory = getInventoryByType(item.getInvType());
 		// data race possible
-		if (item.getQuantity() <= 1 && !ItemConstants.isThrowingItem(item.getItemId())) {
+		boolean throwingItem = ItemConstants.isThrowingItem(item.getItemId());
+		if (!throwingItem && item.getQuantity() <= 1 || throwingItem && removable) {
 			item.setQuantity(0);
-			inventory.removeItem(item);
 			short bagIndex = (short) item.getBagIndex();
+			inventory.removeItem(item);
+			item.drop();
 			if (item.getInvType() == EQUIPPED) {
 				getAvatarData().getAvatarLook().removeItem(item.getItemId());
 				bagIndex = (short) -bagIndex;
 			}
-			write(WvsContext.inventoryOperation(true, false,
-					Remove, bagIndex, (byte) 0, 0, item));
+			write(WvsContext.inventoryOperation(true, false, Remove, bagIndex, (byte) 0, 0, item));
 		} else {
 			item.setQuantity(item.getQuantity() - 1);
-			write(WvsContext.inventoryOperation(true, false,
-					UpdateQuantity, (short) item.getBagIndex(), (byte) -1, 0, item));
+			write(WvsContext.inventoryOperation(true, false, UpdateQuantity, (short) item.getBagIndex(), (byte) -1, 0, item));
 		}
 		setBulletIDForAttack(calculateBulletIDForAttack(1));
+	}
+
+	public void consumeItem(int id, int quantity) {
+		consumeItem(id, quantity, false);
 	}
 
 	/**
@@ -3284,29 +3300,24 @@ public class Char {
 	 *
 	 * @param id       The Item's id.
 	 * @param quantity The amount to consume.
+	 * @param removable true: enables to remove throwing item from slot
 	 */
-	public void consumeItem(int id, int quantity) {
+	public void consumeItem(int id, int quantity, boolean removable) {
 		Item checkItem = ItemData.getItemDeepCopy(id);
-		if (checkItem != null) {
-			Item item = getInventoryByType(checkItem.getInvType()).getItemByItemID(id);
-			if (item != null) {
-				int itemQuantity = item.getQuantity();
-				int consumed = quantity > itemQuantity ? 0 : itemQuantity - quantity;
-				item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
-				consumeItem(item);
-				if (quantity > itemQuantity) {
-					consumeItem(id, quantity - itemQuantity);
-				}
-			}
+		Item item = getInventoryByType(checkItem.getInvType()).getItemByItemID(id);
+		if (item != null) {
+			int consumed = quantity > item.getQuantity() ? 0 : item.getQuantity() - quantity;
+			item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
+			consumeItem(item, removable);
 		}
 	}
 
-	public void consumeItemBySlot(InvType invType, int slot, int quantity) {
+	public void consumeItemBySlot(InvType invType, int slot, int quantity, boolean removable) {
 		Item item = getInventoryByType(invType).getItemBySlot(slot);
 		if (item != null) {
 			int consumed = quantity > item.getQuantity() ? 0 : item.getQuantity() - quantity;
 			item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
-			consumeItem(item);
+			consumeItem(item, removable);
 		}
 	}
 
@@ -5512,10 +5523,10 @@ public class Char {
 	}
 
 	public void afterMigrate() {
-		if(isChangingChannel()) {
+		if (isChangingChannel()) {
 			setChangingChannel(false);
 		}
-		if(isInCashShop()) {
+		if (isInCashShop()) {
 			setInCashShop(false);
 		}
 		getTemporaryStatManager().getToBroadcastAfterMigrate().forEach(this::write);

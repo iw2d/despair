@@ -323,7 +323,6 @@ public class Account {
         ai.setDeposit(GameConstants.AUCTION_DEPOSIT_AMOUNT);
         addAuction(ai);
         sellingChar.getClient().getWorld().addAuction(ai, true);
-
         return ai;
     }
 

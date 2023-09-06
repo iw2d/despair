@@ -144,10 +144,11 @@ public class GameConstants {
 
     // Auction
     public static final long AUCTION_LIST_TIME = 24; // hours
+    public static final int AUCTION_LIST_SLOTS = 10;
     public static final long AUCTION_DEPOSIT_AMOUNT = 2000;
     public static final long AUCTION_MIN_PRICE = 50;
-    public static final long AUCTION_MAX_PRICE = 100_000_000_000L;
-    public static final double AUCTION_TAX = 0.95; // 5%
+    public static final long AUCTION_MAX_PRICE = MAX_MONEY;
+    public static final double AUCTION_TAX = 0.95;
 
     // START OF Party Quests
     public static final long PARTY_QUEST_GLOBAL_EXP = 30000000; // The minimum amount of Exp given from a PQ.

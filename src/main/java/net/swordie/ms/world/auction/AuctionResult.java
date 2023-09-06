@@ -1,13 +1,9 @@
 package net.swordie.ms.world.auction;
 
-import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.Encodable;
 import net.swordie.ms.connection.OutPacket;
-import net.swordie.ms.enums.AuctionResultCode;
 import net.swordie.ms.enums.AuctionState;
-import net.swordie.ms.util.FileTime;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,14 +13,11 @@ import java.util.Set;
  */
 public class AuctionResult implements Encodable {
     private AuctionType type;
-    private AuctionResultCode code = AuctionResultCode.None;
-    private int auctionId;
-    private boolean bool1;
-    private boolean bool2;
+    private byte code = 0;
+    private byte byte1;
+    private byte byte2;
     private AuctionItem item;
     private Set<AuctionItem> items = new HashSet<>();
-
-    private AuctionResult(){}
 
     public AuctionResult(AuctionType type) {
         this.type = type;
@@ -32,183 +25,93 @@ public class AuctionResult implements Encodable {
 
     @Override
     public void encode(OutPacket outPacket) {
-        outPacket.encodeInt(type.getVal());
-        outPacket.encodeInt(code.getVal()); // nResultCode
-        outPacket.encodeInt(auctionId); // nAuctionId
+        outPacket.encodeByte(type.getVal());
         switch (type) {
-            case SearchItems:
-            case SearchMarketPlace:
-                outPacket.encodeByte(bool1); // bOverride
-                outPacket.encodeByte(bool2);
-                outPacket.encodeInt(items.size());
-                for (AuctionItem item : items) {
-                    outPacket.encode(item);
-                }
+            case Enter:
+            case ListItem:
+            case CancelListing:
+            case PurchaseSingle:
+            case Complete:
+            case Exit:
+                outPacket.encodeByte(code);
                 break;
-            case WishList:
-            case LoadSellItems:
-                items.add(AuctionItem.testItem());
-                outPacket.encodeInt(items.size());
-                for (AuctionItem item : items) {
-                    outPacket.encode(item);
-                }
-                break;
-            case LoadSoldItems:
-                outPacket.encodeInt(items.size());
-                for (AuctionItem item : items) {
-                    item.encodeHistory(outPacket);
-                    outPacket.encodeByte(item.getState() != AuctionState.Done);
-                    if (item.getState() != AuctionState.Done) {
-                        item.encode(outPacket);
-                    }
-                }
-                break;
-            case Unk60:
+            case SearchItemList:
+                outPacket.encodeByte(code);
+                outPacket.encodeByte(byte1); // invType
+                outPacket.encodeByte(byte2); // subType
                 outPacket.encodeInt(items.size());
                 for (AuctionItem ai : items) {
-                    Item item = ai.getItem();
-                    outPacket.encodeInt(item.getItemId());
-                    outPacket.encodeFT(ai.getRegDate());
-                    outPacket.encodeInt(0); // ignored
-                    outPacket.encodeFT(ai.getEndDate());
-                    outPacket.encodeInt(0); // ignored
+                    outPacket.encodeByte(true); // do decode?
+                    ai.encode(outPacket);
                 }
                 break;
-            case ListItem:
-                // Just uses the first 3 args
-                break;
-            case SellItemAdd:
-                outPacket.encodeByte(item.getState() != AuctionState.Done);
-                if (item != null) {
-                    outPacket.encode(item);
+            case MyItemList:
+                outPacket.encodeInt(items.size());
+                for (AuctionItem ai : items) {
+                    ai.encode(outPacket);
                 }
                 break;
-            case SoldItemAdd:
-                outPacket.encodeFT(item.getEndDate());
-                outPacket.encodeByte(item.getItem() != null);
-                if (item.getItem() != null) {
-                    item.encodeHistory(outPacket);
-                    outPacket.encodeByte(item.getState() != AuctionState.Done);
-                    if (item.getState() != AuctionState.Done) {
-                        outPacket.encode(item);
+            case MyHistory:
+                outPacket.encodeInt(items.size());
+                for (AuctionItem ai : items) {
+                    ai.encodeHistory(outPacket);
+                    boolean encodeItem = true;
+                    outPacket.encodeByte(encodeItem);
+                    if (encodeItem) {
+                        ai.encode(outPacket);
                     }
                 }
                 break;
-            case WishlistAdd:
-            case Unk73:
-                outPacket.encodeByte(item.getItem() != null);
-                if (item.getItem() != null) {
-                    outPacket.encode(item);
+            case AveragePrice:
+                int size = 0;
+                outPacket.encodeInt(size);
+                for (int i = 0; i < size; i++) {
+                    outPacket.encodeInt(0);  // nItemID
+                    outPacket.encodeLong(0); // nDailyAvg
+                    outPacket.encodeInt(0);  // ignored
+                    outPacket.encodeLong(0); // n30MinAvg
+                    outPacket.encodeInt(0);  // ignored
+                }
+                break;
+            case PurchaseMultiple:
+                outPacket.encodeByte(code);
+                if (code == 0) {
+                    outPacket.encodeInt(item.getId());
+                    boolean encodeItem = item.getState() != AuctionState.Sold;
+                    outPacket.encodeByte(encodeItem);
+                    if (encodeItem) {
+                        item.encode(outPacket);
+                    }
                 }
                 break;
         }
     }
 
-    public static AuctionResult showSearchItems(Set<AuctionItem> items) {
-        AuctionResult ar = new AuctionResult(AuctionType.SearchItems);
-        ar.bool1 = true; // overrides the old results
-        ar.items = items;
-        return ar;
-    }
-
-    public static AuctionResult showMarketplaceItems(Set<AuctionItem> items) {
-        AuctionResult ar = new AuctionResult(AuctionType.SearchMarketPlace);
-        ar.bool1 = true; // overrides the old results
-        ar.items = items;
-        return ar;
-    }
-
-    public static AuctionResult showMarketplaceItems(Set<AuctionItem> items, AuctionResultCode code) {
-        AuctionResult ar = new AuctionResult(AuctionType.SearchMarketPlace);
-        ar.bool1 = true; // overrides the old results
-        ar.items = items;
-        ar.code = code;
-        return ar;
-    }
-
-    public static AuctionResult showWishlist(Set<AuctionItem> items) {
-        AuctionResult ar = new AuctionResult(AuctionType.WishList);
-        ar.items = items;
-        return ar;
-    }
-
-    public static AuctionResult showSellingItems(Set<AuctionItem> items) {
-        AuctionResult ar = new AuctionResult(AuctionType.LoadSellItems);
-        ar.items = items;
-        return ar;
-    }
-
-    public static AuctionResult listItem(AuctionItem item) {
-        AuctionResult ar = new AuctionResult(AuctionType.LoadSellItems);
-        ar.item = item;
-        return ar;
-    }
-
-    public static AuctionResult showSoldItems(Set<AuctionItem> items) {
-        AuctionResult ar = new AuctionResult(AuctionType.LoadSoldItems);
-        ar.items = items;
-        return ar;
-    }
-
-    public static AuctionResult sellItem(boolean success, int auctionId) {
-        AuctionResult ar = new AuctionResult(AuctionType.ListItem);
-        ar.bool1 = success;
-        ar.auctionId = auctionId;
-        return ar;
-    }
-
-    public static AuctionResult purchaseItem(AuctionType at, int auctionId) {
+    public static AuctionResult of(AuctionType at, int code) {
         AuctionResult ar = new AuctionResult(at);
-        ar.auctionId = auctionId;
+        ar.code = (byte) code;
         return ar;
     }
 
-    public static AuctionResult unk60(Set<AuctionItem> items) {
-        AuctionResult ar = new AuctionResult(AuctionType.LoadSoldItems);
+    public static AuctionResult searchResult(int invType, int subType, Set<AuctionItem> items) {
+        AuctionResult ar = new AuctionResult(AuctionType.SearchItemList);
+        ar.code = (byte) 0;
+        ar.byte1 = (byte) invType;
+        ar.byte2 = (byte) subType;
         ar.items = items;
         return ar;
     }
 
-    public static AuctionResult unk70(AuctionItem item) {
-        AuctionResult ar = new AuctionResult(AuctionType.SellItemAdd);
-        ar.auctionId = item.getId();
+    public static AuctionResult purchaseMultiple(AuctionItem item) {
+        AuctionResult ar = new AuctionResult(AuctionType.SearchItemList);
+        ar.code = (byte) 0;
         ar.item = item;
         return ar;
     }
 
-    public static AuctionResult unk71(AuctionItem item) {
-        AuctionResult ar = new AuctionResult(AuctionType.SoldItemAdd);
-        ar.auctionId = item.getId();
-        ar.item = item;
-        return ar;
-    }
-
-    public static AuctionResult unk72(AuctionItem item) {
-        AuctionResult ar = new AuctionResult(AuctionType.WishlistAdd);
-        ar.auctionId = item.getId();
-        ar.item = item;
-        return ar;
-    }
-
-    public static AuctionResult unk73(AuctionItem item) {
-        AuctionResult ar = new AuctionResult(AuctionType.Unk73);
-        ar.auctionId = item.getId();
-        ar.item = item;
-        return ar;
-    }
-
-    public static AuctionResult error(AuctionType at, AuctionResultCode code) {
+    public static AuctionResult items(AuctionType at, Set<AuctionItem> items) {
         AuctionResult ar = new AuctionResult(at);
-        ar.code = code;
+        ar.items = items;
         return ar;
     }
-
-    public static AuctionResult initialize() {
-        AuctionResult ar = new AuctionResult(AuctionType.Initialize);
-        ar.code = AuctionResultCode.None;
-        return ar;
-    }
-
-
-
 }

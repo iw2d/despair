@@ -17,6 +17,7 @@ import net.swordie.ms.world.auction.AuctionItem;
 import net.swordie.ms.world.auction.AuctionPotType;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -345,30 +346,6 @@ public class World {
         return auctionIdToAuction.values();
     }
 
-    public Set<AuctionItem> getAuctionItemsWithFilter(String query1, String query2, AuctionEnum innerType, int minLv,
-                                                      int maxLv, long minPrice, long maxPrice, AuctionPotType apt,
-                                                      boolean andSearch, boolean expired) {
-        return getAuctionHouse().stream().filter(ai -> {
-            if ((expired && (!ai.getEndDate().isExpired() || ai.getState() != AuctionState.SoldDone)) ||
-                    (!expired && (ai.getEndDate().isExpired() || ai.getState() != AuctionState.Init))) {
-                return false;
-            }
-            Item item = ai.getItem();
-            String name = ai.getItemName().toLowerCase().replaceAll(" ", "");
-            Equip equip = null;
-            if (item instanceof Equip) {
-                equip = (Equip) item;
-            }
-            boolean nonEquipCheck = (name.toLowerCase().contains(query1) || name.contains(query2)) && innerType.isMatching(item)
-                    && ai.getPrice() >= minPrice && ai.getPrice() <= maxPrice;
-            if (equip != null && nonEquipCheck) {
-                nonEquipCheck = equip.getrLevel() >= minLv && equip.getrLevel() <= maxLv &&
-                        apt.isMatching(equip);
-            }
-            return nonEquipCheck;
-        }).collect(Collectors.toSet());
-    }
-
     public void addAuction(AuctionItem ai, boolean saveToDb) {
         if (saveToDb) {
             DatabaseManager.saveToDB(ai);
@@ -388,12 +365,47 @@ public class World {
         return auctionIdToAuction.get(auctionId);
     }
 
-    public Set<AuctionItem> getAuctionMarketPlaceItems() {
-        return getAuctionHouse().stream().filter(auctionItem -> auctionItem.getState() == AuctionState.Sold).collect(Collectors.toSet());
-    }
-
     public Set<AuctionItem> getAuctionRecentListings() {
         return getAuctionHouse().stream().filter(auctionItem -> !auctionItem.getEndDate().isExpired()).collect(Collectors.toSet());
+    }
+
+    public Set<AuctionItem> getAuctionItemsWithFilter(boolean stringQuery, String query, Set<Integer> itemIdList, AuctionEnum subType,
+                                                      long priceMin, long priceMax, AuctionPotType apt, int levelMin, int levelMax) {
+        return getAuctionHouse().stream()
+                .filter(ai -> {
+                    if (ai.getEndDate().isExpired() || ai.getState() != AuctionState.Init) {
+                        return false;
+                    }
+                    Item item = ai.getItem();
+                    int itemId = item.getItemId();
+                    if (!subType.isMatching(item)) {
+                        return false;
+                    }
+                    if (ai.getPrice() < priceMin || ai.getPrice() > priceMax) {
+                        return false;
+                    }
+                    if (item instanceof Equip) {
+                        Equip equip = (Equip) item;
+                        if (equip.getrLevel() < levelMin || equip.getrLevel() > levelMax) {
+                            return false;
+                        }
+                        if (!apt.isMatching(equip)) {
+                            return false;
+                        }
+                    }
+                    if (stringQuery) {
+                        if (!ai.getItemName().toLowerCase().replaceAll(" ", "").contains(query)) {
+                            return false;
+                        }
+                    } else {
+                        if (!itemIdList.contains(itemId)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+                .limit(500)
+                .collect(Collectors.toSet());
     }
 
     public void shutdown() {

@@ -1,21 +1,17 @@
 package net.swordie.ms.world.auction;
 
+import net.swordie.ms.ServerConfig;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.Encodable;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.FileTimeConverter;
 import net.swordie.ms.enums.AuctionState;
-import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.StringData;
 import net.swordie.ms.util.FileTime;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
-/**
- * @author Sjonnie
- * Created on 11/21/2018.
- */
+
 @Entity
 @Table(name = "auctionitems")
 public class AuctionItem implements Encodable {
@@ -35,17 +31,12 @@ public class AuctionItem implements Encodable {
     private FileTime endDate;
     private int bidUserID;
     private String bidUsername;
-    private int idk; // -1?
     private int bidWorld;
     private int oid;
     @Convert(converter = FileTimeConverter.class)
     private FileTime regDate;
     private long deposit;
     private int ssType;
-    private int idk2;
-    private int idk3;
-    @Convert(converter = FileTimeConverter.class)
-    private FileTime unkDate;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "item")
     private Item item;
@@ -56,52 +47,38 @@ public class AuctionItem implements Encodable {
         state = AuctionState.Init;
     }
 
-    public static AuctionItem testItem() {
-        AuctionItem auctionItem = new AuctionItem();
-
-        auctionItem.setItem(ItemData.getItemDeepCopy(2000002));
-        auctionItem.setId(0x1234);
-        auctionItem.setDirectPrice(1338);
-        auctionItem.setAccountID(1);
-        auctionItem.setCharID(2);
-        auctionItem.setState(AuctionState.Done);
-        auctionItem.setEndDate(FileTime.fromDate(FileTime.currentTime().toLocalDateTime().minusMinutes(3080)));
-        auctionItem.setUnkDate(FileTime.currentTime());
-        auctionItem.setRegDate(FileTime.fromDate(FileTime.currentTime().toLocalDateTime().minusMinutes(3090)));
-
-        return auctionItem;
-    }
-
     @Override
     public void encode(OutPacket outPacket) {
         outPacket.encodeInt(getId());
-        outPacket.encodeInt(getType());
-        //outPacket.encodeInt(getAccountID());
-        outPacket.encodeInt(0); // instead of acc id for now
-        outPacket.encodeInt(getCharID());
-        outPacket.encodeInt(getState().getVal());
-        outPacket.encodeInt(getItemType());
-        outPacket.encodeString(getCharName(), 13);
-        outPacket.encodeLong(getPrice());
-        outPacket.encodeLong(getSecondPrice());
-        outPacket.encodeLong(getDirectPrice() * getQuantity());
-        outPacket.encodeLong(getDirectPrice());
-        outPacket.encodeFT(getEndDate());
-        outPacket.encodeInt(getBidUserID());
-        outPacket.encodeString(getBidUsername(), 13);
-        outPacket.encodeInt(getIdk());
-        outPacket.encodeInt(getBidWorld());
-        outPacket.encodeInt(getOid());
-        outPacket.encodeFT(FileTime.fromDate(LocalDateTime.now().minusDays(1)));
-        outPacket.encodeLong(getDeposit());
-        outPacket.encodeInt(getSsType());
-        outPacket.encodeInt(getIdk3());
-        outPacket.encodeFT(FileTime.fromDate(LocalDateTime.now().minusDays(1)));
+
+        // AC_AuctionItem::Decode -> decodeBuffer(122) [AC_AuctionItem]
+        outPacket.encodeInt(getId()); // dwAuctionID
+        outPacket.encodeInt(getType()); // nAuctionType
+        outPacket.encodeInt(getCharID()); // dwCharacterID
+        outPacket.encodeInt(getAccountID()); // dwAccountID
+        outPacket.encodeInt(getState().getVal()); // nState
+        outPacket.encodeInt(getItemType()); // nItemType
+        outPacket.encodeInt(ServerConfig.WORLD_ID); // nWorldID
+        outPacket.encodeString(getCharName(), 13); // sCharName
+        outPacket.encodeLong(getPrice()); // nPrice
+        outPacket.encodeLong(getSecondPrice()); // nSecondPrice
+        outPacket.encodeLong(getDirectPrice()); // nDirectPrice
+        outPacket.encodeFT(getEndDate()); // ftEndDate
+        outPacket.encodeInt(getBidUserID()); // dwBidUserID
+        outPacket.encodeString(getBidUsername(), 13); // sBidUserName
+        outPacket.encodeInt(getBidWorld()); // nBidWorld
+        outPacket.encodeLong(getOid()); // nNexonOID
+        outPacket.encodeFT(getRegDate()); // ftRegDate
+        outPacket.encodeLong(getDeposit()); // nDeposit
+        outPacket.encodeInt(getSsType()); // nSSType
+
+        // GW_ItemSlotBase::Decode
         outPacket.encode(getItem());
     }
 
     public void encodeHistory(OutPacket outPacket) {
-        outPacket.encodeLong(getId());
+        // AC_AuctionHistory::Decode -> decodeBuffer(60) [AC_AuctionHistory]
+        outPacket.encodeLong(getId()); // idk
         outPacket.encodeInt(getId());
         outPacket.encodeInt(getAccountID());
         outPacket.encodeInt(getCharID());
@@ -111,7 +88,7 @@ public class AuctionItem implements Encodable {
         outPacket.encodeFT(getEndDate());
         outPacket.encodeLong(getDeposit());
         outPacket.encodeInt(getItem().getQuantity());
-        outPacket.encodeInt(getBidWorld());
+        outPacket.encodeInt(ServerConfig.WORLD_ID); // nWorldID
     }
 
 
@@ -219,14 +196,6 @@ public class AuctionItem implements Encodable {
         this.bidUsername = bidUsername;
     }
 
-    public int getIdk() {
-        return idk;
-    }
-
-    public void setIdk(int idk) {
-        this.idk = idk;
-    }
-
     public int getBidWorld() {
         return bidWorld;
     }
@@ -267,30 +236,6 @@ public class AuctionItem implements Encodable {
         this.ssType = ssType;
     }
 
-    public int getIdk2() {
-        return idk2;
-    }
-
-    public void setIdk2(int idk2) {
-        this.idk2 = idk2;
-    }
-
-    public int getIdk3() {
-        return idk3;
-    }
-
-    public void setIdk3(int idk3) {
-        this.idk3 = idk3;
-    }
-
-    public FileTime getUnkDate() {
-        return unkDate;
-    }
-
-    public void setUnkDate(FileTime unkDate) {
-        this.unkDate = unkDate;
-    }
-
     public Item getItem() {
         return item;
     }
@@ -324,15 +269,11 @@ public class AuctionItem implements Encodable {
         ai.endDate = endDate;
         ai.bidUserID = bidUserID;
         ai.bidUsername = bidUsername;
-        ai.idk = idk;
         ai.bidWorld = bidWorld;
         ai.oid = oid;
         ai.regDate = regDate;
         ai.deposit = deposit;
         ai.ssType = ssType;
-        ai.idk2 = idk2;
-        ai.idk3 = idk3;
-        ai.unkDate = unkDate;
         ai.item = item;
         ai.itemName = itemName;
 

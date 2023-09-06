@@ -236,7 +236,7 @@ public class NpcHandler {
                 }
                 Item buyBackItem = item.deepCopy();
                 buyBackItem.setQuantity(quantity);
-                chr.consumeItemBySlot(it, slot, quantity);
+                chr.consumeItemBySlot(it, slot, quantity, true);
                 chr.addMoney(cost);
                 buyBackItem.setId(item.getId());
                 chr.addItemToBuyBack(buyBackItem);

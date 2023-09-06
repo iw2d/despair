@@ -16,12 +16,12 @@ import net.swordie.ms.world.auction.weapon.AuctionWeaponFirstType;
  * Created on 11/21/2018.
  */
 public enum AuctionInvType implements AuctionEnum {
-    All(-1),
     Armor(0),
     Weapons(1),
     Consume(2),
     Cash(3),
-    Etc(4);
+    Etc(4),
+    All(6);
 
     private int val;
 
