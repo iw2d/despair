@@ -4,6 +4,7 @@ import net.swordie.ms.Server;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.User;
+import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.HyperTPRock;
 import net.swordie.ms.client.character.damage.DamageSkinType;
@@ -120,6 +121,7 @@ public class MigrationHandler {
         chr.initBlessingSkills();
         chr.setOnline(true);
         chr.getOffenseManager().setChr(chr);
+        acc.initAuctions();
         chr.recalcStats(EnumSet.of(BaseStat.mhp, BaseStat.mmp));
         chr.write(WvsContext.setMaplePoint(acc.getNxCredit()));
     }
@@ -278,11 +280,6 @@ public class MigrationHandler {
             return;
         }
 
-        if (chr.getHP() <= 0) {
-            chr.dispose();
-            return;
-        }
-
         field.removeChar(chr);
         chr.setInCashShop(true);
         chr.punishLieDetectorEvasion();
@@ -299,6 +296,26 @@ public class MigrationHandler {
         c.write(CCashShop.categoryInfo(cs));
         c.write(CCashShop.bannerMsg(cs, new ArrayList<>()));
         c.write(CCashShop.oneTen(cs));
+    }
+
+    @Handler(op = InHeader.USER_MIGRATE_AUCTION_HOUSE_REQUEST)
+    public static void handleUserMigrateAuctionRequest(Char chr, InPacket inPacket) {
+        Field field = chr.getField();
+        if ((field.getFieldLimit() & FieldOption.MigrateLimit.getVal()) > 0 || chr.getHP() <= 0) {
+            chr.dispose();
+            return;
+        }
+        field.removeChar(chr);
+        chr.setInCashShop(true);
+        chr.punishLieDetectorEvasion();
+        chr.punishLieDetectorEvasion();
+        chr.write(Stage.setAuctionHouse(chr));
+    }
+
+    @Handler(op = InHeader.USER_MIGRATE_TO_MONSTER_FARM)
+    public static void handleUserMigrateMonsterFarmRequest(Char chr, InPacket inPacket) {
+        chr.write(WvsContext.broadcastMsg(BroadcastMsg.popUpMessage("Farm is currently disabled.")));
+        chr.dispose();
     }
 
     @Handler(op = InHeader.USER_MAP_TRANSFER_REQUEST)

@@ -287,7 +287,7 @@ public class RoomHandler {
                         chr.setMerchant(merchant);
                         merchant.setField(chr.getField());
                         chr.getField().addLife(merchant);
-                        chr.getWorld().getMerchants().add(merchant);
+                        chr.getWorld().addMerchant(merchant);
                         chr.write(MiniRoomPacket.EntrustedShop.enterMerchant(chr, chr.getMerchant(), true));
                         break;
                     case OMOK:

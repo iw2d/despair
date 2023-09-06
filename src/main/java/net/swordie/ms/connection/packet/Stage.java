@@ -11,6 +11,7 @@ import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.world.shop.cashshop.CashShop;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Random;
 
 /**
@@ -185,6 +186,15 @@ public class Stage {
 
         chr.encode(outPacket, DBChar.All);
         cashShop.encode(outPacket);
+
+        return outPacket;
+    }
+
+    public static OutPacket setAuctionHouse(Char chr) {
+        OutPacket outPacket = new OutPacket(OutHeader.SET_AUCTION_HOUSE);
+
+        chr.encode(outPacket, DBChar.All);
+        outPacket.encodeFT(FileTime.fromDate(LocalDateTime.now()));
 
         return outPacket;
     }

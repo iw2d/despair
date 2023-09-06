@@ -286,7 +286,7 @@ public class Merchant extends Life {
 
     public void closeMerchant() {
         setOpen(false);
-        Server.getInstance().getWorldById(getWorldId()).getMerchants().remove(this);
+        Server.getInstance().getWorldById(getWorldId()).removeMerchant(this);
         getField().removeLife(this);
         getField().broadcastPacket(MiniRoomPacket.EntrustedShop.closeMerchant(this));
     }

@@ -29,6 +29,7 @@ import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.container.Triple;
+import net.swordie.ms.world.auction.AuctionResult;
 import net.swordie.ms.world.field.ClockPacket;
 import net.swordie.ms.world.field.fieldeffect.FieldEffect;
 import net.swordie.ms.world.field.obtacleatom.ObtacleAtomInfo;
@@ -1081,4 +1082,13 @@ public class FieldPacket {
 
         return outPacket;
     }
+
+    public static OutPacket auctionResult(AuctionResult auctionResult) {
+        OutPacket outPacket = new OutPacket(OutHeader.AUCTION_RESULT);
+
+        auctionResult.encode(outPacket);
+
+        return outPacket;
+    }
+
 }

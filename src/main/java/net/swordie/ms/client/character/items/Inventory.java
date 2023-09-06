@@ -170,7 +170,7 @@ public class Inventory {
         return !isFull() || (item.getInvType().isStackable() && getItemByItemID(item.getItemId()) != null);
     }
 
-    private boolean isFull() {
+    public boolean isFull() {
         return getItems().size() >= getSlots();
     }
 

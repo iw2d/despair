@@ -39,6 +39,7 @@ import net.swordie.ms.loaders.containerclasses.EquipDrop;
 import net.swordie.ms.loaders.containerclasses.MonsterCollectionGroupRewardInfo;
 import net.swordie.ms.loaders.containerclasses.MonsterCollectionMobInfo;
 import net.swordie.ms.loaders.containerclasses.MonsterCollectionSessionRewardInfo;
+import net.swordie.ms.world.auction.AuctionItem;
 import net.swordie.ms.world.shop.NpcShopItem;
 import net.swordie.ms.world.shop.cashshop.CashItemInfo;
 import net.swordie.ms.world.shop.cashshop.CashShopCategory;
@@ -125,6 +126,7 @@ public class DatabaseManager {
                 OffenseManager.class,
                 NpcShopItem.class,
                 EquipDrop.class,
+                AuctionItem.class,
                 EmployeeTrunk.class,
                 MerchantItem.class,
         };

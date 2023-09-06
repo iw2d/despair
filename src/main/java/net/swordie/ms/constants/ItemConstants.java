@@ -1957,6 +1957,27 @@ public class ItemConstants {
         return equipDropsPerLevel.getOrDefault(itemJob, new HashMap<>()).getOrDefault(level, new HashSet<>());
     }
 
+    public static boolean isRecoveryHPItem(int itemID) {
+        return getItemPrefix(itemID) == 200;
+    }
+
+    public static boolean isRecoveryCureItem(int itemID) {
+        return getItemPrefix(itemID) == 205;
+    }
+
+    public static boolean isRecoveryItem(int itemID) {
+        return isRecoveryCureItem(itemID) || isRecoveryHPItem(itemID);
+    }
+
+    public static boolean isScroll(int itemID) {
+        return getItemPrefix(itemID) == 204;
+    }
+
+    public static boolean isSkillBook(int itemID) {
+        return getItemPrefix(itemID) == 229;
+    }
+
+
     public static boolean isMiuMiuMerchant(int itemID) {
         return itemID == 5450000 || itemID == 5450003 || itemID == 5450007 || itemID == 5450012 || itemID == 5450013 || itemID == 5450004;
     }

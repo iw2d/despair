@@ -40,6 +40,7 @@ avatarlook,
 equips,
 petitems,
 items,
+auctionitems,
 merchantitems,
 inventories,
 questprogressrequirements,
@@ -154,6 +155,36 @@ create table items (
     quantity int,
     attribute smallint,
     owner varchar(255),
+    primary key (id)
+);
+
+create table auctionitems
+(
+    id           int not null auto_increment,
+    type         int,
+    accountid    int,
+    charid       int,
+    state        int,
+    itemType     int,
+    charName     varchar(255),
+    price        bigint,
+    secondprice  bigint,
+    directprice  bigint,
+    endDate      datetime,
+    biduserid    int,
+    bidusername  varchar(255),
+    idk          int,
+    bidworld     int,
+    oid          int,
+    regdate      datetime,
+    deposit      bigint,
+    sstype       int,
+    idk2         int,
+    idk3         int,
+    unkdate      datetime,
+    item         int,
+    itemname     varchar(255),
+    soldquantity int,
     primary key (id)
 );
 

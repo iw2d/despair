@@ -3239,6 +3239,17 @@ public class Char {
 	}
 
 	/**
+	 * Removes a certain amount of an item from this Char.
+	 * @param item the item to remove
+	 * @param quantity the amount to remove
+	 */
+	public void consumeItem(Item item, int quantity) {
+		int consumed = quantity > item.getQuantity() ? 0 : item.getQuantity() - quantity;
+		item.setQuantity(consumed + 1); // +1 because 1 gets consumed by consumeItem(item)
+		consumeItem(item);
+	}
+
+	/**
 	 * Consumes a single {@link Item} from this Char's {@link Inventory}. Will remove the Item if it
 	 * has a quantity of 1.
 	 *
@@ -3675,7 +3686,6 @@ public class Char {
 			setFieldID(getField().getForcedReturn());
 		}
 		getScriptManager().getScripts().values().forEach(ScriptInfo::reset);
-		getWorld().getConnectedChatClients().remove(getAccId());
 		setOnline(false);
 		getJobHandler().handleCancelTimer();
 		getField().removeChar(this);

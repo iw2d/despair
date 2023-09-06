@@ -2,16 +2,22 @@ package net.swordie.ms.world;
 
 import net.swordie.ms.ServerStatus;
 import net.swordie.ms.client.Account;
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.alliance.Alliance;
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.items.Equip;
+import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.guild.Guild;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
+import net.swordie.ms.enums.AuctionState;
 import net.swordie.ms.life.room.Merchant;
+import net.swordie.ms.world.auction.AuctionEnum;
+import net.swordie.ms.world.auction.AuctionItem;
+import net.swordie.ms.world.auction.AuctionPotType;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created on 11/2/2017.
@@ -26,7 +32,8 @@ public class World {
     private Map<Integer, Party> parties = new HashMap<>();
     private Map<Integer, Guild> guilds = new HashMap<>();
     private Map<Integer, Alliance> alliances = new HashMap<>();
-    private Map<Integer, Client> connectedChatClients = new HashMap<>();
+    private Map<Integer, Set<AuctionItem>> accIdToAuctions = new HashMap<>();
+    private Map<Integer, AuctionItem> auctionIdToAuction = new HashMap<>();
     private int partyIDCounter = 1;
     private boolean charCreateBlock;
     private boolean reboot;
@@ -48,18 +55,26 @@ public class World {
         this.channels = channelList;
         this.starplanet = starplanet;
         this.reboot = reboot;
+        initGuilds();
+        initAuctionHouse();
     }
 
     public World(int worldId, String name, int amountOfChannels, String worldEventMsg) {
         this(worldId, name, 0, worldEventMsg, 100, 100,
                 0, amountOfChannels, false, false);
-        initGuilds();
     }
 
     private void initGuilds() {
         List<Guild> guilds = (List<Guild>) DatabaseManager.getObjListFromDB(Guild.class);
         for (Guild g : guilds) {
             addGuild(g);
+        }
+    }
+
+    private void initAuctionHouse() {
+        List<AuctionItem> auctions = (List<AuctionItem>) DatabaseManager.getObjListFromDB(AuctionItem.class);
+        for (AuctionItem ai : auctions) {
+            addAuction(ai, false);
         }
     }
 
@@ -326,6 +341,61 @@ public class World {
         return ally;
     }
 
+    public Collection<AuctionItem> getAuctionHouse() {
+        return auctionIdToAuction.values();
+    }
+
+    public Set<AuctionItem> getAuctionItemsWithFilter(String query1, String query2, AuctionEnum innerType, int minLv,
+                                                      int maxLv, long minPrice, long maxPrice, AuctionPotType apt,
+                                                      boolean andSearch, boolean expired) {
+        return getAuctionHouse().stream().filter(ai -> {
+            if ((expired && (!ai.getEndDate().isExpired() || ai.getState() != AuctionState.SoldDone)) ||
+                    (!expired && (ai.getEndDate().isExpired() || ai.getState() != AuctionState.Init))) {
+                return false;
+            }
+            Item item = ai.getItem();
+            String name = ai.getItemName().toLowerCase().replaceAll(" ", "");
+            Equip equip = null;
+            if (item instanceof Equip) {
+                equip = (Equip) item;
+            }
+            boolean nonEquipCheck = (name.toLowerCase().contains(query1) || name.contains(query2)) && innerType.isMatching(item)
+                    && ai.getPrice() >= minPrice && ai.getPrice() <= maxPrice;
+            if (equip != null && nonEquipCheck) {
+                nonEquipCheck = equip.getrLevel() >= minLv && equip.getrLevel() <= maxLv &&
+                        apt.isMatching(equip);
+            }
+            return nonEquipCheck;
+        }).collect(Collectors.toSet());
+    }
+
+    public void addAuction(AuctionItem ai, boolean saveToDb) {
+        if (saveToDb) {
+            DatabaseManager.saveToDB(ai);
+        }
+        if (!accIdToAuctions.containsKey(ai.getAccountID())) {
+            accIdToAuctions.put(ai.getAccountID(), new HashSet<>());
+        }
+        accIdToAuctions.get(ai.getAccountID()).add(ai);
+        auctionIdToAuction.put(ai.getId(), ai);
+    }
+
+    public Set<AuctionItem> getAuctionsByAccountID(int id) {
+        return accIdToAuctions.getOrDefault(id, new HashSet<>());
+    }
+
+    public AuctionItem getAuctionById(int auctionId) {
+        return auctionIdToAuction.get(auctionId);
+    }
+
+    public Set<AuctionItem> getAuctionMarketPlaceItems() {
+        return getAuctionHouse().stream().filter(auctionItem -> auctionItem.getState() == AuctionState.Sold).collect(Collectors.toSet());
+    }
+
+    public Set<AuctionItem> getAuctionRecentListings() {
+        return getAuctionHouse().stream().filter(auctionItem -> !auctionItem.getEndDate().isExpired()).collect(Collectors.toSet());
+    }
+
     public void shutdown() {
         for (Channel channel : getChannels()) {
             System.err.println("Shutting down channel " + channel.getChannelId() + "...");
@@ -337,6 +407,9 @@ public class World {
             }
         }
         System.err.println("Accounts have been saved.");
+        for (AuctionItem ai : getAuctionHouse()) {
+            DatabaseManager.saveToDB(ai);
+        }
         for (Alliance ally : getAlliances().values()) {
             // also saves guilds
             DatabaseManager.saveToDB(ally);
@@ -347,10 +420,6 @@ public class World {
         for (Channel channel : getChannels()) {
             channel.clearCache();
         }
-    }
-
-    public Map<Integer, Client> getConnectedChatClients(){
-        return connectedChatClients;
     }
 
     public void addMerchant(Merchant merchant) {

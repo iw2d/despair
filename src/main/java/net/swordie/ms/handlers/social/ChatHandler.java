@@ -175,40 +175,40 @@ public class ChatHandler {
 
     @Handler(op = InHeader.CONNECT_CHAT)
     public static void handleConnect(Client c, InPacket inPacket) {
-        int accID = inPacket.decodeInt();
-        int idk = inPacket.decodeInt(); // always 1?
-        long idk2 = inPacket.decodeLong();
-        boolean idk3 = inPacket.decodeByte() != 0;
-        int charID = inPacket.decodeInt();
-        String charName = inPacket.decodeString();
-        int level = inPacket.decodeInt();
-        int job = inPacket.decodeInt();
-        Char chr = null;
-        for (World w : Server.getInstance().getWorlds()) {
-            chr = w.getCharByID(charID);
-            if (chr != null) {
-                break;
-            }
-        }
-        if (chr != null) {
-            chr.setChatClient(c);
-            c.setChr(chr);
-            chr.getWorld().getConnectedChatClients().put(accID, c);
-        }
-        c.write(ChatSocket.loginResult(chr != null));
+//        int accID = inPacket.decodeInt();
+//        int idk = inPacket.decodeInt(); // always 1?
+//        long idk2 = inPacket.decodeLong();
+//        boolean idk3 = inPacket.decodeByte() != 0;
+//        int charID = inPacket.decodeInt();
+//        String charName = inPacket.decodeString();
+//        int level = inPacket.decodeInt();
+//        int job = inPacket.decodeInt();
+//        Char chr = null;
+//        for (World w : Server.getInstance().getWorlds()) {
+//            chr = w.getCharByID(charID);
+//            if (chr != null) {
+//                break;
+//            }
+//        }
+//        if (chr != null) {
+//            chr.setChatClient(c);
+//            c.setChr(chr);
+//            chr.getWorld().getConnectedChatClients().put(accID, c);
+//        }
+//        c.write(ChatSocket.loginResult(chr != null));
     }
 
     @Handler(op = InHeader.FRIEND_CHAT)
     public static void handleFriendChat(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
-        int accID = inPacket.decodeInt();
-        String msg = inPacket.decodeString();
-        int size = inPacket.decodeInt();
-        for (int i = 0; i < size; i++) {
-            if (chr.getWorld().getConnectedChatClients().containsKey(i)) {
-                chr.getWorld().getConnectedChatClients().get(i).write(ChatSocket.friendChatMessage(accID, chr.getId(), null, msg, false));
-            }
-        }
+//        Char chr = c.getChr();
+//        int accID = inPacket.decodeInt();
+//        String msg = inPacket.decodeString();
+//        int size = inPacket.decodeInt();
+//        for (int i = 0; i < size; i++) {
+//            if (chr.getWorld().getConnectedChatClients().containsKey(i)) {
+//                chr.getWorld().getConnectedChatClients().get(i).write(ChatSocket.friendChatMessage(accID, chr.getId(), null, msg, false));
+//            }
+//        }
     }
 
     @Handler(op = InHeader.GUILD_CHAT)

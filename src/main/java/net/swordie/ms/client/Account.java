@@ -3,20 +3,25 @@ package net.swordie.ms.client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.cards.MonsterCollection;
 import net.swordie.ms.client.character.damage.DamageSkinSaveData;
+import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.friend.Friend;
 import net.swordie.ms.client.trunk.Trunk;
 import net.swordie.ms.connection.db.DatabaseManager;
+import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.life.room.EmployeeTrunk;
 import net.swordie.ms.loaders.StringData;
+import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Util;
+import net.swordie.ms.world.auction.AuctionItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class representing an Account, which is a world-specific "User" class.
@@ -58,6 +63,8 @@ public class Account {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "accID")
     private Set<LinkSkill> linkSkills = new HashSet<>();
+    @Transient
+    private Set<AuctionItem> auctionItems;
     @Transient
     private User user;
     @Transient
@@ -273,5 +280,55 @@ public class Account {
         return employeeTrunk;
     }
 
+    public Set<AuctionItem> getAuctionItems() {
+        return auctionItems;
+    }
 
+    public void setAuctionItems(Set<AuctionItem> auctionItems) {
+        this.auctionItems = auctionItems;
+    }
+
+
+    public Set<AuctionItem> getCompletedAuctionItems() {
+        return getAuctionItems().stream()
+                .filter(it -> it.getEndDate().isExpired())
+                .collect(Collectors.toSet());
+    }
+
+    public Set<AuctionItem> getSellingAuctionItems() {
+        return getAuctionItems().stream()
+                .filter(it -> !it.getEndDate().isExpired())
+                .collect(Collectors.toSet());
+    }
+
+    public AuctionItem getAuctionById(int auctionId) {
+        return Util.findWithPred(getAuctionItems(), ai -> ai.getId() == auctionId);
+    }
+
+    public void addAuction(AuctionItem item) {
+        getAuctionItems().add(item);
+    }
+
+    public AuctionItem createAndAddAuctionByItem(Item item, Char sellingChar, long price) {
+        AuctionItem ai = new AuctionItem();
+        ai.setItem(item);
+        ai.setRegDate(FileTime.currentTime());
+        ai.setEndDate(FileTime.fromDate(FileTime.currentTime().toLocalDateTime().plusHours(GameConstants.AUCTION_LIST_TIME)));
+        ai.setAccountID(getId());
+        ai.setCharID(sellingChar.getId());
+        ai.setCharName(sellingChar.getName());
+        ai.setDirectPrice(price);
+        ai.setItemType(item.getInvType().getVal());
+        ai.setItemName(StringData.getItemStringById(item.getItemId()));
+        ai.setDeposit(GameConstants.AUCTION_DEPOSIT_AMOUNT);
+        addAuction(ai);
+        sellingChar.getClient().getWorld().addAuction(ai, true);
+
+        return ai;
+    }
+
+    public void initAuctions() {
+        // Not done via db to ensure the instances between world and acc are the same
+        setAuctionItems(getCurrentChr().getWorld().getAuctionsByAccountID(getId()));
+    }
 }

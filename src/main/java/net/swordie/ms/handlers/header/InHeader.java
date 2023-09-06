@@ -4,7 +4,6 @@ import java.util.*;
 
 public enum InHeader {
 
-
     PONG(150),
 
     // Login ops
@@ -87,6 +86,7 @@ public enum InHeader {
     WORLD_TRANSFER_REQUEST(183),
     WORLD_TRANSFER_SHINNING_STAR_REQUEST(184), // from 179
     USER_MIGRATE_TO_CASH_SHOP_REQUEST(186), // from 180
+    USER_MIGRATE_AUCTION_HOUSE_REQUEST(187), // new v178
     USER_MIGRATE_TO_PVP_REQUEST(188), // from 181
     PARTY_MIGRATE_TO_PVP_REQUEST(189),
     USER_MIGRATE_TO_MONSTER_FARM(190), // from 183
