@@ -15,6 +15,7 @@ public class MobSkillAttackInfo {
     public int skillID;
     public int slv;
     public int option;
+    public byte teleportEnd;
     public List<Position> multiTargetForBalls = new ArrayList<>();
     public List<Short> randTimeForAreaAttacks = new ArrayList<>();
 }

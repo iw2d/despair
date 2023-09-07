@@ -706,7 +706,7 @@ public enum InHeader {
     MOB_DAMAGE_SHARE_INFO(897),
     MOB_CREATE_AFFECTED_AREA(898),
     MOB_DOWN_RESPONSE(899),
-    E_N_D__M_O_B(900), // TODO: check mismatch 886 - 904
+    E_N_D__M_O_B(900),
 
     B_E_G_I_N__N_P_C(903),
     NPC_MOVE(904), // from 851

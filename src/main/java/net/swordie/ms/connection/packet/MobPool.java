@@ -31,12 +31,12 @@ public class MobPool {
         outPacket.encodeInt(mob.getTemplateId());
         ForcedMobStat fms = mob.getForcedMobStat();
         outPacket.encodeByte(fms != null);
-        if(fms != null) {
+        if (fms != null) {
             fms.encode(outPacket);
         }
         MobTemporaryStat mts = mob.getTemporaryStat();
         mts.encode(outPacket, true);
-        if(!hasBeenInit) {
+        if (!hasBeenInit) {
             // CMob::Init
             mob.encodeInit(outPacket);
         }
@@ -57,12 +57,12 @@ public class MobPool {
             outPacket.encodeInt(mob.getTemplateId());
             ForcedMobStat fms = mob.getForcedMobStat();
             outPacket.encodeByte(fms != null);
-            if(fms != null) {
+            if (fms != null) {
                 fms.encode(outPacket);
             }
             MobTemporaryStat mts = mob.getTemporaryStat();
             mts.encode(outPacket, true);
-            if(!hasBeenInit) {
+            if (!hasBeenInit) {
                 mob.encodeInit(outPacket);
             }
         }
@@ -105,7 +105,7 @@ public class MobPool {
         outPacket.encodeByte(type);
         damage = damage > Integer.MAX_VALUE ? Integer.MAX_VALUE : damage;
         outPacket.encodeInt((int) damage);
-        if(templateID / 10000 == 250 || templateID / 10000 == 251) {
+        if (templateID / 10000 == 250 || templateID / 10000 == 251) {
             outPacket.encodeInt(hp);
             outPacket.encodeInt(maxHp);
         }
@@ -141,7 +141,7 @@ public class MobPool {
 
         outPacket.encodeByte(isController);
         outPacket.encodeInt(mob.getObjectId());
-        if(isController) {
+        if (isController) {
             outPacket.encodeByte(1); // controlling type
         }
 
@@ -254,15 +254,15 @@ public class MobPool {
         outPacket.encodeByte(msai.slv);
         outPacket.encodeShort(msai.option);
         outPacket.encodeByte(msai.multiTargetForBalls.size());
-        for(Position pos : msai.multiTargetForBalls) {
+        for (Position pos : msai.multiTargetForBalls) {
             outPacket.encodePosition(pos);
         }
         outPacket.encodeByte(msai.randTimeForAreaAttacks.size());
-        for(short s : msai.randTimeForAreaAttacks) {
+        for (short s : msai.randTimeForAreaAttacks) {
             outPacket.encodeShort(s);
         }
         outPacket.encode(movementInfo);
-        outPacket.encodeByte(0);
+        outPacket.encodeByte(msai.teleportEnd);
 
         return outPacket;
     }
@@ -443,7 +443,7 @@ public class MobPool {
         outPacket.encodeInt(msi.getId());
         outPacket.encodeInt(msi.getLevel());
         outPacket.encodeInt(sequenceDelay);
-        if(msi.getId() != 0) {
+        if (msi.getId() != 0) {
             outPacket.encodeInt(rects.size());
             for (Rect rect : rects) {
                 outPacket.encodeRectInt(rect);

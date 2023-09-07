@@ -116,10 +116,22 @@ public class MobHandler {
         int oneTimeActionCS = inPacket.decodeInt();
         int moveActionCS = inPacket.decodeInt();
         int hitExpire = inPacket.decodeInt();
-        byte idk = inPacket.decodeByte();
+        inPacket.decodeByte(); // unk
 
         MovementInfo movementInfo = new MovementInfo(inPacket);
         movementInfo.applyTo(mob);
+
+        inPacket.decodeByte();
+        inPacket.decodeInt();
+        inPacket.decodeInt();
+        inPacket.decodeInt();
+        inPacket.decodeInt();
+        inPacket.decodeInt();
+        inPacket.decodeByte();
+        inPacket.decodeInt();
+        inPacket.decodeByte();
+        msai.teleportEnd = inPacket.decodeByte();
+        inPacket.decodeByte();
 
         int skillID = msai.skillID;
         int slv = msai.slv;
