@@ -244,21 +244,23 @@ public class ItemConstants {
     }
 
     public static int getGenderFromId(int nItemID) {
-        int result;
-
-        if (nItemID / 1000000 != 1 && getItemPrefix(nItemID) != 254 || getItemPrefix(nItemID) == 119 || getItemPrefix(nItemID) == 168)
-            return 2;
-        switch (nItemID / 1000 % 10) {
-            case 0:
-                result = 0;
-                break;
-            case 1:
-                result = 1;
-                break;
-            default:
-                return 2;
-        }
-        return result;
+        // patch get_gender_from_id (0x0096C130) to remove gender lock
+//        int result;
+//
+//        if (nItemID / 1000000 != 1 && getItemPrefix(nItemID) != 254 || getItemPrefix(nItemID) == 119 || getItemPrefix(nItemID) == 168)
+//            return 2;
+//        switch (nItemID / 1000 % 10) {
+//            case 0:
+//                result = 0;
+//                break;
+//            case 1:
+//                result = 1;
+//                break;
+//            default:
+//                return 2;
+//        }
+//        return result;
+        return 2;
     }
 
     public static int getBodyPartFromItem(int nItemID, int gender) {
