@@ -295,16 +295,66 @@ public class SkillConstants {
 
     public static boolean isUsercloneSummonedAbleSkill(int skillID) {
         switch (skillID) {
-            case 14001020:
-            case 14101020:
-            case 14101021:
-            case 14111020:
-            case 14111021:
-            case 14111022:
-            case 14111023:
-            case 14121001:
-            case 14121002:
-            case 14120045:
+            case 11101120:        // Flicker
+            case 11101121:        // Trace Cut
+            case 11101220:        // Bluster
+            case 11101221:        // Shadow Tackle
+            case 11111120:        // Moon Shadow
+            case 11111121:        // Moon Cross
+            case 11111220:        // Light Merger
+            case 11111221:        // Sun Cross
+            case 11121101:        // Moon Dancer
+            case 11121102:        // Moon Dancer
+            case 11121103:        // Crescent Divide
+            case 11121201:        // Speeding Sunset
+            case 11121202:        // Speeding Sunset
+            case 11121203:        // Solar Pierce
+
+            case 14001020:        // Lucky Seven
+            case 14101020:        // Triple Throw
+            case 14101021:        // Triple Throw
+            case 14111020:        // Quad Star
+            case 14111021:        // Quad Star
+            case 14111022:        // Shadow Spark
+            case 14111023:        // Shadow Spark
+            case 14121001:        // Quintuple Star
+            case 14121002:        // Quintuple Star
+
+            case 23001000:        // Swift Dual Shot
+            case 23100004:        // Parting Shot
+            case 23101000:        // Piercing Storm
+            case 23101001:        // Rising Rush
+            case 23101007:        // Rising Rush
+            case 23111000:        // Stunning Strikes
+            case 23111001:        // Leap Tornado
+            case 23111003:        // Gust Dive
+            case 23110006:        // Aerial Barrage
+            case 23120013:        // Staggering Strikes
+            case 23121052:        // Wrath of Enlil
+            case 23121000:        // Ishtar's Ring
+            case 400031024:       // Irkalla's Wrath
+
+            case 131001000:       // Pink Powerhouse
+            case 131001001:       // Pink Powerhouse
+            case 131001002:       // Pink Powerhouse
+            case 131001003:       // Pink Powerhouse
+            case 131001004:       // Let's Roll!
+            case 131001005:       // Umbrella
+            case 131001008:       // Sky Jump
+            case 131001010:       // Blazing Yo-yo
+            case 131001011:       // Blazing Yo-yo
+            case 131001012:       // Pink Pulverizer
+            case 131001013:       // Let's Rock!
+            case 131001101:       // Pink Powerhouse
+            case 131001102:       // Pink Powerhouse
+            case 131001103:       // Pink Powerhouse
+            case 131001104:       // Let's Roll!
+            case 131001108:       // Mid-air Sky Jump
+            case 131001113:       // Electric Guitar
+            case 131001208:       // Sky Jump Grounder
+            case 131001213:       // Whistle
+            case 131001313:       // Megaphone
+            case 131002010:       // Blazing Yo-yo
                 return true;
         }
         return false;
