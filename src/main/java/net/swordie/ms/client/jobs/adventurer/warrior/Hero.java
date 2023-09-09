@@ -53,6 +53,7 @@ public class Hero extends Warrior {
     public static final int ADVANCED_COMBO_BOSS_RUSH = 1120045;
     public static final int ADVANCED_FINAL_ATTACK_ACCURACY = 1120046;
     public static final int ADVANCED_FINAL_ATTACK_FEROCITY = 1120047;
+    public static final int ADVANCED_FINAL_ATTACK_OPPORTUNITY = 1120048;
     public static final int EPIC_ADVENTURE_HERO = 1121053;
     public static final int CRY_VALHALLA = 1121054;
 
@@ -331,6 +332,9 @@ public class Hero extends Warrior {
             SkillInfo si = SkillData.getSkillInfoById(skillId);
             int slv = chr.getSkillLevel(skillId);
             int proc = si.getValue(prop, slv);
+            if (skillId == ADVANCED_FINAL_ATTACK) {
+                proc += chr.getSkillStatValue(prop, ADVANCED_FINAL_ATTACK_OPPORTUNITY);
+            }
             if (Util.succeedProp(proc)) {
                 return skillId;
             }

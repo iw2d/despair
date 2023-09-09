@@ -75,7 +75,7 @@ public enum InHeader {
     WORLD_STATUS_REQUEST(162), // from 157
     WORLD_LIST_REQUEST(165), // from 160
     WORLD_LIST_REQ(167), // from 162
-    CHAR_SELECT_NO_PIC(231), // from 166
+    CHAR_SELECT_NO_PIC(171), // from 166
     CHANGE_PIC_REQUEST(175), // from 170
     USE_AUTH_SERVER(176), // from 171
 

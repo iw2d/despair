@@ -13,6 +13,13 @@ public class CMapLoadable {
         outPacket.encodeInt(duration);
         return outPacket;
     }
+
+    public static OutPacket setMapObjectVisible(String objectName, int index) {
+        OutPacket outPacket = new OutPacket(OutHeader.SET_MAP_OBJECT_VISIBLE);
+        outPacket.encodeString(objectName);
+        outPacket.encodeInt(index);
+        return outPacket;
+    }
     public static OutPacket setMapObjectMove(String keyName, int x, int y, int time) {
         OutPacket outPacket = new OutPacket(OutHeader.SET_MAP_OBJECT_MOVE);
         outPacket.encodeString(keyName);

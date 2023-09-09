@@ -12,6 +12,7 @@ import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.jobs.JobManager;
 import net.swordie.ms.connection.InPacket;
+import net.swordie.ms.connection.packet.CMapLoadable;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.ItemConstants;
@@ -461,6 +462,7 @@ public class LoginHandler {
         byte worldId = c.getWorldId();
         byte channelId = c.getChannel();
         Channel channel = Server.getInstance().getWorldById(worldId).getChannelById(channelId);
+        Server.getInstance().getWorldById(worldId).getChannelById(channelId).addClientInTransfer(channelId, characterId, c);
         c.write(Login.selectCharacterResult(LoginType.Success, (byte) 0, channel.getPort(), characterId));
     }
 
