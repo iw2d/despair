@@ -13,6 +13,10 @@ public class TownPortal {
     private int skillID;
     private Position fieldPortal;
 
+    public TownPortal() {
+        fieldPortal = new Position();
+    }
+
     public int getTownID() {
         return townID;
     }
@@ -45,11 +49,15 @@ public class TownPortal {
         this.fieldPortal = fieldPortal;
     }
 
-    public void encode(OutPacket outPacket) {
+    public void encode(OutPacket outPacket, boolean shortPos) {
         outPacket.encodeInt(getTownID());
         outPacket.encodeInt(getFieldID());
         outPacket.encodeInt(getSkillID());
-        outPacket.encodePosition(getFieldPortal());
+        if (shortPos) {
+            outPacket.encodePosition(getFieldPortal());
+        } else {
+            outPacket.encodePositionInt(getFieldPortal());
+        }
     }
 
 }

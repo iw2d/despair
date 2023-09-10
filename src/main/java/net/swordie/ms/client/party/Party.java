@@ -74,6 +74,9 @@ public class Party implements Encodable {
         for(PartyMember pm : partyMembers) {
             outPacket.encodeInt(pm != null && pm.isOnline() ? 1 : 0);
         }
+        for (PartyMember pm : partyMembers) {
+            outPacket.encodeInt(0); // new v178
+        }
         outPacket.encodeInt(getPartyLeaderID());
         // end PARTYMEMBER struct
         for(PartyMember pm : partyMembers) {
@@ -81,14 +84,14 @@ public class Party implements Encodable {
         }
         for(PartyMember pm : partyMembers) {
             if(pm != null && pm.getTownPortal() != null) {
-                pm.getTownPortal().encode(outPacket);
+                pm.getTownPortal().encode(outPacket, false);
             } else {
-                new TownPortal().encode(outPacket);
+                new TownPortal().encode(outPacket, false);
             }
         }
         outPacket.encodeByte(isAppliable() && !isFull());
+        outPacket.encodeByte(false); // new v178
         outPacket.encodeString(getName());
-        outPacket.encodeArr(new byte[50]);
     }
 
     public int getPartyLeaderID() {
@@ -124,6 +127,15 @@ public class Party implements Encodable {
         if (added) {
             broadcast(WvsContext.partyResult(PartyResult.joinParty(this, chr.getName())));
         }
+    }
+
+    public int getMemberIndex(PartyMember member) {
+        for (int i = 0; i < 6; i++) {
+            if (partyMembers[i] == member) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public int getId() {

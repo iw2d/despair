@@ -615,7 +615,7 @@ public class WvsContext {
     public static OutPacket partyResult(PartyResult pri) {
         OutPacket outPacket = new OutPacket(OutHeader.PARTY_RESULT);
 
-        outPacket.encode(pri);
+        pri.encode(outPacket);
 
         return outPacket;
     }
@@ -654,10 +654,9 @@ public class WvsContext {
                 outPacket.encodeShort(pm.getSubSob());
                 outPacket.encodeByte(pm.getLevel());
                 outPacket.encodeByte(pm.equals(party.getPartyLeader()));
+                outPacket.encodeByte(0); // new v178
             }
         }
-        outPacket.encodeArr(new byte[40]);
-
         return outPacket;
     }
 

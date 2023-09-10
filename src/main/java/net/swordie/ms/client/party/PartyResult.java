@@ -27,14 +27,15 @@ public class PartyResult implements Encodable {
         switch (type) {
             case PartyRes_LoadParty_Done:
                 outPacket.encodeInt(party.getId());
-                outPacket.encode(party);
+                party.encode(outPacket);
                 break;
             case PartyRes_CreateNewParty_Done:
                 outPacket.encodeInt(party.getId());
-                party.getTownPortal().encode(outPacket);
+                party.getTownPortal().encode(outPacket, true); // short here, but int in decodeBuffer
                 PartyMember leader = party.getPartyLeader();
                 outPacket.encodeByte(leader.isOnline());
                 outPacket.encodeByte(party.isAppliable());
+                outPacket.encodeByte(0); // new v178
                 outPacket.encodeString(party.getName());
                 break;
             case PartyReq_InviteIntrusion:
@@ -68,6 +69,8 @@ public class PartyResult implements Encodable {
             case PartyRes_JoinParty_Done:
                 outPacket.encodeInt(party.getId());
                 outPacket.encodeString(str); // sJoinerName
+                outPacket.encodeByte(0); // new v178
+                outPacket.encodeInt(0); // new v178
                 party.encode(outPacket);
                 break;
             case PartyRes_UserMigration:
@@ -82,6 +85,13 @@ public class PartyResult implements Encodable {
             case PartyRes_UpdateShutdownStatus:
                 outPacket.encodeInt(chr.getId());
                 outPacket.encodeByte(chr.isOnline());
+                break;
+            case PartyRes_ApplyParty_Sent:
+                outPacket.encodeString(chr.getName());
+                break;
+            case PartyInfo_TownPortalChanged:
+                outPacket.encodeByte(party.getMemberIndex(member));
+                member.getTownPortal().encode(outPacket, false);
                 break;
         }
     }
