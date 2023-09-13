@@ -2,7 +2,6 @@ package net.swordie.ms.handlers;
 
 import net.swordie.ms.Server;
 import net.swordie.ms.client.Account;
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.User;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Inventory;
@@ -30,13 +29,12 @@ public class CashShopHandler {
     private static final Logger log = LogManager.getLogger(CashShopHandler.class);
 
     @Handler(op = InHeader.CASH_SHOP_QUERY_CASH_REQUEST)
-    public static void handleCashShopQueryCashRequest(Client c, InPacket inPacket) {
-        c.write(CCashShop.queryCashResult(c.getChr()));
+    public static void handleCashShopQueryCashRequest(Char chr, InPacket inPacket) {
+        chr.write(CCashShop.queryCashResult(chr));
     }
 
     @Handler(op = InHeader.CASH_SHOP_CASH_ITEM_REQUEST)
-    public static void handleCashShopCashItemRequest(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleCashShopCashItemRequest(Char chr, InPacket inPacket) {
         User user = chr.getUser();
         Account account = chr.getAccount();
         Trunk trunk = account.getTrunk();
@@ -45,7 +43,7 @@ public class CashShopHandler {
         CashShop cs = Server.getInstance().getCashShop();
         if (cit == null) {
             log.error("Unhandled cash shop cash item request " + type);
-            c.write(CCashShop.error());
+            chr.write(CCashShop.error());
             return;
         }
         switch (cit) {
@@ -57,7 +55,7 @@ public class CashShopHandler {
                 int cost = inPacket.decodeInt();
                 CashShopItem csi = cs.getItemByPosition(itemPos - 1); // client's pos starts at 1
                 if (csi == null || csi.getNewPrice() != cost) {
-                    c.write(CCashShop.error());
+                    chr.write(CCashShop.error());
                     log.error("Requested item's cost did not match client's cost");
                     return;
                 }
@@ -86,15 +84,15 @@ public class CashShopHandler {
                         break;
                 }
                 if (notEnoughMoney) {
-                    c.write(CCashShop.error());
+                    chr.write(CCashShop.error());
                     log.error("Character does not have enough to pay for this item (Paying with " + paymentMethod + ")");
                     return;
                 }
                 CashItemInfo cii = csi.toCashItemInfo(account, chr);
                 DatabaseManager.saveToDB(cii); // ensures the item has a unique ID
                 account.getTrunk().addCashItem(cii);
-                c.write(CCashShop.cashItemResBuyDone(cii, null, null, 0));
-                c.write(CCashShop.queryCashResult(chr));
+                chr.write(CCashShop.cashItemResBuyDone(cii, null, null, 0));
+                chr.write(CCashShop.queryCashResult(chr));
                 break;
             case Req_IncSlotCount:
                 byte idk10 = inPacket.decodeByte();
@@ -116,8 +114,8 @@ public class CashShopHandler {
                             CashShopItem csi1 = cs.getItemByPosition(25); // client's pos starts at 1
                             CashItemInfo cii1 = csi1.toCashItemInfo(account, chr);
                             Item item1 = cii1.getItem();
-                            c.write(CCashShop.cashItemResBuyDone(cii1, null, null, 0));
-                            c.write(CCashShop.queryCashResult(chr));
+                            chr.write(CCashShop.cashItemResBuyDone(cii1, null, null, 0));
+                            chr.write(CCashShop.queryCashResult(chr));
                         } else {
                             notEnoughMoney1 = true;
                         }
@@ -129,8 +127,8 @@ public class CashShopHandler {
                             CashShopItem csi1 = cs.getItemByPosition(26); // client's pos starts at 1
                             CashItemInfo cii1 = csi1.toCashItemInfo(account, chr);
                             Item item1 = cii1.getItem();
-                            c.write(CCashShop.cashItemResBuyDone(cii1, null, null, 0));
-                            c.write(CCashShop.queryCashResult(chr));
+                            chr.write(CCashShop.cashItemResBuyDone(cii1, null, null, 0));
+                            chr.write(CCashShop.queryCashResult(chr));
                         } else {
                             notEnoughMoney1 = true;
                         }
@@ -142,8 +140,8 @@ public class CashShopHandler {
                             CashShopItem csi1 = cs.getItemByPosition(27); // client's pos starts at 1
                             CashItemInfo cii1 = csi1.toCashItemInfo(account, chr);
                             Item item1 = cii1.getItem();
-                            c.write(CCashShop.cashItemResBuyDone(cii1, null, null, 0));
-                            c.write(CCashShop.queryCashResult(chr));
+                            chr.write(CCashShop.cashItemResBuyDone(cii1, null, null, 0));
+                            chr.write(CCashShop.queryCashResult(chr));
                         } else {
                             notEnoughMoney1 = true;
                         }
@@ -155,8 +153,8 @@ public class CashShopHandler {
                             CashShopItem csi1 = cs.getItemByPosition(28); // client's pos starts at 1
                             CashItemInfo cii1 = csi1.toCashItemInfo(account, chr);
                             Item item1 = cii1.getItem();
-                            c.write(CCashShop.cashItemResBuyDone(cii1, null, null, 0));
-                            c.write(CCashShop.queryCashResult(chr));
+                            chr.write(CCashShop.cashItemResBuyDone(cii1, null, null, 0));
+                            chr.write(CCashShop.queryCashResult(chr));
                         } else {
                             notEnoughMoney1 = true;
                         }
@@ -167,7 +165,7 @@ public class CashShopHandler {
                 long itemSn = inPacket.decodeLong();
                 cii = trunk.getLockerItemBySn(itemSn);
                 if (cii == null) {
-                    c.write(CCashShop.fullInventoryMsg());
+                    chr.write(CCashShop.fullInventoryMsg());
                     return;
                 }
                 Item item = cii.getItem();
@@ -178,38 +176,38 @@ public class CashShopHandler {
                     inventory = chr.getCashInventory();
                 }
                 if (!inventory.canPickUp(item)) {
-                    c.write(CCashShop.fullInventoryMsg());
+                    chr.write(CCashShop.fullInventoryMsg());
                     return;
                 }
                 trunk.getLocker().remove(cii);
                 cii.setItem(null);
                 chr.addItemToInventory(item);
-                c.write(CCashShop.resMoveLtoSDone(item));
+                chr.write(CCashShop.resMoveLtoSDone(item));
                 break;
             case Req_MoveStoL:
                 itemSn = inPacket.decodeLong();
                 Inventory inv = chr.getInventoryByType(InvType.getInvTypeByVal(inPacket.decodeByte()));
                 item = inv == null ? null : inv.getItemBySN(itemSn);
                 if (item == null) {
-                    c.write(CCashShop.error());
+                    chr.write(CCashShop.error());
                     chr.dispose();
                     return;
                 }
                 if (trunk.isFull()) {
-                    c.write(CCashShop.fullInventoryMsg());
+                    chr.write(CCashShop.fullInventoryMsg());
                     return;
                 }
                 int quant = item.getQuantity();
                 cii = CashItemInfo.fromItem(chr, item);
-                c.write(CCashShop.resMoveStoLDone(cii));
+                chr.write(CCashShop.resMoveStoLDone(cii));
                 chr.consumeItem(item);
                 item.setQuantity(quant);
                 DatabaseManager.saveToDB(cii);
                 trunk.addCashItem(cii);
-                c.write(CCashShop.queryCashResult(chr));
+                chr.write(CCashShop.queryCashResult(chr));
                 break;
             default:
-                c.write(CCashShop.error());
+                chr.write(CCashShop.error());
                 log.error("Unhandled cash shop cash item request " + cit);
                 chr.dispose();
                 break;
@@ -227,14 +225,21 @@ public class CashShopHandler {
             return;
         }
         switch (csat) {
-            case Req_OpenCategory:
+            case Req_ShowCategory:
                 int categoryIdx = inPacket.decodeInt();
                 chr.write(CCashShop.openCategoryResult(cashShop, categoryIdx));
                 break;
             case Req_Favorite:
+                // TODO
+                break;
+            case Req_Like:
+                // TODO
+                break;
+            case Req_ShowFavorites:
+                chr.write(CCashShop.showFavorites(cashShop));
+                break;
             case Req_Leave:
                 break;
-
             default:
                 chr.write(CCashShop.error());
                 log.error("Unhandled cash shop cash action request " + csat);

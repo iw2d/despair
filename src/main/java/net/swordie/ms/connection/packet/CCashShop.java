@@ -220,6 +220,18 @@ public class CCashShop {
         return outPacket;
     }
 
+    public static OutPacket showFavorites(CashShop cashShop) {
+        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_ACTION);
+
+        outPacket.encodeByte(CashShopActionType.ShowCategory.getVal());
+        outPacket.encodeByte(1);
+        List<CashShopItem> items = List.of(); // TODO
+        outPacket.encodeByte(items.size());
+        items.forEach(item -> item.encode(outPacket));
+
+        return outPacket;
+    }
+
     public static OutPacket resMoveLtoSDone(Item item) {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
 
