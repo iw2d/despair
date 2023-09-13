@@ -27,13 +27,12 @@ public class PartyHandler {
 
 
     @Handler(op = InHeader.PARTY_INVITABLE_SET)
-    public static void handlePartyInvitableSet(Client c, InPacket inPacket) {
-        c.getChr().setPartyInvitable(inPacket.decodeByte() != 0);
+    public static void handlePartyInvitableSet(Char chr, InPacket inPacket) {
+        chr.setPartyInvitable(inPacket.decodeByte() != 0);
     }
 
     @Handler(op = InHeader.PARTY_REQUEST)
-    public static void handlePartyRequest(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handlePartyRequest(Char chr, InPacket inPacket) {
         byte type = inPacket.decodeByte();
         PartyType prt = PartyType.getByVal(type);
         Party party = chr.getParty();
@@ -82,7 +81,7 @@ public class PartyHandler {
                 if (!invited.isPartyInvitable()) {
                     chr.chatMessage(SystemNotice, String.format("%s is currently not accepting party invites.", invitedName));
                 } else if (invited.getParty() == null) {
-                    invited.write(WvsContext.partyResult(PartyResult.applyParty(party, inviter)));
+                    invited.write(WvsContext.partyResult(PartyResult.inviteParty(party, inviter)));
                     chr.chatMessage(SystemNotice, String.format("You invited %s to your party.", invitedName));
                 } else {
                     chr.chatMessage(SystemNotice, String.format("%s is already in a party.", invitedName));
@@ -120,8 +119,7 @@ public class PartyHandler {
     }
 
     @Handler(op = InHeader.PARTY_RESULT)
-    public static void handlePartyResult(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handlePartyResult(Char chr, InPacket inPacket) {
         byte type = inPacket.decodeByte();
         int partyID = inPacket.decodeInt();
         PartyType pt = PartyType.getByVal(type);
@@ -130,14 +128,14 @@ public class PartyHandler {
             return;
         }
         switch (pt) {
-            case PartyRes_ApplyParty_Accepted:
+            case PartyRes_InviteParty_Accepted:
                 Char leader = chr.getField().getChars().stream()
                         .filter(l -> l.getParty() != null
                                 && l.getParty().getId() == partyID).findFirst().orElse(null);
                 Party party = leader.getParty();
                 if (!party.isFull()) {
                     party.addPartyMember(chr);
-                    for (Char onChar : party.getOnlineMembers().stream().map(PartyMember::getChr).collect(Collectors.toList())) {
+                    for (Char onChar : party.getOnlineMembers().stream().map(PartyMember::getChr).toList()) {
                         onChar.write(WvsContext.partyResult(PartyResult.joinParty(party, chr.getName())));
                         chr.write(UserRemote.receiveHP(onChar));
                     }
@@ -146,7 +144,7 @@ public class PartyHandler {
                     chr.write(WvsContext.partyResult(PartyResult.msg(PartyType.PartyRes_JoinParty_AlreadyFull)));
                 }
                 break;
-            case PartyRes_ApplyParty_Rejected:
+            case PartyRes_InviteParty_Rejected:
                 leader = chr.getField().getChars().stream()
                         .filter(l -> l.getParty() != null
                                 && l.getParty().getId() == partyID).findFirst().orElse(null);
@@ -161,7 +159,9 @@ public class PartyHandler {
                     party.addPartyMember(applier);
                     for (Char onChar : party.getOnlineMembers().stream().map(PartyMember::getChr).collect(Collectors.toList())) {
                         onChar.write(WvsContext.partyResult(PartyResult.joinParty(party, applier.getName())));
+                        chr.write(UserRemote.receiveHP(onChar));
                     }
+                    party.broadcast(UserRemote.receiveHP(chr));
                 } else {
                     applier.write(WvsContext.partyResult(PartyResult.msg(PartyType.PartyRes_JoinParty_AlreadyFull)));
                 }
@@ -186,8 +186,7 @@ public class PartyHandler {
     }
 
     @Handler(op = InHeader.PARTY_MEMBER_CANDIDATE_REQUEST)
-    public static void handlePartyMemberCandidateRequest(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handlePartyMemberCandidateRequest(Char chr, InPacket inPacket) {
         Field field = chr.getField();
         chr.write(WvsContext.partyMemberCandidateResult(field.getChars().stream()
                 .filter(ch -> ch.isPartyInvitable() && !ch.equals(chr) && ch.getParty() == null)
@@ -195,8 +194,7 @@ public class PartyHandler {
     }
 
     @Handler(op = InHeader.PARTY_CANDIDATE_REQUEST)
-    public static void handlePartyCandidateRequest(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handlePartyCandidateRequest(Char chr, InPacket inPacket) {
         if (chr.getParty() != null) {
             chr.write(WvsContext.partyCandidateResult(new HashSet<>()));
             return;

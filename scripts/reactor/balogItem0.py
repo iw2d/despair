@@ -16,5 +16,5 @@ DELAY = 250 # milliseconds
 reactor.incHitCount()
 reactor.increaseState()
 if reactor.getHitCount() >= 4:
-	sm.dropItemsAlongLine(DROPLIST[chr.getFieldID()], RANGE, PX, PY, DELAY)
+	chr.getField().dropItemsAlongLine(DROPLIST[chr.getFieldID()], RANGE, PX, PY, DELAY)
 	sm.removeReactor()

@@ -45,12 +45,21 @@ public class PartyResult implements Encodable {
                 outPacket.encodeInt(chr.getJob());
                 outPacket.encodeInt(chr.getAvatarData().getCharacterStat().getSubJob());
                 break;
-            case PartyReq_ApplyParty:
+            case PartyReq_InviteParty:
                 outPacket.encodeInt(party.getId());
                 outPacket.encodeString(member.getCharName());
                 outPacket.encodeInt(member.getLevel());
                 outPacket.encodeInt(member.getJob());
                 outPacket.encodeInt(member.getSubSob());
+                outPacket.encodeByte(0); // no fadewnd created if true
+                outPacket.encodeByte(0); // another Decode1 if true which is ignored?
+                break;
+            case PartyReq_ApplyParty:
+                outPacket.encodeInt(party.getId());
+                outPacket.encodeString(chr.getName());
+                outPacket.encodeInt(chr.getLevel());
+                outPacket.encodeInt(chr.getJob());
+                outPacket.encodeInt(chr.getSubJob());
                 break;
             case PartyRes_ChangePartyBoss_Done:
                 outPacket.encodeInt(member.getCharID());
@@ -115,10 +124,17 @@ public class PartyResult implements Encodable {
         return pr;
     }
 
-    public static PartyResult applyParty(Party party, PartyMember member) {
-        PartyResult pr = new PartyResult(PartyType.PartyReq_ApplyParty);
+    public static PartyResult inviteParty(Party party, PartyMember member) {
+        PartyResult pr = new PartyResult(PartyType.PartyReq_InviteParty);
         pr.party = party;
         pr.member = member;
+        return pr;
+    }
+
+    public static PartyResult applyParty(Party party, Char chr) {
+        PartyResult pr = new PartyResult(PartyType.PartyReq_ApplyParty);
+        pr.party = party;
+        pr.chr = chr;
         return pr;
     }
 

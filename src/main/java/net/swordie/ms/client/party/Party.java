@@ -115,17 +115,12 @@ public class Party implements Encodable {
             setPartyLeaderID(chr.getId());
         }
         PartyMember[] partyMembers = getPartyMembers();
-        boolean added = false;
         for(int i = 0; i < partyMembers.length; i++) {
             if(partyMembers[i] == null) {
                 partyMembers[i] = pm;
                 chr.setParty(this);
-                added = true;
                 break;
             }
-        }
-        if (added) {
-            broadcast(WvsContext.partyResult(PartyResult.joinParty(this, chr.getName())));
         }
     }
 
