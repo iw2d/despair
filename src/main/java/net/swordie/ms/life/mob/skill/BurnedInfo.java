@@ -140,7 +140,7 @@ public class BurnedInfo {
     public void encode(OutPacket outPacket) {
         outPacket.encodeInt(getCharacterId());
         outPacket.encodeInt(getSkillId());
-        outPacket.encodeInt(Util.maxInt(getDamage()));
+        outPacket.encodeLong(getDamage());
         outPacket.encodeInt(getInterval());
         outPacket.encodeInt(getEnd());
         outPacket.encodeInt(getDotAnimation());
@@ -151,6 +151,8 @@ public class BurnedInfo {
         outPacket.encodeInt(getDotTickDamR());
         outPacket.encodeInt(0); // BURNED_INFO[14]
         outPacket.encodeInt(0); // BURNED_INFO[15]
+        outPacket.encodeInt(0); // BURNED_INFO[19]
+        outPacket.encodeInt(0); // BURNED_INFO[20]
     }
 
     public Char getChr() {

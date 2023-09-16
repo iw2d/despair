@@ -23,6 +23,7 @@ import net.swordie.ms.enums.CharNameResult;
 import net.swordie.ms.enums.LoginType;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.handlers.header.OutHeader;
+import net.swordie.ms.life.mob.MobStat;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.util.Util;
@@ -425,6 +426,16 @@ public class LoginHandler {
                 for (CharacterTemporaryStat cts : CharacterTemporaryStat.values()) {
                     if (cts.getPos() == i && (cts.getVal() & mask) != 0) {
                         log.error(String.format("[Error %s] Contained stat %s", errortype, cts.toString()));
+                    }
+                }
+            }
+        } else if (opcode == OutHeader.MOB_STAT_SET) {
+            inPacket.decodeInt(); // object id
+            for (int i = 0; i < MobStat.length; i++) {
+                int mask = inPacket.decodeInt();
+                for (MobStat ms : MobStat.values()) {
+                    if (ms.getPos() == i && (ms.getVal() & mask) != 0) {
+                        log.error(String.format("[Error %s] Contained stat %s", errortype, ms.toString()));
                     }
                 }
             }
