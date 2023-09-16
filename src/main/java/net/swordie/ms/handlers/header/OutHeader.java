@@ -499,7 +499,7 @@ public enum OutHeader {
     CFIELD_UNK_1564(1564),
     CFIELD_UNK_1650(1650),
     CFIELD_UNK_1651(1651),
-    CFIELD_UNK_1655(1655),
+    CFIELD_UNK_1655(1655), // SALON_RESULT?
 
     // CUserPool::OnPacket (0x01D3DBD0)
     USER_ENTER_FIELD(539),
@@ -850,7 +850,11 @@ public enum OutHeader {
     // UNK 882 - 901
     FAMILIAR_ADD_RESULT(902),
     FAMILIAR_INVALID_NAME(903),
-    // UNK 904 - 926
+    // UNK 904 - 917
+    RED_LEAF_INFO(918),
+    // UNK 919 - 920
+    SALON_RESULT(921),
+    // UNK 922 - 926
     MOD_HAYATO_COMBO(927),
     // UNK 928 - 930
     SKILL_COOLTIME_SET(931),
