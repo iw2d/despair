@@ -232,7 +232,19 @@ public class ItemHandler {
             // Reward items
             Item reward = itemInfo.getRandomReward();
             chr.addItemToInventory(reward);
-
+        } else if (itemID / 10000 == 555) {
+            //Beauty Salon Slots
+            int salonType = itemID % 5550000;
+            switch (salonType) {
+                case 2000:
+                    chr.write(UserLocal.salonResult(5, chr, 20000, chr.getInventoryByType(InvType.getInvTypeByString("Face")).getSlots() + 1));
+                    chr.getInventoryByType(InvType.getInvTypeByString("Face")).addSlots((byte) 1);
+                    return;
+                case 3000:
+                    chr.write(UserLocal.salonResult(5, chr, 30000, chr.getInventoryByType(InvType.getInvTypeByString("Hair")).getSlots() + 1));
+                    chr.getInventoryByType(InvType.getInvTypeByString("Hair")).addSlots((byte) 1);
+                    return;
+            }
         } else if (itemID / 10000 == 539) {
             // Avatar Megaphones
             List<String> lineList = new ArrayList<>();

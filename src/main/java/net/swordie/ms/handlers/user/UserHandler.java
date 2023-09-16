@@ -1,8 +1,8 @@
 package net.swordie.ms.handlers.user;
 
 import net.swordie.ms.client.Account;
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.avatar.BeautyAlbum;
 import net.swordie.ms.client.character.cards.MonsterCollection;
 import net.swordie.ms.client.character.cards.MonsterCollectionExploration;
 import net.swordie.ms.client.character.PortableChair;
@@ -40,6 +40,7 @@ import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Position;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Tuple;
+import net.swordie.ms.world.auction.AuctionResult;
 import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.Portal;
 import org.apache.logging.log4j.LogManager;
@@ -608,11 +609,52 @@ public class UserHandler {
     }
 
     @Handler(op = InHeader.TRY_REGISTER_TELEPORT)
-    public static void tryRegisterTeleport(Char chr, InPacket inPacket) {
+    public static void handleTryRegisterTeleport(Char chr, InPacket inPacket) {
         int skillId = inPacket.decodeInt();
         if (skillId == Phantom.SHROUD_WALK) {
             // store teleport count
             chr.getTemporaryStatManager().getOption(CharacterTemporaryStat.Invisible).nOption++;
+        }
+    }
+
+    @Handler(op = InHeader.SALON_REQUEST)
+    public static void handleSalonRequest(Char chr, InPacket inPacket) {
+        inPacket.decodeInt();
+        if (inPacket.getUnreadAmount() == 0) {
+            chr.write(UserLocal.salonResult(0, chr, 0, 0));
+            return;
+        }
+        int opType = inPacket.decodeByte();
+        switch (opType) {
+            case 7:
+                int slotId = inPacket.decodeInt();
+                int styleId = inPacket.decodeInt();
+                inPacket.decodeShort();
+                int styleToSave = (slotId / 10000 == 3 ? chr.getAvatarData().getAvatarLook().getHair() : chr.getAvatarData().getAvatarLook().getFace());
+                BeautyAlbum styleToAdd = new BeautyAlbum(styleToSave, slotId);
+                chr.addStyleToBeautyAlbum(styleToAdd);
+                chr.write(UserLocal.salonResult(7, chr, styleToSave, slotId));
+                break;
+            case 3:
+                int slotId2 = inPacket.decodeInt();
+                inPacket.decodeInt();
+                long cost = GameConstants.SALON_CHANGE_COST;
+                if (chr.getMoney() < cost) {
+                    return;
+                }
+                chr.deductMoney(cost);
+                chr.write(WvsContext.incMoneyMessage((int) -cost));
+                chr.getScriptManager().changeCharacterLook(chr.getStyleBySlotId(slotId2).getStyleID());
+                chr.write(UserLocal.salonResult(1, chr, 0, 0));
+                break;
+            case 1:
+                int slotId1 = inPacket.decodeInt();
+                BeautyAlbum styleToAdd1 = chr.getStyleBySlotId(slotId1);
+                chr.removeStyleToBeautyAlbum(styleToAdd1);
+                chr.write(UserLocal.salonResult(7, chr, 0, slotId1));
+                break;
+            default:
+                break;
         }
     }
 }

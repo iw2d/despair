@@ -1,6 +1,7 @@
 package net.swordie.ms.connection.packet;
 
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.avatar.BeautyAlbum;
 import net.swordie.ms.client.character.b2body.B2Body;
 import net.swordie.ms.client.character.damage.DamageSkinType;
 import net.swordie.ms.client.character.skills.LarknessManager;
@@ -45,7 +46,7 @@ public class UserLocal {
         return outPacket;
     }
 
-    public static OutPacket videoByScript(String videoPath, boolean isMuted){
+    public static OutPacket videoByScript(String videoPath, boolean isMuted) {
         OutPacket outPacket = new OutPacket(OutHeader.VIDEO_BY_SCRIPT);
 
         outPacket.encodeString(videoPath);
@@ -185,7 +186,7 @@ public class UserLocal {
         outPacket.encodeByte(1); //Set Excl Request
         outPacket.encodeByte(set); //bSet
         outPacket.encodeInt(impecMemSkilLID); //impecMemSkilLID
-        if(set) {
+        if (set) {
             outPacket.encodeInt(skillId); //skill Id
         }
         return outPacket;
@@ -196,7 +197,7 @@ public class UserLocal {
         outPacket.encodeByte(0); //Set Excl Request
         outPacket.encodeInt(targetChrId);
         outPacket.encodeInt(phantomStealResult); //   Gets a check  if == 4,   else:   nPhantomStealWrongResult
-        if(phantomStealResult == 4) {
+        if (phantomStealResult == 4) {
             outPacket.encodeInt(targetJobId);
             outPacket.encodeInt(targetSkillsList.size());
 
@@ -276,7 +277,7 @@ public class UserLocal {
         outPacket.encodeInt(pet.getOwnerID());
         outPacket.encodeInt(pet.getIdx());
         outPacket.encodeByte(active);
-        if(active) {
+        if (active) {
             outPacket.encodeByte(true); // init
             pet.encode(outPacket);
         } else {
@@ -440,7 +441,7 @@ public class UserLocal {
 
         outPacket.encodeByte(lockUI); // Locks User's UI        - Is 'showUI' in IDA
         outPacket.encodeByte(blackFrame); // Usually 1 in gms? (@aviv)
-        if(lockUI) {
+        if (lockUI) {
             outPacket.encodeByte(forceMouseOver);
             outPacket.encodeByte(!lockUI); // showUI
         }
@@ -672,6 +673,74 @@ public class UserLocal {
                 break;
         }
 
+        return outPacket;
+    }
+
+    public static OutPacket salonResult(int actionType, Char chr, int styleId, int slotId) {
+        OutPacket outPacket = new OutPacket(OutHeader.SALON_RESULT);
+        switch (actionType) {
+            case 0:
+                outPacket.encodeArr("9C F3 70 EB");
+                outPacket.encodeByte(3);
+                outPacket.encodeInt(1);
+                outPacket.encodeByte(31);
+                outPacket.encodeInt(100);
+
+                outPacket.encodeInt(chr.getHairInventory().getSlots());
+                outPacket.encodeInt(chr.getFaceInventory().getSlots());
+
+                outPacket.encodeInt(chr.getHairInventory().getSlots());
+                for (int i = 0; i < chr.getHairInventory().getSlots(); i++) {
+                    BeautyAlbum hair = chr.getStyleBySlotId(30000 + i);
+                    outPacket.encodeInt(hair == null ? 0 : hair.getStyleID());
+                    outPacket.encodeByte(hair == null ? 0 : -1);
+                    outPacket.encodeByte(0);
+                    outPacket.encodeByte(0);
+                }
+
+                outPacket.encodeInt(chr.getFaceInventory().getSlots());
+                for (int i = 0; i < chr.getFaceInventory().getSlots(); i++) {
+                    BeautyAlbum face = chr.getStyleBySlotId(20000 + i);
+                    outPacket.encodeInt(face == null ? 0 : face.getStyleID());
+                }
+                break;
+            case 1:
+                outPacket.encodeArr("33 4C 50 2C");
+                outPacket.encodeByte(1);
+                if (slotId / 10000 >= 3) {
+                    outPacket.encodeInt(0);
+                } else {
+                    outPacket.encodeInt(1);
+                }
+                break;
+            case 5:
+                outPacket.encodeArr("05 6C 46 83");
+                outPacket.encodeByte(7);
+                outPacket.encodeInt(1);
+                if (styleId / 10000 >= 3) {
+                    outPacket.encodeInt(3);
+                } else {
+                    outPacket.encodeInt(2);
+                }
+                outPacket.encodeInt(slotId);
+                break;
+            case 7:
+                outPacket.encodeArr("66 46 3C 2E");
+                if (styleId / 10000 >= 3) {
+                    outPacket.encodeByte(11);
+                } else {
+                    outPacket.encodeByte(7);
+                }
+                outPacket.encodeInt(1);
+                outPacket.encodeInt(slotId);
+                outPacket.encodeInt(styleId);
+                if (styleId / 10000 >= 3) {
+                    outPacket.encodeByte(styleId == 0 ? 0 : -1);
+                    outPacket.encodeByte(0);
+                    outPacket.encodeByte(0);
+                }
+                break;
+        }
         return outPacket;
     }
 }

@@ -11,7 +11,9 @@ public enum InvType {
     CONSUME(2),
     ETC(4),
     INSTALL(3),
-    CASH(5)
+    CASH(5),
+    HAIR(6),
+    FACE(7)
     ;
 
     private byte val;
@@ -55,6 +57,12 @@ public enum InvType {
             case "eqp":
             case "equip":
                 res = EQUIP;
+                break;
+            case "hair":
+                res = HAIR;
+                break;
+            case "face":
+                res = FACE;
                 break;
         }
         return res;

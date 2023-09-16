@@ -141,6 +141,7 @@ public class GameConstants {
     // Cash Shop
     public static final int MAX_CS_ITEMS_PER_PAGE = 12;
     public static final int MAX_LOCKER_SIZE = 9999;
+    public static final long SALON_CHANGE_COST = 100_000L;
 
     // Auction
     public static final long AUCTION_LIST_TIME = 24; // hours

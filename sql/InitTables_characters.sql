@@ -63,7 +63,9 @@ monsterbookcards,
 monsterbookinfos,
 trunks,
 employeetrunk,
-cashiteminfos;
+cashiteminfos,
+beautyalbuminventory
+;
 set FOREIGN_KEY_CHECKS = 1;
 
 create table trunks(
@@ -606,6 +608,8 @@ create table characters (
     etcinventory int,
     installinventory int,
     cashinventory int,
+    hairinventory int,
+    faceinventory int,
     funckeymap_id int,
     fieldid int,
     questmanager bigint,
@@ -624,6 +628,8 @@ create table characters (
     foreign key (etcinventory) references inventories(id),
     foreign key (installinventory) references inventories(id),
     foreign key (cashinventory) references inventories(id),
+    foreign key (hairinventory) references inventories(id),
+    foreign key (faceinventory) references inventories(id),
     foreign key (funckeymap_id) references funckeymap(id),
     foreign key (questmanager) references questmanagers(id),
     foreign key (guild) references guilds(id),
@@ -898,6 +904,15 @@ create table friends (
     nickname varchar(255),
     memo varchar(255),
     primary key (id)
+);
+
+create table beautyalbuminventory (
+    id bigint not null auto_increment,
+    styleid int,
+    slotid int,
+    charid int,
+    primary key (id),
+    foreign key (charid) references characters(id)
 );
 
 insert into `users` (`name`, `password`, `accounttype`, `chatunblockdate`, `characterslots`) values ('admin', 'admin', '4', '0', '40');

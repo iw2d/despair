@@ -9,6 +9,7 @@ import net.swordie.ms.client.anticheat.OffenseManager;
 import net.swordie.ms.client.character.*;
 import net.swordie.ms.client.character.avatar.AvatarData;
 import net.swordie.ms.client.character.avatar.AvatarLook;
+import net.swordie.ms.client.character.avatar.BeautyAlbum;
 import net.swordie.ms.client.character.cards.*;
 import net.swordie.ms.client.character.damage.DamageSkinSaveData;
 import net.swordie.ms.client.character.items.Equip;
@@ -129,6 +130,7 @@ public class DatabaseManager {
                 AuctionItem.class,
                 EmployeeTrunk.class,
                 MerchantItem.class,
+                BeautyAlbum.class,
         };
         for(Class clazz : dbClasses) {
             configuration.addAnnotatedClass(clazz);

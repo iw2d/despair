@@ -11,6 +11,7 @@ import net.swordie.ms.client.alliance.AllianceResult;
 import net.swordie.ms.client.anticheat.OffenseManager;
 import net.swordie.ms.client.character.avatar.AvatarData;
 import net.swordie.ms.client.character.avatar.AvatarLook;
+import net.swordie.ms.client.character.avatar.BeautyAlbum;
 import net.swordie.ms.client.character.cards.MonsterBookInfo;
 import net.swordie.ms.client.character.cards.MonsterCollectionExploration;
 import net.swordie.ms.client.character.damage.DamageCalc;
@@ -152,6 +153,18 @@ public class Char {
 	@JoinColumn(name = "cashInventory")
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private Inventory cashInventory = new Inventory(InvType.CASH, 96);
+
+	@JoinColumn(name = "hairInventory")
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	private Inventory hairInventory = new Inventory(InvType.HAIR, 3);
+
+	@JoinColumn(name = "faceInventory")
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+	private Inventory faceInventory = new Inventory(InvType.FACE, 3);
+
+	@JoinColumn(name = "charId")
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<BeautyAlbum> beautyAlbum = new ArrayList<>();
 
 	@JoinColumn(name = "avatarData")
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -679,6 +692,16 @@ public class Char {
 
 	public void setCashInventory(Inventory cashInventory) {
 		this.cashInventory = cashInventory;
+	}
+
+
+	public Inventory getHairInventory() {
+		return hairInventory;
+	}
+
+
+	public Inventory getFaceInventory() {
+		return faceInventory;
 	}
 
 	/**
@@ -1663,9 +1686,29 @@ public class Char {
 				return getInstallInventory();
 			case CASH:
 				return getCashInventory();
+			case HAIR:
+				return getHairInventory();
+			case FACE:
+				return getFaceInventory();
 			default:
 				return null;
 		}
+	}
+
+	public BeautyAlbum getStyleBySlotId(int slotId) {
+		return getBeautyAlbum().stream().filter(style -> style.getSlotID() == slotId).findFirst().orElse(null);
+	}
+
+	public void addStyleToBeautyAlbum(BeautyAlbum beautyAlbum) {
+		getBeautyAlbum().add(beautyAlbum);
+	}
+
+	public void removeStyleToBeautyAlbum(BeautyAlbum beautyAlbum) {
+		getBeautyAlbum().remove(beautyAlbum);
+	}
+
+	public List<BeautyAlbum> getBeautyAlbum() {
+		return beautyAlbum;
 	}
 
 	public Client getClient() {
