@@ -227,7 +227,9 @@ public class CashShopHandler {
         switch (csat) {
             case Req_ShowCategory:
                 int categoryIdx = inPacket.decodeInt();
-                chr.write(CCashShop.openCategoryResult(cashShop, categoryIdx));
+                if (categoryIdx != 4000000) { // Home
+                    chr.write(CCashShop.openCategoryResult(cashShop, categoryIdx));
+                }
                 break;
             case Req_Favorite:
                 // TODO

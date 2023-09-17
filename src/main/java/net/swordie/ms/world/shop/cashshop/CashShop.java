@@ -84,7 +84,8 @@ public class CashShop {
         outPacket.encodeByte(0);
         outPacket.encodeLong(0);
 
-        // byte * (string)
+        outPacket.encodeByte(0);
+        // byte -> (string)
         outPacket.encodeByte(0);
 
         outPacket.encodeInt(0);

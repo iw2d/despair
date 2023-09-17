@@ -1382,8 +1382,8 @@ public enum OutHeader {
     CCASHSHOP_UNK_1428(1428), // same as OutHeader 396, related to DBChar.ItemSlotConsume and DBChar.Unk4000000000000000 ?
     CCASHSHOP_UNK_1431(1431), // int, int
     CASH_SHOP_MVP_GIFT(1432), // gift from Nexon by spending additional %d NX
-    CASH_SHOP_INFO(1433), // could not find in IDA
-    CASH_SHOP_ACTION(1434), // ^
+    CASH_SHOP_INFO(1433), // CClientSocket::ProcessPacket -> (0x00A43620)
+    CASH_SHOP_ACTION(1434), // CClientSocket::ProcessPacket -> (0x00A43AB0)
     CCASHSHOP_UNK_1436(1436), // long
     CASH_SHOP_ETC_GIFT(1438), // gift going into ETC inventory
     CCASHSHOP_UNK_1439(1439),
