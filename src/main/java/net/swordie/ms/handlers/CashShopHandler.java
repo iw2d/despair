@@ -7,6 +7,7 @@ import net.swordie.ms.client.User;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Inventory;
 import net.swordie.ms.client.character.items.Item;
+import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.trunk.Trunk;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
@@ -51,10 +52,10 @@ public class CashShopHandler {
             return;
         }
         switch (cit) {
-            case Req_Buy:
-                byte idk1 = inPacket.decodeByte();
+            case Req_Buy: {
+                inPacket.decodeByte();
                 byte paymentMethod = inPacket.decodeByte();
-                int idk2 = inPacket.decodeInt();
+                inPacket.decodeInt();
                 int itemPos = inPacket.decodeInt();
                 int cost = inPacket.decodeInt();
                 CashShopItem csi = cs.getItemByPosition(itemPos - 1); // client's pos starts at 1
@@ -95,79 +96,91 @@ public class CashShopHandler {
                 CashItemInfo cii = csi.toCashItemInfo(account, chr);
                 DatabaseManager.saveToDB(cii); // ensures the item has a unique ID
                 account.getTrunk().addCashItem(cii);
-                chr.write(CCashShop.cashItemResBuyDone(cii, null, null, 0));
+                chr.write(CCashShop.cashItemResBuyDone(cii, null, null));
                 chr.write(CCashShop.queryCashResult(chr));
                 break;
-            case Req_IncSlotCount:
-                byte idk10 = inPacket.decodeByte();
-                byte idk11 = inPacket.decodeByte();
-                int idk12 = inPacket.decodeInt();
-                byte idk13 = inPacket.decodeByte();
-                byte slotType = inPacket.decodeByte();
-                byte idk14 = inPacket.decodeByte();
-                byte idk15 = inPacket.decodeByte();
-                byte idk16 = inPacket.decodeByte();
-                int cost1 = inPacket.decodeInt();
-                long idk17 = inPacket.decodeLong();
-                boolean notEnoughMoney1 = false;
-                switch (slotType) {
-                    case 26: // Equip
-                        if (account.getNxCredit() >= cost1) {
-                            account.deductNXCredit(cost1);
-                            chr.getInventoryByType(InvType.EQUIP).addSlots((byte) 8);
-                            CashShopItem csi1 = cs.getItemByPosition(25); // client's pos starts at 1
-                            CashItemInfo cii1 = csi1.toCashItemInfo(account, chr);
-                            Item item1 = cii1.getItem();
-                            chr.write(CCashShop.cashItemResBuyDone(cii1, null, null, 0));
-                            chr.write(CCashShop.queryCashResult(chr));
-                        } else {
-                            notEnoughMoney1 = true;
-                        }
-                        break;
-                    case 27: // Use
-                        if (account.getNxCredit() >= cost1) {
-                            account.deductNXCredit(cost1);
-                            chr.getInventoryByType(InvType.CONSUME).addSlots((byte) 8);
-                            CashShopItem csi1 = cs.getItemByPosition(26); // client's pos starts at 1
-                            CashItemInfo cii1 = csi1.toCashItemInfo(account, chr);
-                            Item item1 = cii1.getItem();
-                            chr.write(CCashShop.cashItemResBuyDone(cii1, null, null, 0));
-                            chr.write(CCashShop.queryCashResult(chr));
-                        } else {
-                            notEnoughMoney1 = true;
-                        }
-                        break;
-                    case 28: // Etc ?
-                        if (account.getNxCredit() >= cost1) {
-                            account.deductNXCredit(cost1);
-                            chr.getInventoryByType(InvType.INSTALL).addSlots((byte) 8);
-                            CashShopItem csi1 = cs.getItemByPosition(27); // client's pos starts at 1
-                            CashItemInfo cii1 = csi1.toCashItemInfo(account, chr);
-                            Item item1 = cii1.getItem();
-                            chr.write(CCashShop.cashItemResBuyDone(cii1, null, null, 0));
-                            chr.write(CCashShop.queryCashResult(chr));
-                        } else {
-                            notEnoughMoney1 = true;
-                        }
-                        break;
-                    case 29: // Install ?
-                        if (account.getNxCredit() >= cost1) {
-                            account.deductNXCredit(cost1);
-                            chr.getInventoryByType(InvType.ETC).addSlots((byte) 8);
-                            CashShopItem csi1 = cs.getItemByPosition(28); // client's pos starts at 1
-                            CashItemInfo cii1 = csi1.toCashItemInfo(account, chr);
-                            Item item1 = cii1.getItem();
-                            chr.write(CCashShop.cashItemResBuyDone(cii1, null, null, 0));
-                            chr.write(CCashShop.queryCashResult(chr));
-                        } else {
-                            notEnoughMoney1 = true;
-                        }
-                        break;
+            }
+            case Req_IncSlotCount: {
+                inPacket.decodeByte();
+                inPacket.decodeByte();
+                inPacket.decodeInt();
+                boolean isAdd4Slots = inPacket.decodeByte() == 0;
+                InvType invType = null;
+                byte incSlots;
+                int cost;
+                if (isAdd4Slots) {
+                    incSlots = 4;
+                    cost = 2500;
+                    invType = InvType.getInvTypeByVal(inPacket.decodeByte());
+                } else {
+                    int itemPos = inPacket.decodeInt();
+                    incSlots = 8;
+                    cost = inPacket.decodeInt();
+                    inPacket.decodeLong();
+                    CashShopItem csi = cs.getItemByPosition(itemPos - 1);
+                    if (csi == null || csi.getNewPrice() != cost) {
+                        chr.write(CCashShop.error());
+                        log.error("Requested item's cost did not match client's cost");
+                        return;
+                    }
+                    switch (csi.getItemID()) {
+                        case 9111000 -> invType = InvType.EQUIP;
+                        case 9112000 -> invType = InvType.CONSUME;
+                        case 9113000 -> invType = InvType.INSTALL;
+                        case 9114000 -> invType = InvType.ETC;
+                    }
+                }
+                if (invType == null) {
+                    chr.write(CCashShop.error());
+                    chr.dispose();
+                    return;
+                }
+                if (account.getNxCredit() >= cost) {
+                    account.deductNXCredit(cost);
+                    chr.getInventoryByType(invType).addSlots(incSlots);
+                    chr.write(CCashShop.cashItemResIncSlotCountDone(invType.getVal(), chr.getInventoryByType(invType).getSlots()));
+                    chr.write(CCashShop.queryCashResult(chr));
                 }
                 break;
-            case Req_MoveLtoS:
+            }
+            case Req_IncTrunkCount: {
+                inPacket.decodeByte();
+                inPacket.decodeInt();
+                inPacket.decodeByte();
+                boolean isAdd4Slots = inPacket.decodeByte() == 0;
+                byte incSlots;
+                int cost;
+                if (isAdd4Slots) {
+                    incSlots = 4;
+                    cost = 2500;
+                } else {
+                    int itemPos = inPacket.decodeInt();
+                    incSlots = 8;
+                    cost = inPacket.decodeInt();
+                    inPacket.decodeLong();
+                    CashShopItem csi = cs.getItemByPosition(itemPos - 1);
+                    if (csi == null || csi.getNewPrice() != cost) {
+                        chr.write(CCashShop.error());
+                        log.error("Requested item's cost did not match client's cost");
+                        return;
+                    }
+                    if (csi.getItemID() != 9110000) {
+                        chr.write(CCashShop.error());
+                        chr.dispose();
+                        return;
+                    }
+                }
+                if (account.getNxCredit() >= cost) {
+                    account.deductNXCredit(cost);
+                    chr.getAccount().getTrunk().addSlots(incSlots);
+                    chr.write(CCashShop.cashItemResIncTrunkCountDone(chr.getAccount().getTrunk().getSlotCount()));
+                    chr.write(CCashShop.queryCashResult(chr));
+                }
+                break;
+            }
+            case Req_MoveLtoS: {
                 long itemSn = inPacket.decodeLong();
-                cii = trunk.getLockerItemBySn(itemSn);
+                CashItemInfo cii = trunk.getLockerItemBySn(itemSn);
                 if (cii == null) {
                     chr.write(CCashShop.fullInventoryMsg());
                     return;
@@ -188,10 +201,11 @@ public class CashShopHandler {
                 chr.addItemToInventory(item);
                 chr.write(CCashShop.resMoveLtoSDone(item));
                 break;
-            case Req_MoveStoL:
-                itemSn = inPacket.decodeLong();
+            }
+            case Req_MoveStoL: {
+                long itemSn = inPacket.decodeLong();
                 Inventory inv = chr.getInventoryByType(InvType.getInvTypeByVal(inPacket.decodeByte()));
-                item = inv == null ? null : inv.getItemBySN(itemSn);
+                Item item = inv == null ? null : inv.getItemBySN(itemSn);
                 if (item == null) {
                     chr.write(CCashShop.error());
                     chr.dispose();
@@ -202,7 +216,7 @@ public class CashShopHandler {
                     return;
                 }
                 int quant = item.getQuantity();
-                cii = CashItemInfo.fromItem(chr, item);
+                CashItemInfo cii = CashItemInfo.fromItem(chr, item);
                 chr.write(CCashShop.resMoveStoLDone(cii));
                 chr.consumeItem(item);
                 item.setQuantity(quant);
@@ -210,6 +224,7 @@ public class CashShopHandler {
                 trunk.addCashItem(cii);
                 chr.write(CCashShop.queryCashResult(chr));
                 break;
+            }
             default:
                 chr.write(CCashShop.error());
                 log.error("Unhandled cash shop cash item request " + cit);

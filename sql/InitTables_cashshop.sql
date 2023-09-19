@@ -91,8 +91,8 @@ values
     (9110000, 5000, 'Add Slot', 0), /* Add Storage Slots */
     (9111000, 5000, 'Add Slot', 0), /* Add Equip Slots */
     (9112000, 5000, 'Add Slot', 0), /* Add Use Slots */
-    (9114000, 5000, 'Add Slot', 0), /* Add ETC Slots */
     (9113000, 5000, 'Add Slot', 0), /* Add Set-up Slots */
+    (9114000, 5000, 'Add Slot', 0), /* Add ETC Slots */
     (5552000, 3000, 'Add Slot', 0), /* Add Face Slots */
     (5553000, 3000, 'Add Slot', 0);
 /* Add Hair Slots */

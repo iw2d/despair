@@ -17,6 +17,7 @@ import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.BaseStat;
+import net.swordie.ms.enums.CashShopInfoType;
 import net.swordie.ms.enums.FieldOption;
 import net.swordie.ms.enums.MapTransferType;
 import net.swordie.ms.connection.ClientSocket;
@@ -36,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 public class MigrationHandler {
 
@@ -283,19 +285,19 @@ public class MigrationHandler {
         field.removeChar(chr);
         chr.setInCashShop(true);
         chr.punishLieDetectorEvasion();
-        CashShop cs = Server.getInstance().getCashShop();
-        c.write(Stage.setCashShop(chr, cs));
+        CashShop cashShop = Server.getInstance().getCashShop();
+        c.write(Stage.setCashShop(chr, cashShop));
         c.write(CCashShop.loadLockerDone(chr.getAccount()));
         c.write(CCashShop.queryCashResult(chr));
-        c.write(CCashShop.bannerInfo(cs));
-        c.write(CCashShop.cartInfo(cs));
-        c.write(CCashShop.featuredItemInfo(cs));
-        c.write(CCashShop.specialItemInfo(cs));
-        c.write(CCashShop.specialSaleInfo(cs));
-        c.write(CCashShop.topSellerInfo(cs));
-        c.write(CCashShop.categoryInfo(cs));
-        c.write(CCashShop.bannerMsg(cs, new ArrayList<>()));
-        c.write(CCashShop.oneTen(cs));
+        c.write(CCashShop.cartInfo(cashShop));
+        c.write(CCashShop.categoryInfo(cashShop));
+        c.write(CCashShop.bannerMsg(cashShop, List.of()));
+
+//        c.write(CCashShop.infoItems(CashShopInfoType.Banner, List.of()));
+//        c.write(CCashShop.infoItems(CashShopInfoType.SpecialSale, List.of()));
+//        c.write(CCashShop.infoItems(CashShopInfoType.TopSellers, List.of()));
+//        c.write(CCashShop.infoItems(CashShopInfoType.SpecialItems, List.of()));
+//        c.write(CCashShop.infoItems(CashShopInfoType.FeaturedItems, List.of()));
     }
 
     @Handler(op = InHeader.USER_MIGRATE_AUCTION_HOUSE_REQUEST)

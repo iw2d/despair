@@ -12,7 +12,8 @@ public enum CashShopInfoType {
     FeaturedItems(8),
     SpecialSale(9),
     Cart(10),
-    BannerMsg(12);
+    BannerMsg(12),
+    Unk110(110); // int, int, int
 
     private int val;
 

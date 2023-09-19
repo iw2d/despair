@@ -38,10 +38,8 @@ public class CCashShop {
         return outPacket;
     }
 
-    public static OutPacket cashItemResBuyDone(CashItemInfo cashItemInfo, FileTime registerDate, CashItemInfo receiveBonus,
-                                               int someInt) {
+    public static OutPacket cashItemResBuyDone(CashItemInfo cashItemInfo, FileTime registerDate, CashItemInfo receiveBonus) {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
-
         outPacket.encodeByte(CashItemType.Res_Buy_Done.getVal());
         cashItemInfo.encode(outPacket);
         boolean hasRegisterDate = registerDate != null;
@@ -54,12 +52,36 @@ public class CCashShop {
         if (receiveBonus != null) {
             receiveBonus.encode(outPacket);
         }
-        boolean hasSomeInt = someInt != 0;
-        outPacket.encodeByte(hasSomeInt);
-        if (hasSomeInt) {
-            outPacket.encodeInt(someInt);
+        boolean bool = false;
+        outPacket.encodeByte(bool);
+        if (bool) {
+            outPacket.encodeInt(0); // Total spent since %s : %d NX
         }
+        return outPacket;
+    }
 
+    public static OutPacket cashItemResIncSlotCountDone(byte invType, int newSlotCount) {
+        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
+        outPacket.encodeByte(CashItemType.Res_IncSlotCount_Done.getVal());
+        outPacket.encodeByte(invType);
+        outPacket.encodeShort(newSlotCount);
+        boolean bool = false;
+        outPacket.encodeByte(bool);
+        if (bool) {
+            outPacket.encodeInt(0); // Total spent since %s : %d NX
+        }
+        return outPacket;
+    }
+
+    public static OutPacket cashItemResIncTrunkCountDone(int newSlotCount) {
+        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
+        outPacket.encodeByte(CashItemType.Res_IncTrunkCount_Done.getVal());
+        outPacket.encodeShort(newSlotCount);
+        boolean bool = false;
+        outPacket.encodeByte(bool);
+        if (bool) {
+            outPacket.encodeInt(0); // Total spent since %s : %d NX
+        }
         return outPacket;
     }
 
@@ -89,70 +111,15 @@ public class CCashShop {
         return outPacket;
     }
 
-    public static OutPacket bannerInfo(CashShop cashShop) {
+    public static OutPacket infoItems(CashShopInfoType csit, List<CashShopItem> items) {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_INFO);
 
-        outPacket.encodeByte(CashShopInfoType.Banner.getVal());
+        outPacket.encodeByte(csit.getVal());
         outPacket.encodeByte(1); // 0 does not encode anything, 2 does the same as 1 (encoding wise)
-        outPacket.encodeByte(3); // size
-
-        new CashShopItem().setItemID(1041152).encode(outPacket);
-        new CashShopItem().setItemID(1041186).encode(outPacket);
-        new CashShopItem().setItemID(1072431).encode(outPacket);
-
-        return outPacket;
-    }
-
-    public static OutPacket topSellerInfo(CashShop cashShop) {
-        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_INFO);
-
-        outPacket.encodeByte(CashShopInfoType.TopSellers.getVal());
-        outPacket.encodeByte(1); // 0 does not encode anything, 2 does the same as 1 (encoding wise)
-        outPacket.encodeByte(3); // size
-
-        new CashShopItem().setItemID(1072285).encode(outPacket);
-        new CashShopItem().setItemID(1072418).encode(outPacket);
-        new CashShopItem().setItemID(1072431).encode(outPacket);
-
-        return outPacket;
-    }
-
-    public static OutPacket specialItemInfo(CashShop cashShop) {
-        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_INFO);
-
-        outPacket.encodeByte(CashShopInfoType.SpecialItems.getVal());
-        outPacket.encodeByte(1); // 0 does not encode anything, 2 does the same as 1 (encoding wise)
-        outPacket.encodeByte(3); // size
-
-        new CashShopItem().setItemID(1042033).encode(outPacket);
-        new CashShopItem().setItemID(1051076).encode(outPacket);
-        new CashShopItem().setItemID(1072431).encode(outPacket);
-
-        return outPacket;
-    }
-
-    public static OutPacket featuredItemInfo(CashShop cashShop) {
-        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_INFO);
-
-        outPacket.encodeByte(CashShopInfoType.FeaturedItems.getVal());
-        outPacket.encodeByte(1); // 0 does not encode anything, 2 does the same as 1 (encoding wise)
-        outPacket.encodeByte(3); // size
-
-        new CashShopItem().setItemID(1051120).encode(outPacket);
-        new CashShopItem().setItemID(1051099).encode(outPacket);
-        new CashShopItem().setItemID(1051205).encode(outPacket);
-
-        return outPacket;
-    }
-
-    public static OutPacket specialSaleInfo(CashShop cashShop) {
-        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_INFO);
-
-        outPacket.encodeByte(CashShopInfoType.SpecialSale.getVal());
-        outPacket.encodeByte(1); // 0 does not encode anything, 2 does the same as 1 (encoding wise)
-        outPacket.encodeByte(1); // size
-
-        new CashShopItem().setItemID(5040004).encode(outPacket);
+        outPacket.encodeByte(items.size()); // size
+        for (CashShopItem csi : items) {
+            csi.encode(outPacket);
+        }
 
         return outPacket;
     }
@@ -184,23 +151,13 @@ public class CCashShop {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_INFO);
 
         outPacket.encodeByte(CashShopInfoType.BannerMsg.getVal());
-        outPacket.encodeByte(messages == null ? 0 : messages.size());
+        outPacket.encodeByte(messages.size());
 
         messages.forEach(msg -> {
             outPacket.encodeString(msg);
             outPacket.encodeLong(0);
             outPacket.encodeLong(0);
         });
-
-        return outPacket;
-    }
-
-    public static OutPacket oneTen(CashShop cashShop) {
-        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_INFO);
-
-        outPacket.encodeInt(1022259);
-        outPacket.encodeInt(1022259);
-        outPacket.encodeInt(1022259);
 
         return outPacket;
     }
@@ -272,7 +229,7 @@ public class CCashShop {
         for (int i = 0; i < size; i++) {
             outPacket.encode(new Item()); // bonus items
         }
-        outPacket.encodeShort(GameConstants.MAX_LOCKER_SIZE);
+        outPacket.encodeShort(account.getTrunk().getSlotCount());
         outPacket.encodeShort(account.getUser().getCharacterSlots());
         outPacket.encodeShort(0);
         outPacket.encodeShort(account.getCharacters().size());

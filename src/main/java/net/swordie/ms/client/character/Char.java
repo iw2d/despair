@@ -132,27 +132,27 @@ public class Char {
 
 	@JoinColumn(name = "equippedInventory")
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private Inventory equippedInventory = new Inventory(EQUIPPED, 52);
+	private Inventory equippedInventory = new Inventory(EQUIPPED, 64);
 
 	@JoinColumn(name = "equipInventory")
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private Inventory equipInventory = new Inventory(EQUIP, 52);
+	private Inventory equipInventory = new Inventory(EQUIP, 64);
 
 	@JoinColumn(name = "consumeInventory")
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private Inventory consumeInventory = new Inventory(InvType.CONSUME, 52);
+	private Inventory consumeInventory = new Inventory(InvType.CONSUME, 64);
 
 	@JoinColumn(name = "etcInventory")
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private Inventory etcInventory = new Inventory(InvType.ETC, 52);
+	private Inventory etcInventory = new Inventory(InvType.ETC, 64);
 
 	@JoinColumn(name = "installInventory")
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private Inventory installInventory = new Inventory(InvType.INSTALL, 52);
+	private Inventory installInventory = new Inventory(InvType.INSTALL, 64);
 
 	@JoinColumn(name = "cashInventory")
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	private Inventory cashInventory = new Inventory(InvType.CASH, 96);
+	private Inventory cashInventory = new Inventory(InvType.CASH, GameConstants.MAX_INVENTORY_SLOTS);
 
 	@JoinColumn(name = "hairInventory")
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -794,8 +794,8 @@ public class Char {
 		if (mask.isInMask(DBChar.InventorySize)) {
 			outPacket.encodeByte(getEquipInventory().getSlots());
 			outPacket.encodeByte(getConsumeInventory().getSlots());
-			outPacket.encodeByte(getEtcInventory().getSlots());
 			outPacket.encodeByte(getInstallInventory().getSlots());
+			outPacket.encodeByte(getEtcInventory().getSlots());
 			outPacket.encodeByte(getCashInventory().getSlots());
 		}
 		if (mask.isInMask(DBChar.EquipExtension)) {
