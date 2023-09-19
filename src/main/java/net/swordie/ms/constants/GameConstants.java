@@ -139,7 +139,7 @@ public class GameConstants {
     public static final long HYPER_STAT_RESET_COST = 10000000;
 
     // Cash Shop
-    public static final int MAX_CS_ITEMS_PER_PAGE = 12;
+    public static final int MAX_CS_ITEMS_PER_CATEGORY = ServerConstants.CASH_SHOP_ITEM_COUNT_HOOK ? 473 : 255;
     public static final int MAX_LOCKER_SIZE = 9999;
     public static final long SALON_CHANGE_COST = 100_000L;
 

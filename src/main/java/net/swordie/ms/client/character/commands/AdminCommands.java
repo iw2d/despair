@@ -1790,7 +1790,7 @@ public class AdminCommands {
     public static class ReloadCS extends AdminCommand {
 
         public static void execute(Char chr, String[] args) {
-            Server.getInstance().initCashShop();
+            Server.getInstance().getCashShop().loadItems();
         }
     }
 

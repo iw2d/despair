@@ -77,7 +77,7 @@ public enum DBChar {
     All                 (0xFFFFFFFFFFFFFFFFL)
     ;
 
-    public long uFlag;
+    public final long uFlag;
 
     DBChar(long uFlag) {
         this.uFlag = uFlag;

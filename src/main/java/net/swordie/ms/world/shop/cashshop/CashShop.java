@@ -1,8 +1,18 @@
 package net.swordie.ms.world.shop.cashshop;
 
 import net.swordie.ms.connection.OutPacket;
+import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.constants.GameConstants;
+import net.swordie.ms.handlers.CashShopHandler;
+import net.swordie.ms.loaders.ItemData;
+import net.swordie.ms.loaders.StringData;
+import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Util;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import java.util.*;
 
@@ -10,9 +20,10 @@ import java.util.*;
  * Created on 4/21/2018.
  */
 public class CashShop {
-    private Map<CashShopCategory, List<CashShopItem>> items;
-    private List<CashShopCategory> categories;
-    private List<Integer> saleItems;
+    private static final Logger log = LogManager.getLogger(CashShop.class);
+    private final List<CashShopCategory> categories = new ArrayList<>();
+    private final Map<CashShopCategory, List<CashShopItem>> items = new TreeMap<>(Comparator.comparingInt(CashShopCategory::getIdx));
+    private final List<Integer> saleItems = new ArrayList<>();;
     private boolean eventOn;
     private boolean lockerTransfer;
     private boolean refundAvailable;
@@ -21,10 +32,7 @@ public class CashShop {
     private boolean betaTest;
     private final String BANNER_URL = "";
 
-    public CashShop() {
-        items = new TreeMap<>(Comparator.comparingInt(CashShopCategory::getIdx));
-        saleItems = new ArrayList<>();
-    }
+    public CashShop() {}
 
     public Map<CashShopCategory, List<CashShopItem>> getItems() {
         return items;
@@ -35,7 +43,8 @@ public class CashShop {
     }
 
     public void encodeSaleInfo(OutPacket outPacket) {
-        // unk - decodeBuffer(4 * int);
+        // unk
+        // int -> decodeBuffer(4 * int);
         outPacket.encodeInt(0);
 
         // ModifiedData
@@ -55,6 +64,7 @@ public class CashShop {
         // CWvsContext::SetSaleInfo
         encodeSaleInfo(outPacket);
 
+        // CCashShop.m_aBest
         outPacket.encodeArr(new byte[1080]);
 
         // CS_STOCK
@@ -151,30 +161,12 @@ public class CashShop {
     }
 
     public CashShopCategory getCategoryByIdx(int idx) {
-        return Util.findWithPred(getCategories(), csi -> csi.getIdx() == idx);
-    }
-
-    public void setCategories(List<CashShopCategory> categories) {
-        this.categories = categories;
-    }
-
-    public void addItem(CashShopItem csi) {
-        CashShopCategory csc = Util.findWithPred(getCategories(), cat -> cat.getName().equalsIgnoreCase(csi.getCategory()));
-        csi.setCashShopCategory(csc);
-
-        if (!getItems().containsKey(csc)) {
-            getItems().put(csc, new ArrayList<>());
-        }
-        int newSize = getItems().size() + 1;
-        int page = newSize / GameConstants.MAX_CS_ITEMS_PER_PAGE;
-        csi.setSubCategory(4010000 + 10000 * page);
-        csi.setParent(1000000 + 70000 + page * 100 + newSize % GameConstants.MAX_CS_ITEMS_PER_PAGE);
-        getItems().get(csc).add(csi);
+        return Util.findWithPred(getCategories(), csc -> csc.getIdx() == idx);
     }
 
     public List<CashShopItem> getItemsByCategoryIdx(int categoryIdx) {
         CashShopCategory csc = getCategoryByIdx(categoryIdx);
-        return getItems().getOrDefault(csc, null);
+        return getItems().getOrDefault(csc, List.of());
     }
 
     public CashShopItem getItemByPosition(int itemPos) {
@@ -187,5 +179,25 @@ public class CashShop {
             }
         }
         return null;
+    }
+
+    public void loadItems() {
+        // load categories
+        items.clear();
+        categories.clear();
+        categories.addAll(CashShopCategory.BASE_CATEGORIES);
+        // load items
+        for (CashShopItem csi : (List<CashShopItem>) DatabaseManager.getObjListFromDB(CashShopItem.class)) {
+            CashShopCategory csc = Util.findWithPred(getCategories(), cat -> cat.getParentIdx() != 0 && cat.getName().equalsIgnoreCase(csi.getCategory()));
+            if (!items.containsKey(csc)) {
+                items.put(csc, new ArrayList<>());
+            }
+            items.get(csc).add(csi);
+        }
+        for (CashShopCategory csc : items.keySet()) {
+            if (items.get(csc).size() >= GameConstants.MAX_CS_ITEMS_PER_CATEGORY) {
+                log.warn(String.format("Cash Shop item count for category %s exceeds the maximum %d / %d.", csc.getName(), items.get(csc).size(), GameConstants.MAX_CS_ITEMS_PER_CATEGORY));
+            }
+        }
     }
 }

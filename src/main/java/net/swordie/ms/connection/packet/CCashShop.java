@@ -1,5 +1,6 @@
 package net.swordie.ms.connection.packet;
 
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.User;
 import net.swordie.ms.client.character.Char;
@@ -204,20 +205,25 @@ public class CCashShop {
         return outPacket;
     }
 
-    public static OutPacket openCategoryResult(CashShop cashShop, int categoryIdx) {
+    public static OutPacket listItems(CashShopActionType cast, List<CashShopItem> items) {
+        // the number of items is normally a byte, but changed to a short in CASH_SHOP_ACTION (0x00A43AB0)
+        // but it results in error38 when the number of items is equal to or greater than 474 for some reason
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_ACTION);
-
-        outPacket.encodeByte(CashShopActionType.ShowCategory.getVal());
+        outPacket.encodeByte(cast.getVal()); // 11, 13, 18
         outPacket.encodeByte(1);
-        List<CashShopItem> items = cashShop.getItemsByCategoryIdx(categoryIdx);
-        if (items == null) {
-            outPacket.encodeByte(0);
+        List<CashShopItem> trimmedItems = items.subList(0, Math.min(items.size(), GameConstants.MAX_CS_ITEMS_PER_CATEGORY));
+        if (ServerConstants.CASH_SHOP_ITEM_COUNT_HOOK) {
+            outPacket.encodeShort(trimmedItems.size());
         } else {
-            outPacket.encodeByte(items.size());
-            items.forEach(item -> item.encode(outPacket));
+            outPacket.encodeByte(trimmedItems.size());
         }
-
+        trimmedItems.forEach(item -> item.encode(outPacket));
         return outPacket;
+    }
+
+    public static OutPacket openCategoryResult(CashShop cashShop, int categoryIdx) {
+        List<CashShopItem> items = cashShop.getItemsByCategoryIdx(categoryIdx);
+        return listItems(CashShopActionType.ShowCategory, items);
     }
 
     public static OutPacket showFavorites(CashShop cashShop) {

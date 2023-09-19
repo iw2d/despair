@@ -2,7 +2,6 @@ package net.swordie.ms;
 
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.User;
-import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.connection.api.ApiAcceptor;
 import net.swordie.ms.connection.api.ApiHandler;
 import net.swordie.ms.connection.crypto.MapleCrypto;
@@ -13,7 +12,6 @@ import net.swordie.ms.connection.netty.ChannelHandler;
 import net.swordie.ms.connection.netty.ChatAcceptor;
 import net.swordie.ms.connection.netty.LoginAcceptor;
 import net.swordie.ms.connection.packet.UserLocal;
-import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.enums.ChatType;
 import net.swordie.ms.handlers.EventManager;
@@ -25,13 +23,8 @@ import net.swordie.ms.util.container.Tuple;
 import net.swordie.ms.world.Channel;
 import net.swordie.ms.world.World;
 import net.swordie.ms.world.shop.cashshop.CashShop;
-import net.swordie.ms.world.shop.cashshop.CashShopCategory;
-import net.swordie.ms.world.shop.cashshop.CashShopItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -49,7 +42,7 @@ public class Server extends Properties {
 
 	private List<World> worldList = new ArrayList<>();
 	private Set<Integer> users = new HashSet<>(); // just save the ids, no need to save the references
-	private CashShop cashShop;
+	private CashShop cashShop = new CashShop();
 	private boolean online = false;
 	private boolean shutdownFromCommand = false;
 
@@ -97,7 +90,7 @@ public class Server extends Properties {
 		new Thread(new ChatAcceptor()).start();
 
 		long startCashShop = Util.getCurrentTimeLong();
-		initCashShop();
+		cashShop.loadItems();
 		log.info("Loaded Cash Shop in " + (Util.getCurrentTimeLong() - startCashShop) + "ms");
 
 		worldList.add(new World(ServerConfig.WORLD_ID, ServerConfig.SERVER_NAME, GameConstants.CHANNELS_PER_WORLD, ServerConfig.EVENT_MSG));
@@ -185,25 +178,6 @@ public class Server extends Properties {
 		for (World world : getWorlds()) {
 			world.clearCache();
 		}
-	}
-
-	public void initCashShop() {
-		cashShop = new CashShop();
-		try (Session session = DatabaseManager.getSession()) {
-			Transaction transaction = session.beginTransaction();
-
-			Query query = session.createQuery("FROM CashShopCategory");
-			List<CashShopCategory> categories = query.list();
-			categories.sort(Comparator.comparingInt(CashShopCategory::getIdx));
-			cashShop.setCategories(new ArrayList<>(categories));
-
-			query = session.createQuery("FROM CashShopItem");
-			List<CashShopItem> items = query.list();
-			items.forEach(item -> cashShop.addItem(item));
-
-			transaction.commit();
-		}
-
 	}
 
 	public boolean isOnline() {

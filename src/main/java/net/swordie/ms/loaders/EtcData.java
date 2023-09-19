@@ -7,6 +7,7 @@ import net.swordie.ms.client.character.items.SetEffect;
 import net.swordie.ms.enums.ScrollStat;
 import net.swordie.ms.enums.SoulType;
 import net.swordie.ms.loaders.containerclasses.AndroidInfo;
+import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Loader;
 import net.swordie.ms.util.Saver;
 import net.swordie.ms.util.Util;
@@ -438,4 +439,43 @@ public class EtcData {
         return soulCollection.getOrDefault(soulItemId, null);
     }
 
+    public static void parseOldCommodityFromWz() {
+        StringData.load();
+        for (int i = 100; i < 999; i++) {
+            File file = new File(String.format("%s/Etc.wz/OldCommodity%d.img.xml", ServerConstants.WZ_DIR, i));
+            if (!file.exists()) {
+                continue;
+            }
+            Node root = XMLApi.getRoot(file);
+            Node mainNode = XMLApi.getAllChildren(root).get(0);
+            List<Node> nodes = XMLApi.getAllChildren(mainNode);
+            for (Node node : nodes) {
+                // check onSale
+                Node onSaleNode = XMLApi.getFirstChildByNameBF(node, "ItemId");
+                if (onSaleNode == null || Integer.parseInt(XMLApi.getNamedAttribute(onSaleNode, "value")) == 0) {
+                    continue;
+                }
+                // get itemId
+                Node itemIdNode = XMLApi.getFirstChildByNameBF(node, "ItemId");
+                if (itemIdNode == null) {
+                    continue;
+                }
+                int itemId = Integer.parseInt(XMLApi.getNamedAttribute(itemIdNode, "value"));
+                // get price
+                Node priceNode = XMLApi.getFirstChildByNameBF(node, "Price");
+                if (priceNode == null) {
+                    continue;
+                }
+                int price = Integer.parseInt(XMLApi.getNamedAttribute(priceNode, "value"));
+
+                ItemInfo ii = ItemData.getItemInfoByID(itemId);
+                if (ii == null) {
+                    continue;
+                }
+                String itemName = StringData.getItemStringById(itemId);
+
+                System.out.printf("%d %d %s %n", itemId, price, itemName);
+            }
+        }
+    }
 }

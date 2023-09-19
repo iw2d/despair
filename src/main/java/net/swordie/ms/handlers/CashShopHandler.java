@@ -1,6 +1,7 @@
 package net.swordie.ms.handlers;
 
 import net.swordie.ms.Server;
+import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.User;
 import net.swordie.ms.client.character.Char;
@@ -242,6 +243,12 @@ public class CashShopHandler {
                 break;
             case Req_Leave:
                 break;
+            case Req_ShowSearchResult:
+                if (ServerConstants.CASH_SHOP_SEARCH_STRING_HOOK) {
+                    System.out.println(inPacket.decodeString());
+                    break;
+                }
+                // Fallthrough intended
             default:
                 chr.write(CCashShop.error());
                 log.error("Unhandled cash shop cash action request " + csat);

@@ -30,4 +30,6 @@ public class ServerConstants {
 	// Client Hooks
 	public static final boolean MAKE_ATTACK_INFO_PACKET_HOOK = true; // PACKETMAKER::MakeAttackInfoPacket(a, oPacket)
 	public static final boolean CLIENT_SIDED_SKILL_HOOK = true;
+	public static final boolean CASH_SHOP_SEARCH_STRING_HOOK = true;
+	public static final boolean CASH_SHOP_ITEM_COUNT_HOOK = true;
 }
