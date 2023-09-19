@@ -22,6 +22,9 @@ import net.swordie.ms.world.shop.cashshop.CashShopItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created on 4/23/2018.
  */
@@ -245,7 +248,14 @@ public class CashShopHandler {
                 break;
             case Req_ShowSearchResult:
                 if (ServerConstants.CASH_SHOP_SEARCH_STRING_HOOK) {
-                    System.out.println(inPacket.decodeString());
+                    String query = inPacket.decodeString().toLowerCase().replaceAll(" ", "");
+                    List<CashShopItem> result = new ArrayList<>();
+                    for (String name : cashShop.getSearchMap().keySet()) {
+                        if (name.contains(query)) {
+                            result.add(cashShop.getSearchMap().get(name));
+                        }
+                    }
+                    chr.write(CCashShop.listItems(CashShopActionType.ShowSearchResult, result));
                     break;
                 }
                 // Fallthrough intended

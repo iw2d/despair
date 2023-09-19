@@ -667,7 +667,6 @@ values
     (1000050, 3000, 'Hats'), /*Mint Snow Cap*/
     (1000051, 3000, 'Hats'), /*Aerial Elven Spirit Band*/
     (1000058, 3000, 'Hats'), /*Evergreen Magistrate Hat*/
-    (1000059, 3000, 'Hats'), /*[MS Custom] Mesoranger Black Helmet*/
     (1000060, 3000, 'Hats'), /*Dark Force Horns*/
     (1000061, 3000, 'Hats'), /*Alps Boy Hat*/
     (1000062, 3000, 'Hats'), /*Cool Carrot Hat*/
@@ -1405,19 +1404,6 @@ values
     (1003687, 3000, 'Hats'), /*Hyper Teddy Earmuffs*/
     (1003688, 3000, 'Hats'), /*Hyper Cat Hat*/
     (1003699, 3000, 'Hats'), /*Hidden Street Red Husky Hat*/
-    (1003700, 3000, 'Hats'), /*[MS Custom] Red Festive Gumball*/
-    (1003701, 3000, 'Hats'), /*[MS Custom] Yellow Rain Cap*/
-    (1003702, 3000, 'Hats'), /*[MS Custom] Sky Blue Rain Cap*/
-    (1003703, 3000, 'Hats'), /*[MS Custom] Patissier Hat*/
-    (1003704, 3000, 'Hats'), /*[MS Custom] Red Red Rain Cap*/
-    (1003705, 3000, 'Hats'), /*[MS Custom] Green Picnic Hat*/
-    (1003706, 3000, 'Hats'), /*[MS Custom] Zombie Mushroom Hat*/
-    (1003707, 3000, 'Hats'), /*[MS Custom] Black Snowboard Helmet*/
-    (1003708, 3000, 'Hats'), /*[MS Custom] The Chinese Undead's Hat (Maroon)*/
-    (1003709, 3000, 'Hats'), /*[MS Custom] Werebeast*/
-    (1003710, 3000, 'Hats'), /*[MS Custom] Maple-Stein*/
-    (1003711, 3000, 'Hats'), /*[MS Custom] Doll Face Hat*/
-    (1003712, 3000, 'Hats'), /*[MS Discount] Chain Crusher Cap*/
     (1003713, 3000, 'Hats'), /*Seal Hat*/
     (1003714, 3000, 'Hats'), /*Halloween Leopard Ears*/
     (1003727, 3000, 'Hats'), /*Red Pierre Hat*/
@@ -1786,7 +1772,6 @@ values
     (1102488, 3000, 'Capes'), /*Cupcake Balloon*/
     (1102491, 3000, 'Capes'), /*Sunny Day*/
     (1102496, 3000, 'Capes'), /*Hyper Honeybee Wings*/
-    (1102501, 3000, 'Capes'), /*[MS Discount] Nine-Tailed Fox Tails*/
     (1102503, 3000, 'Capes'), /*Frisky Cat Tail*/
     (1102508, 3000, 'Capes'), /*Koala Cape*/
     (1102510, 3000, 'Capes'), /*Ribbon Kitty Tail*/
@@ -2560,7 +2545,6 @@ values
     (1052537, 4500, 'Outfits'), /*Hyper Honeybee Suit*/
     (1052542, 4500, 'Outfits'), /*Angel Costume*/
     (1052544, 4500, 'Outfits'), /*Hyper Rising Star Baggy Digs*/
-    (1052549, 4500, 'Outfits'), /*[MS Custom] Orange Life-Jacket*/
     (1052550, 4500, 'Outfits'), /*Seal Costume*/
     (1052551, 4500, 'Outfits'), /*Yellow Bell Robe*/
     (1052552, 4500, 'Outfits'), /*Gray Bell Robe*/
@@ -2784,8 +2768,6 @@ values
     (1040148, 3000, 'Tops'), /*Retro School Uniform Jacket*/
     (1040154, 3000, 'Tops'), /*Pre-School Top*/
     (1040186, 3000, 'Tops'), /*Cowboy Shirt*/
-    (1040190, 3000, 'Tops'), /*[MS Custom] Orange Striped Trainer*/
-    (1040191, 3000, 'Tops'), /*[MS Custom] Orange Disco Shirt*/
     (1040192, 3000, 'Tops'), /*Green Bunny T-Shirt*/
     (1040193, 3000, 'Tops'), /*RED T-shirt*/
     (1040194, 3000, 'Tops'), /*Guys Pineapple Tank top*/
@@ -3036,9 +3018,6 @@ values
     (1042242, 3000, 'Tops'), /*Summer Picnic*/
     (1042245, 3000, 'Tops'), /*Hyper Spring Jealousy*/
     (1042246, 3000, 'Tops'), /*Hyper Green Suspenders*/
-    (1042247, 3000, 'Tops'), /*[MS Custom] Baseball Shirt (Away)*/
-    (1042248, 3000, 'Tops'), /*[MS Custom] Beetle Longsleeve*/
-    (1042249, 3000, 'Tops'), /*[MS Custom] Red Double-Coat*/
     (1042250, 3000, 'Tops'), /*Hyper Spring Sweater Set*/
     (1042251, 3000, 'Tops'), /*Slither Style Hoodie*/
     (1042252, 3000, 'Tops'), /*Cute Sleeveless Shirt*/
@@ -3135,7 +3114,6 @@ values
     (1060125, 3000, 'Bottoms'), /*Blue Skirt (m)*/
     (1060126, 3000, 'Bottoms'), /*Black Wakeboard Pants*/
     (1060139, 3000, 'Bottoms'), /*Retro School Uniform Pants*/
-    (1060178, 3000, 'Bottoms'), /*[MS Custom] Orange Trainer Pants*/
     (1060179, 3000, 'Bottoms'), /*Golf Shorts*/
     (1060180, 3000, 'Bottoms'), /*Puffy Puff Pants*/
     (1060181, 3000, 'Bottoms'), /*Star Shorts*/
@@ -3320,7 +3298,6 @@ values
     (1062157, 3000, 'Bottoms'), /*Chocolate Strawberry Pants*/
     (1062159, 3000, 'Bottoms'), /*Hyper Chocolate Strawberry Pants*/
     (1062160, 3000, 'Bottoms'), /*Hyper Funky Xylophone Leggings*/
-    (1062161, 3000, 'Bottoms'), /*[MS Custom] Red Checkered Pants*/
     (1062162, 3000, 'Bottoms'), /*Hyper Deep Blue Sea Knee Socks*/
     (1062163, 3000, 'Bottoms'), /*Slither Style Pants*/
     (1062171, 3000, 'Bottoms'), /*Stocking Shorts*/
@@ -3636,7 +3613,6 @@ values
     (1072749, 3000, 'Shoes'), /*Bubble Bubble Chocolate Shoes*/
     (1072750, 3000, 'Shoes'), /*The Bladed Falcon's Shoes*/
     (1072756, 3000, 'Shoes'), /*Hyper Kitten Mittens*/
-    (1072757, 3000, 'Shoes'), /*[MS Custom] Red Rain Boots*/
     (1072758, 3000, 'Shoes'), /*Kitty Slippers*/
     (1072760, 3000, 'Shoes'), /*Halloween Leopard Shoes*/
     (1072770, 3000, 'Shoes'), /*Dark Devil Shoes*/
@@ -4187,7 +4163,6 @@ values
     (1022110, 3000, 'Eye Accessories'), /*Big White Sunglasses*/
     (1022121, 3000, 'Eye Accessories'), /*X-Ray Glasses*/
     (1022122, 3000, 'Eye Accessories'), /*6th B-Day Party Glasses*/
-    (1022158, 3000, 'Eye Accessories'), /*[MS Discount] Black Sunglasses*/
     (1022173, 3000, 'Eye Accessories'), /*Silky Black Eye Patch*/
     (1022176, 3000, 'Eye Accessories'), /*Cyclops Bandana*/
     (1022177, 3000, 'Eye Accessories'), /*Star Sunglasses*/
@@ -4347,9 +4322,6 @@ values
     (1112238, 4500, 'Rings'), /*Ink-and-Wash Thought Bubble Ring*/
     (1112240, 4500, 'Rings'), /*Mountain Dew Quote Ring*/
     (1112244, 4500, 'Rings'), /*Darkness Bat Ring*/
-    (1112248, 4500, 'Rings'), /*[MS Custom] Pink Quote Ring*/
-    (1112249, 4500, 'Rings'), /*[MS Custom] Blue-Flowered Quote Ring*/
-    (1112250, 4500, 'Rings'), /*[MS Custom]Pink-Flowered Quote Ring*/
     (1112252, 4500, 'Rings'), /*Red Rose Chat Ring*/
     (1112253, 4500, 'Rings'), /*Mummy Word Bubble Ring*/
     (1112254, 4500, 'Rings'), /*Luxury Pearl Word Bubble Ring*/
