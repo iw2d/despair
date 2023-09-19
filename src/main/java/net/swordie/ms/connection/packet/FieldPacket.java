@@ -670,16 +670,19 @@ public class FieldPacket {
     }
 
     public static OutPacket removeBlowWeather() {
-        return blowWeather(0, null);
+        return blowWeather(0, null,null);
     }
 
-    public static OutPacket blowWeather(int itemID, String message) {
+    public static OutPacket blowWeather(int itemID, String message, byte[] packedAvatarLook) {
         OutPacket outPacket = new OutPacket(OutHeader.BLOW_WEATHER);
 
         outPacket.encodeInt(itemID);
         if (itemID > 0) {
             outPacket.encodeString(message);
-            outPacket.encodeByte(0);// boolean if true send PackedCharacterLook
+            outPacket.encodeByte(packedAvatarLook != null);// boolean if true send PackedCharacterLook
+            if (packedAvatarLook != null) {
+                outPacket.encodeArr(packedAvatarLook);
+            }
         }
         return outPacket;
     }

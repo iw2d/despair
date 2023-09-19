@@ -2523,7 +2523,7 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	public void blowWeather(int itemID, String message) {
         removeBlowWeather();// removing old one if exists.
-	    chr.write(FieldPacket.blowWeather(itemID, message));
+		chr.write(FieldPacket.blowWeather(itemID, message, null));
     }
 
     public void playSound(String sound) { playSound(sound, 100); }// default

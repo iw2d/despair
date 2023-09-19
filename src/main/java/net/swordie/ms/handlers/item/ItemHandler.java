@@ -245,6 +245,12 @@ public class ItemHandler {
                     chr.getInventoryByType(InvType.getInvTypeByString("Hair")).addSlots((byte) 1);
                     return;
             }
+        } else if (itemID / 10000 == 512) { // Weather Items
+            chr.getField().blowWeather(itemID, inPacket.decodeString(), null);
+            int stateChangeItem = itemInfo.getStateChangeItem(); // TODO
+            if (stateChangeItem != 0 && !ItemData.getItemInfoByID(stateChangeItem).getSpecStats().isEmpty()) {
+                chr.getField().getChars().forEach(it -> ItemBuffs.giveItemBuffsFromItemID(it, it.getTemporaryStatManager(), stateChangeItem));
+            }
         } else if (itemID / 10000 == 539) {
             // Avatar Megaphones
             List<String> lineList = new ArrayList<>();
@@ -514,7 +520,8 @@ public class ItemHandler {
                     world.broadcastPacket(WvsContext.broadcastMsg(smega));
                     break;
                 default:
-                    chr.chatMessage(Mob, String.format("Cash item %d is not implemented, notify Sjonnie pls.", itemID));
+                    chr.chatMessage(Mob, String.format("Cash item %d is not implemented.", itemID));
+                    chr.dispose();
                     return;
             }
         }

@@ -49,6 +49,7 @@ public class ItemInfo {
     private int grade;
     private int android;
     private int expMinLev, expMaxLev;
+    private int stateChangeItem;
     private Set<Integer> reqItemIds = new HashSet<>();
 
     public Set<Integer> getReqItemIds() { return reqItemIds; }
@@ -373,6 +374,14 @@ public class ItemInfo {
 
     public int getExpMaxLev() {
         return expMaxLev;
+    }
+
+    public int getStateChangeItem() {
+        return stateChangeItem;
+    }
+
+    public void setStateChangeItem(int stateChangeItem) {
+        this.stateChangeItem = stateChangeItem;
     }
 
     public int getBaseStat(BaseStat baseStat) {

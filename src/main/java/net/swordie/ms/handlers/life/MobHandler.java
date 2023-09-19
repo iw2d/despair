@@ -380,7 +380,7 @@ public class MobHandler {
                 mob.addEscortDest(1898, 233, 0);
                 mob.escortFullPath(-1);
                 chr.write(FieldPacket.removeBlowWeather());
-                chr.write(FieldPacket.blowWeather(5120118, "I'm glad you're here, " + chr.getName() + "! Please get rid of these pesky things."));
+                chr.write(FieldPacket.blowWeather(5120118, "I'm glad you're here, " + chr.getName() + "! Please get rid of these pesky things.", null));
             }
         }
     }
@@ -407,12 +407,12 @@ public class MobHandler {
             if (mob.getTemplateId() == 8230000) {
                 if (collision == 1) {
                     chr.write(FieldPacket.removeBlowWeather());
-                    chr.write(FieldPacket.blowWeather(5120118, "I'm glad you're here, " + chr.getName() + "! Please get rid of these pesky things."));
+                    chr.write(FieldPacket.blowWeather(5120118, "I'm glad you're here, " + chr.getName() + "! Please get rid of these pesky things.", null));
                 } else if (collision == 2) {
                     chr.write(FieldPacket.fieldEffect(FieldEffect.getFieldEffectFromWz("quest/party/clear", 0)));
                     chr.write(FieldPacket.fieldEffect(FieldEffect.playSound("Party1/Clear", 100)));
                     chr.write(FieldPacket.removeBlowWeather());
-                    chr.write(FieldPacket.blowWeather(5120118, "Looks like we all arrived in one piece. Now, get out of here before those pesky things start bothering you again."));
+                    chr.write(FieldPacket.blowWeather(5120118, "Looks like we all arrived in one piece. Now, get out of here before those pesky things start bothering you again.", null));
                     Quest quest = chr.getQuestManager().getQuestById(32628);
                     if (quest == null) {
                         quest = new Quest(32628, QuestStatus.Started);

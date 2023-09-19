@@ -102,6 +102,10 @@ public class Field {
     private boolean changeToChannelOnLeave;
     private boolean dropsDisabled;
 
+    private int weatherItemID;
+    private String weatherMessage;
+    private byte[] weatherAvatarLook;
+
     public Field(int fieldID) {
         this.id = fieldID;
         this.rect = new Rect();
@@ -570,6 +574,23 @@ public class Field {
         }
         broadcastPacket(UserPool.userEnterField(chr), chr);
         chr.getClient().getChannelInstance().trySpawnAreaBoss(chr, getId(), getChannel());
+        if (weatherItemID / 10000 == 512) {
+            chr.write(FieldPacket.blowWeather(weatherItemID, weatherMessage, weatherAvatarLook));
+        }
+    }
+
+    public void blowWeather(int itemID, String message, byte[] packedAvatarLook) {
+        broadcastPacket(FieldPacket.removeBlowWeather());
+        weatherItemID = itemID;
+        weatherMessage = message;
+        weatherAvatarLook = packedAvatarLook;
+        broadcastPacket(FieldPacket.blowWeather(itemID, message, packedAvatarLook));
+        EventManager.addEvent(() -> {
+            broadcastPacket(FieldPacket.removeBlowWeather());
+            weatherItemID = 0;
+            weatherMessage = null;
+            weatherAvatarLook = null;
+        }, 200000, TimeUnit.MILLISECONDS); // duration from CField::OnBlowWeather
     }
 
     private boolean hasUserFirstEnterScript() {
