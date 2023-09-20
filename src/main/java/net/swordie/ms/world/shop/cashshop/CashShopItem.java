@@ -5,13 +5,12 @@ import net.swordie.ms.client.Account;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.OutPacket;
-import net.swordie.ms.connection.db.FileTimeConverter;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.util.FileTime;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Random;
+import java.util.List;
 
 /**
  * Created on 4/21/2018.
@@ -19,7 +18,6 @@ import java.util.Random;
 @Entity
 @Table(name = "cs_items")
 public class CashShopItem {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -41,6 +39,9 @@ public class CashShopItem {
     private int likes;
     private int requiredLevel;
     private String category;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "parentid")
+    private List<CashShopRandom> random;
     @Transient
     private int subCategory;
     @Transient
@@ -107,11 +108,11 @@ public class CashShopItem {
         outPacket.encodeInt(size);
         for (int i = 0; i < size; i++) {
             // Package stuff, just leave it for now
-            outPacket.encodeInt(1);
-            outPacket.encodeInt(2);
-            outPacket.encodeInt(3);
-            outPacket.encodeInt(4);
-            outPacket.encodeInt(5);
+            outPacket.encodeInt(1); // package item SN
+            outPacket.encodeInt(2); // package item ID
+            outPacket.encodeInt(3); // 1
+            outPacket.encodeInt(4); // package item usual price
+            outPacket.encodeInt(5); // package item discounted price
             outPacket.encodeInt(6);
             outPacket.encodeInt(7);
             outPacket.encodeInt(8);
@@ -278,6 +279,10 @@ public class CashShopItem {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public List<CashShopRandom> getRandom() {
+        return random;
     }
 
     @Override

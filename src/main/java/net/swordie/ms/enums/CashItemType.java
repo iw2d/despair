@@ -14,6 +14,7 @@ public enum CashItemType {
     Req_Gift(3),
     Req_SetWish(4),
     Req_IncSlotCount(5),
+    Req_MaxSlotCount(5), // 9116000
     Req_IncTrunkCount(7),
     Req_IncCharSlotCount(8),
     Req_IncBuyCharCount(9),
@@ -164,7 +165,7 @@ public enum CashItemType {
     Res_GiftPackage_Done(79),
     Res_GiftPackage_Failed(80),
     Res_BuyNormal_Done(81),
-    Res_BuyNormal_Failed(82),
+    Res_BuyNormal_Failed(82), // should be 83
     Res_ApplyWishListEvent_Done(83),
     Res_ApplyWishListEvent_Failed(84),
     Res_Friendship_Done(85),

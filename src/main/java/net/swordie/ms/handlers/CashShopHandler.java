@@ -7,7 +7,6 @@ import net.swordie.ms.client.User;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Inventory;
 import net.swordie.ms.client.character.items.Item;
-import net.swordie.ms.client.jobs.adventurer.warrior.Paladin;
 import net.swordie.ms.client.trunk.Trunk;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
@@ -251,13 +250,15 @@ public class CashShopHandler {
                 }
                 break;
             case Req_Favorite:
+            case Req_UnFavorite:
                 // TODO
                 break;
             case Req_Like:
+            case Req_UnLike:
                 // TODO
                 break;
             case Req_ShowFavorites:
-                chr.write(CCashShop.showFavorites(cashShop));
+                chr.write(CCashShop.showFavorites(chr, cashShop));
                 break;
             case Req_Leave:
                 break;
@@ -265,9 +266,9 @@ public class CashShopHandler {
                 if (ServerConstants.CASH_SHOP_SEARCH_STRING_HOOK) {
                     String query = inPacket.decodeString().toLowerCase().replaceAll(" ", "");
                     List<CashShopItem> result = new ArrayList<>();
-                    for (String name : cashShop.getSearchMap().keySet()) {
+                    for (String name : cashShop.getSearchInfo().keySet()) {
                         if (name.contains(query)) {
-                            result.add(cashShop.getSearchMap().get(name));
+                            result.add(cashShop.getSearchInfo().get(name));
                         }
                     }
                     chr.write(CCashShop.listItems(CashShopActionType.ShowSearchResult, result));

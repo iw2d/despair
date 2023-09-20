@@ -3,16 +3,11 @@ package net.swordie.ms.world.shop.cashshop;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.constants.GameConstants;
-import net.swordie.ms.handlers.CashShopHandler;
-import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.loaders.StringData;
-import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Util;
+import net.swordie.ms.util.container.Tuple;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 
 import java.util.*;
 
@@ -23,7 +18,8 @@ public class CashShop {
     private static final Logger log = LogManager.getLogger(CashShop.class);
     private final List<CashShopCategory> categories = new ArrayList<>();
     private final Map<CashShopCategory, List<CashShopItem>> items = new TreeMap<>(Comparator.comparingInt(CashShopCategory::getIdx));
-    private final Map<String, CashShopItem> searchMap = new HashMap<>();
+    private final Map<String, CashShopItem> searchInfo = new HashMap<>();
+    private final Map<CashShopItem, Tuple<List<Integer>, List<Integer>>> beautyPreview = new HashMap<>();
     private final List<Integer> saleItems = new ArrayList<>();;
     private boolean eventOn;
     private boolean lockerTransfer;
@@ -39,8 +35,12 @@ public class CashShop {
         return items;
     }
 
-    public Map<String, CashShopItem> getSearchMap() {
-        return searchMap;
+    public Map<String, CashShopItem> getSearchInfo() {
+        return searchInfo;
+    }
+
+    public Map<CashShopItem, Tuple<List<Integer>, List<Integer>>> getBeautyPreview() {
+        return beautyPreview;
     }
 
     public List<Integer> getSaleItems() {
@@ -107,6 +107,26 @@ public class CashShop {
         outPacket.encodeByte(0);
         outPacket.encodeLong(0);
         outPacket.encodeByte(0);
+    }
+
+    public void encodePreviewInfo(OutPacket outPacket) {
+        // byte * (byte -> int, byte, short * (int, int))
+        outPacket.encodeByte(0);
+
+        // byte * (byte -> int, short * (byte -> short * (int, int)))
+        outPacket.encodeByte(0);
+
+        // BEAUTY_DATA::Decode
+        outPacket.encodeInt(getBeautyPreview().size());
+        for (CashShopItem csi : getBeautyPreview().keySet()) {
+            outPacket.encodeInt(csi.getItemID());
+            List<Integer> maleStyles = getBeautyPreview().get(csi).getLeft();
+            outPacket.encodeInt(maleStyles.size());
+            maleStyles.forEach(outPacket::encodeInt);
+            List<Integer> femaleStyles = getBeautyPreview().get(csi).getRight();
+            outPacket.encodeInt(femaleStyles.size());
+            femaleStyles.forEach(outPacket::encodeInt);
+        }
     }
 
     public boolean isEventOn() {
@@ -192,7 +212,7 @@ public class CashShop {
         categories.addAll(CashShopCategory.BASE_CATEGORIES);
         // load items and search map
         items.clear();
-        searchMap.clear();
+        searchInfo.clear();
         for (CashShopItem csi : (List<CashShopItem>) DatabaseManager.getObjListFromDB(CashShopItem.class)) {
             CashShopCategory csc = Util.findWithPred(getCategories(), cat -> cat.getParentIdx() != 0 && cat.getName().equalsIgnoreCase(csi.getCategory()));
             if (!items.containsKey(csc)) {
@@ -205,7 +225,14 @@ public class CashShop {
                 continue;
             }
             name = name.toLowerCase().replaceAll(" ", "");
-            searchMap.put(name, csi);
+            searchInfo.put(name, csi);
+            // extract preview info
+            if (csi.getItemID() / 10000 == 515 && csi.getRandom() != null && csi.getRandom().size() > 0) {
+                beautyPreview.put(csi, new Tuple<>(
+                        csi.getRandom().stream().filter(r -> r.getGender() == 0 || r.getGender() == 2).map(CashShopRandom::getReward).toList(),
+                        csi.getRandom().stream().filter(r -> r.getGender() == 1 || r.getGender() == 2).map(CashShopRandom::getReward).toList()
+                ));
+            }
         }
         for (CashShopCategory csc : items.keySet()) {
             if (items.get(csc).size() >= GameConstants.MAX_CS_ITEMS_PER_CATEGORY) {

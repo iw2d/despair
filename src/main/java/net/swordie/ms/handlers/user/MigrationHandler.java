@@ -287,6 +287,8 @@ public class MigrationHandler {
         chr.punishLieDetectorEvasion();
         CashShop cashShop = Server.getInstance().getCashShop();
         c.write(Stage.setCashShop(chr, cashShop));
+        c.write(WvsContext.cashShopPreviewInfo(cashShop));
+
         c.write(CCashShop.loadLockerDone(chr.getAccount()));
         c.write(CCashShop.queryCashResult(chr));
         c.write(CCashShop.cartInfo(cashShop));

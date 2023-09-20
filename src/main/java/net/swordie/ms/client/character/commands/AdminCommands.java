@@ -72,17 +72,9 @@ public class AdminCommands {
     @Command(names = {"test"}, requiredType = Admin)
     public static class Test extends AdminCommand {
         public static void execute(Char chr, String[] args) {
-            TemporaryStatManager tsm = chr.getTemporaryStatManager();
-            tsm.removeAllStats();
-            tsm.sendResetStatPacket();
-
-            Option o1 = new Option();
-            o1.nValue = 500;
-            o1.nReason = Buccaneer.MAPLE_WARRIOR_BUCC;
-            o1.tStart = Util.getCurrentTime();
-            o1.tTerm = 500;
-            tsm.putCharacterStatValue(CharacterTemporaryStat.getByBitPos(Integer.parseInt(args[1])), o1);
-            tsm.sendSetStatPacket();
+            OutPacket outPacket = new OutPacket(OutHeader.OPEN_UI_TEST);
+            outPacket.encodeShort(0);
+            chr.write(outPacket);
         }
     }
 
@@ -870,6 +862,19 @@ public class AdminCommands {
             chr.addItemToInventory(hyperTP2.getInvType(), hyperTP2, false);
             chr.getClient().write(WvsContext.inventoryOperation(true, false,
                     Add, (short) hyperTP2.getBagIndex(), (byte) -1, 0, hyperTP2));
+        }
+    }
+
+    @Command(names = {"avatar", "look", "hair", "face"}, requiredType = Admin)
+    public static class Avatar extends AdminCommand {
+        public static void execute(Char chr, String[] args) {
+            int look = Integer.parseInt(args[1]);
+            if (StringData.getItemStringById(look) != null){
+                chr.getScriptManager().changeCharacterLook(look);
+                chr.chatMessage("Applying avatar look : %s (%d)", StringData.getItemStringById(look), look);
+            } else {
+                chr.chatMessage("Invalid avatar look : %d", look);
+            }
         }
     }
 

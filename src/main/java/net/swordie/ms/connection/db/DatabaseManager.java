@@ -45,6 +45,7 @@ import net.swordie.ms.world.shop.NpcShopItem;
 import net.swordie.ms.world.shop.cashshop.CashItemInfo;
 import net.swordie.ms.world.shop.cashshop.CashShopCategory;
 import net.swordie.ms.world.shop.cashshop.CashShopItem;
+import net.swordie.ms.world.shop.cashshop.CashShopRandom;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -114,6 +115,7 @@ public class DatabaseManager {
                 ChosenSkill.class,
                 CashItemInfo.class,
                 CashShopItem.class,
+                CashShopRandom.class,
                 CashShopCategory.class,
                 MonsterCollectionSessionRewardInfo.class,
                 MonsterCollectionGroupRewardInfo.class,

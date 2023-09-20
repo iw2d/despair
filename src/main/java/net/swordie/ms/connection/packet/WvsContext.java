@@ -1,5 +1,6 @@
 package net.swordie.ms.connection.packet;
 
+import net.swordie.ms.Server;
 import net.swordie.ms.client.alliance.AllianceResult;
 import net.swordie.ms.client.character.*;
 import net.swordie.ms.client.character.cards.CharacterCard;
@@ -31,6 +32,7 @@ import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.util.AntiMacro;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Position;
+import net.swordie.ms.world.shop.cashshop.CashShop;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -1137,6 +1139,12 @@ public class WvsContext {
     public static OutPacket setMaplePoint(int maplePoint) {
         OutPacket outPacket = new OutPacket(OutHeader.SET_MAPLE_POINT);
         outPacket.encodeInt(maplePoint);
+        return outPacket;
+    }
+
+    public static OutPacket cashShopPreviewInfo(CashShop cashShop) {
+        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_PREVIEW_INFO);
+        cashShop.encodePreviewInfo(outPacket);
         return outPacket;
     }
 }

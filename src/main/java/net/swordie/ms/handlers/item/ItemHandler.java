@@ -5,6 +5,7 @@ import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
+import net.swordie.ms.client.character.avatar.AvatarLook;
 import net.swordie.ms.client.character.items.*;
 import net.swordie.ms.client.character.skills.Option;
 import net.swordie.ms.client.character.skills.Skill;
@@ -232,6 +233,12 @@ public class ItemHandler {
             // Reward items
             Item reward = itemInfo.getRandomReward();
             chr.addItemToInventory(reward);
+        } else if (itemID >= 5152100 && itemID <= 5152108) {
+            // Eye Color
+            AvatarLook al = chr.getAvatarData().getAvatarLook();
+            int eyeColor = al.getFace() % 1000 - al.getFace() % 100;
+            int baseFace = al.getFace() - eyeColor;
+            chr.getScriptManager().changeCharacterLook(baseFace + ((itemID - 5152100) * 100));
         } else if (itemID / 10000 == 555) {
             //Beauty Salon Slots
             int salonType = itemID % 5550000;
@@ -261,7 +268,6 @@ public class ItemHandler {
             boolean whisperIcon = inPacket.decodeByte() != 0;
             World world = c.getWorld();
             world.broadcastPacket(WvsContext.setAvatarMegaphone(chr, itemID, lineList, whisperIcon));
-
         } else if (itemID / 10000 == 519) {
             // Pet Skill Items
             long sn = inPacket.decodeLong();

@@ -1,3 +1,4 @@
+drop table if exists cs_random;
 drop table if exists cs_items;
 
 create table cs_items
@@ -4547,10 +4548,24 @@ values
 
 /* Beauty ------------------------------------------------------------------ */
 /* Hair */
+    (5150040, 3000, 'Hair'), /*Royal Hair Coupon*/
+    (5150132, 3000, 'Hair'), /*Hair Choice Coupon*/
 
 /* Face */
+    (5152053, 3000, 'Face'), /*Royal Face Coupon*/
+    (5152020, 3000, 'Face'), /*Face Choice Coupon*/
+    (5152100, 3000, 'Face'), /*Black Eye Color*/
+    (5152101, 3000, 'Face'), /*Blue Eye Color*/
+    (5152102, 3000, 'Face'), /*Red Eye Color*/
+    (5152103, 3000, 'Face'), /*Green Eye Color*/
+    (5152104, 3000, 'Face'), /*Hazel Eye Color*/
+    (5152105, 3000, 'Face'), /*Sapphire Eye Color*/
+    (5152106, 3000, 'Face'), /*Violet Eye Color*/
+    (5152107, 3000, 'Face'), /*Amethyst Eye Color*/
+    (5152108, 3000, 'Face'), /*White Eye Color*/
 
 /* Other */
+    (5153015, 3000, 'Other'), /*Skin Coupon*/
 
 /* Expressions */
     (5160000, 1000, 'Expressions'), /*Queasy*/
@@ -5103,3 +5118,81 @@ values
     (5190010, 3000, 'Pet Skills'), /*Auto Buff Skill*/
     (5190011, 3000, 'Pet Skills'), /*Auto Feed and Movement Skill*/
     (5190012, 3000, 'Pet Skills'); /*Fatten Up Skill*/
+
+
+create table cs_random
+(
+    id       int not null auto_increment,
+    parentid int not null,
+    reward   int not null,
+    gender   int default 0,
+    primary key (id),
+    foreign key (parentid) references cs_items (id)
+);
+
+
+select @royal_hair_coupon := id from `cs_items` where `itemID` = 5150040;
+select @royal_face_coupon := id from `cs_items` where `itemID` = 5152053;
+select @skin_coupon := id from `cs_items` where `itemID` = 5153015;
+insert into `cs_random` (`parentid`, `reward`, `gender`)
+values
+
+/* Beauty ------------------------------------------------------------------ */
+/* Royal Hair Coupon */
+    (@royal_hair_coupon, 33000, 0), /* Black Prince Cut Hair */
+    (@royal_hair_coupon, 33100, 0), /* Black The Coco */
+    (@royal_hair_coupon, 33110, 0), /* Black Free Spirit Hair */
+    (@royal_hair_coupon, 33210, 0), /* Black Heavy Metal Hair */
+    (@royal_hair_coupon, 33400, 0), /* Black Overgrown Hair */
+    (@royal_hair_coupon, 33430, 0), /* Black Sweet Kitty Hair */
+    (@royal_hair_coupon, 33500, 0), /* Black Mega Flip Hair */
+    (@royal_hair_coupon, 33510, 0), /* Black Wild Tangles Hair */
+    (@royal_hair_coupon, 33600, 0), /* Black Shaggy Star Hair */
+    (@royal_hair_coupon, 33700, 0), /* Black Luxurious 'Do */
+    (@royal_hair_coupon, 33800, 0), /* Black Flame Hair */
+
+    (@royal_hair_coupon, 34000, 1), /* Black Palm Tree Hair */
+    (@royal_hair_coupon, 34010, 1), /* Black Rollered Hair */
+    (@royal_hair_coupon, 34100, 1), /* Black Bow Hair */
+    (@royal_hair_coupon, 34110, 1), /* Black Full Bangs Hair */
+    (@royal_hair_coupon, 34120, 1), /* Black Bohemian Hair */
+    (@royal_hair_coupon, 34130, 1), /* Black Low Cut Bob */
+    (@royal_hair_coupon, 34150, 1), /* Black Bleached Pony Hair */
+    (@royal_hair_coupon, 34210, 1), /* Black Lively Waved Hair */
+    (@royal_hair_coupon, 34210, 1), /* Black Romantic Braid Hair */
+    (@royal_hair_coupon, 34370, 1), /* Black Shaggy Bobbed Hair */
+    (@royal_hair_coupon, 34450, 1), /* Black Kitty Hair */
+
+/* Royal Face Coupon */
+    (@royal_face_coupon, 23016, 0), /* Grudge Face */
+    (@royal_face_coupon, 23020, 0), /* Dewy-Eyed Face */
+    (@royal_face_coupon, 23024, 0), /* Dreamy Face */
+    (@royal_face_coupon, 23025, 0), /* Big Beady Face */
+    (@royal_face_coupon, 23033, 0), /* Kiddo Face */
+    (@royal_face_coupon, 23040, 0), /* Creepy Face */
+    (@royal_face_coupon, 23057, 0), /* Sesame Face */
+    (@royal_face_coupon, 23072, 0), /* Pure Beauty Face */
+    (@royal_face_coupon, 23086, 0), /* Sparkling Face */
+
+    (@royal_face_coupon, 24012, 1), /* Eventful Face */
+    (@royal_face_coupon, 24013, 1), /* Crescent Eye Face */
+    (@royal_face_coupon, 24016, 1), /* Dewey-Eyed Face */
+    (@royal_face_coupon, 24020, 1), /* Dreamy Face */
+    (@royal_face_coupon, 24024, 1), /* Serene Face */
+    (@royal_face_coupon, 24027, 1), /* Moonbeam Face */
+    (@royal_face_coupon, 24037, 1), /* Creepy Face */
+    (@royal_face_coupon, 24067, 1), /* Alluring Face */
+    (@royal_face_coupon, 24079, 1), /* Sparkling Face */
+
+/* Skin Coupon */
+    (@skin_coupon, 0, 2), /* Light */
+    (@skin_coupon, 1, 2), /* Tanned */
+    (@skin_coupon, 2, 2), /* Dark */
+    (@skin_coupon, 3, 2), /* Pale */
+    (@skin_coupon, 4, 2), /* Ashen */
+    (@skin_coupon, 5, 2), /* Green */
+    (@skin_coupon, 9, 2), /* Ghostly */
+    (@skin_coupon, 10, 2), /* Pale Pink */
+    (@skin_coupon, 11, 2), /* NULL */
+    (@skin_coupon, 12, 2), /* NULL */
+    (@skin_coupon, 13, 2); /* NULL */

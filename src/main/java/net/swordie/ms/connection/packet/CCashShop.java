@@ -183,16 +183,8 @@ public class CCashShop {
         return listItems(CashShopActionType.ShowCategory, items);
     }
 
-    public static OutPacket showFavorites(CashShop cashShop) {
-        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_ACTION);
-
-        outPacket.encodeByte(CashShopActionType.ShowCategory.getVal());
-        outPacket.encodeByte(1);
-        List<CashShopItem> items = List.of(); // TODO
-        outPacket.encodeByte(items.size());
-        items.forEach(item -> item.encode(outPacket));
-
-        return outPacket;
+    public static OutPacket showFavorites(Char chr, CashShop cashShop) {
+        return listItems(CashShopActionType.ShowFavorites, List.of()); // TODO
     }
 
     public static OutPacket resMoveLtoSDone(Item item) {
