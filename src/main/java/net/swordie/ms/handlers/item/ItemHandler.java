@@ -244,13 +244,13 @@ public class ItemHandler {
             int salonType = itemID % 5550000;
             switch (salonType) {
                 case 2000:
-                    chr.write(UserLocal.salonResult(5, chr, 20000, chr.getInventoryByType(InvType.getInvTypeByString("Face")).getSlots() + 1));
-                    chr.getInventoryByType(InvType.getInvTypeByString("Face")).addSlots((byte) 1);
-                    return;
+                    chr.getInventoryByType(InvType.FACE).addSlots((byte) 1);
+                    chr.write(UserLocal.salonResult(5, chr, 20000, chr.getInventoryByType(InvType.FACE).getSlots()));
+                    break;
                 case 3000:
-                    chr.write(UserLocal.salonResult(5, chr, 30000, chr.getInventoryByType(InvType.getInvTypeByString("Hair")).getSlots() + 1));
-                    chr.getInventoryByType(InvType.getInvTypeByString("Hair")).addSlots((byte) 1);
-                    return;
+                    chr.getInventoryByType(InvType.HAIR).addSlots((byte) 1);
+                    chr.write(UserLocal.salonResult(5, chr, 30000, chr.getInventoryByType(InvType.HAIR).getSlots()));
+                    break;
             }
         } else if (itemID / 10000 == 512) { // Weather Items
             chr.getField().blowWeather(itemID, inPacket.decodeString(), null);
