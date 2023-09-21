@@ -31,9 +31,11 @@ values
 /* Event ------------------------------------------------------------------- */
 /* SSB */
     (5222060, 3400, 'SSB', 0), /* Premium Surprise Style Box */
+    (5222060, 16000, 'SSB', 5), /* Premium Surprise Style Box (5) */
     (5222060, 34000, 'SSB', 11), /* Premium Surprise Style Box (11) */
-    (5222006, 2100, 'SSB', 0), /* Surprise Surprise Style Box */
-    (5222006, 21000, 'SSB', 11), /* Surprise Surprise Style Box (11) */
+    (5222006, 2100, 'SSB', 0), /* Surprise Style Box */
+    (5222006, 10000, 'SSB', 5), /* Surprise Style Box (5) */
+    (5222006, 21000, 'SSB', 11), /* Surprise Style Box (11) */
 
 /* Special */
     (5220000, 1000, 'Special', 0), /* Gachapon Ticket */
@@ -5130,12 +5132,33 @@ create table cs_random
     foreign key (parentid) references cs_items (id)
 );
 
-
+select @premium_ssb := id from `cs_items` where `itemID` = 5222060;
+select @ssb := id from `cs_items` where `itemID` = 5222006;
 select @royal_hair_coupon := id from `cs_items` where `itemID` = 5150040;
 select @royal_face_coupon := id from `cs_items` where `itemID` = 5152053;
 select @skin_coupon := id from `cs_items` where `itemID` = 5153015;
+
 insert into `cs_random` (`parentid`, `reward`, `gender`)
 values
+
+/* Event ------------------------------------------------------------------- */
+/* Premium Surprise Style Box */
+    (@premium_ssb, 1003965, 0), /* Chicken Hataroo */
+    (@premium_ssb, 1052661, 0), /* Chicken Coataroo */
+    (@premium_ssb, 1053051, 0), /* Chicken Cutie Outfit */
+    (@premium_ssb, 1073150, 0), /* Chicken Cutie Shoes */
+    (@premium_ssb, 1082549, 0), /* Chicken Glovaroo */
+    (@premium_ssb, 1702086, 0), /* Chicken Smackaroo */
+    (@premium_ssb, 1702692, 0), /* Chicken Cutie Weapon */
+
+/* Surprise Style Box */
+    (@ssb, 1001031, 0), /* White Cat Ears */
+    (@ssb, 1001032, 0), /* Black Cat Ears */
+    (@ssb, 1002976, 0), /* Maid Headband */
+    (@ssb, 1051185, 0), /* Maid Dress */
+    (@ssb, 1071015, 0), /* Maid Shoes */
+
+
 
 /* Beauty ------------------------------------------------------------------ */
 /* Royal Hair Coupon */

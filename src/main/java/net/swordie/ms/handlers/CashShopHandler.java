@@ -3,8 +3,10 @@ package net.swordie.ms.handlers;
 import net.swordie.ms.Server;
 import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.Account;
+import net.swordie.ms.client.Client;
 import net.swordie.ms.client.User;
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.client.character.items.Inventory;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.trunk.Trunk;
@@ -16,6 +18,8 @@ import net.swordie.ms.connection.packet.CCashShop;
 import net.swordie.ms.enums.CashShopActionType;
 import net.swordie.ms.enums.InvType;
 import net.swordie.ms.handlers.header.InHeader;
+import net.swordie.ms.loaders.ItemData;
+import net.swordie.ms.util.Util;
 import net.swordie.ms.world.shop.cashshop.CashItemInfo;
 import net.swordie.ms.world.shop.cashshop.CashShop;
 import net.swordie.ms.world.shop.cashshop.CashShopItem;
@@ -281,5 +285,46 @@ public class CashShopHandler {
                 chr.dispose();
                 break;
         }
+    }
+
+    @Handler(op = InHeader.SURPRISE_BOX)
+    public static void handleSurprise(Char chr, InPacket inPacket) {
+        Account account = chr.getAccount();
+        long sn = inPacket.decodeLong();
+        Trunk trunk = account.getTrunk();
+        if (trunk.isFull()) {
+            chr.write(CCashShop.fullInventoryMsg());
+            return;
+        }
+        CashItemInfo box = account.getTrunk().getLockerItemBySn(sn);
+        if (box == null) {
+            chr.write(CCashShop.error());
+            chr.dispose();
+            return;
+        }
+        CashShop cashShop = Server.getInstance().getCashShop();
+        List<Integer> pool = cashShop.getSurpiseBoxInfo().get(box.getItem().getItemId());
+        if (pool == null) {
+            chr.write(CCashShop.error());
+            chr.dispose();
+            return;
+        }
+        Equip equip = ItemData.getEquipDeepCopyFromID(Util.getRandomFromCollection(pool), false);
+        CashItemInfo cii = CashItemInfo.fromItem(chr, equip);
+        if (cii == null) {
+            chr.write(CCashShop.error());
+            chr.dispose();
+            return;
+        }
+        DatabaseManager.saveToDB(cii); // ensures the item has a unique ID
+        trunk.addCashItem(cii);
+        chr.write(CCashShop.queryCashResult(chr));
+        // consume box
+        box.getItem().setQuantity(box.getItem().getQuantity() - 1);
+        if (box.getItem().getQuantity() <= 0) {
+            trunk.getLocker().remove(box);
+        }
+        chr.write(CCashShop.surpriseBox(cii, box, false));
+        chr.write(CCashShop.loadLockerDone(chr.getAccount()));
     }
 }

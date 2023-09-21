@@ -678,6 +678,7 @@ public enum InHeader {
     FAMILIAR_SKILL(859),
 
     GUILD_BBS(808),
+    SURPRISE_BOX(816),
 
     E_N_D__U_S_E_R(809),
 

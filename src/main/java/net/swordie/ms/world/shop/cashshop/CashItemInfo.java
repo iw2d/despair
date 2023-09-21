@@ -184,6 +184,18 @@ public class CashItemInfo {
         this.id = id;
     }
 
+    public int getItemID() {
+        return item.getItemId();
+    }
+
+    public long getCashItemSN() {
+        return getItem() == null ? 0 : getItem().getId();
+    }
+
+    public int getQuantity() {
+        return item.getQuantity();
+    }
+
     public int getPosition() {
         return position;
     }

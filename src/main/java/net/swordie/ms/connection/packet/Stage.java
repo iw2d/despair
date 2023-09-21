@@ -185,7 +185,7 @@ public class Stage {
         OutPacket outPacket = new OutPacket(OutHeader.SET_CASH_SHOP);
 
         chr.encode(outPacket, DBChar.All);
-        cashShop.encode(outPacket);
+        cashShop.encode(chr, outPacket);
 
         return outPacket;
     }

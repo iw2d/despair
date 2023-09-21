@@ -217,6 +217,8 @@ public enum CashItemType {
     Res_LockerTransfer_Failed(131),
     Res_MovoCashItemToLockerFromAuction_Done(132),
     Res_MovoCashItemToLockerFromAuction_Failed(133),
+    Res_PremiumStyle(160),
+
 
 
     FailReason_Unknown(0),

@@ -246,4 +246,18 @@ public class CCashShop {
 
         return outPacket;
     }
+
+    public static OutPacket surpriseBox(CashItemInfo reward, CashItemInfo box, boolean Rare) {
+        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_GAIN_ITEM);
+
+        outPacket.encodeByte(CashItemType.Res_PremiumStyle.getVal());
+        outPacket.encodeLong(box.getCashItemSN()); // probs SN doesn't seem like a date
+        outPacket.encodeInt(box.getItemID());
+        box.encode(outPacket);
+        // sub_1D910F0
+        outPacket.encodeInt(reward.getItemID());
+        outPacket.encodeByte(1); //Quantity?
+        outPacket.encodeByte(Rare);
+        return outPacket;
+    }
 }

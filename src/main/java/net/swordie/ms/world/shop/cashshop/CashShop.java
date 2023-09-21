@@ -1,5 +1,6 @@
 package net.swordie.ms.world.shop.cashshop;
 
+import net.swordie.ms.client.character.Char;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.constants.GameConstants;
@@ -19,7 +20,8 @@ public class CashShop {
     private final List<CashShopCategory> categories = new ArrayList<>();
     private final Map<CashShopCategory, List<CashShopItem>> items = new TreeMap<>(Comparator.comparingInt(CashShopCategory::getIdx));
     private final Map<String, CashShopItem> searchInfo = new HashMap<>();
-    private final Map<CashShopItem, Tuple<List<Integer>, List<Integer>>> beautyPreview = new HashMap<>();
+    private final Map<Integer, Tuple<List<Integer>, List<Integer>>> beautyPreview = new HashMap<>();
+    private final Map<Integer, List<Integer>> surpriseBoxInfo = new HashMap<>();
     private final List<Integer> saleItems = new ArrayList<>();;
     private boolean eventOn;
     private boolean lockerTransfer;
@@ -39,8 +41,12 @@ public class CashShop {
         return searchInfo;
     }
 
-    public Map<CashShopItem, Tuple<List<Integer>, List<Integer>>> getBeautyPreview() {
+    public Map<Integer, Tuple<List<Integer>, List<Integer>>> getBeautyPreview() {
         return beautyPreview;
+    }
+
+    public Map<Integer, List<Integer>> getSurpiseBoxInfo() {
+        return surpriseBoxInfo;
     }
 
     public List<Integer> getSaleItems() {
@@ -62,7 +68,7 @@ public class CashShop {
     }
 
     // CCashShop::CCashShop
-    public void encode(OutPacket outPacket) {
+    public void encode(Char chr, OutPacket outPacket) {
         // CCashShop::LoadData
         outPacket.encodeByte(!isBetaTest());
 
@@ -90,7 +96,7 @@ public class CashShop {
         outPacket.encodeByte(0);
         outPacket.encodeByte(0);
         outPacket.encodeByte(0);
-        outPacket.encodeInt(0);
+        outPacket.encodeInt(chr.getLevel());
         outPacket.encodeByte(0);
         outPacket.encodeByte(0);
 
@@ -118,12 +124,12 @@ public class CashShop {
 
         // BEAUTY_DATA::Decode
         outPacket.encodeInt(getBeautyPreview().size());
-        for (CashShopItem csi : getBeautyPreview().keySet()) {
-            outPacket.encodeInt(csi.getItemID());
-            List<Integer> maleStyles = getBeautyPreview().get(csi).getLeft();
+        for (Integer itemId : getBeautyPreview().keySet()) {
+            outPacket.encodeInt(itemId);
+            List<Integer> maleStyles = getBeautyPreview().get(itemId).getLeft();
             outPacket.encodeInt(maleStyles.size());
             maleStyles.forEach(outPacket::encodeInt);
-            List<Integer> femaleStyles = getBeautyPreview().get(csi).getRight();
+            List<Integer> femaleStyles = getBeautyPreview().get(itemId).getRight();
             outPacket.encodeInt(femaleStyles.size());
             femaleStyles.forEach(outPacket::encodeInt);
         }
@@ -213,6 +219,8 @@ public class CashShop {
         // load items and search map
         items.clear();
         searchInfo.clear();
+        beautyPreview.clear();
+        surpriseBoxInfo.clear();
         for (CashShopItem csi : (List<CashShopItem>) DatabaseManager.getObjListFromDB(CashShopItem.class)) {
             CashShopCategory csc = Util.findWithPred(getCategories(), cat -> cat.getParentIdx() != 0 && cat.getName().equalsIgnoreCase(csi.getCategory()));
             if (!items.containsKey(csc)) {
@@ -226,14 +234,23 @@ public class CashShop {
             }
             name = name.toLowerCase().replaceAll(" ", "");
             searchInfo.put(name, csi);
-            // extract preview info
-            if (csi.getItemID() / 10000 == 515 && csi.getRandom() != null && csi.getRandom().size() > 0) {
-                beautyPreview.put(csi, new Tuple<>(
-                        csi.getRandom().stream().filter(r -> r.getGender() == 0 || r.getGender() == 2).map(CashShopRandom::getReward).toList(),
-                        csi.getRandom().stream().filter(r -> r.getGender() == 1 || r.getGender() == 2).map(CashShopRandom::getReward).toList()
-                ));
+            // cash shop random
+            if (csi.getRandom() != null && csi.getRandom().size() > 0) {
+                // extract preview info
+                if (csi.getItemID() / 10000 == 515) {
+                    beautyPreview.put(csi.getItemID(), new Tuple<>(
+                            csi.getRandom().stream().filter(r -> r.getGender() == 0 || r.getGender() == 2).map(CashShopRandom::getReward).toList(),
+                            csi.getRandom().stream().filter(r -> r.getGender() == 1 || r.getGender() == 2).map(CashShopRandom::getReward).toList()
+                    ));
+                }
+                // extract surprise box info
+                if (csi.getItemID() / 1000 == 5222) {
+                    surpriseBoxInfo.put(csi.getItemID(), csi.getRandom().stream().map(CashShopRandom::getReward).toList());
+                }
             }
         }
+
+        // warnings
         for (CashShopCategory csc : items.keySet()) {
             if (items.get(csc).size() >= GameConstants.MAX_CS_ITEMS_PER_CATEGORY) {
                 log.warn(String.format("Cash Shop item count for category %s exceeds the maximum %d / %d.", csc.getName(), items.get(csc).size(), GameConstants.MAX_CS_ITEMS_PER_CATEGORY));
