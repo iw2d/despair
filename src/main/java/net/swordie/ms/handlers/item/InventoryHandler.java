@@ -1,10 +1,7 @@
 package net.swordie.ms.handlers.item;
 
 import net.swordie.ms.client.character.Char;
-import net.swordie.ms.client.character.items.BodyPart;
-import net.swordie.ms.client.character.items.InvOp;
-import net.swordie.ms.client.character.items.Inventory;
-import net.swordie.ms.client.character.items.Item;
+import net.swordie.ms.client.character.items.*;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.AndroidPacket;
 import net.swordie.ms.connection.packet.WvsContext;
@@ -50,7 +47,6 @@ public class InventoryHandler {
             chr.dispose();
             return;
         }
-        String itemBefore = item.toString();
         if (newPos == 0) { // Drop
             Field field = chr.getField();
             if ((field.getFieldLimit() & FieldOption.DropLimit.getVal()) > 0) {

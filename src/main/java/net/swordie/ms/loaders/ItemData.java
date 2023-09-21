@@ -72,6 +72,20 @@ public class ItemData {
                     }
                 }
             }
+            if (ret.isCash() && ret.getCharmEXP() <= 0) {
+                int exp = 0;
+                if (ItemConstants.isWeapon(itemId) || ItemConstants.isOverall(itemId)) {
+                    exp = 60;
+                } else if (ItemConstants.isHat(itemId)) {
+                    exp = 50;
+                } else if (ItemConstants.isAccessory(itemId) || ItemConstants.isEyeAccessory(itemId) ||
+                        ItemConstants.isShoe(itemId) || ItemConstants.isGlove(itemId)) {
+                    exp = 40;
+                } else if (ItemConstants.isTop(itemId) || ItemConstants.isBottom(itemId)) {
+                    exp = 30;
+                }
+                ret.setCharmEXP(exp);
+            }
         }
         return ret;
     }

@@ -2477,29 +2477,31 @@ public class Char {
 			equip.setEquippedDate(FileTime.currentTime());
 			equip.addAttribute(ItemAttribute.Untradable);
 		}
-		if (equip.getCharmEXP() > 0) {
+		if (!equip.hasAttribute(ItemAttribute.NoNonCombatStatGain) && equip.getCharmEXP() > 0) {
 			addStatAndSendPacket(Stat.charmEXP, equip.getCharmEXP());
 			equip.setCharmEXP(0);
 			equip.setiCraft((short) 0);
 			equip.addAttribute(ItemAttribute.NoNonCombatStatGain);
 		}
 		AvatarLook al = getAvatarData().getAvatarLook();
-		int itemID = item.getItemId();
 		getInventoryByType(EQUIP).removeItem(item);
 		getInventoryByType(EQUIPPED).addItem(item);
 		List<Integer> hairEquips = getAvatarData().getAvatarLook().getHairEquips();
-		if (item.getBagIndex() < BodyPart.APBase.getVal() || item.getBagIndex() > BodyPart.APEnd.getVal()){
+		int itemID = equip.getAnvilId() == 0 ? item.getItemId() : equip.getAnvilId();
+		if (item.getBagIndex() > BodyPart.BPBase.getVal() || item.getBagIndex() > BodyPart.CBPEnd.getVal()){
 			// only add if not part of your own body
 			if (ItemConstants.isWeapon(itemID)) {
-				al.setWeaponId(itemID);
+				if (item.isCash()) {
+					al.setWeaponStickerId(itemID);
+				} else {
+					al.setWeaponId(itemID);
+				}
 			}
 			if (!hairEquips.contains(itemID)) {
 				hairEquips.add(itemID);
 			}
-		}
-		if (!equip.hasAttribute(ItemAttribute.NoNonCombatStatGain) && equip.getCharmEXP() != 0) {
-			addStatAndSendPacket(Stat.charmEXP, equip.getCharmEXP());
-			equip.addAttribute(ItemAttribute.NoNonCombatStatGain);
+		} else if (item.getBagIndex() >= BodyPart.TotemBase.getVal() && item.getBagIndex() < BodyPart.TotemEnd.getVal()) {
+			al.getTotems().add(itemID);
 		}
 		List<Skill> skills = new ArrayList<>();
         for (ItemSkill itemSkill : ItemData.getEquipById(equip.getItemId()).getItemSkills()) {

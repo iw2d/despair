@@ -16,11 +16,12 @@ public enum ItemAttribute {
     UntradableAfterTransaction(0x10),
     CraftedUse(0x10),
     NoNonCombatStatGain(0x20),
-
+    Used(0x40),
     Crafted(0x80),
     ProtectionScroll(0x100),
     LuckyDay(0x200),
-
+    CubeExOptLv(0x400),
+    CubeExOptLv2(0x800),
     TradedOnceWithinAccount(0x1000),
     UpgradeCountProtection(0x2000),
     ScrollProtection(0x4000),
