@@ -110,7 +110,7 @@ public class CashShopHandler {
                 inPacket.decodeInt();
                 boolean isAdd4Slots = inPacket.decodeByte() == 0;
                 InvType invType = null;
-                byte incSlots;
+                int incSlots;
                 int cost;
                 if (isAdd4Slots) {
                     incSlots = 4;
@@ -152,7 +152,7 @@ public class CashShopHandler {
                 inPacket.decodeInt();
                 inPacket.decodeByte();
                 boolean isAdd4Slots = inPacket.decodeByte() == 0;
-                byte incSlots;
+                int incSlots;
                 int cost;
                 if (isAdd4Slots) {
                     incSlots = 4;

@@ -29,7 +29,7 @@ public class Trunk {
     @JoinColumn(name = "trunkID")
     private List<Item> items = new ArrayList<>();
     private long money;
-    private byte slotCount;
+    private int slotCount;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "trunkid")
     private List<CashItemInfo> locker = new ArrayList<>();
@@ -48,12 +48,12 @@ public class Trunk {
         this.items = items;
     }
 
-    public byte getSlotCount() {
+    public int getSlotCount() {
         return slotCount;
     }
 
-    public void setSlotCount(byte slotCount) {
-        this.slotCount = (byte) Math.min(slotCount, GameConstants.MAX_INVENTORY_SLOTS);
+    public void setSlotCount(int slotCount) {
+        this.slotCount = Math.min(slotCount, GameConstants.MAX_INVENTORY_SLOTS);
     }
 
     public void encodeItems(OutPacket outPacket) {
@@ -155,5 +155,5 @@ public class Trunk {
         return getLocker().size() >= GameConstants.MAX_LOCKER_SIZE;
     }
 
-    public void addSlots(byte amount) {setSlotCount((byte) (getSlotCount() + amount));}
+    public void addSlots(int amount) {setSlotCount(getSlotCount() + amount);}
 }

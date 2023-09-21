@@ -29,7 +29,7 @@ public class Inventory {
     private List<Item> items;
     @Column(name = "type")
     private InvType type;
-    private byte slots;
+    private int slots;
 
     public Inventory() {
         items = new CopyOnWriteArrayList<>();
@@ -64,12 +64,12 @@ public class Inventory {
         this.id = id;
     }
 
-    public byte getSlots() {
+    public int getSlots() {
         return slots;
     }
 
-    public void setSlots(byte slots) {
-        this.slots = (byte) Math.min(slots, GameConstants.MAX_INVENTORY_SLOTS);
+    public void setSlots(int slots) {
+        this.slots = Math.min(slots, GameConstants.MAX_INVENTORY_SLOTS);
     }
 
     public void addItem(Item item) {
@@ -187,7 +187,7 @@ public class Inventory {
         return getSlots() - getItems().size();
     }
 
-    public void addSlots(byte amount) {
-        setSlots((byte) (getSlots() + amount));
+    public void addSlots(int amount) {
+        setSlots((getSlots() + amount));
     }
 }

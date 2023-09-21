@@ -2829,7 +2829,7 @@ public class ScriptManagerImpl implements ScriptManager {
 		}
 	}
 
-	public void addStorageSlots(byte amount) {
+	public void addStorageSlots(int amount) {
 		chr.getAccount().getTrunk().addSlots(amount);
 	}
 

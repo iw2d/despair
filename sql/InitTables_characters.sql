@@ -70,7 +70,7 @@ set FOREIGN_KEY_CHECKS = 1;
 
 create table trunks(
 	id int not null auto_increment,
-    slotcount tinyint default '4',
+    slotcount int default '4',
     money bigint,
     primary key (id)
 );
@@ -139,7 +139,7 @@ create table questprogressrequirements (
 create table inventories (
 	id int not null auto_increment,
     type int,
-    slots tinyint,
+    slots int,
     primary key (id)
 );
 

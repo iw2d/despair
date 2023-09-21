@@ -244,11 +244,11 @@ public class ItemHandler {
             int salonType = itemID % 5550000;
             switch (salonType) {
                 case 2000:
-                    chr.getInventoryByType(InvType.FACE).addSlots((byte) 1);
+                    chr.getInventoryByType(InvType.FACE).addSlots(1);
                     chr.write(UserLocal.salonResult(5, chr, 20000, chr.getInventoryByType(InvType.FACE).getSlots()));
                     break;
                 case 3000:
-                    chr.getInventoryByType(InvType.HAIR).addSlots((byte) 1);
+                    chr.getInventoryByType(InvType.HAIR).addSlots(1);
                     chr.write(UserLocal.salonResult(5, chr, 30000, chr.getInventoryByType(InvType.HAIR).getSlots()));
                     break;
             }
