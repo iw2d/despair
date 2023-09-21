@@ -11,6 +11,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Created on 4/21/2018.
@@ -18,10 +20,12 @@ import java.util.*;
 public class CashShop {
     private static final Logger log = LogManager.getLogger(CashShop.class);
     private final List<CashShopCategory> categories = new ArrayList<>();
-    private final Map<CashShopCategory, List<CashShopItem>> items = new TreeMap<>(Comparator.comparingInt(CashShopCategory::getIdx));
+    private final Map<Integer, CashShopItem> items = new HashMap<>();
+    private final Map<CashShopCategory, List<CashShopItem>> categoryInfo = new TreeMap<>(Comparator.comparingInt(CashShopCategory::getIdx));
     private final Map<String, CashShopItem> searchInfo = new HashMap<>();
     private final Map<Integer, Tuple<List<Integer>, List<Integer>>> beautyPreview = new HashMap<>();
     private final Map<Integer, List<Integer>> surpriseBoxInfo = new HashMap<>();
+    private final Map<Integer, Set<CashShopFavorite>> favoriteInfo = new ConcurrentHashMap<>();
     private final List<Integer> saleItems = new ArrayList<>();;
     private boolean eventOn;
     private boolean lockerTransfer;
@@ -33,8 +37,12 @@ public class CashShop {
 
     public CashShop() {}
 
-    public Map<CashShopCategory, List<CashShopItem>> getItems() {
+    public Map<Integer, CashShopItem> getItems() {
         return items;
+    }
+
+    public Map<CashShopCategory, List<CashShopItem>> getCategoryInfo() {
+        return categoryInfo;
     }
 
     public Map<String, CashShopItem> getSearchInfo() {
@@ -197,19 +205,42 @@ public class CashShop {
 
     public List<CashShopItem> getItemsByCategoryIdx(int categoryIdx) {
         CashShopCategory csc = getCategoryByIdx(categoryIdx);
-        return getItems().getOrDefault(csc, List.of());
+        return getCategoryInfo().getOrDefault(csc, List.of());
     }
 
-    public CashShopItem getItemByPosition(int itemPos) {
-        for (Map.Entry<CashShopCategory, List<CashShopItem>> entry : getItems().entrySet()) {
-            List<CashShopItem> items = entry.getValue();
-            if (items.size() <= itemPos) {
-                itemPos -= items.size();
-            } else {
-                return items.get(itemPos);
+    public CashShopItem getItem(int sn) {
+        return getItems().getOrDefault(sn, null);
+    }
+
+    public Set<CashShopItem> getFavorites(int accountId) {
+        return favoriteInfo.getOrDefault(accountId, Set.of()).stream()
+                .map(csf -> getItem(csf.getItemSn()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    public void addFavorite(CashShopFavorite csf, boolean saveToDb) {
+        if (!favoriteInfo.containsKey(csf.getAccId())) {
+            favoriteInfo.put(csf.getAccId(), new HashSet<>());
+        }
+        favoriteInfo.get(csf.getAccId()).add(csf);
+        if (saveToDb) {
+            DatabaseManager.saveToDB(csf);
+        }
+    }
+
+    public void removeFavorite(int accId, int itemSn) {
+        if (favoriteInfo.containsKey(accId)) {
+            var iter = favoriteInfo.getOrDefault(accId, Set.of()).iterator();
+            while (iter.hasNext()) {
+                CashShopFavorite csf = iter.next();
+                if (csf.getItemSn() != itemSn) {
+                    continue;
+                }
+                iter.remove();
+                DatabaseManager.deleteFromDB(csf);
             }
         }
-        return null;
     }
 
     public void loadItems() {
@@ -218,15 +249,17 @@ public class CashShop {
         categories.addAll(CashShopCategory.BASE_CATEGORIES);
         // load items and search map
         items.clear();
+        categoryInfo.clear();
         searchInfo.clear();
         beautyPreview.clear();
         surpriseBoxInfo.clear();
         for (CashShopItem csi : (List<CashShopItem>) DatabaseManager.getObjListFromDB(CashShopItem.class)) {
+            items.put(csi.getId(), csi);
             CashShopCategory csc = Util.findWithPred(getCategories(), cat -> cat.getParentIdx() != 0 && cat.getName().equalsIgnoreCase(csi.getCategory()));
-            if (!items.containsKey(csc)) {
-                items.put(csc, new ArrayList<>());
+            if (!categoryInfo.containsKey(csc)) {
+                categoryInfo.put(csc, new ArrayList<>());
             }
-            items.get(csc).add(csi);
+            categoryInfo.get(csc).add(csi);
             // get name for search map
             String name = StringData.getItemStringById(csi.getItemID());
             if (name == null) {
@@ -249,11 +282,15 @@ public class CashShop {
                 }
             }
         }
-
+        // load favorites info
+        favoriteInfo.clear();
+        for (CashShopFavorite csf : (List<CashShopFavorite>) DatabaseManager.getObjListFromDB(CashShopFavorite.class)) {
+            addFavorite(csf, false);
+        }
         // warnings
-        for (CashShopCategory csc : items.keySet()) {
-            if (items.get(csc).size() >= GameConstants.MAX_CS_ITEMS_PER_CATEGORY) {
-                log.warn(String.format("Cash Shop item count for category %s exceeds the maximum %d / %d.", csc.getName(), items.get(csc).size(), GameConstants.MAX_CS_ITEMS_PER_CATEGORY));
+        for (CashShopCategory csc : categoryInfo.keySet()) {
+            if (categoryInfo.get(csc).size() >= GameConstants.MAX_CS_ITEMS_PER_CATEGORY) {
+                log.warn(String.format("Cash Shop item count for category %s exceeds the maximum %d / %d.", csc.getName(), categoryInfo.get(csc).size(), GameConstants.MAX_CS_ITEMS_PER_CATEGORY));
             }
         }
     }

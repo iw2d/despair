@@ -22,6 +22,7 @@ import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.shop.cashshop.CashItemInfo;
 import net.swordie.ms.world.shop.cashshop.CashShop;
+import net.swordie.ms.world.shop.cashshop.CashShopFavorite;
 import net.swordie.ms.world.shop.cashshop.CashShopItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,9 +60,9 @@ public class CashShopHandler {
                 inPacket.decodeByte();
                 byte paymentMethod = inPacket.decodeByte();
                 inPacket.decodeInt();
-                int itemPos = inPacket.decodeInt();
+                int sn = inPacket.decodeInt();
                 int cost = inPacket.decodeInt();
-                CashShopItem csi = cs.getItemByPosition(itemPos - 1); // client's pos starts at 1
+                CashShopItem csi = cs.getItem(sn);
                 if (csi == null || csi.getNewPrice() != cost) {
                     chr.write(CCashShop.error());
                     log.error("Requested item's cost did not match client's cost");
@@ -116,11 +117,11 @@ public class CashShopHandler {
                     cost = 2500;
                     invType = InvType.getInvTypeByVal(inPacket.decodeByte());
                 } else {
-                    int itemPos = inPacket.decodeInt();
+                    int sn = inPacket.decodeInt();
                     incSlots = 8;
                     cost = inPacket.decodeInt();
                     inPacket.decodeLong();
-                    CashShopItem csi = cs.getItemByPosition(itemPos - 1);
+                    CashShopItem csi = cs.getItem(sn);
                     if (csi == null || csi.getNewPrice() != cost) {
                         chr.write(CCashShop.error());
                         log.error("Requested item's cost did not match client's cost");
@@ -157,11 +158,11 @@ public class CashShopHandler {
                     incSlots = 4;
                     cost = 2500;
                 } else {
-                    int itemPos = inPacket.decodeInt();
+                    int sn = inPacket.decodeInt();
                     incSlots = 8;
                     cost = inPacket.decodeInt();
                     inPacket.decodeLong();
-                    CashShopItem csi = cs.getItemByPosition(itemPos - 1);
+                    CashShopItem csi = cs.getItem(sn);
                     if (csi == null || csi.getNewPrice() != cost) {
                         chr.write(CCashShop.error());
                         log.error("Requested item's cost did not match client's cost");
@@ -247,16 +248,34 @@ public class CashShopHandler {
             return;
         }
         switch (csat) {
-            case Req_ShowCategory:
+            case Req_ShowCategory: {
                 int categoryIdx = inPacket.decodeInt();
                 if (categoryIdx != 4000000) { // Home
-                    chr.write(CCashShop.openCategoryResult(cashShop, categoryIdx));
+                    chr.write(CCashShop.openCategoryResult(cashShop, chr, categoryIdx));
                 }
                 break;
-            case Req_Favorite:
-            case Req_UnFavorite:
-                // TODO
+            }
+            case Req_Favorite: {
+                inPacket.decodeByte(); // 0
+                int sn = inPacket.decodeInt();
+                CashShopItem item = cashShop.getItem(sn);
+                if (item == null) {
+                    chr.write(CCashShop.error());
+                    chr.dispose();
+                    return;
+                }
+                CashShopFavorite favorite = new CashShopFavorite(chr.getAccount().getId(), sn);
+                cashShop.addFavorite(favorite, true);
+                chr.write(CCashShop.favorite(true, sn));
                 break;
+            }
+            case Req_UnFavorite: {
+                inPacket.decodeByte(); // 1
+                int sn = inPacket.decodeInt();
+                cashShop.removeFavorite(chr.getAccount().getId(), sn);
+                chr.write(CCashShop.favorite(false, sn));
+                break;
+            }
             case Req_Like:
             case Req_UnLike:
                 // TODO
@@ -275,7 +294,7 @@ public class CashShopHandler {
                             result.add(cashShop.getSearchInfo().get(name));
                         }
                     }
-                    chr.write(CCashShop.listItems(CashShopActionType.ShowSearchResult, result));
+                    chr.write(CCashShop.listItems(cashShop, chr, CashShopActionType.ShowSearchResult, result));
                     break;
                 }
                 // Fallthrough intended

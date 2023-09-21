@@ -15,8 +15,10 @@ import net.swordie.ms.loaders.StringData;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.auction.AuctionItem;
+import net.swordie.ms.world.shop.cashshop.CashShopFavorite;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -38,10 +40,10 @@ public class Account {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private int worldId;
-    @JoinColumn(name = "trunkID")
+    @JoinColumn(name = "trunkid")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Trunk trunk;
-    @JoinColumn(name = "employeetrunkID")
+    @JoinColumn(name = "employeetrunkid")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private EmployeeTrunk employeeTrunk;
     @JoinColumn(name = "monsterCollectionID")
@@ -52,16 +54,16 @@ public class Account {
     @JoinColumn(name = "owneraccid")
     private Set<Friend> friends;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "accID")
+    @JoinColumn(name = "accid")
     private Set<DamageSkinSaveData> damageSkins = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "accID")
+    @JoinColumn(name = "accid")
     private Set<Char> characters = new HashSet<>();
     // nxCredit is from mobs, so is account (world) specific.
     private int nxCredit;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "accID")
+    @JoinColumn(name = "accid")
     private Set<LinkSkill> linkSkills = new HashSet<>();
     @Transient
     private Set<AuctionItem> auctionItems;
@@ -209,10 +211,6 @@ public class Account {
         return linkSkills;
     }
 
-    public void setLinkSkills(Set<LinkSkill> linkSkills) {
-        this.linkSkills = linkSkills;
-    }
-
     public void addNXCredit(int credit) {
         int newCredit = getNxCredit() + credit;
         if (newCredit >= 0) {
@@ -287,7 +285,6 @@ public class Account {
     public void setAuctionItems(Set<AuctionItem> auctionItems) {
         this.auctionItems = auctionItems;
     }
-
 
     public Set<AuctionItem> getCompletedAuctionItems() {
         return getAuctionItems().stream()

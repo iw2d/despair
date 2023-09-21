@@ -1,51 +1,30 @@
 package net.swordie.ms.connection.db;
 
-import net.swordie.ms.client.Account;
-import net.swordie.ms.client.LinkSkill;
-import net.swordie.ms.client.User;
-import net.swordie.ms.client.alliance.Alliance;
-import net.swordie.ms.client.anticheat.Offense;
-import net.swordie.ms.client.anticheat.OffenseManager;
+import net.swordie.ms.client.*;
+import net.swordie.ms.client.alliance.*;
+import net.swordie.ms.client.anticheat.*;
 import net.swordie.ms.client.character.*;
-import net.swordie.ms.client.character.avatar.AvatarData;
-import net.swordie.ms.client.character.avatar.AvatarLook;
-import net.swordie.ms.client.character.avatar.BeautyAlbum;
+import net.swordie.ms.client.character.avatar.*;
 import net.swordie.ms.client.character.cards.*;
-import net.swordie.ms.client.character.damage.DamageSkinSaveData;
-import net.swordie.ms.client.character.items.Equip;
-import net.swordie.ms.client.character.items.Inventory;
-import net.swordie.ms.client.character.items.Item;
-import net.swordie.ms.client.character.items.PetItem;
-import net.swordie.ms.client.character.keys.FuncKeyMap;
-import net.swordie.ms.client.character.keys.Keymapping;
-import net.swordie.ms.client.character.keys.Macro;
-import net.swordie.ms.client.character.potential.CharacterPotential;
-import net.swordie.ms.client.character.quest.Quest;
-import net.swordie.ms.client.character.quest.QuestManager;
+import net.swordie.ms.client.character.damage.*;
+import net.swordie.ms.client.character.items.*;
+import net.swordie.ms.client.character.keys.*;
+import net.swordie.ms.client.character.potential.*;
+import net.swordie.ms.client.character.quest.*;
 import net.swordie.ms.client.character.quest.progress.*;
-import net.swordie.ms.client.character.skills.ChosenSkill;
-import net.swordie.ms.client.character.skills.Skill;
-import net.swordie.ms.client.character.skills.StolenSkill;
-import net.swordie.ms.client.friend.Friend;
+import net.swordie.ms.client.character.skills.*;
+import net.swordie.ms.client.friend.*;
 import net.swordie.ms.client.guild.*;
-import net.swordie.ms.client.guild.bbs.BBSRecord;
-import net.swordie.ms.client.guild.bbs.BBSReply;
-import net.swordie.ms.client.trunk.Trunk;
-import net.swordie.ms.handlers.EventManager;
-import net.swordie.ms.life.Familiar;
-import net.swordie.ms.life.room.EmployeeTrunk;
-import net.swordie.ms.life.room.MerchantItem;
-import net.swordie.ms.life.drop.DropInfo;
-import net.swordie.ms.loaders.containerclasses.EquipDrop;
-import net.swordie.ms.loaders.containerclasses.MonsterCollectionGroupRewardInfo;
-import net.swordie.ms.loaders.containerclasses.MonsterCollectionMobInfo;
-import net.swordie.ms.loaders.containerclasses.MonsterCollectionSessionRewardInfo;
-import net.swordie.ms.world.auction.AuctionItem;
-import net.swordie.ms.world.shop.NpcShopItem;
-import net.swordie.ms.world.shop.cashshop.CashItemInfo;
-import net.swordie.ms.world.shop.cashshop.CashShopCategory;
-import net.swordie.ms.world.shop.cashshop.CashShopItem;
-import net.swordie.ms.world.shop.cashshop.CashShopRandom;
+import net.swordie.ms.client.guild.bbs.*;
+import net.swordie.ms.client.trunk.*;
+import net.swordie.ms.handlers.*;
+import net.swordie.ms.life.*;
+import net.swordie.ms.life.room.*;
+import net.swordie.ms.life.drop.*;
+import net.swordie.ms.loaders.containerclasses.*;
+import net.swordie.ms.world.auction.*;
+import net.swordie.ms.world.shop.*;
+import net.swordie.ms.world.shop.cashshop.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
@@ -116,6 +95,7 @@ public class DatabaseManager {
                 CashItemInfo.class,
                 CashShopItem.class,
                 CashShopRandom.class,
+                CashShopFavorite.class,
                 CashShopCategory.class,
                 MonsterCollectionSessionRewardInfo.class,
                 MonsterCollectionGroupRewardInfo.class,

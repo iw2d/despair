@@ -18,7 +18,9 @@ import net.swordie.ms.world.shop.cashshop.CashShop;
 import net.swordie.ms.world.shop.cashshop.CashShopCategory;
 import net.swordie.ms.world.shop.cashshop.CashShopItem;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created on 4/23/2018.
@@ -162,7 +164,7 @@ public class CCashShop {
         return outPacket;
     }
 
-    public static OutPacket listItems(CashShopActionType cast, List<CashShopItem> items) {
+    public static OutPacket listItems(CashShop cashShop, Char chr, CashShopActionType cast, List<CashShopItem> items) {
         // the number of items is normally a byte, but changed to a short in CASH_SHOP_ACTION (0x00A43AB0)
         // but it results in error38 when the number of items is equal to or greater than 474 for some reason
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_ACTION);
@@ -174,17 +176,28 @@ public class CCashShop {
         } else {
             outPacket.encodeByte(trimmedItems.size());
         }
-        trimmedItems.forEach(item -> item.encode(outPacket));
+        Set<CashShopItem> favorites = cashShop.getFavorites(chr.getAccount().getId());
+        trimmedItems.forEach(item -> item.encode(outPacket, favorites.contains(item), false));
         return outPacket;
     }
 
-    public static OutPacket openCategoryResult(CashShop cashShop, int categoryIdx) {
+    public static OutPacket openCategoryResult(CashShop cashShop, Char chr, int categoryIdx) {
         List<CashShopItem> items = cashShop.getItemsByCategoryIdx(categoryIdx);
-        return listItems(CashShopActionType.ShowCategory, items);
+        return listItems(cashShop, chr, CashShopActionType.ShowCategory, items);
     }
 
     public static OutPacket showFavorites(Char chr, CashShop cashShop) {
-        return listItems(CashShopActionType.ShowFavorites, List.of()); // TODO
+        List<CashShopItem> items = cashShop.getFavorites(chr.getAccount().getId()).stream().toList();
+        return listItems(cashShop, chr, CashShopActionType.ShowFavorites, items);
+    }
+
+    public static OutPacket favorite(boolean add, int itemSn) {
+        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_ACTION);
+        CashShopActionType cast = add ? CashShopActionType.AddFavorite : CashShopActionType.RemoveFavorite;
+        outPacket.encodeByte(cast.getVal());
+        outPacket.encodeByte(1); // success
+        outPacket.encodeInt(itemSn);
+        return outPacket;
     }
 
     public static OutPacket resMoveLtoSDone(Item item) {

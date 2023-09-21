@@ -6,6 +6,7 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.loaders.ItemData;
+import net.swordie.ms.loaders.StringData;
 import net.swordie.ms.util.FileTime;
 
 import javax.persistence.*;
@@ -20,7 +21,7 @@ import java.util.List;
 public class CashShopItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int id; // sn
     private int itemID;
     private int stock;
     @Enumerated(EnumType.ORDINAL)
@@ -60,6 +61,10 @@ public class CashShopItem {
     }
 
     public void encode(OutPacket outPacket) {
+        encode(outPacket, false, false);
+    }
+
+    public void encode(OutPacket outPacket, boolean favorited, boolean liked) {
         outPacket.encodeInt(getCashShopCategory() == null ? 0 : getCashShopCategory().getIdx());
         outPacket.encodeInt(getSubCategory());
         outPacket.encodeInt(getParent());
@@ -101,8 +106,8 @@ public class CashShopItem {
         outPacket.encodeInt(0);
         outPacket.encodeInt(0);
 
-        outPacket.encodeByte(false); // has favorited, maybe implement later
-        outPacket.encodeByte(false); // has liked, maybe implement later
+        outPacket.encodeByte(favorited);
+        outPacket.encodeByte(liked);
 
         int size = 0;
         outPacket.encodeInt(size);
@@ -289,6 +294,7 @@ public class CashShopItem {
     public String toString() {
         return "CashShopItem{" +
                 "itemID=" + itemID +
+                ", name=" + StringData.getItemStringById(itemID) +
                 ", newPrice=" + newPrice +
                 ", category='" + category + '\'' +
                 ", cashShopCategory=" + cashShopCategory +

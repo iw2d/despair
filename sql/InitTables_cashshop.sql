@@ -1,4 +1,5 @@
 drop table if exists cs_random;
+drop table if exists cs_favorites;
 drop table if exists cs_items;
 
 create table cs_items
@@ -22,6 +23,16 @@ create table cs_items
     requiredLevel          int      default 0,
     category               varchar(255),
     primary key (id)
+);
+
+create table cs_favorites
+(
+    id                     int not null auto_increment,
+    accid                  int not null,
+    itemsn                 int not null,
+    primary key(id),
+    foreign key (accid) references accounts (id)  on delete cascade,
+    foreign key (itemsn) references cs_items (id)  on delete cascade
 );
 
 
@@ -5129,7 +5140,7 @@ create table cs_random
     reward   int not null,
     gender   int default 0,
     primary key (id),
-    foreign key (parentid) references cs_items (id)
+    foreign key (parentid) references cs_items (id) on delete cascade
 );
 
 select @premium_ssb := id from `cs_items` where `itemID` = 5222060;
