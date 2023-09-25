@@ -90,7 +90,7 @@ public class GuildHandler {
             case Req_InviteGuild:
                 Char invited = chr.getClient().getChannelInstance().getCharByName(inPacket.decodeString());
                 if (invited == null) {
-                    chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_JoinGuild_UnknownUser)));
+                    chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_JoinGuild_CannotFindCharacter)));
                 } else {
                     invited.write(WvsContext.guildResult(GuildResult.inviteGuild(chr)));
                 }
@@ -304,7 +304,7 @@ public class GuildHandler {
         int guildId = inPacket.decodeInt();
         Guild guild = chr.getWorld().getGuildByID(guildId);
         if (guild == null) {
-            chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_JoinGuild_Unknown)));
+            chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_Guild_Error)));
             return;
         }
         if (!guild.isAppliable() || guild.isFull()) {
@@ -320,7 +320,7 @@ public class GuildHandler {
         Guild guild = chr.getGuild();
         World world = chr.getWorld();
         if (guild == null || !guild.canAcceptMember(chr)) {
-            chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_JoinGuild_NonRequestFindUser)));
+            chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_JoinRequest_Unknown)));
             return;
         }
         byte size = inPacket.decodeByte();

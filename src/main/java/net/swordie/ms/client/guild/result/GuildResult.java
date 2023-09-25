@@ -131,6 +131,9 @@ public class GuildResult {
             case Res_SetSkill_LevelSet_Unknown:
                 outPacket.encodeByte(false);
                 break;
+            default:
+                outPacket.encodeByte(0);
+                break;
         }
     }
 
