@@ -2417,11 +2417,23 @@ public class Char {
 	 * @param item The Item to equip.
 	 */
 	public void unequip(Item item) {
+		Equip equip = (Equip) item;
 		AvatarLook al = getAvatarData().getAvatarLook();
-		int itemID = item.getItemId();
 		getInventoryByType(EQUIPPED).removeItem(item);
 		getInventoryByType(EQUIP).addItem(item);
-		al.removeItem(itemID);
+		int itemID = equip.getAnvilId() == 0 ? item.getItemId() : equip.getAnvilId();
+		if (item.getBagIndex() > BodyPart.BPBase.getVal() && item.getBagIndex() < BodyPart.CBPEnd.getVal()) {
+			if (ItemConstants.isWeapon(itemID)) {
+				if (item.isCash()) {
+					al.setWeaponStickerId(0);
+				} else {
+					al.setWeaponId(0);
+				}
+			}
+			al.getHairEquips().removeIf((hairEquip) -> hairEquip == itemID);
+		} else if (item.getBagIndex() >= BodyPart.TotemBase.getVal() && item.getBagIndex() < BodyPart.TotemEnd.getVal()) {
+			al.getTotems().removeIf((totem) -> totem == itemID);
+		}
 		byte maskValue = AvatarModifiedMask.AvatarLook.getVal();
 		getField().broadcastPacket(UserRemote.avatarModified(this, maskValue, (byte) 0), this);
 
@@ -2453,7 +2465,7 @@ public class Char {
 		if (JobConstants.isDemonAvenger(getJob())) {
 			((DemonAvenger) getJobHandler()).sendHpUpdate();
 		}
-		if (ItemConstants.isAndroid(itemID) || ItemConstants.isMechanicalHeart(itemID)) {
+		if (ItemConstants.isAndroid(item.getItemId()) || ItemConstants.isMechanicalHeart(item.getItemId())) {
 			if (getAndroid() != null) {
 				getField().removeLife(getAndroid());
 			}
@@ -2529,7 +2541,7 @@ public class Char {
 			((DemonAvenger) getJobHandler()).sendHpUpdate();
 		}
 		// check android status
-		if (ItemConstants.isAndroid(itemID) || ItemConstants.isMechanicalHeart(itemID)) {
+		if (ItemConstants.isAndroid(item.getItemId()) || ItemConstants.isMechanicalHeart(item.getItemId())) {
 			initAndroid(true);
 			if (getAndroid() != null) {
 				getField().spawnLife(getAndroid(), null);
