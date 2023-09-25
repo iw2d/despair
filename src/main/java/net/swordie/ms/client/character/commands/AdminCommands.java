@@ -72,6 +72,12 @@ public class AdminCommands {
     @Command(names = {"test"}, requiredType = Admin)
     public static class Test extends AdminCommand {
         public static void execute(Char chr, String[] args) {
+        }
+    }
+
+    @Command(names = {"testui"}, requiredType = Admin)
+    public static class TestUI extends AdminCommand {
+        public static void execute(Char chr, String[] args) {
             OutPacket outPacket = new OutPacket(OutHeader.OPEN_UI_TEST);
             outPacket.encodeShort(0);
             chr.write(outPacket);
@@ -884,6 +890,9 @@ public class AdminCommands {
             short id = Short.parseShort(args[1]);
             JobEnum job = JobEnum.getJobById(id);
             if (job != null) {
+                if (chr.getDragon() != null) {
+                    chr.getField().removeLife(chr.getDragon());
+                }
                 chr.setJob(id);
             }
         }

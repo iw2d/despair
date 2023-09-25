@@ -103,11 +103,10 @@ public class MobPool {
 
         outPacket.encodeInt(mobID);
         outPacket.encodeByte(type);
-        damage = damage > Integer.MAX_VALUE ? Integer.MAX_VALUE : damage;
-        outPacket.encodeInt((int) damage);
+        outPacket.encodeLong(damage);
         if (templateID / 10000 == 250 || templateID / 10000 == 251) {
-            outPacket.encodeInt(hp);
-            outPacket.encodeInt(maxHp);
+            outPacket.encodeLong(hp);
+            outPacket.encodeLong(maxHp);
         }
 
         return outPacket;
@@ -449,6 +448,13 @@ public class MobPool {
                 outPacket.encodeRectInt(rect);
             }
         }
+        return outPacket;
+    }
+
+    public static OutPacket mobScale(Mob mob, int scale) {
+        OutPacket outPacket = new OutPacket(OutHeader.MOB_SCALE);
+        outPacket.encodeInt(mob.getObjectId());
+        outPacket.encodeInt(scale);
         return outPacket;
     }
 }

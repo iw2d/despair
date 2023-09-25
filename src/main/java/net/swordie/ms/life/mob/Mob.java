@@ -1257,7 +1257,6 @@ public class Mob extends Life {
             getCopyMob().setHp(newHp);
         }
         double percDamage = ((double) newHp / maxHP);
-        newHp = newHp > Integer.MAX_VALUE ? Integer.MAX_VALUE : newHp;
         doOneTimeEvent(oldHp, newHp, maxHP);
         if (oldHp > 0 && newHp <= 0) {
             die(true);
