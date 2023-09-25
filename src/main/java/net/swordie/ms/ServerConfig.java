@@ -1,5 +1,7 @@
 package net.swordie.ms;
 
+import java.util.Set;
+
 /**
  * Created on 2/18/2017.
  */
@@ -16,4 +18,6 @@ public class ServerConfig {
     public static final char ADMIN_COMMAND = '!';
     public static final char PLAYER_COMMAND = '@';
     public static final String HEAP_DUMP_DIR = "heapdumps";
+    public static final Set<String> LIMITED_NAMES = Set.of(); // used for event NPCs
+
 }

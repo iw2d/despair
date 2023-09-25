@@ -1,9 +1,9 @@
 package net.swordie.ms.loaders;
 
+import net.swordie.ms.ServerConfig;
 import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.constants.GameConstants;
-import net.swordie.ms.enums.FieldOption;
 import net.swordie.ms.enums.FieldType;
 import net.swordie.ms.world.field.*;
 import net.swordie.ms.life.Life;
@@ -666,17 +666,19 @@ public class FieldData {
                 l.setMobTimeOnDie(dataInputStream.readBoolean());
                 l.setRegenStart(dataInputStream.readInt());
                 l.setMobAliveReq(dataInputStream.readInt());
-                if ("m".equalsIgnoreCase(l.getLifeType())) {
-                    MobGen mobGen = l.createMobGenFromLife();
-                    field.addLife(mobGen);
-                } else if ("n".equalsIgnoreCase(l.getLifeType())) {
-                    Npc npc = l.createNpcFromLife();
-                    field.addLife(npc);
-                } else if ("r".equalsIgnoreCase(l.getLifeType())) {
-                    Reactor reactor = l.createReactorFromLife();
-                    field.addLife(reactor);
-                } else {
-                    field.addLife(l);
+                if (l.getLimitedName().isEmpty() || ServerConfig.LIMITED_NAMES.contains(l.getLimitedName())) {
+                    if ("m".equalsIgnoreCase(l.getLifeType())) {
+                        MobGen mobGen = l.createMobGenFromLife();
+                        field.addLife(mobGen);
+                    } else if ("n".equalsIgnoreCase(l.getLifeType())) {
+                        Npc npc = l.createNpcFromLife();
+                        field.addLife(npc);
+                    } else if ("r".equalsIgnoreCase(l.getLifeType())) {
+                        Reactor reactor = l.createReactorFromLife();
+                        field.addLife(reactor);
+                    } else {
+                        field.addLife(l);
+                    }
                 }
             }
             short directionSize = dataInputStream.readShort();
