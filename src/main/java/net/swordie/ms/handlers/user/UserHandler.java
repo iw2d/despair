@@ -657,4 +657,14 @@ public class UserHandler {
                 break;
         }
     }
+
+    @Handler(op = InHeader.USER_HELP_GUIDE_REQUEST)
+    public static void handleHelpGuideRequest(Char chr, InPacket inPacket) {
+        chr.write(FieldPacket.openUI(UIType.UI_GROWTH_HELPER));
+    }
+
+    @Handler(op = InHeader.MEMO_REQUEST)
+    public static void handleMemoRequest(Char chr, InPacket inpacket) {
+
+    }
 }

@@ -1,5 +1,6 @@
 package net.swordie.ms.world;
 
+import net.swordie.ms.ServerConfig;
 import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
@@ -15,6 +16,7 @@ import net.swordie.ms.world.field.AreaBossInfo;
 import net.swordie.ms.world.field.Field;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -28,23 +30,8 @@ public class Channel {
     private boolean adultChannel;
     private List<Field> fields;
     private Map<Integer, Tuple<Byte, Client>> transfers;
-    private Map<Integer, Char> chars = new HashMap<>();
-    public final int MAX_SIZE = 1000;
-    private Map<Integer, Map<Integer, Long>> areaBossSpawns = new HashMap<>();
-
-    private Channel(String name, World world, int channelId, boolean adultChannel) {
-        this.name = name;
-        this.worldId = world.getWorldId();
-        this.channelId = channelId;
-        this.adultChannel = adultChannel;
-        this.port = ServerConstants.LOGIN_PORT + 100 + channelId;
-        this.fields = new CopyOnWriteArrayList<>();
-        this.transfers = new HashMap<>();
-    }
-
-    public Channel(World world, int channelId) {
-        this(world.getName() + "-" + channelId, world, channelId, false);
-    }
+    private Map<Integer, Char> chars = new ConcurrentHashMap<>();
+    private Map<Integer, Map<Integer, Long>> areaBossSpawns = new ConcurrentHashMap<>();
 
     public Channel(String worldName, int worldId, int channelId) {
         this.name = worldName + "-" + channelId;
@@ -61,7 +48,7 @@ public class Channel {
     }
 
     public int getGaugePx() {
-        return Math.max(1, (chars.size() * 64) / MAX_SIZE);
+        return Math.max(1, (chars.size() * 64) / ServerConfig.USER_LIMIT);
     }
 
     public int getWorldId() {

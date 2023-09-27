@@ -8,6 +8,7 @@ import net.swordie.ms.client.character.skills.info.AttackInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.info.MobAttackInfo;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.client.character.social.CoupleRecord;
 import net.swordie.ms.client.guild.Guild;
 import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.connection.OutPacket;
@@ -17,6 +18,9 @@ import net.swordie.ms.enums.ChairType;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.movement.MovementInfo;
 import net.swordie.ms.util.Position;
+
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -188,20 +192,27 @@ public class UserRemote {
         if ((mask & AvatarModifiedMask.CarryItemEffect.getVal()) != 0) {
             outPacket.encodeByte(carryItemEffect);
         }
-        boolean hasCouple = chr.getCouple() != null;
-        outPacket.encodeByte(hasCouple);
-        if (hasCouple) {
-            chr.getCouple().encodeForRemote(outPacket);
+        List<CoupleRecord> allRecords = chr.getAllCoupleRecords();
+        List<CoupleRecord> coupleRecords = allRecords.stream().filter(CoupleRecord::isCouple).toList();
+        outPacket.encodeByte(coupleRecords.size() > 0);
+        if (coupleRecords.size() > 0) {
+            outPacket.encodeInt(coupleRecords.size());
+            for (CoupleRecord cr : coupleRecords) {
+                cr.encodeForRemote(outPacket);
+            }
         }
-        boolean hasFriendShip = chr.getFriendshipRingRecord() != null;
-        outPacket.encodeByte(hasFriendShip);
-        if (hasFriendShip) {
-            chr.getFriendshipRingRecord().encode(outPacket);
+        List<CoupleRecord> friendRecords = allRecords.stream().filter(CoupleRecord::isFriend).toList();
+        outPacket.encodeByte(friendRecords.size() > 0);
+        if (friendRecords.size() > 0) {
+            outPacket.encodeInt(friendRecords.size());
+            for (CoupleRecord cr : friendRecords) {
+                cr.encodeForRemote(outPacket);
+            }
         }
-        boolean hasWedding = chr.getMarriageRecord() != null;
-        outPacket.encodeByte(hasWedding);
-        if (hasWedding) {
-            chr.getMarriageRecord().encode(outPacket);
+        List<CoupleRecord> marriageRecords = allRecords.stream().filter(CoupleRecord::isMarriage).toList();
+        outPacket.encodeByte(marriageRecords.size() > 0);
+        if (marriageRecords.size() > 0) {
+            marriageRecords.get(0).encodeForRemote(outPacket);
         }
         outPacket.encodeInt(chr.getCompletedSetItemID());
         outPacket.encodeInt(chr.getTotalChuc());

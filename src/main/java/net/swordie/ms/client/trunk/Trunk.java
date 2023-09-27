@@ -26,7 +26,7 @@ public class Trunk {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "trunkID")
+    @JoinColumn(name = "trunkid")
     private List<Item> items = new ArrayList<>();
     private long money;
     private int slotCount;
@@ -36,7 +36,7 @@ public class Trunk {
 
     public Trunk(){}
 
-    public Trunk(byte slotCount) {
+    public Trunk(int slotCount) {
         this.slotCount = slotCount;
     }
 

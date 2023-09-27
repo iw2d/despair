@@ -85,7 +85,7 @@ public class CashShopItem {
 
         outPacket.encodeInt(getNewPrice());
         outPacket.encodeInt(1);
-        outPacket.encodeInt(getBundleQuantity());
+        outPacket.encodeInt(getBundleQuantity() == 0 ? 1 : getBundleQuantity());
         outPacket.encodeInt(getAvailableDays());
 
         outPacket.encodeShort(getBuyableWithMaplePoints()); // with maple point
@@ -308,7 +308,7 @@ public class CashShopItem {
         return cashShopCategory;
     }
 
-    public CashItemInfo toCashItemInfo(Account account, Char chr) {
+    public CashItemInfo toCashItemInfo(Account account) {
         CashItemInfo cii = new CashItemInfo();
         cii.setAccountID(account.getId());
         Item item = ItemData.getItemDeepCopy(getItemID());

@@ -1,4 +1,5 @@
 drop table if exists cs_random;
+drop table if exists cs_gifts;
 drop table if exists cs_favorites;
 drop table if exists cs_items;
 
@@ -31,8 +32,20 @@ create table cs_favorites
     accid                  int not null,
     itemsn                 int not null,
     primary key(id),
-    foreign key (accid) references accounts (id)  on delete cascade,
-    foreign key (itemsn) references cs_items (id)  on delete cascade
+    foreign key (accid) references accounts (id) on delete cascade,
+    foreign key (itemsn) references cs_items (id) on delete cascade
+);
+
+create table cs_gifts
+(
+    id                     int not null auto_increment,
+    cashitemid             bigint not null,
+    receiverid             int not null,
+    sendername             varchar(255),
+    giftmessage            varchar(255),
+    primary key(id),
+    foreign key (cashitemid) references cashiteminfos (id) on delete cascade,
+    foreign key (receiverid) references characters (id) on delete cascade
 );
 
 

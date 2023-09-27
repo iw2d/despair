@@ -64,6 +64,7 @@ monsterbookinfos,
 trunks,
 employeetrunk,
 cashiteminfos,
+couplerecords,
 beautyalbuminventory
 ;
 set FOREIGN_KEY_CHECKS = 1;
@@ -621,6 +622,7 @@ create table characters (
     previousFieldID bigint,
     quickslotKeys varchar(255), # inlined array
 	primary key (id),
+	foreign key (accid) references accounts(id),
     foreign key (avatardata) references avatardata(id),
     foreign key (equippedinventory) references inventories(id),
     foreign key (equipinventory) references inventories(id),
@@ -913,6 +915,24 @@ create table beautyalbuminventory (
     charid int,
     primary key (id),
     foreign key (charid) references characters(id)
+);
+
+create table couplerecords (
+    id int not null auto_increment,
+    type int,
+    status int,
+    itemid int,
+    charid int,
+    partnerid int,
+    charname varchar(255),
+    partnername varchar(255),
+    charsn bigint,
+    partnersn bigint,
+    primary key (id),
+    foreign key (charid) references characters(id) on delete cascade,
+    foreign key (partnerid) references characters(id) on delete cascade,
+    foreign key (charsn) references items(id) on delete cascade,
+    foreign key (partnersn) references items(id) on delete cascade
 );
 
 insert into `users` (`name`, `password`, `accounttype`, `chatunblockdate`, `characterslots`) values ('admin', 'admin', '4', '0', '40');

@@ -75,7 +75,7 @@ public class Account {
     public Account(User user, int worldId) {
         this.user = user;
         this.worldId = worldId;
-        this.trunk = new Trunk((byte) 4);
+        this.trunk = new Trunk(GameConstants.MIN_STORAGE_SLOTS);
         this.monsterCollection = new MonsterCollection();
         this.friends = new HashSet<>();
         this.damageSkins = new HashSet<>();
@@ -174,7 +174,7 @@ public class Account {
 
     public Trunk getTrunk() {
         if(trunk == null) {
-            trunk = new Trunk((byte) 20);
+            trunk = new Trunk(GameConstants.MIN_STORAGE_SLOTS);
         }
         return trunk;
     }

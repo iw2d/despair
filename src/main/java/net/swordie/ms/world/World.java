@@ -1,9 +1,11 @@
 package net.swordie.ms.world;
 
+import net.swordie.ms.ServerConfig;
 import net.swordie.ms.ServerStatus;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.alliance.Alliance;
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.guild.Guild;
@@ -17,6 +19,7 @@ import net.swordie.ms.world.auction.AuctionItem;
 import net.swordie.ms.world.auction.AuctionPotType;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -30,15 +33,15 @@ public class World {
     private boolean starplanet;
     private String name, worldEventDescription;
     private List<Channel> channels;
-    private Map<Integer, Party> parties = new HashMap<>();
-    private Map<Integer, Guild> guilds = new HashMap<>();
-    private Map<Integer, Alliance> alliances = new HashMap<>();
-    private Map<Integer, Set<AuctionItem>> accIdToAuctions = new HashMap<>();
-    private Map<Integer, AuctionItem> auctionIdToAuction = new HashMap<>();
+    private Map<Integer, Party> parties = new ConcurrentHashMap<>();
+    private Map<Integer, Guild> guilds = new ConcurrentHashMap<>();
+    private Map<Integer, Alliance> alliances = new ConcurrentHashMap<>();
+    private Map<Integer, Merchant> merchants = new ConcurrentHashMap<>();
+    private Map<Integer, Set<AuctionItem>> accIdToAuctions = new ConcurrentHashMap<>();
+    private Map<Integer, AuctionItem> auctionIdToAuction = new ConcurrentHashMap<>();
     private int partyIDCounter = 1;
     private boolean charCreateBlock;
     private boolean reboot;
-    private ArrayList<Merchant> merchants = new ArrayList<Merchant>();
 
     public World(int worldId, String name, int worldState, String worldEventDescription, int worldEventEXP_WSE,
                  int worldEventDrop_WSE, int boomUpEventNotice, int amountOfChannels, boolean starplanet, boolean reboot) {
@@ -125,6 +128,28 @@ public class World {
 
     public ServerStatus getStatus() {
         return ServerStatus.NORMAL;
+    }
+
+    public int lookupCharIdByName(String name) {
+        Integer charId = (Integer) DatabaseManager.getFieldFromDB(CharacterStat.class, "id", "name", name);
+        if (charId == null) {
+            return -1;
+        }
+        return charId;
+    }
+
+    public Account lookupAccountByCharId(int charId) {
+        Integer accId = (Integer) DatabaseManager.getFieldFromDB(Char.class, "accId", "id", charId);
+        if (accId == null) {
+            return null;
+        }
+        Account account = getAccountByID(accId);
+        if (account != null) {
+            // logged in
+            return account;
+        }
+        // pull from DB if not logged in
+        return (Account) DatabaseManager.getObjFromDB(Account.class, accId);
     }
 
     public Char getCharByName(String name) {
@@ -292,7 +317,7 @@ public class World {
     public boolean isFull() {
         boolean full = true;
         for (Channel channel : getChannels()) {
-            if (channel.getChars().size() < channel.MAX_SIZE) {
+            if (channel.getChars().size() < ServerConfig.USER_LIMIT) {
                 full = false;
                 break;
             }
@@ -438,14 +463,14 @@ public class World {
     }
 
     public void addMerchant(Merchant merchant) {
-        this.merchants.add(merchant);
+        this.merchants.put(merchant.getOwnerID(), merchant);
     }
 
     public void removeMerchant(Merchant merchant) {
-        this.merchants.remove(merchant);
+        this.merchants.remove(merchant.getOwnerID());
     }
 
-    public ArrayList<Merchant> getMerchants() {
-        return this.merchants;
+    public List<Merchant> getMerchants() {
+        return this.merchants.values().stream().toList();
     }
 }

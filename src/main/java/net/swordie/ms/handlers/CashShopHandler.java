@@ -5,6 +5,8 @@ import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.Account;
 import net.swordie.ms.client.Client;
 import net.swordie.ms.client.User;
+import net.swordie.ms.client.anticheat.Offense;
+import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.client.character.items.Inventory;
@@ -12,23 +14,25 @@ import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.trunk.Trunk;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
+import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.CashItemType;
 import net.swordie.ms.connection.packet.CCashShop;
 import net.swordie.ms.enums.CashShopActionType;
+import net.swordie.ms.enums.CashShopFailReason;
 import net.swordie.ms.enums.InvType;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.loaders.ItemData;
 import net.swordie.ms.util.Util;
-import net.swordie.ms.world.shop.cashshop.CashItemInfo;
-import net.swordie.ms.world.shop.cashshop.CashShop;
-import net.swordie.ms.world.shop.cashshop.CashShopFavorite;
-import net.swordie.ms.world.shop.cashshop.CashShopItem;
+import net.swordie.ms.world.shop.cashshop.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Created on 4/23/2018.
@@ -40,6 +44,37 @@ public class CashShopHandler {
     @Handler(op = InHeader.CASH_SHOP_QUERY_CASH_REQUEST)
     public static void handleCashShopQueryCashRequest(Char chr, InPacket inPacket) {
         chr.write(CCashShop.queryCashResult(chr));
+    }
+
+    /**
+     * Helper function for deducting NX
+     * Returns true if enough currency to cover cost and cost has been deducted
+     */
+    private static boolean handlePayment(Char chr, int paymentMethod, int cost) {
+        Account account = chr.getAccount();
+        User user = chr.getUser();
+        boolean paymentSuccess = false;
+        switch (paymentMethod) {
+            case 1: // Credit
+                if (account.getNxCredit() >= cost) {
+                    account.deductNXCredit(cost);
+                    paymentSuccess = true;
+                }
+                break;
+            case 2: // Maple points
+                if (user.getMaplePoints() >= cost) {
+                    user.deductMaplePoints(cost);
+                    paymentSuccess = true;
+                }
+                break;
+            case 4: // Prepaid
+                if (user.getNxPrepaid() >= cost) {
+                    user.deductNXPrepaid(cost);
+                    paymentSuccess = true;
+                }
+                break;
+        }
+        return paymentSuccess;
     }
 
     @Handler(op = InHeader.CASH_SHOP_CASH_ITEM_REQUEST)
@@ -65,48 +100,141 @@ public class CashShopHandler {
                 CashShopItem csi = cs.getItem(sn);
                 if (csi == null || csi.getNewPrice() != cost) {
                     chr.write(CCashShop.error());
-                    log.error("Requested item's cost did not match client's cost");
                     return;
                 }
-                boolean notEnoughMoney = false;
-                switch (paymentMethod) {
-                    case 1: // Credit
-                        if (account.getNxCredit() >= cost) {
-                            account.deductNXCredit(cost);
-                        } else {
-                            notEnoughMoney = true;
-                        }
-                        break;
-                    case 2: // Maple points
-                        if (user.getMaplePoints() >= cost) {
-                            user.deductMaplePoints(cost);
-                        } else {
-                            notEnoughMoney = true;
-                        }
-                        break;
-                    case 4: // Prepaid
-                        if (user.getNxPrepaid() >= cost) {
-                            user.deductNXPrepaid(cost);
-                        } else {
-                            notEnoughMoney = true;
-                        }
-                        break;
-                }
-                if (notEnoughMoney) {
-                    chr.write(CCashShop.error());
-                    log.error("Character does not have enough to pay for this item (Paying with " + paymentMethod + ")");
+                if (account.getTrunk().isFull()) {
+                    chr.write(CCashShop.error(CashShopFailReason.TooManyCashItems));
                     return;
                 }
-                CashItemInfo cii = csi.toCashItemInfo(account, chr);
+                if (!handlePayment(chr, paymentMethod, cost)) {
+                    chr.write(CCashShop.error(CashShopFailReason.NotEnoughCash));
+                    return;
+                }
+                // handle buy
+                CashItemInfo cii = csi.toCashItemInfo(account);
                 DatabaseManager.saveToDB(cii); // ensures the item has a unique ID
                 account.getTrunk().addCashItem(cii);
+                // write result
                 chr.write(CCashShop.cashItemResBuyDone(cii, null, null));
+                chr.write(CCashShop.queryCashResult(chr));
+                break;
+            }
+            case Req_Gift: {
+                String picInput = inPacket.decodeString();
+                if (!BCrypt.checkpw(picInput, chr.getUser().getPic())) {
+                    chr.write(CCashShop.error(CashShopFailReason.CheckPICPassword));
+                    return;
+                }
+                inPacket.decodeByte();
+                int sn = inPacket.decodeInt();
+                int cost = inPacket.decodeInt();
+                String receiverName = inPacket.decodeString();
+                String giftMessage = inPacket.decodeString();
+                int receiverId = chr.getWorld().lookupCharIdByName(receiverName);
+                if (receiverId < 0) {
+                    chr.write(CCashShop.error(CashShopFailReason.CannotFindCharacter));
+                    return;
+                }
+                Account receiverAccount = chr.getWorld().lookupAccountByCharId(receiverId);
+                if (receiverAccount == null) {
+                    chr.write(CCashShop.error());
+                    return;
+                }
+                if (receiverAccount.getId() == account.getId()) {
+                    chr.write(CCashShop.error(CashShopFailReason.CannotGiftOwnAccount));
+                    return;
+                }
+                if (receiverAccount.getTrunk().isFull()) {
+                    chr.write(CCashShop.error(CashShopFailReason.RecipientInventoryFull));
+                    return;
+                }
+                CashShopItem csi = cs.getItem(sn);
+                if (csi == null || csi.getNewPrice() != cost) {
+                    chr.write(CCashShop.error());
+                    return;
+                }
+                if (!handlePayment(chr, 4, cost)) { // paymentMethod always prepaid for gifts
+                    chr.write(CCashShop.error(CashShopFailReason.NotEnoughCash));
+                    return;
+                }
+                // handle gift, save user to DB here since there is a transaction
+                CashItemInfo giftCii = csi.toCashItemInfo(receiverAccount);
+                giftCii.setBuyCharacterID(chr.getName());
+                DatabaseManager.saveToDB(giftCii); // ensures the item has a unique ID
+                receiverAccount.getTrunk().addCashItem(giftCii);
+                DatabaseManager.saveToDB(receiverAccount);
+                CashShopGift csg = new CashShopGift(giftCii, receiverId, chr.getName(), giftMessage);
+                DatabaseManager.saveToDB(csg);
+                DatabaseManager.saveToDB(user);
+                // notify client
+                chr.write(CCashShop.cashItemResGiftDone(receiverName, csi.getItemID(), csi.getBundleQuantity(), cost));
+                chr.write(CCashShop.queryCashResult(chr));
+                break;
+            }
+            case Req_Couple: {
+                String picInput = inPacket.decodeString();
+                if (!BCrypt.checkpw(picInput, chr.getUser().getPic())) {
+                    chr.write(CCashShop.error(CashShopFailReason.CheckPICPassword));
+                    return;
+                }
+                byte paymentMethod = inPacket.decodeByte();
+                inPacket.decodeInt();
+                int sn = inPacket.decodeInt();
+                int cost = inPacket.decodeInt();
+                String receiverName = inPacket.decodeString();
+                String giftMessage = inPacket.decodeString();
+                int receiverId = chr.getWorld().lookupCharIdByName(receiverName);
+                if (receiverId < 0) {
+                    chr.write(CCashShop.error(CashShopFailReason.CannotFindCharacter));
+                    return;
+                }
+                Account receiverAccount = chr.getWorld().lookupAccountByCharId(receiverId);
+                if (receiverAccount == null) {
+                    chr.write(CCashShop.error());
+                    return;
+                }
+                if (receiverAccount.getId() == account.getId()) {
+                    chr.write(CCashShop.error(CashShopFailReason.CannotGiftOwnAccount));
+                    return;
+                }
+                if (receiverAccount.getTrunk().isFull()) {
+                    chr.write(CCashShop.error(CashShopFailReason.TooManyCashItems));
+                    return;
+                }
+                CashShopItem csi = cs.getItem(sn);
+                if (csi == null || csi.getNewPrice() != cost) {
+                    chr.write(CCashShop.error());
+                    return;
+                }
+                if (account.getTrunk().isFull()) {
+                    chr.write(CCashShop.error(CashShopFailReason.TooManyCashItems));
+                    return;
+                }
+                if (!handlePayment(chr, paymentMethod, cost)) {
+                    chr.write(CCashShop.error(CashShopFailReason.NotEnoughCash));
+                    return;
+                }
+                // handle gift
+                CashItemInfo giftCii = csi.toCashItemInfo(receiverAccount);
+                giftCii.setBuyCharacterID(chr.getName());
+                DatabaseManager.saveToDB(giftCii); // ensures the item has a unique ID
+                receiverAccount.getTrunk().addCashItem(giftCii);
+                DatabaseManager.saveToDB(receiverAccount);
+                CashShopGift csg = new CashShopGift(giftCii, receiverId, chr.getName(), giftMessage);
+                DatabaseManager.saveToDB(csg);
+                // handle buy, save user to DB here since there is a transaction
+                CashItemInfo cii = csi.toCashItemInfo(account);
+                DatabaseManager.saveToDB(cii); // ensures the item has a unique ID
+                account.getTrunk().addCashItem(cii);
+                DatabaseManager.saveToDB(user);
+                // notify client
+                chr.write(CCashShop.cashItemResCoupleDone(cii, receiverName));
                 chr.write(CCashShop.queryCashResult(chr));
                 break;
             }
             case Req_IncSlotCount: {
                 inPacket.decodeByte();
-                inPacket.decodeByte();
+                byte paymentMethod = inPacket.decodeByte();
                 inPacket.decodeInt();
                 boolean isAdd4Slots = inPacket.decodeByte() == 0;
                 InvType invType = null;
@@ -136,21 +264,21 @@ public class CashShopHandler {
                 }
                 if (invType == null) {
                     chr.write(CCashShop.error());
-                    chr.dispose();
                     return;
                 }
-                if (account.getNxCredit() >= cost) {
-                    account.deductNXCredit(cost);
-                    chr.getInventoryByType(invType).addSlots(incSlots);
-                    chr.write(CCashShop.cashItemResIncSlotCountDone(invType.getVal(), chr.getInventoryByType(invType).getSlots()));
-                    chr.write(CCashShop.queryCashResult(chr));
+                if (!handlePayment(chr, paymentMethod, cost)) {
+                    chr.write(CCashShop.error(CashShopFailReason.NotEnoughCash));
+                    return;
                 }
+                chr.getInventoryByType(invType).addSlots(incSlots);
+                chr.write(CCashShop.cashItemResIncSlotCountDone(invType.getVal(), chr.getInventoryByType(invType).getSlots()));
+                chr.write(CCashShop.queryCashResult(chr));
                 break;
             }
             case Req_IncTrunkCount: {
                 inPacket.decodeByte();
+                byte paymentMethod = inPacket.decodeByte();
                 inPacket.decodeInt();
-                inPacket.decodeByte();
                 boolean isAdd4Slots = inPacket.decodeByte() == 0;
                 int incSlots;
                 int cost;
@@ -170,16 +298,16 @@ public class CashShopHandler {
                     }
                     if (csi.getItemID() != 9110000) {
                         chr.write(CCashShop.error());
-                        chr.dispose();
                         return;
                     }
                 }
-                if (account.getNxCredit() >= cost) {
-                    account.deductNXCredit(cost);
-                    chr.getAccount().getTrunk().addSlots(incSlots);
-                    chr.write(CCashShop.cashItemResIncTrunkCountDone(chr.getAccount().getTrunk().getSlotCount()));
-                    chr.write(CCashShop.queryCashResult(chr));
+                if (!handlePayment(chr, paymentMethod, cost)) {
+                    chr.write(CCashShop.error(CashShopFailReason.NotEnoughCash));
+                    return;
                 }
+                chr.getAccount().getTrunk().addSlots(incSlots);
+                chr.write(CCashShop.cashItemResIncTrunkCountDone(chr.getAccount().getTrunk().getSlotCount()));
+                chr.write(CCashShop.queryCashResult(chr));
                 break;
             }
             case Req_MoveLtoS: {

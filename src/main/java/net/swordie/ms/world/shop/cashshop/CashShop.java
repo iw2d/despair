@@ -22,10 +22,10 @@ public class CashShop {
     private final List<CashShopCategory> categories = new ArrayList<>();
     private final Map<Integer, CashShopItem> items = new HashMap<>();
     private final Map<CashShopCategory, List<CashShopItem>> categoryInfo = new TreeMap<>(Comparator.comparingInt(CashShopCategory::getIdx));
-    private final Map<String, CashShopItem> searchInfo = new HashMap<>();
-    private final Map<Integer, Tuple<List<Integer>, List<Integer>>> beautyPreview = new HashMap<>();
-    private final Map<Integer, List<Integer>> surpriseBoxInfo = new HashMap<>();
-    private final Map<Integer, Set<CashShopFavorite>> favoriteInfo = new ConcurrentHashMap<>();
+    private final Map<String, CashShopItem> searchInfo = new HashMap<>();                                               // itemName -> CashShopItem
+    private final Map<Integer, Tuple<List<Integer>, List<Integer>>> beautyPreview = new HashMap<>();                    // beautyItemId -> Tuple<List<maleStyleId>, List<femaleStyleId>>
+    private final Map<Integer, List<Integer>> surpriseBoxInfo = new HashMap<>();                                        // boxItemId -> List<rewardItemId>
+    private final Map<Integer, Set<CashShopFavorite>> favoriteInfo = new ConcurrentHashMap<>();                         // accountId -> Set<CashShopFavorite>
     private final List<Integer> saleItems = new ArrayList<>();;
     private boolean eventOn;
     private boolean lockerTransfer;
@@ -243,6 +243,13 @@ public class CashShop {
         }
     }
 
+    public List<CashShopGift> claimGifts(int charId) {
+        // fetch and delete
+        List<CashShopGift> gifts = (List<CashShopGift>) DatabaseManager.getObjListFromDB(CashShopGift.class, "receiverId", charId);
+        DatabaseManager.deleteFromDB(CashShopGift.class, "receiverId", charId);
+        return gifts;
+    }
+
     public void loadItems() {
         // load categories
         categories.clear();
@@ -282,7 +289,7 @@ public class CashShop {
                 }
             }
         }
-        // load favorites info
+        // load favorites
         favoriteInfo.clear();
         for (CashShopFavorite csf : (List<CashShopFavorite>) DatabaseManager.getObjListFromDB(CashShopFavorite.class)) {
             addFavorite(csf, false);

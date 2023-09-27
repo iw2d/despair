@@ -3,12 +3,12 @@ package net.swordie.ms.connection.packet;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.items.*;
-import net.swordie.ms.client.character.social.MarriageRecord;
 import net.swordie.ms.client.character.keys.FuncKeyMap;
 import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.PsychicArea;
 import net.swordie.ms.client.character.skills.TownPortal;
 import net.swordie.ms.client.character.skills.info.ForceAtomInfo;
+import net.swordie.ms.client.character.social.CoupleRecord;
 import net.swordie.ms.client.jobs.adventurer.magician.FirePoison;
 import net.swordie.ms.client.jobs.legend.Evan;
 import net.swordie.ms.client.jobs.resistance.OpenGate;
@@ -317,10 +317,10 @@ public class FieldPacket {
         outPacket.encodeByte(cs.getPvpGrade());
         outPacket.encodeInt(cs.getPop()); //Fame
 
-        MarriageRecord marriage = chr.getMarriageRecord();
-        outPacket.encodeByte(marriage != null);
-        if(marriage != null) {
-            marriage.encode(outPacket);
+        List<CoupleRecord> marriageRecords = chr.getAllCoupleRecords().stream().filter(CoupleRecord::isMarriage).toList();
+        outPacket.encodeByte(marriageRecords.size() > 0);
+        if (marriageRecords.size() > 0) {
+            marriageRecords.get(0).encodeForRemote(outPacket);
         }
 
         List<Short> makingSkills = new ArrayList<>();

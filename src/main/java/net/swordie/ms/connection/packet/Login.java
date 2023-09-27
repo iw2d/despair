@@ -165,25 +165,24 @@ public class Login {
         OutPacket outPacket = new OutPacket(OutHeader.ACCOUNT_INFO_RESULT);
 
         outPacket.encodeByte(LoginType.Success.getValue());
-        outPacket.encodeInt(user.getId());
-        outPacket.encodeByte(user.getGender());
-        outPacket.encodeByte(user.getGradeCode());
-        outPacket.encodeInt(user.getAccountType().getVal());
-        outPacket.encodeInt(user.getVipGrade());
-//        outPacket.encodeInt(account.getAge());
-        outPacket.encodeByte(user.getPurchaseExp());
-        outPacket.encodeString(user.getName());
-        outPacket.encodeByte(user.getnBlockReason());
-        outPacket.encodeByte(0); // ?
-        outPacket.encodeLong(user.getChatUnblockDate());
-        outPacket.encodeString(user.getCensoredNxLoginID());
+        outPacket.encodeInt(user.getId());                      // dwAccountId
+        outPacket.encodeByte(user.getGender());                 // nGender
+        outPacket.encodeByte(user.getGradeCode());              // nGradeCode
+        outPacket.encodeInt(user.getAccountType().getVal());    // account type mask
+        outPacket.encodeInt(user.getVipGrade());                // nVIPGrade
+        outPacket.encodeByte(user.getAge());                    // nAge
+        outPacket.encodeString(user.getName()); // unk string
+        outPacket.encodeByte(user.getPurchaseExp());            // nPurchaseExp
+        outPacket.encodeByte(user.getnBlockReason());           // nChatBlockReason
+        outPacket.encodeLong(user.getChatUnblockDate());        // dtChatUnblockDate
+        outPacket.encodeString(user.getName());                 // sEmailAccount?
         outPacket.encodeLong(0);
-        outPacket.encodeInt(28);
-        outPacket.encodeLong(0);
-        outPacket.encodeString(""); //v25 = CInPacket::DecodeStr(iPacket_1, &nAge);
+        outPacket.encodeInt(0);
+        outPacket.encodeLong(user.getId());                     // llNexonOID
+        outPacket.encodeString(user.getCensoredNxLoginID());    // sCensoredNxLoginID
         JobConstants.encode(outPacket);
-        outPacket.encodeByte(0);
-        outPacket.encodeInt(-1);
+        outPacket.encodeByte(0); // CLogin.bIsBeginningUser
+        outPacket.encodeInt(-1); // CLogin.nShiningStarCount
 
         return outPacket;
     }

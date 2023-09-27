@@ -13,6 +13,7 @@ import net.swordie.ms.client.character.potential.*;
 import net.swordie.ms.client.character.quest.*;
 import net.swordie.ms.client.character.quest.progress.*;
 import net.swordie.ms.client.character.skills.*;
+import net.swordie.ms.client.character.social.CoupleRecord;
 import net.swordie.ms.client.friend.*;
 import net.swordie.ms.client.guild.*;
 import net.swordie.ms.client.guild.bbs.*;
@@ -93,10 +94,11 @@ public class DatabaseManager {
                 StolenSkill.class,
                 ChosenSkill.class,
                 CashItemInfo.class,
+                CashShopCategory.class,
                 CashShopItem.class,
                 CashShopRandom.class,
                 CashShopFavorite.class,
-                CashShopCategory.class,
+                CashShopGift.class,
                 MonsterCollectionSessionRewardInfo.class,
                 MonsterCollectionGroupRewardInfo.class,
                 MonsterCollectionMobInfo.class,
@@ -113,6 +115,7 @@ public class DatabaseManager {
                 EmployeeTrunk.class,
                 MerchantItem.class,
                 BeautyAlbum.class,
+                CoupleRecord.class
         };
         for(Class clazz : dbClasses) {
             configuration.addAnnotatedClass(clazz);
@@ -156,6 +159,31 @@ public class DatabaseManager {
         }
     }
 
+    public static void deleteFromDB(Class clazz, String columnName, Object value) {
+        try (Session session = getSession()) {
+            Transaction transaction = session.beginTransaction();
+            javax.persistence.Query query = session.createQuery(String.format("DELETE %s WHERE %s = :val", clazz.getName(), columnName));
+            query.setParameter("val", value);
+            query.executeUpdate();
+            transaction.commit();
+        }
+    }
+
+    public static Object getFieldFromDB(Class clazz, String fieldName, String columnName, Object value) {
+        Object o = null;
+        try (Session session = getSession()) {
+            Transaction transaction = session.beginTransaction();
+            javax.persistence.Query query = session.createQuery(String.format("SELECT %s FROM %s WHERE %s = :val", fieldName, clazz.getName(), columnName));
+            query.setParameter("val", value);
+            List l = ((org.hibernate.query.Query) query).list();
+            if (l != null && l.size() > 0) {
+                o = l.get(0);
+            }
+            transaction.commit();
+        }
+        return o;
+    }
+
     public static Object getObjFromDB(Class clazz, int id) {
         Object o;
         try (Session session = getSession()) {
@@ -174,8 +202,6 @@ public class DatabaseManager {
         Object o = null;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
-            // String.format for query, just to fill in the class
-            // Can't set the FROM clause with a parameter it seems
             javax.persistence.Query query = session.createQuery(String.format("FROM %s WHERE %s = :val", clazz.getName(), columnName));
             query.setParameter("val", value);
             List l = ((org.hibernate.query.Query) query).list();
@@ -191,8 +217,6 @@ public class DatabaseManager {
         List list;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
-            // String.format for query, just to fill in the class
-            // Can't set the FROM clause with a parameter it seems
             javax.persistence.Query query = session.createQuery(String.format("FROM %s", clazz.getName()), clazz);
             list = ((org.hibernate.query.Query) query).list();
             transaction.commit();
@@ -204,8 +228,6 @@ public class DatabaseManager {
         List list;
         try (Session session = getSession()) {
             Transaction transaction = session.beginTransaction();
-            // String.format for query, just to fill in the class
-            // Can't set the FROM clause with a parameter it seems
             javax.persistence.Query query = session.createQuery(String.format("FROM %s WHERE %s = :val", clazz.getName(), columnName));
             query.setParameter("val", value);
             list = ((org.hibernate.query.Query) query).list();

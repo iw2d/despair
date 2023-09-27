@@ -4,6 +4,7 @@ import net.swordie.ms.client.character.PortableChair;
 import net.swordie.ms.client.character.avatar.AvatarLook;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
+import net.swordie.ms.client.character.social.CoupleRecord;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.enums.ChairType;
 import net.swordie.ms.life.Familiar;
@@ -18,6 +19,8 @@ import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.room.MiniRoom;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created on 3/18/2018.
@@ -150,18 +153,30 @@ public class UserPool {
         if (chr.getADBoardRemoteMsg() != null) {
             outPacket.encodeString(chr.getADBoardRemoteMsg());
         }
-        outPacket.encodeByte(chr.isInCouple());
-        if(chr.isInCouple()) {
-            chr.getCouple().encodeForRemote(outPacket);
+
+        List<CoupleRecord> allRecords = chr.getAllCoupleRecords();
+        List<CoupleRecord> coupleRecords = allRecords.stream().filter(CoupleRecord::isCouple).toList();
+        outPacket.encodeByte(coupleRecords.size() > 0);
+        if (coupleRecords.size() > 0) {
+            outPacket.encodeInt(coupleRecords.size());
+            for (CoupleRecord cr : coupleRecords) {
+                cr.encodeForRemote(outPacket);
+            }
         }
-        outPacket.encodeByte(chr.hasFriendshipItem());
-        if(chr.hasFriendshipItem()) {
-            chr.getFriendshipRingRecord().encode(outPacket);
+        List<CoupleRecord> friendRecords = allRecords.stream().filter(CoupleRecord::isFriend).toList();
+        outPacket.encodeByte(friendRecords.size() > 0);
+        if (friendRecords.size() > 0) {
+            outPacket.encodeInt(friendRecords.size());
+            for (CoupleRecord cr : friendRecords) {
+                cr.encodeForRemote(outPacket);
+            }
         }
-        outPacket.encodeByte(chr.isMarried());
-        if(chr.isMarried()) {
-            chr.getMarriageRecord().encodeForRemote(outPacket);
+        List<CoupleRecord> marriageRecords = allRecords.stream().filter(CoupleRecord::isMarriage).toList();
+        outPacket.encodeByte(marriageRecords.size() > 0);
+        if (marriageRecords.size() > 0) {
+            marriageRecords.get(0).encodeForRemote(outPacket);
         }
+
         outPacket.encodeByte(0); // some flag that shows uninteresting things for now
         outPacket.encodeInt(chr.getEvanDragonGlide());
         if(JobConstants.isKaiser(chr.getJob())) {

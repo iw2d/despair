@@ -17,7 +17,6 @@ import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.JobConstants;
 import net.swordie.ms.enums.BaseStat;
-import net.swordie.ms.enums.CashShopInfoType;
 import net.swordie.ms.enums.FieldOption;
 import net.swordie.ms.enums.MapTransferType;
 import net.swordie.ms.connection.ClientSocket;
@@ -32,12 +31,13 @@ import net.swordie.ms.world.field.Field;
 import net.swordie.ms.world.field.FieldInstanceType;
 import net.swordie.ms.world.field.Portal;
 import net.swordie.ms.world.shop.cashshop.CashShop;
+import net.swordie.ms.world.shop.cashshop.CashShopGift;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 public class MigrationHandler {
 
@@ -300,6 +300,12 @@ public class MigrationHandler {
 //        c.write(CCashShop.infoItems(CashShopInfoType.TopSellers, List.of()));
 //        c.write(CCashShop.infoItems(CashShopInfoType.SpecialItems, List.of()));
 //        c.write(CCashShop.infoItems(CashShopInfoType.FeaturedItems, List.of()));
+
+        List<CashShopGift> gifts = cashShop.claimGifts(chr.getId());
+        if (gifts != null && !gifts.isEmpty()) {
+            chr.write(CCashShop.loadGift(gifts));
+
+        }
     }
 
     @Handler(op = InHeader.USER_MIGRATE_AUCTION_HOUSE_REQUEST)

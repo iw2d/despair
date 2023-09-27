@@ -10,13 +10,11 @@ import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.enums.CashItemType;
 import net.swordie.ms.enums.CashShopActionType;
+import net.swordie.ms.enums.CashShopFailReason;
 import net.swordie.ms.enums.CashShopInfoType;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.util.FileTime;
-import net.swordie.ms.world.shop.cashshop.CashItemInfo;
-import net.swordie.ms.world.shop.cashshop.CashShop;
-import net.swordie.ms.world.shop.cashshop.CashShopCategory;
-import net.swordie.ms.world.shop.cashshop.CashShopItem;
+import net.swordie.ms.world.shop.cashshop.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +29,10 @@ public class CCashShop {
         Account account = chr.getAccount();
 
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_QUERY_CASH_RESULT);
-
         outPacket.encodeInt(account.getNxCredit());
         outPacket.encodeInt(user.getMaplePoints());
         outPacket.encodeInt(chr.getRewardPoints());
         outPacket.encodeInt(user.getNxPrepaid());
-
         return outPacket;
     }
 
@@ -54,6 +50,36 @@ public class CCashShop {
         if (receiveBonus != null) {
             receiveBonus.encode(outPacket);
         }
+        boolean bool = false;
+        outPacket.encodeByte(bool);
+        if (bool) {
+            outPacket.encodeInt(0); // Total spent since %s : %d NX
+        }
+        return outPacket;
+    }
+
+    public static OutPacket cashItemResGiftDone(String receiver, int itemId, int quantity, int cost) {
+        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
+        outPacket.encodeByte(CashItemType.Res_Gift_Done.getVal());
+        outPacket.encodeString(receiver);
+        outPacket.encodeInt(itemId);
+        outPacket.encodeShort(quantity);
+        outPacket.encodeInt(cost);
+        boolean bool = false;
+        outPacket.encodeByte(bool);
+        if (bool) {
+            outPacket.encodeInt(0); // Total spent since %s : %d NX
+        }
+        return outPacket;
+    }
+
+    public static OutPacket cashItemResCoupleDone(CashItemInfo cii, String receiver) {
+        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
+        outPacket.encodeByte(CashItemType.Res_Couple_Done.getVal());
+        cii.encode(outPacket);
+        outPacket.encodeString(receiver);
+        outPacket.encodeInt(cii.getItemID());
+        outPacket.encodeShort(cii.getQuantity());
         boolean bool = false;
         outPacket.encodeByte(bool);
         if (bool) {
@@ -87,19 +113,8 @@ public class CCashShop {
         return outPacket;
     }
 
-    public static OutPacket error() {
-        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
-
-        outPacket.encodeByte(CashItemType.Res_Buy_Failed.getVal());
-        outPacket.encodeByte(137);
-        outPacket.encodeShort(0);
-
-        return outPacket;
-    }
-
     public static OutPacket webShopOrderGetList_Done(List<CashItemInfo> firstList, List<Item> secondList) {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
-
         outPacket.encodeByte(CashItemType.Res_WebShopOrderGetList_Done.getVal());
         outPacket.encodeShort(firstList.size());
         for (CashItemInfo cii : firstList) {
@@ -109,58 +124,47 @@ public class CCashShop {
         for (Item item : secondList) {
             item.encode(outPacket);
         }
-
         return outPacket;
     }
 
     public static OutPacket infoItems(CashShopInfoType csit, List<CashShopItem> items) {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_INFO);
-
         outPacket.encodeByte(csit.getVal());
         outPacket.encodeByte(1); // 0 does not encode anything, 2 does the same as 1 (encoding wise)
         outPacket.encodeByte(items.size()); // size
         for (CashShopItem csi : items) {
             csi.encode(outPacket);
         }
-
         return outPacket;
     }
 
     public static OutPacket cartInfo(CashShop cashShop) {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_INFO);
-
         outPacket.encodeByte(CashShopInfoType.Cart.getVal());
         outPacket.encodeByte(1); // 0 does not encode anything, 2 does the same as 1 (encoding wise)
         outPacket.encodeByte(0); // size
-
         return outPacket;
     }
 
     public static OutPacket categoryInfo(CashShop cashShop) {
         List<CashShopCategory> categories = cashShop.getCategories();
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_INFO);
-
         outPacket.encodeByte(CashShopInfoType.Categories.getVal());
         outPacket.encodeByte(1);
         outPacket.encodeByte(categories == null ? 0 : categories.size());
-
         categories.forEach(cat -> cat.encode(outPacket));
-
         return outPacket;
     }
 
     public static OutPacket bannerMsg(CashShop cashShop, List<String> messages) {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_INFO);
-
         outPacket.encodeByte(CashShopInfoType.BannerMsg.getVal());
         outPacket.encodeByte(messages.size());
-
         messages.forEach(msg -> {
             outPacket.encodeString(msg);
             outPacket.encodeLong(0);
             outPacket.encodeLong(0);
         });
-
         return outPacket;
     }
 
@@ -202,20 +206,17 @@ public class CCashShop {
 
     public static OutPacket resMoveLtoSDone(Item item) {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
-
         outPacket.encodeByte(CashItemType.Res_MoveLtoS_Done.getVal());
         outPacket.encodeByte(true); // bExclRequestSent
         outPacket.encodeShort(item.getBagIndex());
         item.encode(outPacket);
         outPacket.encodeInt(0); // List of SNs (longs)
         outPacket.encodeByte(0); // Bonus cash item (CashItemInfo::Decode)
-
         return outPacket;
     }
 
     public static OutPacket loadLockerDone(Account account) {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
-
         outPacket.encodeByte(CashItemType.Res_LoadLocker_Done.getVal());
         Trunk trunk = account.getTrunk();
         List<CashItemInfo> locker = trunk.getLocker();
@@ -238,39 +239,52 @@ public class CCashShop {
         outPacket.encodeShort(account.getUser().getCharacterSlots());
         outPacket.encodeShort(0);
         outPacket.encodeShort(account.getCharacters().size());
-
         return outPacket;
     }
 
     public static OutPacket fullInventoryMsg() {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
-
         outPacket.encodeByte(CashItemType.Res_MoveLtoS_Failed.getVal());
         outPacket.encodeByte(10);
-
         return outPacket;
     }
 
     public static OutPacket resMoveStoLDone(CashItemInfo cii) {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
-
         outPacket.encodeByte(CashItemType.Res_MoveStoL_Done.getVal());
         cii.encode(outPacket);
+        return outPacket;
+    }
 
+    public static OutPacket loadGift(List<CashShopGift> gifts) {
+        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
+        outPacket.encodeByte(CashItemType.Res_LoadGift_Done.getVal());
+        outPacket.encodeShort(gifts.size());
+        gifts.forEach(csg -> csg.encode(outPacket));
         return outPacket;
     }
 
     public static OutPacket surpriseBox(CashItemInfo reward, CashItemInfo box, boolean Rare) {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_GAIN_ITEM);
-
         outPacket.encodeByte(CashItemType.Res_PremiumStyle.getVal());
-        outPacket.encodeLong(box.getCashItemSN()); // probs SN doesn't seem like a date
+        outPacket.encodeLong(box.getCashItemSN());
         outPacket.encodeInt(box.getItemID());
         box.encode(outPacket);
         // sub_1D910F0
         outPacket.encodeInt(reward.getItemID());
         outPacket.encodeByte(1); //Quantity?
         outPacket.encodeByte(Rare);
+        return outPacket;
+    }
+
+    public static OutPacket error() {
+        return error(CashShopFailReason.UnknownError);
+    }
+
+    public static OutPacket error(CashShopFailReason failReason) {
+        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
+        outPacket.encodeByte(CashItemType.Res_Error.getVal());
+        outPacket.encodeByte(failReason.getVal());
         return outPacket;
     }
 }

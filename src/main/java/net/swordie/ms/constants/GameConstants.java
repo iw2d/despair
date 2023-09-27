@@ -218,6 +218,7 @@ public class GameConstants {
     public static final int MAX_MERCHANT_SLOTS = 16;
 
     //Inventory
+    public static final int MIN_STORAGE_SLOTS = 4;
     public static final int MAX_INVENTORY_SLOTS = 128;
 
     public static final int SILENT_CRUSADE_BOSS_COOLDOWN = 240; // minutes between silent crusade attempts (240 min = 4 hours)

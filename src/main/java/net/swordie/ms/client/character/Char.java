@@ -96,6 +96,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat.*;
 import static net.swordie.ms.enums.ChatType.SpeakerChannel;
@@ -221,6 +222,7 @@ public class Char {
 	private byte monsterParkCount;
 
 	private int partyID = 0; // Just for DB purposes
+
 	private int previousFieldID;
 
 	@Transient
@@ -231,15 +233,25 @@ public class Char {
 	@MapKeyColumn(name = "skillid")
 	@Column(name = "nextusabletime")
 	private Map<Integer, Long> skillCoolTimes;
+
 	@ElementCollection
 	@CollectionTable(name = "itemsbuylimit", joinColumns = @JoinColumn(name = "charID"))
 	@MapKeyColumn(name = "shopitemid")
 	@Column(name = "amountbought")
 	private Map<Long, Integer> itemBoughtAmounts;
 
+	@JoinColumn(name = "charID")
+	@OneToMany(cascade = CascadeType.ALL)
+	@Column(name = "couplerecords")
+	private Set<CoupleRecord> coupleRecords;
+
+	@JoinColumn(name = "partnerID")
+	@OneToMany(cascade = CascadeType.ALL)
+	@Column(name = "couplerecords")
+	private Set<CoupleRecord> coupleRecordsAsPartner;
+
 	@Transient
 	private CharacterPotentialMan potentialMan;
-
 	@Transient
 	private Ranking ranking;
 	@Transient
@@ -248,8 +260,6 @@ public class Char {
 	private List<ItemPot> itemPots;
 	@Transient
 	private List<Pet> pets;
-	@Transient
-	private List<FriendRecord> friendRecords;
 	@Transient
 	private List<ExpConsumeItem> expConsumeItems;
 	@Transient
@@ -272,8 +282,6 @@ public class Char {
 	private GachaponManager gachaponManager;
 	@Transient
 	private Job jobHandler;
-	@Transient
-	private MarriageRecord marriageRecord;
 	@Transient
 	private WildHunterInfo wildHunterInfo;
 	@Transient
@@ -318,12 +326,6 @@ public class Char {
 	private MiniRoom miniRoom;
 	@Transient
 	private String ADBoardRemoteMsg;
-	@Transient
-	private boolean inCouple;
-	@Transient
-	private CoupleRecord couple;
-	@Transient
-	private FriendshipRingRecord friendshipRingRecord;
 	@Transient
 	private int evanDragonGlide;
 	@Transient
@@ -491,7 +493,6 @@ public class Char {
 		pets = new ArrayList<>();
 		questManager = new QuestManager(this);
 		itemPots = new ArrayList<>();
-		friendRecords = new ArrayList<>();
 		expConsumeItems = new ArrayList<>();
 		skills = new HashSet<>();
 		temporaryStatManager = new TemporaryStatManager(this);
@@ -738,7 +739,7 @@ public class Char {
 		outPacket.encodeByte(0); // again unsure
 		if (mask.isInMask(DBChar.Character)) {																			// (a2 & 1) != 0
 			getAvatarData().getCharacterStat().encode(outPacket);
-			outPacket.encodeByte(getFriendRecords().size());
+			outPacket.encodeByte(0); // nPVPGrade?
 			boolean hasBlessingOfFairy = getBlessingOfFairy() != null;
 			outPacket.encodeByte(hasBlessingOfFairy);
 			if (hasBlessingOfFairy) {
@@ -1135,20 +1136,21 @@ public class Char {
 			}
 		}
 		if (mask.isInMask(DBChar.CoupleRecord)) {																		// (a2 & 0x800) != 0
-			int coupleSize = 0;
-			outPacket.encodeShort(coupleSize);
-			for (int i = 0; i < coupleSize; i++) {
-				new CoupleRecord().encode(outPacket);
+			List<CoupleRecord> allRecords = getAllCoupleRecords();
+			List<CoupleRecord> coupleRecords = allRecords.stream().filter(CoupleRecord::isCouple).toList();
+			outPacket.encodeShort(coupleRecords.size());
+			for (CoupleRecord cr : coupleRecords) {
+				cr.encodeForLocal(this, outPacket);
 			}
-			int friendSize = 0;
-			outPacket.encodeShort(friendSize);
-			for (int i = 0; i < friendSize; i++) {
-				new FriendRecord().encode(outPacket);
+			List<CoupleRecord> friendRecords = allRecords.stream().filter(CoupleRecord::isFriend).toList();
+			outPacket.encodeShort(friendRecords.size());
+			for (CoupleRecord cr : friendRecords) {
+				cr.encodeForLocal(this, outPacket);
 			}
-			int marriageSize = 0;
-			outPacket.encodeShort(marriageSize);
-			for (int i = 0; i < marriageSize; i++) {
-				new MarriageRecord().encode(outPacket);
+			List<CoupleRecord> marriageRecords = allRecords.stream().filter(CoupleRecord::isMarriage).toList();
+			outPacket.encodeShort(marriageRecords.size());
+			for (CoupleRecord cr : marriageRecords) {
+				cr.encodeForLocal(this, outPacket);
 			}
 		}
 
@@ -1621,14 +1623,6 @@ public class Char {
 
 	public void setPets(List<Pet> pets) {
 		this.pets = pets;
-	}
-
-	public List<FriendRecord> getFriendRecords() {
-		return friendRecords;
-	}
-
-	public void setFriendRecords(List<FriendRecord> friendRecords) {
-		this.friendRecords = friendRecords;
 	}
 
 	public long getMoney() {
@@ -2626,14 +2620,6 @@ public class Char {
 		return moveAction > 0 && (moveAction % 2) == 1;
 	}
 
-	public MarriageRecord getMarriageRecord() {
-		return marriageRecord;
-	}
-
-	public void setMarriageRecord(MarriageRecord marriageRecord) {
-		this.marriageRecord = marriageRecord;
-	}
-
 	/**
 	 * Returns a {@link Field} based on the current {@link FieldInstanceType} of this Char (channel,
 	 * expedition,
@@ -3528,32 +3514,16 @@ public class Char {
 		this.ADBoardRemoteMsg = ADBoardRemoteMsg;
 	}
 
-	public boolean isInCouple() {
-		return inCouple;
+	public Set<CoupleRecord> getCoupleRecords() {
+		return coupleRecords;
 	}
 
-	public void setInCouple(boolean inCouple) {
-		this.inCouple = inCouple;
+	public Set<CoupleRecord> getCoupleRecordsAsPartner() {
+		return coupleRecordsAsPartner;
 	}
 
-	public CoupleRecord getCouple() {
-		return couple;
-	}
-
-	public void setCouple(CoupleRecord couple) {
-		this.couple = couple;
-	}
-
-	public boolean hasFriendshipItem() {
-		return false;
-	}
-
-	public FriendshipRingRecord getFriendshipRingRecord() {
-		return friendshipRingRecord;
-	}
-
-	public void setFriendshipRingRecord(FriendshipRingRecord friendshipRingRecord) {
-		this.friendshipRingRecord = friendshipRingRecord;
+	public List<CoupleRecord> getAllCoupleRecords() {
+		return Stream.concat(getCoupleRecords().stream(), getCoupleRecordsAsPartner().stream()).toList();
 	}
 
 	public int getComboCounter() {
@@ -5448,8 +5418,7 @@ public class Char {
 	}
 
 	public void findMerchant() {
-		ArrayList<Merchant> allmerchants = this.getWorld().getMerchants();
-		for (Merchant m : allmerchants) {
+		for (Merchant m : getWorld().getMerchants()) {
 			if (m.getOwnerID() == this.getId()) {
 				this.setMerchant(m);
 				break;
