@@ -16,7 +16,6 @@ import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.world.shop.cashshop.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -215,6 +214,21 @@ public class CCashShop {
         return outPacket;
     }
 
+    public static OutPacket resMoveStoLDone(CashItemInfo cii) {
+        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
+        outPacket.encodeByte(CashItemType.Res_MoveStoL_Done.getVal());
+        cii.encode(outPacket);
+        return outPacket;
+    }
+
+    public static OutPacket resRebateDone(CashItemInfo cii) {
+        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
+        outPacket.encodeByte(CashItemType.Res_Rebate_Done.getVal());
+        outPacket.encodeByte(0);
+        outPacket.encodeLong(cii.getCashItemSN());
+        return outPacket;
+    }
+
     public static OutPacket loadLockerDone(Account account) {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
         outPacket.encodeByte(CashItemType.Res_LoadLocker_Done.getVal());
@@ -246,13 +260,6 @@ public class CCashShop {
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
         outPacket.encodeByte(CashItemType.Res_MoveLtoS_Failed.getVal());
         outPacket.encodeByte(10);
-        return outPacket;
-    }
-
-    public static OutPacket resMoveStoLDone(CashItemInfo cii) {
-        OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_CASH_ITEM_RESULT);
-        outPacket.encodeByte(CashItemType.Res_MoveStoL_Done.getVal());
-        cii.encode(outPacket);
         return outPacket;
     }
 

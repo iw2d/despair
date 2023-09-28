@@ -3,10 +3,7 @@ package net.swordie.ms.handlers;
 import net.swordie.ms.Server;
 import net.swordie.ms.ServerConstants;
 import net.swordie.ms.client.Account;
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.User;
-import net.swordie.ms.client.anticheat.Offense;
-import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.client.character.items.Inventory;
@@ -15,7 +12,6 @@ import net.swordie.ms.client.character.social.CoupleRecord;
 import net.swordie.ms.client.trunk.Trunk;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
-import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.constants.ItemConstants;
 import net.swordie.ms.enums.CashItemType;
 import net.swordie.ms.connection.packet.CCashShop;
@@ -32,8 +28,6 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * Created on 4/23/2018.
@@ -373,11 +367,29 @@ public class CashShopHandler {
                 chr.write(CCashShop.queryCashResult(chr));
                 break;
             }
-            default:
+            case Req_Rebate: {
+                String picInput = inPacket.decodeString();
+                if (!BCrypt.checkpw(picInput, chr.getUser().getPic())) {
+                    chr.write(CCashShop.error(CashShopFailReason.CheckPICPassword));
+                    return;
+                }
+                inPacket.decodeByte(); // 0
+                long sn = inPacket.decodeLong();
+                CashItemInfo cii = account.getTrunk().getLockerItemBySn(sn);
+                if (cii == null) {
+                    chr.write(CCashShop.error());
+                    return;
+                }
+                account.getTrunk().getLocker().remove(cii);
+                chr.write(CCashShop.resRebateDone(cii));
+                break;
+            }
+            default: {
                 chr.write(CCashShop.error());
                 log.error("Unhandled cash shop cash item request " + cit);
                 chr.dispose();
                 break;
+            }
         }
     }
 
