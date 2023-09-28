@@ -3681,7 +3681,7 @@ public class Char {
 			PartyMember pm = party.getPartyMemberByID(getId());
 			if (pm != null) {
 				pm.setChr(online ? this : null);
-				pm.updateInfoByChar(this);
+				pm.updateInfoByChar(online ? this : null);
 				getParty().updateFull();
 			}
 		}

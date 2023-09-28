@@ -155,7 +155,7 @@ public class World {
     public Char getCharByName(String name) {
         for (Channel c : getChannels()) {
             Char chr = c.getCharByName(name);
-            if (chr != null) {
+            if (chr != null && chr.isOnline()) {
                 return chr;
             }
         }
@@ -165,7 +165,7 @@ public class World {
     public Char getCharByID(int id) {
         for (Channel c : getChannels()) {
             Char chr = c.getCharById(id);
-            if (chr != null) {
+            if (chr != null && chr.isOnline()) {
                 return chr;
             }
         }

@@ -86,7 +86,7 @@ public class PartyMember {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof PartyMember && ((PartyMember) obj).getChr().equals(getChr());
+        return obj instanceof PartyMember && ((PartyMember) obj).getCharID() == getCharID();
     }
 
     public void setName(String name) {

@@ -69,7 +69,7 @@ public class Party implements Encodable {
             outPacket.encodeInt(pm != null ? pm.getLevel() : 0);
         }
         for(PartyMember pm : partyMembers) {
-            outPacket.encodeInt(pm != null ? pm.getChannel() - 1 : -1);
+            outPacket.encodeInt(pm != null && pm.isOnline() ? pm.getChannel() - 1 : -2); // -1 = cash shop
         }
         for(PartyMember pm : partyMembers) {
             outPacket.encodeInt(pm != null && pm.isOnline() ? 1 : 0);
@@ -161,15 +161,13 @@ public class Party implements Encodable {
         for (Char chr : getOnlineChars()) {
             chr.setParty(null);
         }
-        for (int i = 0; i < getPartyMembers().length; i++) {
-            getPartyMembers()[i] = null;
-        }
+        Arrays.fill(getPartyMembers(), null);
         getWorld().removeParty(this);
         setWorld(null);
     }
 
     public List<Char> getOnlineChars() {
-        return getOnlineMembers().stream().filter(pm -> pm.getChr() != null).map(PartyMember::getChr).collect(Collectors.toList());
+        return getOnlineMembers().stream().map(PartyMember::getChr).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     public List<PartyMember> getOnlineMembers() {
@@ -205,8 +203,10 @@ public class Party implements Encodable {
     public void removePartyMember(PartyMember partyMember) {
         for (int i = 0; i < getPartyMembers().length; i++) {
             PartyMember pm = getPartyMembers()[i];
-            if(pm != null && pm.equals(partyMember)) {
-                pm.getChr().setParty(null);
+            if (pm != null && pm.equals(partyMember)) {
+                if (pm.getChr() != null) {
+                    pm.getChr().setParty(null);
+                }
                 getPartyMembers()[i] = null;
                 break;
             }

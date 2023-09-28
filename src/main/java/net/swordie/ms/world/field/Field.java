@@ -90,8 +90,8 @@ public class Field {
     private EliteState eliteState;
     private int bossMobID;
     private boolean kishin;
-    private List<OpenGate> openGateList = new ArrayList<>();
-    private List<TownPortal> townPortalList = new ArrayList<>();
+    private List<OpenGate> openGateList = new CopyOnWriteArrayList<>();
+    private List<TownPortal> townPortalList = new CopyOnWriteArrayList<>();
     private boolean isChannelField;
     private Map<Integer, List<String>> directionInfo;
     private Clock clock;

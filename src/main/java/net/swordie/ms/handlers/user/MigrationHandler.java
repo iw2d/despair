@@ -88,11 +88,11 @@ public class MigrationHandler {
         Server.getInstance().addUser(user);
         Field field = chr.getOrCreateFieldByCurrentInstanceType(chr.getFieldID() <= 0 ? 100000000 : chr.getFieldID());
         if (chr.getHP() <= 0) { // automatically revive when relogging
-            chr.heal(chr.getMaxHP() / 2);
+            chr.heal(chr.getMaxHP());
         }
         if (chr.getPartyID() != 0) {
             Party party = c.getWorld().getPartybyId(chr.getPartyID());
-            if (party == null) {
+            if (party == null || !party.hasPartyMember(chr.getId())) {
                 chr.setPartyID(0);
             } else {
                 chr.setParty(party);
