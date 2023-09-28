@@ -103,7 +103,7 @@ public class SkillHandler {
                     q = new Quest(QuestConstants.DAMAGE_SKIN, QuestStatus.Started);
                     qm.addQuest(q);
                 }
-                q.setQrValue(dssd.getDamageSkinID() + "");
+                q.setQrValue(String.valueOf(dssd.getDamageSkinID()));
                 chr.write(WvsContext.questRecordMessage(q));
                 break;
         }

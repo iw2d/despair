@@ -1817,6 +1817,10 @@ public class ItemConstants {
         return itemID == 3015650 || itemID == 3015651 || itemID == 3015440 || itemID == 3015897;
     }
 
+    public static boolean isGroupChair(int itemID) {
+        return itemID / 100 == 30162 || itemID / 1000 == 3013 || itemID == 3015065;
+    }
+
     public static boolean isMachineArm(int itemID) {
         return itemID / 10000 == 162;
     }

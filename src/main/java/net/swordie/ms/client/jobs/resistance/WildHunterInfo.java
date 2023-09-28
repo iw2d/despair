@@ -47,7 +47,7 @@ public class WildHunterInfo {
 
     public int getTemplateID() {
         int res = 0;
-        if(getRidingType() > 0 && getRidingType() < 10) { // 1~9 has jaguars
+        if (getRidingType() > 0 && getRidingType() < 10) { // 1~9 has jaguars
             res = 9304000 + (getRidingType() - 1);
         }
         return res;

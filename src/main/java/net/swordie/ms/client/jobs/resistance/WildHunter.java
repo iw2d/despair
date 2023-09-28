@@ -153,6 +153,7 @@ public class WildHunter extends Citizen {
                 wingQuest.setQrValue("");
             }
         }
+        chr.write(WvsContext.questRecordExMessage(wingQuest));
         chr.getField().broadcastPacket(UserPacket.beastFormWingOnOff(chr.getId(), wingQuest.getQRValue().isEmpty()));
     }
 
@@ -388,8 +389,7 @@ public class WildHunter extends Citizen {
                     String key = QuestConstants.getWhStorageQuestValByTemplateID(mob.getTemplateId());
                     if (key != null) {
                         quest.setProperty(key, "1");
-                        chr.write(WvsContext.message(MessageType.QUEST_RECORD_EX_MESSAGE,
-                                quest.getQRKey(), quest.getQRValue(), (byte) 0));
+                        chr.write(WvsContext.questRecordExMessage(quest));
                         chr.write(UserPacket.effect(Effect.showCaptureEffect(skillID, slv, 0, 0)));
                         mob.die(false);
                         handleJaguarLink();

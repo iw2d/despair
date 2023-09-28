@@ -562,7 +562,7 @@ public class JobSkillHandler {
         quest.convertQRValueToProperties();
         int fromID = inPacket.decodeInt();
         int toID = inPacket.decodeInt();
-        String value = quest.getProperty("" + (toID + 1));
+        String value = quest.getProperty(String.valueOf(toID + 1));
         if (value != null) {
             WildHunterInfo whi = chr.getWildHunterInfo();
             whi.setIdx((byte) toID);
@@ -574,7 +574,7 @@ public class JobSkillHandler {
                 chosenQuest = new Quest(QuestConstants.WILD_HUNTER_JAGUAR_CHOSEN_ID, QuestStatus.Started);
                 qm.addQuest(chosenQuest);
             }
-            chosenQuest.setQrValue("" + toID);
+            chosenQuest.setQrValue(String.valueOf(toID));
         } else {
             chr.chatMessage("You do not have that jaguar.");
         }

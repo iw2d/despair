@@ -14,13 +14,11 @@ import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.constants.SkillConstants;
 import net.swordie.ms.enums.AvatarModifiedMask;
-import net.swordie.ms.enums.ChairType;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.movement.MovementInfo;
 import net.swordie.ms.util.Position;
 
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -29,30 +27,24 @@ import java.util.Set;
 public class UserRemote {
     public static OutPacket setActiveNickItem(Char chr) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_SET_ACTIVE_NICK_ITEM);
-
         outPacket.encodeInt(chr.getId());
         outPacket.encodeInt(chr.getNickItem());
-
         return outPacket;
     }
 
     public static OutPacket move(Char chr, MovementInfo movementInfo) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_MOVE);
-
         outPacket.encodeInt(chr.getId());
         outPacket.encode(movementInfo);
-
         return outPacket;
     }
 
     public static OutPacket emotion(int id, int emotion, int duration, boolean byItemOption) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_EMOTION);
-
         outPacket.encodeInt(id);
         outPacket.encodeInt(emotion);
         outPacket.encodeInt(duration);
         outPacket.encodeByte(byItemOption);
-
         return outPacket;
     }
 
@@ -64,7 +56,6 @@ public class UserRemote {
         // 538: body
         OutPacket outPacket = new OutPacket(attackType);
         outPacket.encodeInt(chr.getId());
-
         outPacket.encodeByte(ai.fieldKey);
         outPacket.encodeByte(ai.mobCount << 4 | ai.hits);
         outPacket.encodeByte(chr.getLevel());
@@ -217,16 +208,13 @@ public class UserRemote {
         outPacket.encodeInt(chr.getCompletedSetItemID());
         outPacket.encodeInt(chr.getTotalChuc());
         outPacket.encodeInt(0); // TotalAF
-
         return outPacket;
     }
 
     public static OutPacket throwGrenade(int charID, int grenadeID, Position pos, int keyDown, int skillID, int bySummonedID,
                                          int slv, boolean left, int attackSpeed) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_THROW_GRENADE);
-
         outPacket.encodeInt(charID);
-
         outPacket.encodeInt(grenadeID);
         outPacket.encodePositionInt(pos);
         outPacket.encodeInt(keyDown);
@@ -235,16 +223,13 @@ public class UserRemote {
         outPacket.encodeInt(slv);
         outPacket.encodeByte(left);
         outPacket.encodeInt(attackSpeed);
-
         return outPacket;
     }
 
     public static OutPacket destroyGrenade(int charID, int grenadeID) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_DESTROY_GRENADE);
-
         outPacket.encodeInt(charID);
         outPacket.encodeInt(grenadeID);
-
         return outPacket;
     }
 
@@ -254,24 +239,19 @@ public class UserRemote {
 
     public static OutPacket receiveHP(int charID, int curHP, int maxHP) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_RECEIVE_HP);
-
         outPacket.encodeInt(charID);
         outPacket.encodeInt(curHP);
         outPacket.encodeInt(maxHP);
-
         return outPacket;
     }
 
     public static OutPacket hit(Char chr, HitInfo hitInfo) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_HIT);
-
         outPacket.encodeInt(chr.getId());
-
         outPacket.encodeByte(hitInfo.type);
         outPacket.encodeInt(hitInfo.hpDamage); // ignored
         outPacket.encodeByte(hitInfo.isCrit);
         outPacket.encodeByte(hitInfo.hpDamage == 0);
-
         if (hitInfo.type < -1) {
             if (hitInfo.type == -8) {
                 outPacket.encodeInt(hitInfo.mobSkillID);
@@ -285,64 +265,51 @@ public class UserRemote {
             outPacket.encodeInt(hitInfo.blockSkillID);
             outPacket.encodeInt(hitInfo.blockSkillDamage);
             outPacket.encodeByte(hitInfo.guard);
-
             if (hitInfo.blockSkillDamage > 0) {
                 outPacket.encodeByte(hitInfo.powerGuard);
                 outPacket.encodeInt(hitInfo.reflectMobID);
                 outPacket.encodeByte(hitInfo.hitAction);
                 outPacket.encodePosition(hitInfo.userHitPos == null ? chr.getPosition() : hitInfo.userHitPos);
             }
-
             outPacket.encodeByte(hitInfo.specialEffectSkill);
             if ((hitInfo.specialEffectSkill & 1) != 0) {
                 outPacket.encodeInt(hitInfo.stanceSkillID);
             }
         }
-
         outPacket.encodeInt(hitInfo.hpDamage);
-
         if (hitInfo.hpDamage == -1) {
             outPacket.encodeInt(hitInfo.userSkillID);
         }
-
         return outPacket;
     }
 
     public static OutPacket effect(int id, Effect effect) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_EFFECT);
-
         outPacket.encodeInt(id);
         effect.encode(outPacket);
-
         return outPacket;
     }
 
     public static OutPacket setDefaultWingItem(Char chr) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_SET_DEFAULT_WING_ITEM);
-
         outPacket.encodeInt(chr.getId());
         outPacket.encodeInt(chr.getAvatarData().getCharacterStat().getWingItem());
-
         return outPacket;
     }
 
     public static OutPacket setTemporaryStat(Char chr, short delay) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_SET_TEMPORARY_STAT);
-
         outPacket.encodeInt(chr.getId());
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
         tsm.encodeForRemote(outPacket, false);
         outPacket.encodeShort(delay);
         outPacket.encodeByte(tsm.hasNewMovingAffectingStat());
-
         return outPacket;
     }
 
     public static OutPacket resetTemporaryStat(Char chr) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_RESET_TEMPORARY_STAT);
-
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-
         outPacket.encodeInt(chr.getId());
         tsm.getResetStatMask().encode(outPacket);
         int poseType = 0;
@@ -351,73 +318,37 @@ public class UserRemote {
         }
         outPacket.encodeByte(poseType);
         outPacket.encodeByte(false); // if true, show a ride vehicle effect. Why should this be called on reset tho?
-
         return outPacket;
     }
 
     public static OutPacket remoteSetActivePortableChair(Char chr, PortableChair chair) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_SET_ACTIVE_PORTABLE_CHAIR);
         outPacket.encodeInt(chr.getId());
-
-        outPacket.encodeInt(chair.getItemID());
-        boolean hasPortableChairMsg = chair.getType() == ChairType.TextChair;
-        outPacket.encodeInt(hasPortableChairMsg ? 1 : 0); // why is this an int
-        if (hasPortableChairMsg) {
-            outPacket.encodeString(chair.getMsg());
-        }
-
-        outPacket.encodeInt(0); // this + 93552
-        outPacket.encodeInt(0); // this + 93556
-
-        int towerIDSize = 0;
-        outPacket.encodeInt(towerIDSize);
-        for (int i = 0; i < towerIDSize; i++) {
-            outPacket.encodeInt(0); // towerChairID
-        }
-
-        boolean unkBool = false;
-        outPacket.encodeByte(unkBool);
-        if (unkBool) { // sub_130ADA0
-            outPacket.encodeInt(0);
-            outPacket.encodeInt(0);
-        }
-
-        outPacket.encodeInt(chair.getMeso());
-        outPacket.encodeByte(0); // custom chair info - sub_B04560
-
+        chair.encodeForSetActivePortableChair(outPacket);
         return outPacket;
     }
 
     public static OutPacket skillPrepare(Char chr, int skillId, byte slv) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_SKILL_PREPARE);
-
         outPacket.encodeInt(chr.getId());
-
         outPacket.encodeInt(skillId);
         outPacket.encodeByte(slv);
-
         outPacket.encodeShort(0); // unknown
-
         outPacket.encodeByte(7); // action Speed
         outPacket.encodePosition(chr.getPosition());
-
         return outPacket;
     }
 
     public static OutPacket skillCancel(int chrId, int skillId) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_SKILL_CANCEL);
-
         outPacket.encodeInt(chrId);
         outPacket.encodeInt(skillId);
-
         return outPacket;
     }
 
     public static OutPacket guildMarkChanged(Char chr) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_GUILD_MARK_CHANGED);
-
         outPacket.encodeInt(chr.getId());
-
         Guild guild = chr.getGuild();
         if (guild == null) {
             outPacket.encodeShort(0);
@@ -430,23 +361,19 @@ public class UserRemote {
             outPacket.encodeShort(guild.getMark());
             outPacket.encodeByte(guild.getMarkColor());
         }
-
         return outPacket;
     }
 
 
     public static OutPacket guildNameChanged(Char chr) {
         OutPacket outPacket = new OutPacket(OutHeader.REMOTE_GUILD_NAME_CHANGED);
-
         outPacket.encodeInt(chr.getId());
-
         Guild guild = chr.getGuild();
         if (guild == null) {
             outPacket.encodeString("");
         } else {
             outPacket.encodeString(guild.getName());
         }
-
         return outPacket;
     }
 }

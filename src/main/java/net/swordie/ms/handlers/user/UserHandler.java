@@ -11,6 +11,8 @@ import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.keys.FuncKeyMap;
 import net.swordie.ms.client.character.potential.CharacterPotential;
 import net.swordie.ms.client.character.potential.CharacterPotentialMan;
+import net.swordie.ms.client.character.quest.Quest;
+import net.swordie.ms.client.character.quest.QuestManager;
 import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
@@ -24,11 +26,13 @@ import net.swordie.ms.client.jobs.nova.Kaiser;
 import net.swordie.ms.client.jobs.resistance.BattleMage;
 import net.swordie.ms.client.jobs.resistance.WildHunter;
 import net.swordie.ms.connection.InPacket;
+import net.swordie.ms.connection.OutPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.*;
 import net.swordie.ms.enums.*;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
+import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.Reactor;
 import net.swordie.ms.life.mob.Mob;
 import net.swordie.ms.life.movement.MovementInfo;
@@ -247,41 +251,67 @@ public class UserHandler {
     public static void handleUserSitRequest(Char chr, InPacket inPacket) {
         Field field = chr.getField();
         short fieldSeatId = inPacket.decodeShort();
+        chr.setChair(null);
         chr.setFieldSeatID(fieldSeatId);
-        chr.setChair(new PortableChair(0, ChairType.None));
         chr.write(FieldPacket.sitResult(chr.getId(), fieldSeatId));
-        field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr, new PortableChair(0, ChairType.None)), chr);
+        field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr, PortableChair.EMPTY_CHAIR), chr);
         chr.dispose();
     }
 
     @Handler(op = InHeader.USER_PORTABLE_CHAIR_SIT_REQUEST)
     public static void handleUserPortableChairSitRequest(Char chr, InPacket inPacket) {
         Field field = chr.getField();
-        int itemId = inPacket.decodeInt(); // item id
-        int pos = inPacket.decodeInt(); // setup position
-        byte chairBag = inPacket.decodeByte(); // is Chair in a bag
-        boolean textChair = inPacket.decodeInt() != 0; // boolean to show text
-        String text = "";
-        if (textChair) {
-            text = inPacket.decodeString(); // text to display
-        }
-        if (textChair && (text.length() > 12 || !Util.isValidString(text) || !chr.hasItem(itemId))) {
-            chr.chatMessage("Invalid text.");
+        int itemId = inPacket.decodeInt();
+        int pos = inPacket.decodeInt();
+        boolean isBag = inPacket.decodeByte() != 0;
+        if (!chr.hasItem(itemId) || !ItemConstants.isChair(itemId)) {
             chr.dispose();
             return;
         }
-
-        // Tower Chair  check & id
-        int unk1 = inPacket.decodeInt(); // encodes 0
-        int unk2 = inPacket.decodeInt();
-        int unk3 = inPacket.decodeInt();
-
-
-        PortableChair chair = new PortableChair(itemId, ChairType.getByItemId(itemId));
-        chair.setMsg(text);
+        PortableChair chair = new PortableChair(itemId);
+        boolean textChair = inPacket.decodeInt() != 0;
+        if (textChair) {
+            chair.setText(inPacket.decodeString());
+        }
+        if (ItemConstants.isTowerChair(itemId)) {
+            Quest towerChairQuest = chr.getQuestManager().getQuestById(QuestConstants.TOWER_CHAIR);
+            if (towerChairQuest != null) {
+                towerChairQuest.convertQRValueToProperties();
+                for (int i = 0; i < 6; i++) {
+                    String property = towerChairQuest.getProperty(String.valueOf(i));
+                    if (property != null && !property.equals("0")) {
+                        chair.getTowerChairIdList().add(Integer.valueOf(property));
+                    }
+                }
+            }
+        }
         chr.setChair(chair);
-        field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr, chr.getChair()));
+        if (ItemConstants.isGroupChair(itemId)) {
+            // TODO field.broadcastPacket(FieldPacket.groupChairInfo(chr.getId(), chr.getChair()));
+        } else {
+            field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr, chr.getChair()), chr);
+        }
         chr.dispose();
+    }
+
+    @Handler(op = InHeader.USER_TOWER_CHAIR_SETTING)
+    public static void handleUserTowerChairSetting(Char chr, InPacket inPacket) {
+        inPacket.decodeInt(); // 0
+        List<Integer> towerChairIdList = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            towerChairIdList.add(inPacket.decodeInt());
+        }
+        QuestManager qm = chr.getQuestManager();
+        Quest towerChairQuest = qm.getQuestById(QuestConstants.TOWER_CHAIR);
+        if (towerChairQuest == null) {
+            towerChairQuest = new Quest(QuestConstants.TOWER_CHAIR, QuestStatus.Started);
+            qm.addCustomQuest(towerChairQuest);
+        }
+        for (int i = 0; i < 6; i++) {
+            towerChairQuest.setProperty(String.valueOf(i), String.valueOf(towerChairIdList.get(i)));
+        }
+        chr.write(WvsContext.questRecordExMessage(towerChairQuest));
+        chr.write(new OutPacket(OutHeader.TOWER_CHAIR_SETTING_RESULT));
     }
 
     @Handler(op = InHeader.USER_EMOTION)

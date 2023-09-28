@@ -20,6 +20,7 @@ import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.FieldOption;
 import net.swordie.ms.enums.MapTransferType;
 import net.swordie.ms.connection.ClientSocket;
+import net.swordie.ms.enums.Stat;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
 import net.swordie.ms.life.npc.Npc;
@@ -88,7 +89,7 @@ public class MigrationHandler {
         Server.getInstance().addUser(user);
         Field field = chr.getOrCreateFieldByCurrentInstanceType(chr.getFieldID() <= 0 ? 100000000 : chr.getFieldID());
         if (chr.getHP() <= 0) { // automatically revive when relogging
-            chr.heal(chr.getMaxHP());
+            chr.setStat(Stat.hp, 1);
         }
         if (chr.getPartyID() != 0) {
             Party party = c.getWorld().getPartybyId(chr.getPartyID());
@@ -304,7 +305,6 @@ public class MigrationHandler {
         List<CashShopGift> gifts = cashShop.claimGifts(chr.getId());
         if (gifts != null && !gifts.isEmpty()) {
             chr.write(CCashShop.loadGift(gifts));
-
         }
     }
 

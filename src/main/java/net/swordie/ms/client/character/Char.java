@@ -1269,7 +1269,7 @@ public class Char {
 				}
 				whi.setIdx((byte) toID);
 				whi.setRidingType((byte) toID);
-				chosenQuest.setQrValue("" + toID);
+				chosenQuest.setQrValue(String.valueOf(toID));
 				getWildHunterInfo().encode(outPacket); // GW_WildHunterInfo::Decode
 			}
 		}

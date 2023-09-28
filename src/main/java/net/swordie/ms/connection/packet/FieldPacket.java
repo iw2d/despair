@@ -2,6 +2,7 @@ package net.swordie.ms.connection.packet;
 
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
+import net.swordie.ms.client.character.PortableChair;
 import net.swordie.ms.client.character.items.*;
 import net.swordie.ms.client.character.keys.FuncKeyMap;
 import net.swordie.ms.client.character.runestones.RuneStone;
@@ -42,14 +43,12 @@ public class FieldPacket {
 
     public static OutPacket funcKeyMappedManInit(FuncKeyMap funcKeyMap) {
         OutPacket outPacket = new OutPacket(OutHeader.FUNC_KEY_MAPPED_MAN_INIT);
-
         if (funcKeyMap.getKeymap() == null || funcKeyMap.getKeymap().size() == 0) {
             outPacket.encodeByte(true);
         } else {
             outPacket.encodeByte(false);
             funcKeyMap.encode(outPacket);
         }
-
         return outPacket;
     }
 
@@ -59,7 +58,6 @@ public class FieldPacket {
         for (FuncKeyMap funcKeyMap : funcKeyMaps) {
             funcKeyMap.encode(outPacket);
         }
-
         return outPacket;
     }
 
@@ -73,7 +71,6 @@ public class FieldPacket {
 
     public static OutPacket quickslotInit(List<Integer> keys) {
         OutPacket outPacket = new OutPacket(OutHeader.QUICKSLOT_INIT);
-
         boolean encode = keys != null && keys.size() > 0;
         outPacket.encodeByte(encode);
         if (encode) {
@@ -81,13 +78,11 @@ public class FieldPacket {
                 outPacket.encodeInt(i < keys.size() ? keys.get(i) : 0);
             }
         }
-
         return outPacket;
     }
 
     public static OutPacket affectedAreaCreated(AffectedArea aa) {
         OutPacket outPacket = new OutPacket(OutHeader.AFFECTED_AREA_CREATED);
-
         outPacket.encodeInt(aa.getObjectId());
         outPacket.encodeByte(aa.getMobOrigin());
         if (aa.getMobOrigin() > 0) {
@@ -115,12 +110,10 @@ public class FieldPacket {
 
     public static OutPacket affectedAreaRemoved(AffectedArea aa, boolean mistEruption) {
         OutPacket outPacket = new OutPacket(OutHeader.AFFECTED_AREA_REMOVED);
-
         outPacket.encodeInt(aa.getObjectId());
         if (aa.getSkillID() == FirePoison.POISON_MIST) {
             outPacket.encodeByte(mistEruption);
         }
-
         return outPacket;
     }
 
@@ -137,9 +130,7 @@ public class FieldPacket {
 
     public static OutPacket curNodeEventEnd(boolean enable) {
         OutPacket outPacket = new OutPacket(OutHeader.CUR_NODE_EVENT_END);
-   
         outPacket.encodeByte(enable);
-        
         return outPacket;
     }
     
@@ -147,7 +138,6 @@ public class FieldPacket {
                                      List<Integer> targets, int skillID, List<ForceAtomInfo> faiList, Rect rect, int arriveDir, int arriveRange,
                                      Position forcedTargetPos, int bulletID, Position pos) {
         OutPacket outPacket = new OutPacket(OutHeader.CREATE_FORCE_ATOM);
-
         outPacket.encodeByte(byMob);
         if (byMob) {
             outPacket.encodeInt(userOwner);
@@ -206,7 +196,6 @@ public class FieldPacket {
                 outPacket.encodePositionInt(forcedTargetPos);
                 break;
         }
-
         return outPacket;
     }
     public static OutPacket finalAttackRequest(Char chr, int skillID, int finalSkillID, int delay, int mobID,
@@ -217,9 +206,7 @@ public class FieldPacket {
     public static OutPacket finalAttackRequest(Char chr, int skillID, int finalSkillID, int delay, int mobID,
                                                int userRequestTime, boolean left, Position base) {
         OutPacket outPacket = new OutPacket(OutHeader.FINAL_ATTACK_REQUEST);
-
         int wt = ItemConstants.getWeaponType(chr.getEquippedItemByBodyPart(BodyPart.Weapon).getItemId());
-
         outPacket.encodeInt(skillID);
         outPacket.encodeInt(finalSkillID);
         outPacket.encodeInt(wt);
@@ -230,23 +217,18 @@ public class FieldPacket {
             outPacket.encodeByte(left);
             outPacket.encodePosition(base);
         }
-
         return outPacket;
     }
 
     public static OutPacket setAmmo(int ammo) {
         OutPacket outPacket = new OutPacket(OutHeader.SET_AMMO);
-
         outPacket.encodeInt(ammo);
-
         return outPacket;
     }
 
     public static OutPacket createPsychicArea(int charID, PsychicArea pa) {
         OutPacket outPacket = new OutPacket(OutHeader.CREATE_PSYCHIC_AREA);
-
         outPacket.encodeInt(charID);
-
         outPacket.encodeByte(pa.success);
         outPacket.encodeInt(pa.action);
         outPacket.encodeInt(pa.actionSpeed);
@@ -260,53 +242,43 @@ public class FieldPacket {
         outPacket.encodeShort(pa.skeletonAniIdx);
         outPacket.encodeShort(pa.skeletonLoop);
         outPacket.encodePositionInt(pa.start);
-
         return outPacket;
     }
 
     public static OutPacket releasePsychicArea(int charID, int localAreaKey) {
         OutPacket outPacket = new OutPacket(OutHeader.RELEASE_PSYCHIC_AREA);
-
         outPacket.encodeInt(charID);
         outPacket.encodeInt(localAreaKey);
-
         return outPacket;
     }
 
     public static OutPacket createPsychicLock(boolean approved, PsychicLock pl) {
         OutPacket outPacket = new OutPacket(OutHeader.CREATE_PSYCHIC_LOCK);
-
         outPacket.encodeByte(approved);
         if (approved) {
             pl.encode(outPacket);
         }
-
         return outPacket;
     }
 
     public static OutPacket releasePsychicLock(int id) {
         OutPacket outPacket = new OutPacket(OutHeader.RELEASE_PSYCHIC_LOCK);
-
         outPacket.encodeInt(id);
-
         return outPacket;
     }
 
     public static OutPacket releasePsychicLockMob(List<Integer> ids) {
         OutPacket outPacket = new OutPacket(OutHeader.RELEASE_PSYCHIC_LOCK_MOB);
-
         for(int i : ids) {
             outPacket.encodeByte(1);
             outPacket.encodeInt(i);
         }
         outPacket.encodeByte(0);
-
         return outPacket;
     }
 
     public static OutPacket characterInfo(Char chr) {
         OutPacket outPacket = new OutPacket(OutHeader.CHARACTER_INFO);
-
         CharacterStat cs = chr.getAvatarData().getCharacterStat();
         outPacket.encodeInt(chr.getId());
         outPacket.encodeByte(false); // Star Planet
@@ -386,7 +358,10 @@ public class FieldPacket {
         outPacket.encodeInt(0);
 
         //Chairs
-        List<Integer> chairs = chr.getInstallInventory().getItems().stream().filter(i -> (i.getItemId() / 10000 == 301)).mapToInt(Item::getItemId).boxed().toList();
+        List<Integer> chairs = chr.getInstallInventory().getItems().stream()
+                .mapToInt(Item::getItemId).boxed()
+                .filter(ItemConstants::isChair)
+                .toList();
         outPacket.encodeInt(chairs.size()); //chair amount(size)
         for (int itemId : chairs) {
             outPacket.encodeInt(itemId);
@@ -401,42 +376,33 @@ public class FieldPacket {
             outPacket.encodeInt(0);
         }
         // ~sub
-
         return outPacket;
     }
 
     public static OutPacket showItemUpgradeEffect(int charID, boolean success, boolean enchantDlg, int uItemID, int eItemID, boolean boom) {
         OutPacket outPacket = new OutPacket(OutHeader.SHOW_ITEM_UPGRADE_EFFECT);
-
         outPacket.encodeInt(charID);
-
         outPacket.encodeByte(boom ? 2 : success ? 1 : 0);
         outPacket.encodeByte(enchantDlg);
         outPacket.encodeInt(uItemID);
         outPacket.encodeInt(eItemID);
-
         outPacket.encodeInt(0);
         outPacket.encodeByte(0);
         outPacket.encodeByte(0);
-
         return outPacket;
     }
 
     public static OutPacket showItemReleaseEffect(int charID, short pos, boolean bonus) {
         OutPacket outPacket = new OutPacket(OutHeader.SHOW_ITEM_RELEASE_EFFECT);
-
         outPacket.encodeInt(charID);
-
         outPacket.encodeShort(pos);
         outPacket.encodeByte(bonus);
-
         return outPacket;
     }
 
     public static OutPacket hyperUpgradeDisplay(Equip equip, boolean downgradeable, long meso, long beforeMVP, int successChance,
                                                 int destroyChance, boolean chanceTime) {
         OutPacket outPacket = new OutPacket(OutHeader.EQUIPMENT_ENCHANT);
-
         outPacket.encodeByte(EquipmentEnchantType.HyperUpgradeDisplay.getVal());
         outPacket.encodeByte(downgradeable);
         outPacket.encodeLong(meso);
@@ -451,175 +417,145 @@ public class FieldPacket {
         }
         outPacket.encodeInt(mask);
         vals.forEach((es, val) -> outPacket.encodeInt(val));
-
         return outPacket;
     }
 
     public static OutPacket miniGameDisplay(EquipmentEnchantType eeType) {
         OutPacket outPacket = new OutPacket(OutHeader.EQUIPMENT_ENCHANT);
-
         outPacket.encodeByte(eeType.getVal());
         outPacket.encodeByte(0);
         outPacket.encodeInt(2000); // TODO nSeed
-
         return outPacket;
     }
 
     public static OutPacket showUpgradeResult(Equip oldEquip, Equip equip, boolean succeed, boolean boom, boolean canDegrade) {
         OutPacket outPacket = new OutPacket(OutHeader.EQUIPMENT_ENCHANT);
-
         outPacket.encodeByte(EquipmentEnchantType.ShowHyperUpgradeResult.getVal());
         outPacket.encodeInt(boom ? 2 : succeed ? 1 : canDegrade ? 0 : 3);
         outPacket.encodeByte(0);
         oldEquip.encode(outPacket);
         equip.encode(outPacket);
-
         return outPacket;
     }
 
     public static OutPacket showUnknownEnchantFailResult(byte msg) {
         OutPacket outPacket = new OutPacket(OutHeader.EQUIPMENT_ENCHANT);
-
         outPacket.encodeByte(EquipmentEnchantType.ShowUnknownFailResult.getVal());
         outPacket.encodeByte(msg);
-
         return outPacket;
     }
 
     public static OutPacket scrollUpgradeDisplay(boolean feverTime, List<ScrollUpgradeInfo> infos) {
         OutPacket outPacket = new OutPacket(OutHeader.EQUIPMENT_ENCHANT);
-
         outPacket.encodeByte(EquipmentEnchantType.ScrollUpgradeDisplay.getVal());
         outPacket.encodeByte(feverTime);
-
         outPacket.encodeByte(infos.size());
         for (ScrollUpgradeInfo sui : infos) {
             outPacket.encode(sui);
         }
-
         return outPacket;
     }
 
     public static OutPacket showScrollUpgradeResult(boolean feverAfter, int result, String desc, Equip prevEquip,
                                                     Equip newEquip) {
         OutPacket outPacket = new OutPacket(OutHeader.EQUIPMENT_ENCHANT);
-
         outPacket.encodeByte(EquipmentEnchantType.ShowScrollUpgradeResult.getVal());
-
         outPacket.encodeByte(feverAfter);
         outPacket.encodeInt(result);
         outPacket.encodeString(desc);
         outPacket.encode(prevEquip);
         outPacket.encode(newEquip);
-
         return outPacket;
     }
 
     public static OutPacket showTranmissionResult(Equip fromEq, Equip toEq) {
         OutPacket outPacket = new OutPacket(OutHeader.EQUIPMENT_ENCHANT);
-
         outPacket.encodeByte(EquipmentEnchantType.ShowTransmissionResult.getVal());
         fromEq.encode(outPacket);
         toEq.encode(outPacket);
-
         return outPacket;
     }
 
     public static OutPacket redCubeResult(int charID, boolean upgrade, int cubeID, int ePos, Equip equip) {
         OutPacket outPacket = new OutPacket(OutHeader.RED_CUBE_RESULT);
-
         outPacket.encodeInt(charID);
-
         outPacket.encodeByte(upgrade);
         outPacket.encodeInt(cubeID);
         outPacket.encodeInt(ePos);
         equip.encode(outPacket);
-
         return outPacket;
     }
 
     public static OutPacket inGameCubeResult(int charID, boolean upgrade, int cubeID, int ePos, Equip equip) {
         OutPacket outPacket = new OutPacket(OutHeader.IN_GAME_CUBE_RESULT);
-
         outPacket.encodeInt(charID);
         outPacket.encodeByte(upgrade);
         outPacket.encodeInt(cubeID);
         outPacket.encodeInt(ePos);
         equip.encode(outPacket);
-
         return outPacket;
     }
 
     public static OutPacket sitResult(int chrId, int fieldSeatId) {
         OutPacket outPacket = new OutPacket(OutHeader.SIT_RESULT);
-
         outPacket.encodeInt(chrId);
-        if(fieldSeatId == -1) {
-            outPacket.encodeByte(0);
+        if (fieldSeatId == -1) {
+            outPacket.encodeByte(false);
         } else {
-            outPacket.encodeByte(1);
+            outPacket.encodeByte(true);
             outPacket.encodeShort(fieldSeatId);
         }
-
         return outPacket;
     }
 
-
+    public static OutPacket groupChairInfo(int chrId, PortableChair chair) {
+        OutPacket outPacket = new OutPacket(OutHeader.GROUP_CHAIR_INFO);
+        return outPacket;
+    }
 
     public static OutPacket questClear(int qrKey) {
         OutPacket outPacket = new OutPacket(OutHeader.QUEST_CLEAR);
-
         outPacket.encodeInt(qrKey);
-
         return outPacket;
     }
 
     public static OutPacket setQuestTime(List<Triple<Integer, FileTime, FileTime>> questTimes) {
         OutPacket outPacket = new OutPacket(OutHeader.SET_QUEST_TIME);
-
         outPacket.encodeByte(questTimes.size());
         for(Triple<Integer, FileTime, FileTime> times : questTimes) {
             outPacket.encodeInt(times.getLeft());
             outPacket.encodeFT(times.getMiddle());
             outPacket.encodeFT(times.getRight());
         }
-
         return outPacket;
     }
 
     public static OutPacket addWreckage(Char chr, Mob mob, int skillID, int duration, int debrisId, int debrisCount) {
         OutPacket outPacket = new OutPacket(OutHeader.ADD_WRECKAGE);
-
         outPacket.encodeInt(chr.getId());  //v2
         outPacket.encodePositionInt(mob.getPosition());
         outPacket.encodeInt(duration);
         outPacket.encodeInt(debrisId);  //evanWreckage.nIDx
         outPacket.encodeInt(skillID);  //nSkillID
         outPacket.encodeInt(1);  //nType
-
         outPacket.encodeInt(debrisCount);  // Number on Skill Icon, # of Wreckages on map
-
         return outPacket;
     }
 
     public static OutPacket delWreckage(Char chr, List<Integer> removeList) {
         OutPacket outPacket = new OutPacket(OutHeader.DEL_WRECKAGE);
-
         outPacket.encodeInt(chr.getId()); //Char ID
         outPacket.encodeInt(removeList.size()); //Count
         outPacket.encodeByte(chr.hasSkillOnCooldown(Evan.DARK_FOG)); // bDarkFogCooltime
         for (int debrisId : removeList) {
             outPacket.encodeInt(debrisId);
         }
-
         return outPacket;
     }
 
     public static OutPacket enterFieldFoxMan(Char chr) {
         OutPacket outPacket = new OutPacket(OutHeader.FOX_MAN_ENTER_FIELD);
-
         Position position = chr.getPosition();
-
         outPacket.encodeInt(chr.getId());
         outPacket.encodeShort(0);   // 1 = Haku Old Form,  0 = Haku New Form
         outPacket.encodePosition(position);
@@ -627,13 +563,11 @@ public class FieldPacket {
         outPacket.encodeShort(0); //Foothold
         outPacket.encodeInt(0); //nUpgrade
         outPacket.encodeInt(0); //FanID Equipped by Haku
-
         return outPacket;
     }
 
     public static OutPacket whisper(String sourceName, byte channelIdx, boolean gm, String msg, boolean notFound) {
         OutPacket outPacket = new OutPacket(OutHeader.WHISPER);
-
         if(notFound) {
             outPacket.encodeByte(9);
             outPacket.encodeString(sourceName);
@@ -646,7 +580,6 @@ public class FieldPacket {
             outPacket.encodeByte(gm);
             outPacket.encodeString(msg);
         }
-
         return outPacket;
     }
 
@@ -654,18 +587,14 @@ public class FieldPacket {
         OutPacket outPacket = new OutPacket(OutHeader.TELEPORT);
         outPacket.encodeByte(false);
         outPacket.encodeByte(6);
-
         outPacket.encodeInt(chr.getId());
         outPacket.encodePosition(position);
-
         return outPacket;
     }
 
     public static OutPacket fieldEffect(FieldEffect fieldEffect) {
         OutPacket outPacket = new OutPacket(OutHeader.FIELD_EFFECT);
-
         fieldEffect.encode(outPacket);
-
         return outPacket;
     }
 
@@ -675,7 +604,6 @@ public class FieldPacket {
 
     public static OutPacket blowWeather(int itemID, String message, byte[] packedAvatarLook) {
         OutPacket outPacket = new OutPacket(OutHeader.BLOW_WEATHER);
-
         outPacket.encodeInt(itemID);
         if (itemID > 0) {
             outPacket.encodeString(message);
@@ -689,10 +617,8 @@ public class FieldPacket {
 
     public static OutPacket trunkDlg(TrunkDlg trunkDlg) {
         OutPacket outPacket = new OutPacket(OutHeader.TRUNK_DLG);
-
         outPacket.encodeByte(trunkDlg.getType().getVal());
         trunkDlg.encode(outPacket);
-
         return outPacket;
     }
 
@@ -718,25 +644,20 @@ public class FieldPacket {
 
     public static OutPacket socketCreateResult(boolean success) {
         OutPacket outPacket = new OutPacket(OutHeader.SOCKET_CREATE_RESULT);
-
         outPacket.encodeByte(success ? 2 : 3);
-
         return outPacket;
     }
 
     public static OutPacket changeMobZone(int mobID, int dataType) {
         OutPacket outPacket = new OutPacket(OutHeader.CHANGE_MOB_ZONE);
-
         outPacket.encodeInt(mobID);
         outPacket.encodeInt(dataType);
-
         return outPacket;
     }
 
     public static OutPacket createObtacle(ObtacleAtomCreateType oact, ObtacleInRowInfo oiri, ObtacleRadianInfo ori,
                                           Set<ObtacleAtomInfo> atomInfos) {
         OutPacket outPacket = new OutPacket(OutHeader.CREATE_OBTACLE);
-
         outPacket.encodeInt(0); // ? gets used in 1 function, which forwards it to another, which does nothing with it
         outPacket.encodeInt(atomInfos.size());
         outPacket.encodeByte(oact.getVal());
@@ -752,33 +673,27 @@ public class FieldPacket {
                 atomInfo.getObtacleDiagonalInfo().encode(outPacket);
             }
         }
-
         return outPacket;
     }
 
     public static OutPacket runeStoneAppear(RuneStone runeStone) { //Spawn in RuneStone
         OutPacket outPacket = new OutPacket(OutHeader.RUNE_STONE_APPEAR);
-
         outPacket.encodeInt(0); // object id ??
         outPacket.encodeInt(runeStone.getRuneType().getVal()); // Rune Type
         outPacket.encodePositionInt(runeStone.getPosition()); // Position
         outPacket.encodeByte(runeStone.isFlip()); // flip
-
         return outPacket;
     }
 
     public static OutPacket completeRune(Char chr) { //RuneStone Disappears
         OutPacket outPacket = new OutPacket(OutHeader.COMPLETE_RUNE);
-
         outPacket.encodeInt(0);
         outPacket.encodeInt(chr.getId());
-
         return outPacket;
     }
 
     public static OutPacket runeStoneUseAck(int type) {
         OutPacket outPacket = new OutPacket(OutHeader.RUNE_STONE_USE_ACK);
-
         outPacket.encodeInt(type);
         switch (type) {
             case 2:// Rune Delay time
@@ -789,16 +704,13 @@ public class FieldPacket {
             case 5://Shows arrows
                 break;
         }
-
         return outPacket;
     }
 
     public static OutPacket runeStoneDisappear() { //RuneStone is Used
         OutPacket outPacket = new OutPacket(OutHeader.RUNE_STONE_DISAPPEAR);
-
         outPacket.encodeInt(0); // Has to be 0
         outPacket.encodeInt(0); // Doesn't matter what number this is
-
         return outPacket;
     }
 
@@ -809,9 +721,7 @@ public class FieldPacket {
 
     public static OutPacket runeStoneSkillAck(RuneType runeType) {
         OutPacket outPacket = new OutPacket(OutHeader.RUNE_STONE_SKILL_ACK);
-
         outPacket.encodeInt(runeType.getVal());
-
         return outPacket;
     }
 
@@ -822,7 +732,6 @@ public class FieldPacket {
         for (int i = 0; i < count; i++) {
             outPacket.encodeInt(0); // not sure, but whatever
         }
-
         return outPacket;
     }
 
@@ -833,9 +742,7 @@ public class FieldPacket {
      */
     public static OutPacket clock(ClockPacket clockPacket) {
         OutPacket outPacket = new OutPacket(OutHeader.CLOCK);
-
         clockPacket.encode(outPacket);
-
         return outPacket;
     }
 
@@ -852,7 +759,6 @@ public class FieldPacket {
                                       String backUOL) {
 
         OutPacket outPacket = new OutPacket(OutHeader.ELITE_STATE);
-
         outPacket.encodeInt(eliteState.getVal()); // elite state
         outPacket.encodeInt(notShowPopup ? 1 : 0); // ?
         if (eliteState == EliteState.EliteBoss) {
@@ -861,101 +767,80 @@ public class FieldPacket {
             outPacket.encodeString(propSpecialEliteEffect);
             outPacket.encodeString(backUOL);
         }
-
         return outPacket;
     }
 
     public static OutPacket setQuickMoveInfo(List<QuickMoveInfo> quickMoveInfos) {
         OutPacket outPacket = new OutPacket(OutHeader.SET_QUICK_MOVE_INFO);
-
         outPacket.encodeByte(quickMoveInfos.size());
         quickMoveInfos.forEach(qmi -> qmi.encode(outPacket));
-
         return outPacket;
     }
 
     public static OutPacket groupMessage(GroupMessageType gmt, String from, String msg) {
-
         OutPacket outPacket = new OutPacket(OutHeader.GROUP_MESSAGE.getValue());
-
         outPacket.encodeByte(gmt.ordinal());
         outPacket.encodeString(from);
         outPacket.encodeString(msg);
-
         return outPacket;
     }
 
     public static OutPacket openGateCreated(OpenGate openGate) {
         OutPacket outPacket = new OutPacket(OutHeader.OPEN_GATE_CREATED);
-
         outPacket.encodeByte(1); // Animation
         outPacket.encodeInt(openGate.getChr().getId()); // Character Id
         outPacket.encodePosition(openGate.getPosition()); // Position
         outPacket.encodeByte(openGate.getGateId()); // Gate Id
         outPacket.encodeInt(openGate.getParty() != null ? openGate.getParty().getId() : 0); // Party Id
-
         return outPacket;
     }
 
     public static OutPacket openGateRemoved(OpenGate openGate) {
         OutPacket outPacket = new OutPacket(OutHeader.OPEN_GATE_REMOVED);
-
         outPacket.encodeByte(1); // Animation
         outPacket.encodeInt(openGate.getChr().getId()); // Character Id
         outPacket.encodeByte(openGate.getGateId()); // Gate Id
-
         return outPacket;
     }
 
     public static OutPacket createMirrorImage(Position position, int alpha, int red, int green, int blue, boolean left) {
         OutPacket outPacket = new OutPacket(OutHeader.CREATE_MIRROR_IMAGE);
-
         outPacket.encodePositionInt(position);
         outPacket.encodeInt(alpha); // nAlpha   out of 1,000 (?)
         outPacket.encodeInt(red); // R  out of 100,000 (?)
-
         outPacket.encodeInt(green); // G  out of 100,000 (?)
         outPacket.encodeInt(blue); // B  out of 100,000 (?)
         outPacket.encodeInt(left ? 1 : 0); // bLeft
-
         return outPacket;
     }
 
     public static OutPacket townPortalCreated(TownPortal townPortal, boolean noAnimation) {
         OutPacket outPacket = new OutPacket(OutHeader.TOWN_PORTAL_CREATED);
-
         outPacket.encodeByte(noAnimation); // No Animation  (false = Animation : true = No Animation)
         outPacket.encodeInt(townPortal.getChr().getId());
         outPacket.encodePosition(townPortal.getFieldPosition()); // as this doesn't need to be initialised yet.
         outPacket.encodePosition(townPortal.getFieldPosition()); //
-
         return outPacket;
     }
 
     public static OutPacket townPortalRemoved(TownPortal townPortal, boolean animation) {
         OutPacket outPacket = new OutPacket(OutHeader.TOWN_PORTAL_REMOVED);
-
         outPacket.encodeByte(animation); // Animation
         outPacket.encodeInt(townPortal.getChr().getId());
-
         return outPacket;
     }
 
     public static OutPacket setOneTimeAction(int charID, int action, int duration) {
         OutPacket outPacket = new OutPacket(OutHeader.SET_ONE_TIME_ACTION);
-
         outPacket.encodeInt(charID);
         outPacket.encodeInt(action);
         outPacket.encodeInt(duration);
-
         return outPacket;
     }
 
     public static OutPacket makingSkillResult(int charID, int recipeCode, MakingSkillResult result, MakingSkillRecipe.TargetElem target, int incSkillProficiency) {
         OutPacket outPacket = new OutPacket(OutHeader.MAKING_SKILL_RESULT);
-
         outPacket.encodeInt(charID);
-
         outPacket.encodeInt(recipeCode);
         outPacket.encodeInt(result.getVal());
         if (result == MakingSkillResult.SUCESS_SOSO || result == MakingSkillResult.SUCESS_GOOD || result == MakingSkillResult.SUCESS_COOL) {
@@ -963,15 +848,12 @@ public class FieldPacket {
             outPacket.encodeInt(target.getCount());
         }
         outPacket.encodeInt(incSkillProficiency);
-
         return outPacket;
     }
 
     public static OutPacket makingSkillResult(int charID, int recipeCode, int result, int createdItemID, int itemCount, int incSkillProficiency) {
         OutPacket outPacket = new OutPacket(OutHeader.MAKING_SKILL_RESULT);
-
         outPacket.encodeInt(charID);
-
         outPacket.encodeInt(recipeCode);
         outPacket.encodeInt(result);
         if (result == 25 || result == 26 || result == 27) {
@@ -979,7 +861,6 @@ public class FieldPacket {
             outPacket.encodeInt(itemCount);
         }
         outPacket.encodeInt(incSkillProficiency);
-
         return outPacket;
     }
 
@@ -989,7 +870,6 @@ public class FieldPacket {
 
     public static OutPacket registerExtraSkill(Position position, int mainSkilId, Set<Integer> extraSkillIds, boolean isLeft) {
         OutPacket outPacket = new OutPacket(OutHeader.REGISTER_EXTRA_SKILL);
-
         outPacket.encodePositionInt(position);
         outPacket.encodeShort(isLeft ? -1 : 1);
         outPacket.encodeInt(mainSkilId);
@@ -997,30 +877,24 @@ public class FieldPacket {
         for (int extraSkillId : extraSkillIds) {
             outPacket.encodeInt(extraSkillId);
         }
-
         return outPacket;
     }
 
     public static OutPacket playSound(String dir) {
         OutPacket outPacket = new OutPacket(OutHeader.PLAY_SOUND);
-
         outPacket.encodeString(dir);
-
         return outPacket;
     }
 
     public static OutPacket golluxOpenPortal(Char chr, String action, int show) {
         OutPacket outPacket = new OutPacket(OutHeader.GOLLUX_PORTAL_OPEN);
-
         outPacket.encodeString(action);
         outPacket.encodeInt(show);
-
         return outPacket;
     }
 
     public static OutPacket golluxUpdateMiniMap(Char chr) {
         OutPacket outPacket = new OutPacket(OutHeader.GOLLUX_MINIMAP);
-
         Map<String, Object> golluxMaps = chr.getOrCreateFieldByCurrentInstanceType(BossConstants.GOLLUX_FIRST_MAP).getProperties();
         outPacket.encodeInt(golluxMaps.size());
         for (Map.Entry<String, Object> entry : golluxMaps.entrySet()) {
@@ -1032,9 +906,7 @@ public class FieldPacket {
 
     public static OutPacket syncDynamicFoothold(String footholdName, boolean show, Position pos) {
         OutPacket outPacket = new OutPacket(OutHeader.SYNC_DYNAMIC_FOOTHOLD);
-
         int loopSize = 1;
-
         outPacket.encodeInt(loopSize);
         for (int i = 0; i < loopSize; i++) {
             outPacket.encodeString(footholdName);
@@ -1042,22 +914,17 @@ public class FieldPacket {
             outPacket.encodeInt(show ? 1 : 0);
             outPacket.encodePositionInt(pos);
         }
-
         return outPacket;
     }
 
     public static OutPacket createFallingCatcher(String name, int index, int count, List<Position> positions) {
         OutPacket outPacket = new OutPacket(OutHeader.CREATE_FALLING_CATCHER);
-
         outPacket.encodeString(name);
         outPacket.encodeInt(index);
-
         outPacket.encodeInt(count);
-
         for (int i = 0; i < count; i++) {
             outPacket.encodePositionInt(positions.get(i));
         }
-
         return outPacket;
     }
 
@@ -1074,23 +941,18 @@ public class FieldPacket {
                 int x = ran.nextInt(3) + 1;
                 return createFallingCatcher("DropStoneGiantBoss" + String.valueOf(x), 25, 1, pos);
         }
-
     }
 
     public static OutPacket setObjectState(String name, int mode) {
         OutPacket outPacket = new OutPacket(OutHeader.SET_OBJECT_STATE);
-
         outPacket.encodeString(name);
         outPacket.encodeInt(mode);
-
         return outPacket;
     }
 
     public static OutPacket auctionResult(AuctionResult auctionResult) {
         OutPacket outPacket = new OutPacket(OutHeader.AUCTION_RESULT);
-
         auctionResult.encode(outPacket);
-
         return outPacket;
     }
 

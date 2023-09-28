@@ -6,7 +6,6 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
 import net.swordie.ms.client.character.social.CoupleRecord;
 import net.swordie.ms.constants.GameConstants;
-import net.swordie.ms.enums.ChairType;
 import net.swordie.ms.life.Familiar;
 import net.swordie.ms.life.pet.Pet;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
@@ -18,21 +17,20 @@ import net.swordie.ms.enums.TSIndex;
 import net.swordie.ms.handlers.header.OutHeader;
 import net.swordie.ms.life.room.MiniRoom;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created on 3/18/2018.
  */
 public class UserPool {
     public static OutPacket userEnterField(Char chr) {
+        OutPacket outPacket = new OutPacket(OutHeader.USER_ENTER_FIELD);
+        outPacket.encodeInt(chr.getId());
+
+        // CUserRemote::Init
         CharacterStat cs = chr.getAvatarData().getCharacterStat();
         AvatarLook al = chr.getAvatarData().getAvatarLook();
         TemporaryStatManager tsm = chr.getTemporaryStatManager();
-        OutPacket outPacket = new OutPacket(OutHeader.USER_ENTER_FIELD);
-
-        outPacket.encodeInt(chr.getId());
         outPacket.encodeByte(chr.getLevel());
         outPacket.encodeString(chr.getName());
         outPacket.encodeString(""); // parent name, deprecated
@@ -41,6 +39,7 @@ public class UserPool {
         } else {
             Guild.defaultEncodeForRemote(outPacket);
         }
+
         outPacket.encodeByte(cs.getGender());
         outPacket.encodeInt(cs.getPop());
         outPacket.encodeInt(10); // nFarmLevel
@@ -56,6 +55,7 @@ public class UserPool {
         }
         outPacket.encodeInt(chr.getDriverID());
         outPacket.encodeInt(chr.getPassengerID()); // dwPassenserID
+
         // sub_1E0E4F0
         outPacket.encodeInt(0);
         outPacket.encodeInt(0);
@@ -68,47 +68,29 @@ public class UserPool {
         // ~sub_1E0E4F0
 
         // *pAvatarHairEquip for CAvatar::ForcingAppearance
-        outPacket.encodeInt(0); // 23
-        outPacket.encodeInt(0); // 25
         outPacket.encodeInt(0); // 21
-        outPacket.encodeInt(0); // 12
+        outPacket.encodeInt(0); // 23
+        outPacket.encodeInt(0); // 19
+        outPacket.encodeInt(0); // 10
+        outPacket.encodeInt(0); // 11
+        outPacket.encodeInt(0); // 5
+        outPacket.encodeInt(0); // 22
+        outPacket.encodeInt(0); // 25
         outPacket.encodeInt(0); // 13
-        outPacket.encodeInt(0); // 7
-        outPacket.encodeInt(0); // 24
-        outPacket.encodeInt(0); // 27
-        outPacket.encodeInt(0); // 15
         // ~
 
         outPacket.encodeInt(chr.getCompletedSetItemID());
         outPacket.encodeShort(chr.getFieldSeatID());
 
-        PortableChair chair = chr.getChair() != null ? chr.getChair() : new PortableChair(0, ChairType.None);
-        outPacket.encodeInt(chair.getItemID());
-        boolean hasPortableChairMsg = chair.getType() == ChairType.TextChair;
-        outPacket.encodeInt(hasPortableChairMsg ? 1 : 0); // why is this an int
-        if (hasPortableChairMsg) {
-            outPacket.encodeString(chair.getMsg());
-        }
-        int towerIDSize = 0;
-        outPacket.encodeInt(towerIDSize);
-        for (int i = 0; i < towerIDSize; i++) {
-            outPacket.encodeInt(0); // towerChairID
-        }
-        outPacket.encodeInt(0); // this + 93552
-        outPacket.encodeInt(0); // this + 93556
-        boolean unkBool = false;
-        outPacket.encodeByte(unkBool);
-        if (unkBool) { // sub_130ADA0
-            outPacket.encodeInt(0);
-            outPacket.encodeInt(0);
-        }
+        PortableChair chair = chr.getChair() != null ? chr.getChair() : PortableChair.EMPTY_CHAIR;
+        chair.encodeForEnterField(outPacket);
 
         outPacket.encodePosition(chr.getPosition());
         outPacket.encodeByte(chr.getMoveAction());
         outPacket.encodeShort(chr.getFoothold());
 
-        outPacket.encodeByte(0); // unk - something related to skill?
-        outPacket.encodeByte(0); // custom chair info - sub_B04560
+        outPacket.encodeByte(0); // related to Kaiser skill 60000219
+        outPacket.encodeByte(chair.isCustomChair());
 
         // Pet Handling
         for (Pet pet : chr.getPets()) {
@@ -120,7 +102,6 @@ public class UserPool {
             pet.encode(outPacket);
         }
         outPacket.encodeByte(0); // indicating that pets are no longer being encoded
-
         outPacket.encodeByte(0); // unk while loop
 
         // Familiar Handling
