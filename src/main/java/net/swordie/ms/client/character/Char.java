@@ -1136,7 +1136,7 @@ public class Char {
 			}
 		}
 		if (mask.isInMask(DBChar.CoupleRecord)) {																		// (a2 & 0x800) != 0
-			List<CoupleRecord> allRecords = getAllCoupleRecords();
+			List<CoupleRecord> allRecords = getAllCoupleRecords(false);
 			List<CoupleRecord> coupleRecords = allRecords.stream().filter(CoupleRecord::isCouple).toList();
 			outPacket.encodeShort(coupleRecords.size());
 			for (CoupleRecord cr : coupleRecords) {
@@ -3522,8 +3522,12 @@ public class Char {
 		return coupleRecordsAsPartner;
 	}
 
-	public List<CoupleRecord> getAllCoupleRecords() {
-		return Stream.concat(getCoupleRecords().stream(), getCoupleRecordsAsPartner().stream()).toList();
+	public List<CoupleRecord> getAllCoupleRecords(boolean equipped) {
+		return Stream.concat(getCoupleRecords().stream(), getCoupleRecordsAsPartner().stream())
+				.filter(cr -> !equipped ||
+						getEquippedInventory().getItemBySN(cr.getCharSn()) != null ||
+						getEquippedInventory().getItemBySN(cr.getPartnerSn()) != null)
+				.toList();
 	}
 
 	public int getComboCounter() {

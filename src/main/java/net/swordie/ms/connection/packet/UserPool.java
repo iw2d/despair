@@ -154,13 +154,13 @@ public class UserPool {
             outPacket.encodeString(chr.getADBoardRemoteMsg());
         }
 
-        List<CoupleRecord> allRecords = chr.getAllCoupleRecords();
+        List<CoupleRecord> allRecords = chr.getAllCoupleRecords(true);
         List<CoupleRecord> coupleRecords = allRecords.stream().filter(CoupleRecord::isCouple).toList();
         outPacket.encodeByte(coupleRecords.size() > 0);
         if (coupleRecords.size() > 0) {
             outPacket.encodeInt(coupleRecords.size());
             for (CoupleRecord cr : coupleRecords) {
-                cr.encodeForRemote(outPacket);
+                cr.encodeForRemote(chr, outPacket);
             }
         }
         List<CoupleRecord> friendRecords = allRecords.stream().filter(CoupleRecord::isFriend).toList();
@@ -168,13 +168,13 @@ public class UserPool {
         if (friendRecords.size() > 0) {
             outPacket.encodeInt(friendRecords.size());
             for (CoupleRecord cr : friendRecords) {
-                cr.encodeForRemote(outPacket);
+                cr.encodeForRemote(chr, outPacket);
             }
         }
         List<CoupleRecord> marriageRecords = allRecords.stream().filter(CoupleRecord::isMarriage).toList();
         outPacket.encodeByte(marriageRecords.size() > 0);
         if (marriageRecords.size() > 0) {
-            marriageRecords.get(0).encodeForRemote(outPacket);
+            marriageRecords.get(0).encodeForRemote(chr, outPacket);
         }
 
         outPacket.encodeByte(0); // some flag that shows uninteresting things for now

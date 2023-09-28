@@ -11,6 +11,7 @@ import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Equip;
 import net.swordie.ms.client.character.items.Inventory;
 import net.swordie.ms.client.character.items.Item;
+import net.swordie.ms.client.character.social.CoupleRecord;
 import net.swordie.ms.client.trunk.Trunk;
 import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.db.DatabaseManager;
@@ -171,7 +172,8 @@ public class CashShopHandler {
                 chr.write(CCashShop.queryCashResult(chr));
                 break;
             }
-            case Req_Couple: {
+            case Req_Couple:
+            case Req_FriendShip: {
                 String picInput = inPacket.decodeString();
                 if (!BCrypt.checkpw(picInput, chr.getUser().getPic())) {
                     chr.write(CCashShop.error(CashShopFailReason.CheckPICPassword));
@@ -206,6 +208,11 @@ public class CashShopHandler {
                     chr.write(CCashShop.error());
                     return;
                 }
+                if ((cit == CashItemType.Req_Couple && !ItemConstants.isCoupleRing(csi.getItemID())) ||
+                        (cit == CashItemType.Req_FriendShip && !ItemConstants.isFriendshipRing(csi.getItemID()))) {
+                    chr.write(CCashShop.error());
+                    return;
+                }
                 if (account.getTrunk().isFull()) {
                     chr.write(CCashShop.error(CashShopFailReason.TooManyCashItems));
                     return;
@@ -227,6 +234,15 @@ public class CashShopHandler {
                 DatabaseManager.saveToDB(cii); // ensures the item has a unique ID
                 account.getTrunk().addCashItem(cii);
                 DatabaseManager.saveToDB(user);
+                // create couple record
+                CoupleRecord cr = new CoupleRecord(csi.getItemID(), chr.getId(), receiverId, chr.getName(), receiverName, cii.getCashItemSN(), giftCii.getCashItemSN());
+                cr.setType(ItemConstants.isCoupleRing(cii.getItemID()) ? CoupleRecord.CoupleRecordType.COUPLE : CoupleRecord.CoupleRecordType.FRIENDSHIP);
+                DatabaseManager.saveToDB(cr); // assign couple record ID
+                chr.getCoupleRecords().add(cr);
+                Char receiverChar = chr.getWorld().getCharByID(receiverId);
+                if (receiverChar != null) {
+                    receiverChar.getCoupleRecordsAsPartner().add(cr);
+                }
                 // notify client
                 chr.write(CCashShop.cashItemResCoupleDone(cii, receiverName));
                 chr.write(CCashShop.queryCashResult(chr));

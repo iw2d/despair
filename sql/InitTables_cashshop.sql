@@ -4389,7 +4389,6 @@ values
     (1112296, 4500, 'Rings'), /*Meadow Sheep Chat Bubble Ring*/
     (1112724, 4500, 'Rings'), /*I'm New Ring*/
     (1112728, 4500, 'Rings'), /*Mapler Ring*/
-    (1112757, 4500, 'Rings'), /*Grin Ring*/
     (1112800, 4500, 'Rings'), /*Friendship Ring: Clover*/
     (1112801, 4500, 'Rings'), /*Friendship Ring: Flower Petal*/
     (1112802, 4500, 'Rings'), /*Friendship Ring: Star*/
@@ -4407,7 +4406,6 @@ values
     (1112904, 4500, 'Rings'), /*Rainbow Star Ring*/
     (1112905, 4500, 'Rings'), /*Bright Hot Pink Heart*/
     (1112906, 4500, 'Rings'), /*Baby Pink Heart*/
-    (1112908, 4500, 'Rings'), /*Aura Ring*/
     (1112916, 4500, 'Rings'), /*Solo Ring*/
     (1112924, 4500, 'Rings'), /*Lemon Shooting Star Ring*/
     (1112925, 4500, 'Rings'), /*Blue Shooting Star Ring*/

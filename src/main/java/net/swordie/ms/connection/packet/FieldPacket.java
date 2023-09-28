@@ -317,10 +317,10 @@ public class FieldPacket {
         outPacket.encodeByte(cs.getPvpGrade());
         outPacket.encodeInt(cs.getPop()); //Fame
 
-        List<CoupleRecord> marriageRecords = chr.getAllCoupleRecords().stream().filter(CoupleRecord::isMarriage).toList();
+        List<CoupleRecord> marriageRecords = chr.getAllCoupleRecords(false).stream().filter(CoupleRecord::isMarriage).toList();
         outPacket.encodeByte(marriageRecords.size() > 0);
         if (marriageRecords.size() > 0) {
-            marriageRecords.get(0).encodeForRemote(outPacket);
+            marriageRecords.get(0).encodeForRemote(chr, outPacket);
         }
 
         List<Short> makingSkills = new ArrayList<>();

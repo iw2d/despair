@@ -1996,6 +1996,14 @@ public class ItemConstants {
         return itemId / 100 == 50624;
     }
 
+    public static boolean isCoupleRing(int itemId) {
+        return itemId / 100 == 11120;
+    }
+
+    public static boolean isFriendshipRing(int itemId) {
+        return itemId / 100 == 11128;
+    }
+
     public static int getBaseMastery(int itemId) {
         if (isWeapon(itemId)) {
             WeaponType wt = WeaponType.getByVal(getWeaponType(itemId));

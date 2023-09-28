@@ -23,6 +23,18 @@ public class CoupleRecord {
     private long charSn;
     private long partnerSn;
 
+    public CoupleRecord() {}
+
+    public CoupleRecord(int itemId, int charId, int partnerId, String charName, String partnerName, long charSn, long partnerSn) {
+        this.itemId = itemId;
+        this.charId = charId;
+        this.partnerId = partnerId;
+        this.charName = charName;
+        this.partnerName = partnerName;
+        this.charSn = charSn;
+        this.partnerSn = partnerSn;
+    }
+
     public void encodeForLocal(Char chr, OutPacket outPacket) {
         if (isMarriage()) {
             // GW_MarriageRecord::Decode (48)
@@ -44,8 +56,8 @@ public class CoupleRecord {
             } else {
                 outPacket.encodeInt(charId);                    // dwPairCharacterID
                 outPacket.encodeString(charName, 13);           // sPairCharacterName
-                outPacket.encodeLong(charSn);                   // liSN
-                outPacket.encodeLong(partnerSn);                // liPairSN
+                outPacket.encodeLong(partnerSn);                // liSN
+                outPacket.encodeLong(charSn);                   // liPairSN
             }
             if (isFriend()) {
                 outPacket.encodeInt(itemId);                    // dwFriendItemID
@@ -53,15 +65,20 @@ public class CoupleRecord {
         }
     }
 
-    public void encodeForRemote(OutPacket outPacket) {
+    public void encodeForRemote(Char chr, OutPacket outPacket) {
         // CUserRemote::Init / CUserRemote::OnAvatarModified
         if (isMarriage()) {
             outPacket.encodeInt(charId);                        // dwMarriageCharacterID
             outPacket.encodeInt(partnerId);                     // dwMarriagePairCharacterID
             outPacket.encodeInt(itemId);                        // nWeddingRingID
         } else {
-            outPacket.encodeLong(charSn);                       // liCoupleItemSN
-            outPacket.encodeLong(partnerSn);                    // liPairItemSN
+            if (chr.getId() == charId) {
+                outPacket.encodeLong(charSn);                // liCoupleItemSN
+                outPacket.encodeLong(partnerSn);                   // liPairItemSN
+            } else {
+                outPacket.encodeLong(partnerSn);                   // liCoupleItemSN
+                outPacket.encodeLong(charSn);                // liPairItemSN
+            }
             outPacket.encodeInt(itemId);                        // nItemID
         }
     }
