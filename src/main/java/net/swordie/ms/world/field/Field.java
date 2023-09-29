@@ -2,6 +2,7 @@ package net.swordie.ms.world.field;
 
 import net.swordie.ms.client.character.BroadcastMsg;
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.character.PortableChair;
 import net.swordie.ms.client.character.items.Item;
 import net.swordie.ms.client.character.runestones.RuneStone;
 import net.swordie.ms.client.character.skills.TownPortal;
@@ -50,6 +51,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -60,7 +62,7 @@ import static net.swordie.ms.client.character.skills.SkillStat.time;
  */
 public class Field {
     private static final Logger log = LogManager.getLogger(Field.class);
-    private Rect rect;
+    private Rect rect = new Rect();
     private int vrTop, vrLeft, vrBottom, vrRight;
     private double mobRate;
     private int id;
@@ -69,16 +71,18 @@ public class Field {
     private int returnMap, forcedReturn, createMobInterval, timeOut, timeLimit, lvLimit, lvForceMove;
     private int consumeItemCoolTime, link;
     private boolean town, swim, fly, reactorShuffle, expeditionOnly, partyOnly, needSkillForFly;
-    private Set<Portal> portals;
-    private Set<Foothold> footholds;
-    private FootholdNode footholdRoot;
-    private Map<Integer, Life> lifes;
-    private List<Char> chars;
-    private Map<Life, Char> lifeToControllers;
-    private Map<Life, ScheduledFuture> lifeSchedules;
+    private Set<Portal> portals = new HashSet<>();
+    private Set<Foothold> footholds = new HashSet<>();
+    private FootholdNode footholdRoot = new FootholdNode();
+    private Map<String, Object> properties = new HashMap<>();
+    private Map<Integer, Life> lifes = new ConcurrentHashMap<>();
+    private List<Char> chars = new CopyOnWriteArrayList<>();
+    private Map<Life, Char> lifeToControllers = new ConcurrentHashMap<>();
+    private Map<Life, ScheduledFuture> lifeSchedules = new ConcurrentHashMap<>();
+    private Map<Integer, List<String>> directionInfo = new ConcurrentHashMap<>();;
     private String onFirstUserEnter = "", onUserEnter = "";
-    private int fixedMobCapacity;
-    private int objectIDCounter = 1000000;
+    private int fixedMobCapacity = GameConstants.DEFAULT_FIELD_MOB_CAPACITY; // default
+    private AtomicInteger objectIDCounter = new AtomicInteger(1000000);
     private boolean userFirstEnter = false;
     private String fieldScript = "";
     private ScriptManagerImpl scriptManagerImpl = new ScriptManagerImpl(this);
@@ -92,12 +96,11 @@ public class Field {
     private boolean kishin;
     private List<OpenGate> openGateList = new CopyOnWriteArrayList<>();
     private List<TownPortal> townPortalList = new CopyOnWriteArrayList<>();
+    private List<PortableChair> groupChairList = new CopyOnWriteArrayList<>();
     private boolean isChannelField;
-    private Map<Integer, List<String>> directionInfo;
     private Clock clock;
     private int channel;
     private int averageMobLevel;
-    private Map<String, Object> properties;
     private int barrier;
     private boolean changeToChannelOnLeave;
     private boolean dropsDisabled;
@@ -108,18 +111,7 @@ public class Field {
 
     public Field(int fieldID) {
         this.id = fieldID;
-        this.rect = new Rect();
-        this.portals = new HashSet<>();
-        this.footholds = new HashSet<>();
-        this.footholdRoot = new FootholdNode();
-        this.lifes = new ConcurrentHashMap<>();
-        this.chars = new CopyOnWriteArrayList<>();
-        this.lifeToControllers = new HashMap<>();
-        this.lifeSchedules = new HashMap<>();
-        this.directionInfo = new HashMap<>();
-        this.fixedMobCapacity = GameConstants.DEFAULT_FIELD_MOB_CAPACITY; // default
-        this.properties = new HashMap<>();
-        dropsDisabled = false;
+        this.dropsDisabled = false;
     }
 
     public void startFieldScript() {
@@ -508,17 +500,13 @@ public class Field {
     public void spawnLife(Life life, Char onlyChar) {
         addLife(life);
         if (getChars().size() > 0) {
-            Char controller = null;
-            if (getLifeToControllers().containsKey(life)) {
-                controller = getLifeToControllers().get(life);
-            }
+            Char controller = getLifeToControllers().getOrDefault(life, null);
             if (controller == null) {
                 setRandomController(life);
             }
             life.broadcastSpawnPacket(onlyChar);
             if (life instanceof Mob) {
                 Mob mob = ((Mob)life);
-
                 if (mob.getRemoveAfter() > 0) {
                     ScheduledFuture sf = EventManager.addEvent(() -> mob.die(false), mob.getRemoveAfter() * 1000);
                     addLifeSchedule(mob, sf);
@@ -528,16 +516,16 @@ public class Field {
     }
 
     private void setRandomController(Life life) {
-        // No chars -> set controller to null, so a controller will be assigned next time someone enters this field
-        Char controller = null;
         if (getChars().size() > 0) {
-            controller = Util.getRandomFromCollection(getChars());
+            Char controller = Util.getRandomFromCollection(getChars());
             life.notifyControllerChange(controller);
             if (life instanceof Mob && CustomConstants.AUTO_AGGRO) {
                 broadcastPacket(MobPool.forceChase(life.getObjectId(), false));
             }
+            getLifeToControllers().put(life, controller);
+        } else {
+            getLifeToControllers().remove(life);
         }
-        putLifeController(life, controller);
     }
 
     public void removeLife(Life life) {
@@ -625,6 +613,21 @@ public class Field {
         if (android != null) {
             removeLife(android);
         }
+        // remove chair
+        PortableChair chair = chr.getChair();
+        if (chair != null) {
+            if (ItemConstants.isGroupChair(chair.getItemId()) && getGroupChairList().contains(chair)) {
+                if (chair.isOwner(chr)) {
+                    removeGroupChair(chair);
+                } else {
+                    chair.removeGroupChairUser(chr);
+                    updateGroupChair(chair);
+                }
+            }
+            chr.setChair(null);
+            broadcastPacket(UserRemote.remoteSetActivePortableChair(chr, PortableChair.EMPTY_CHAIR), chr);
+            broadcastPacket(FieldPacket.sitResult(chr.getId(), -1));
+        }
         getChars().remove(chr);
         broadcastPacket(UserPool.userLeaveField(chr), chr);
         // change controllers for which the chr was the controller of
@@ -657,14 +660,6 @@ public class Field {
 
     public Map<Life, Char> getLifeToControllers() {
         return lifeToControllers;
-    }
-
-    public void setLifeToControllers(Map<Life, Char> lifeToControllers) {
-        this.lifeToControllers = lifeToControllers;
-    }
-
-    public void putLifeController(Life life, Char chr) {
-        getLifeToControllers().put(life, chr);
     }
 
     public Life getLifeByObjectID(int objectId) {
@@ -705,6 +700,14 @@ public class Field {
         }
         if (chr.getInstance() != null && chr.getInstance().getWarpOutTimer() != null) {
             chr.write(FieldPacket.clock(ClockPacket.secondsClock(chr.getInstance().getRemainingTime())));
+        }
+        if (!getGroupChairList().isEmpty()) {
+            // chairs don't get loaded properly on fresh start with enterField
+            for (PortableChair chair : getGroupChairList()) {
+                Char owner = chair.getOwner();
+                chr.write(UserRemote.remoteSetActivePortableChair(owner, chair));
+                chr.write(FieldPacket.groupChairInfo(owner.getId(), false, chair));
+            }
         }
     }
 
@@ -806,11 +809,11 @@ public class Field {
     }
 
     public void setObjectIDCounter(int idCounter) {
-        objectIDCounter = idCounter;
+        objectIDCounter.set(idCounter);
     }
 
     public int getNewObjectID() {
-        return objectIDCounter++;
+        return objectIDCounter.getAndIncrement();
     }
 
     public List<Life> getLifesInRect(Rect rect) {
@@ -1550,6 +1553,14 @@ public class Field {
         this.kishin = kishin;
     }
 
+    public boolean isChannelField() {
+        return isChannelField;
+    }
+
+    public void setChannelField(boolean channelField) {
+        this.isChannelField = channelField;
+    }
+
     public List<OpenGate> getOpenGates() {
         return openGateList;
     }
@@ -1564,14 +1575,6 @@ public class Field {
 
     public void removeOpenGate(OpenGate openGate) {
         getOpenGates().remove(openGate);
-    }
-
-    public boolean isChannelField() {
-        return isChannelField;
-    }
-
-    public void setChannelField(boolean channelField) {
-        this.isChannelField = channelField;
     }
 
     public List<TownPortal> getTownPortalList() {
@@ -1593,7 +1596,28 @@ public class Field {
     public TownPortal getTownPortalByChrId(int chrId) {
         return getTownPortalList().stream().filter(tp -> tp.getChr().getId() == chrId).findAny().orElse(null);
     }
-    
+
+    public List<PortableChair> getGroupChairList() {
+        return groupChairList;
+    }
+
+    public void updateGroupChair(PortableChair chair) {
+        Char owner = chair.getOwner();
+        getChars().forEach(c -> c.write(FieldPacket.groupChairInfo(owner.getId(), c.equals(owner), chair)));
+    }
+
+    public void addGroupChair(PortableChair chair) {
+        chair.setObjectId(getNewObjectID());
+        getGroupChairList().add(chair);
+        updateGroupChair(chair);
+    }
+
+    public void removeGroupChair(PortableChair toRemove) {
+        toRemove.getGroupChairUsers().forEach(c -> broadcastPacket(FieldPacket.sitResult(c.getId(), -1)));
+        getGroupChairList().remove(toRemove);
+        broadcastPacket(FieldPacket.groupChairInfo(getGroupChairList(), List.of(toRemove)));
+    }
+
     public void increaseReactorState(Char chr, int templateId, int stateLength) {
         Life life = getLifeByTemplateId(templateId);
         if (life instanceof Reactor) {

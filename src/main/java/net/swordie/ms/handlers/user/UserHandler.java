@@ -42,6 +42,7 @@ import net.swordie.ms.loaders.MonsterCollectionData;
 import net.swordie.ms.loaders.ReactorData;
 import net.swordie.ms.loaders.containerclasses.ItemInfo;
 import net.swordie.ms.util.Position;
+import net.swordie.ms.util.Rect;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.util.container.Tuple;
 import net.swordie.ms.world.auction.AuctionResult;
@@ -189,7 +190,6 @@ public class UserHandler {
             //int write 0
             //int something?
         }
-
     }
 
 
@@ -251,10 +251,21 @@ public class UserHandler {
     public static void handleUserSitRequest(Char chr, InPacket inPacket) {
         Field field = chr.getField();
         short fieldSeatId = inPacket.decodeShort();
-        chr.setChair(null);
         chr.setFieldSeatID(fieldSeatId);
-        chr.write(FieldPacket.sitResult(chr.getId(), fieldSeatId));
-        field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr, PortableChair.EMPTY_CHAIR), chr);
+        PortableChair chair = chr.getChair();
+        if (chair != null) {
+            if (ItemConstants.isGroupChair(chair.getItemId()) && field.getGroupChairList().contains(chair)) {
+                if (chair.isOwner(chr)) {
+                    field.removeGroupChair(chair);
+                } else {
+                    chair.removeGroupChairUser(chr);
+                    field.updateGroupChair(chair);
+                }
+            }
+            chr.setChair(null);
+            field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr, PortableChair.EMPTY_CHAIR), chr);
+        }
+        field.broadcastPacket(FieldPacket.sitResult(chr.getId(), fieldSeatId));
         chr.dispose();
     }
 
@@ -262,7 +273,7 @@ public class UserHandler {
     public static void handleUserPortableChairSitRequest(Char chr, InPacket inPacket) {
         Field field = chr.getField();
         int itemId = inPacket.decodeInt();
-        int pos = inPacket.decodeInt();
+        int bagIndex = inPacket.decodeInt();
         boolean isBag = inPacket.decodeByte() != 0;
         if (!chr.hasItem(itemId) || !ItemConstants.isChair(itemId)) {
             chr.dispose();
@@ -285,12 +296,23 @@ public class UserHandler {
                 }
             }
         }
-        chr.setChair(chair);
+        field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr, chair), chr);
         if (ItemConstants.isGroupChair(itemId)) {
-            // TODO field.broadcastPacket(FieldPacket.groupChairInfo(chr.getId(), chr.getChair()));
-        } else {
-            field.broadcastPacket(UserRemote.remoteSetActivePortableChair(chr, chr.getChair()), chr);
+            // TODO: read from WZ info, there is only 1 group chair in v178
+            Position pos = chr.getPosition();
+            Rect rect = new Rect( // 50 unit buffer
+                    pos.getX() - (265 / 2) - 50,pos.getY() - 400 - 50,
+                    pos.getX() + (265 / 2) + 50, pos.getY() + 50
+            );
+            chair.setPosition(pos);
+            chair.setRect(rect);
+            chair.setCapacity(4);
+            chair.setEmotions(List.of(2, 10, 14, 17));
+            chair.setOwner(chr);
+            chair.addGroupChairUser(chr);
+            field.addGroupChair(chair);
         }
+        chr.setChair(chair);
         chr.dispose();
     }
 
@@ -312,6 +334,66 @@ public class UserHandler {
         }
         chr.write(WvsContext.questRecordExMessage(towerChairQuest));
         chr.write(new OutPacket(OutHeader.TOWER_CHAIR_SETTING_RESULT));
+    }
+
+    @Handler(op = InHeader.USER_GROUP_CHAIR_INVITE)
+    public static void handleUserGroupChairInvite(Char chr, InPacket inPacket) {
+        Field field = chr.getField();
+        PortableChair chair = chr.getChair();
+        if (chair == null || !ItemConstants.isGroupChair(chair.getItemId()) || !field.getGroupChairList().contains(chair)) {
+            chr.write(FieldPacket.groupChairInviteResult(8, -1)); // Unable to find Group Chair.
+            chr.dispose();
+            return;
+        }
+        Char invitee = chr.getField().getCharByID(inPacket.decodeInt());
+        if (invitee == null) {
+            chr.write(FieldPacket.groupChairInviteResult(10, -1)); // Player not found.
+            chr.dispose();
+            return;
+        }
+        invitee.write(FieldPacket.groupChairInvite(chr.getId()));
+    }
+
+    @Handler(op = InHeader.USER_GROUP_CHAIR_INVITE_RESPONSE)
+    public static void handleUserGroupChairInviteResponse(Char chr, InPacket inPacket) {
+        Field field = chr.getField();
+        Char inviter = chr.getField().getCharByID(inPacket.decodeInt());
+        if (inviter == null || inviter.getChair() == null || !field.getGroupChairList().contains(inviter.getChair())) {
+            chr.write(FieldPacket.groupChairInviteResult(11, -1)); // The Group Chair you were invited to was not found.
+            return;
+        }
+        boolean accepted = inPacket.decodeByte() != 0;
+        if (accepted) {
+            PortableChair chair = inviter.getChair();
+            chr.setChair(chair);
+            chair.addGroupChairUser(chr);
+            field.updateGroupChair(chair);
+            chr.write(FieldPacket.groupChairInviteResult(6, chair.getObjectId()));
+        } else {
+            inviter.write(FieldPacket.groupChairInviteResult(13, -1)); // The Group Chair invitation was declined.
+        }
+    }
+
+    @Handler(op = InHeader.USER_GROUP_CHAIR_EMPTY)
+    public static void handleUserGroupChairEmpty(Char chr, InPacket inPacket) {
+        Char target = chr.getField().getCharByID(inPacket.decodeInt());
+        if (target == null) {
+            chr.write(FieldPacket.groupChairInviteResult(10, -1)); // Player not found.
+            chr.dispose();
+            return;
+        }
+        Field field = chr.getField();
+        PortableChair chair = chr.getChair();
+        if (chair == null || !ItemConstants.isGroupChair(chair.getItemId()) || !field.getGroupChairList().contains(chair)) {
+            chr.write(FieldPacket.groupChairInviteResult(8, -1)); // Unable to find Group Chair.
+            chr.dispose();
+            return;
+        }
+        target.setChair(null);
+        chair.removeGroupChairUser(target);
+        field.updateGroupChair(chair);
+        field.broadcastPacket(UserRemote.remoteSetActivePortableChair(target, PortableChair.EMPTY_CHAIR), target);
+        field.broadcastPacket(FieldPacket.sitResult(target.getId(), -1));
     }
 
     @Handler(op = InHeader.USER_EMOTION)

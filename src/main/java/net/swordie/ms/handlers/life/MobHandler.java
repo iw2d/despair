@@ -86,7 +86,7 @@ public class MobHandler {
         }
         MobSkillAttackInfo msai = new MobSkillAttackInfo();
         Mob mob = (Mob) life;
-        Char controller = field.getLifeToControllers().get(mob);
+        Char controller = field.getLifeToControllers().getOrDefault(mob, null);
         byte idk0 = inPacket.decodeByte(); // check if the templateID / 10000 == 250 or 251. No idea for what it's used
         short mobControlSN = inPacket.decodeShort();
         msai.actionAndDirMask = inPacket.decodeByte();

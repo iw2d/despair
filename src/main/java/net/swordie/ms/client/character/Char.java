@@ -2739,7 +2739,6 @@ public class Char {
 		if (toField == null) {
 			return;
 		}
-
 		Field currentField = getField();
 		if (currentField != null) {
 			if (saveReturnMap) {

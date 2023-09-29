@@ -683,14 +683,14 @@ public class AdminCommands {
             String chrName = args[1];
 
             Char newController = chr.getField().getCharByName(chrName);
-            if(newController == null) {
+            if (newController == null) {
                 chr.chatMessage("Character not found");
                 return;
             }
 
-            for(Mob m : chr.getField().getMobs()) {
-                m.notifyControllerChange(newController);
-                chr.getField().putLifeController(m, newController);
+            for (Mob mob : chr.getField().getMobs()) {
+                mob.notifyControllerChange(newController);
+                chr.getField().getLifeToControllers().put(mob, newController);
             }
 
         }
@@ -702,9 +702,9 @@ public class AdminCommands {
 
             String chrName = args[1];
 
-            for(Mob m : chr.getField().getMobs()) {
-                Char controller = m.getField().getLifeToControllers().get(m);
-                chr.chatMessage(m.getObjectId() + " : " + controller.getName());
+            for (Mob mob : chr.getField().getMobs()) {
+                Char controller = mob.getField().getLifeToControllers().getOrDefault(mob, null);
+                chr.chatMessage(mob.getObjectId() + " : " + controller.getName());
             }
 
         }

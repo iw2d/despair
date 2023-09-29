@@ -415,7 +415,10 @@ public class MobSkill {
                     mob.teleport(xPos, yPos);
                 } else {
                     // xPos == skillAfter (both x)
-                    mob.getField().getLifeToControllers().get(mob).write(MobPool.teleportRequest(1, null));
+                    Char controller = mob.getField().getLifeToControllers().getOrDefault(mob, null);
+                    if (controller != null) {
+                        controller.write(MobPool.teleportRequest(1, null));
+                    }
                 }
                 break;
             case PMCounter:

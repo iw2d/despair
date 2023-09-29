@@ -1278,7 +1278,7 @@ public class Mob extends Life {
             if (getField().getLifeToControllers().containsKey(this) &&
                     getField().getLifeToControllers().get(this) != damageDealer && getMostDamageChar() == damageDealer) {
                 notifyControllerChange(damageDealer);
-                getField().putLifeController(this, damageDealer);
+                getField().getLifeToControllers().put(this, damageDealer);
             }
         }
     }
@@ -1677,7 +1677,7 @@ public class Mob extends Life {
         }
         setHomeFoothold(fh.deepCopy());
         setCurFoodhold(fh.deepCopy());
-        Char controller = getField().getLifeToControllers().get(this);
+        Char controller = getField().getLifeToControllers().getOrDefault(this, null);
         if (onlyChar == null) {
             field.broadcastPacket(MobPool.enterField(this, false));
             for (Char chr : field.getChars()) {

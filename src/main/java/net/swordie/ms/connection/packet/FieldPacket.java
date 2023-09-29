@@ -508,8 +508,42 @@ public class FieldPacket {
         return outPacket;
     }
 
-    public static OutPacket groupChairInfo(int chrId, PortableChair chair) {
+    public static OutPacket groupChairInfo(int chrId, boolean isOwner, PortableChair chair) {
         OutPacket outPacket = new OutPacket(OutHeader.GROUP_CHAIR_INFO);
+        outPacket.encodeInt(chrId);
+        outPacket.encodeByte(isOwner);
+        outPacket.encodeByte(false);
+        chair.encodeGroupChairInfo(outPacket);
+        return outPacket;
+    }
+
+    public static OutPacket groupChairInfo(List<PortableChair> groupChairs, List<PortableChair> removed) {
+        OutPacket outPacket = new OutPacket(OutHeader.GROUP_CHAIR_INFO);
+        outPacket.encodeInt(0);
+        outPacket.encodeByte(false);
+        outPacket.encodeByte(true); // encode all
+        // sub_DDA690
+        outPacket.encodeInt(groupChairs.size() + removed.size());
+        groupChairs.forEach(chair -> {
+            chair.encodeGroupChairInfo(outPacket);
+        });
+        removed.forEach(chair -> {
+            outPacket.encodeInt(chair.getObjectId());
+            outPacket.encodeByte(false);
+        });
+        return outPacket;
+    }
+
+    public static OutPacket groupChairInvite(int chrId) {
+        OutPacket outPacket = new OutPacket(OutHeader.GROUP_CHAIR_INVITE);
+        outPacket.encodeInt(chrId);
+        return outPacket;
+    }
+
+    public static OutPacket groupChairInviteResult(int code, int objectId) {
+        OutPacket outPacket = new OutPacket(OutHeader.GROUP_CHAIR_INVITE_RESULT);
+        outPacket.encodeInt(code);
+        outPacket.encodeInt(objectId); // only used for code = 6
         return outPacket;
     }
 

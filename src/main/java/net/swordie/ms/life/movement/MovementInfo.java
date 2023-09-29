@@ -67,8 +67,6 @@ public class MovementInfo implements Encodable {
     }
 
     private static List<Movement> parseMovement(InPacket inPacket) {
-        // Taken from mushy when my IDA wasn't able to show this properly
-        // Made by Maxcloud
         List<Movement> res = new ArrayList<>();
         byte size = inPacket.decodeByte();
         for (int i = 0; i < size; i++) {
@@ -80,9 +78,9 @@ public class MovementInfo implements Encodable {
                 case 15:
                 case 17:
                 case 19:
-                case 65:
-                case 66:
                 case 67:
+                case 68:
+                case 69:
                     res.add(new MovementNormal(inPacket, type));
                     break;
                 case 1:
@@ -91,10 +89,10 @@ public class MovementInfo implements Encodable {
                 case 21:
                 case 22:
                 case 24:
-                case 60:
-                case 61:
                 case 62:
                 case 63:
+                case 64:
+                case 65:
                     res.add(new MovementJump(inPacket, type));
                     break;
                 case 3:
@@ -108,14 +106,15 @@ public class MovementInfo implements Encodable {
                 case 13:
                 case 26:
                 case 27:
-                case 51:
                 case 52:
                 case 53:
-                case 74:
-                case 75:
+                case 54:
+                case 61:
                 case 76:
+                case 77:
                 case 78:
                 case 80:
+                case 82:
                     res.add(new MovementTeleport(inPacket, type));
                     break;
                 case 12:
@@ -128,7 +127,6 @@ public class MovementInfo implements Encodable {
                 case 23:
                     res.add(new MovementFlyingBlock(inPacket, type));
                     break;
-                case 28:
                 case 29:
                 case 30:
                 case 31:
@@ -149,28 +147,36 @@ public class MovementInfo implements Encodable {
                 case 46:
                 case 47:
                 case 48:
-                case 49:
                 case 50:
-                case 56:
+                case 51:
+                case 55:
                 case 57:
                 case 58:
-                case 59:
-                case 68:
-                case 69:
                 case 70:
+                case 71:
                 case 72:
-                case 77:
+                case 74:
                 case 79:
                 case 81:
+                case 83:
+                case 84:
                     res.add(new MovementAction(inPacket, type));
                     break;
-                case 55:
-                case 64:
+                case 49:
+                    inPacket.decodeShort(); // x offset
+                    res.add(new MovementAction(inPacket, type));
+                    break;
+                case 56:
+                case 66:
+                case 86:
                     res.add(new MovementAngle(inPacket, type)); // probably not a good name
                     break;
+                case 60:
+                    res.add(new MovementAction(inPacket, type));
+                    break;
                 default:
-                    // log.warn(String.format("Unhandled move path attribute %s.", type));
-                    if (type == 71 || type == 73) {
+                    log.warn(String.format("Unhandled move path attribute %s.", type));
+                    if (type == 73 || type == 75) {
                         // MPA_INFO::Decode
                         inPacket.decodeShort(); // nMPA
                         inPacket.decodeShort(); // nParam1
