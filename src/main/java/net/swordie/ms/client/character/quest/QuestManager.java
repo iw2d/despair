@@ -213,8 +213,8 @@ public class QuestManager {
     }
 
     public void handleMoneyGain(int money) {
-        for(Quest q : getQuestsInProgress()) {
-            if(q.hasMoneyReq()) {
+        for (Quest q : getQuestsInProgress()) {
+            if (q.hasMoneyReq()) {
                 q.addMoney(money);
                 chr.write(WvsContext.questRecordMessage(q));
             }

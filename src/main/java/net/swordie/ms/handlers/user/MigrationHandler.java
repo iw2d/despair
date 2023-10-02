@@ -88,9 +88,6 @@ public class MigrationHandler {
         chr.setFieldInstanceType(FieldInstanceType.CHANNEL);
         Server.getInstance().addUser(user);
         Field field = chr.getOrCreateFieldByCurrentInstanceType(chr.getFieldID() <= 0 ? 100000000 : chr.getFieldID());
-        if (chr.getHP() <= 0) { // automatically revive when relogging
-            chr.setStat(Stat.hp, 1);
-        }
         if (chr.getPartyID() != 0) {
             Party party = c.getWorld().getPartybyId(chr.getPartyID());
             if (party == null || !party.hasPartyMember(chr.getId())) {
@@ -101,8 +98,16 @@ public class MigrationHandler {
         }
         // blessing has to be split up, as adding skills before SetField will crash the client
         chr.initBlessingSkillNames();
+        chr.initBaseStats();
+        chr.initBlessingSkills();
+        // crash on set field when hp is <= 0 or > max
+        if (chr.getHP() <= 0) {
+            chr.setStat(Stat.hp, 1);
+        } else if (chr.getHP() > chr.getMaxHP()) {
+            chr.setStat(Stat.hp, chr.getMaxHP());
+        }
         chr.warp(field, true);
-        c.write(WvsContext.updateEventNameTag(new int[]{}));
+        chr.setOnline(true);
         if (chr.getGuild() != null) {
             chr.setGuild(chr.getClient().getWorld().getGuildByID(chr.getGuild().getId()));
         }
@@ -112,6 +117,7 @@ public class MigrationHandler {
             c.write(FieldPacket.funcKeyMappedManInit(chr.getFuncKeyMap()));
         }
         c.write(FieldPacket.quickslotInit(chr.getQuickslotKeys()));
+        c.write(WvsContext.updateEventNameTag(new int[]{}));
         c.write(WvsContext.friendResult(FriendResult.loadFriends(chr.getAllFriends())));
         c.write(WvsContext.macroSysDataInit(chr.getMacros()));
         c.write(UserLocal.damageSkinSaveResult(DamageSkinType.Req_SendInfo, null, chr));
@@ -120,12 +126,8 @@ public class MigrationHandler {
         chr.checkAndRemoveExpiredItems();
         chr.updatePartyHP();
         chr.setBulletIDForAttack(chr.calculateBulletIDForAttack(1));
-        chr.initBaseStats();
-        chr.initBlessingSkills();
-        chr.setOnline(true);
         chr.getOffenseManager().setChr(chr);
         acc.initAuctions();
-        chr.recalcStats(EnumSet.of(BaseStat.mhp, BaseStat.mmp));
         chr.write(WvsContext.setMaplePoint(acc.getNxCredit()));
     }
 
