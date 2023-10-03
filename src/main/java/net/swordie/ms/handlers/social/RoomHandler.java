@@ -111,11 +111,11 @@ public class RoomHandler {
                     return;
                 }
                 chr.deductMoney(money);
-                chr.addMoney(tradeRoom.getMoney(chr));
-                tradeRoom.putMoney(chr, money);
+                long newMoney = tradeRoom.getMoney(chr) + money;
+                tradeRoom.putMoney(chr, newMoney);
                 other = tradeRoom.getOtherChar(chr);
-                chr.write(MiniRoomPacket.TradingRoom.putMoney(0, money));
-                other.write(MiniRoomPacket.TradingRoom.putMoney(1, money));
+                chr.write(MiniRoomPacket.TradingRoom.putMoney(0, newMoney));
+                other.write(MiniRoomPacket.TradingRoom.putMoney(1, newMoney));
                 break;
             case Trade:
             case TradeConfirm:

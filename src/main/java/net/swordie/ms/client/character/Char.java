@@ -94,6 +94,9 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -449,6 +452,12 @@ public class Char {
 	private Merchant visitingmerchant;
 	@Transient
 	private int packetDelay;
+	@Transient
+	private long addMoneyCache;
+	@Transient
+	private Lock addMoneyLock = new ReentrantLock();
+	@Transient
+	private ScheduledFuture addMoneyFuture = null;
 
 
 	public Char() {
@@ -1625,10 +1634,6 @@ public class Char {
 		this.pets = pets;
 	}
 
-	public long getMoney() {
-		return getAvatarData().getCharacterStat().getMoney();
-	}
-
 	public List<ExpConsumeItem> getExpConsumeItems() {
 		return expConsumeItems;
 	}
@@ -2310,15 +2315,56 @@ public class Char {
 	 * @param amount The amount of money to add. May be negative.
 	 */
 	public void addMoney(long amount) {
-		CharacterStat cs = getAvatarData().getCharacterStat();
-		long money = cs.getMoney();
-		long newMoney = money + amount;
-		if (newMoney >= 0) {
-			newMoney = Math.min(GameConstants.MAX_MONEY, newMoney);
-			Map<Stat, Object> stats = new HashMap<>();
-			cs.setMoney(newMoney);
-			stats.put(Stat.money, newMoney);
-			write(WvsContext.statChanged(stats));
+		addMoney(amount, false);
+	}
+
+	/**
+	 * Batched version of addMoney : The packet for updating the money
+	 * is batched in order to mitigate the lag from STAT_CHANGED packets.
+	 * This should be used for money gain from drops.
+	 *
+	 * Another source of the lag is in CWvsContext::OnDropPickUPMessage -
+	 * there is another CWvsContext::CheckQuestCompleteByMeso call that can
+	 * just be skipped (01F27470) in the client as that will be handled by
+	 * the batched STAT_CHANGED packets.
+	 *
+	 * @param amount The amount of money to add. May be negative.
+	 */
+	public void addMoney(long amount, boolean batch) {
+		addMoneyLock.lock();
+		try {
+			addMoneyCache += amount;
+			if (batch && addMoneyFuture == null) {
+				addMoneyFuture = EventManager.addEvent(this::addCachedMoney, GameConstants.ADD_MONEY_INTERVAL);
+			}
+		} finally {
+			addMoneyLock.unlock();
+		}
+		if (!batch) {
+			addCachedMoney();
+		}
+	}
+
+	private void addCachedMoney() {
+		addMoneyLock.lock();
+		try {
+			addMoneyFuture = null;
+			if (addMoneyCache == 0) {
+				return;
+			}
+			CharacterStat cs = getAvatarData().getCharacterStat();
+			long money = cs.getMoney();
+			long newMoney = money + addMoneyCache;
+			if (newMoney >= 0) {
+				newMoney = Math.min(GameConstants.MAX_MONEY, newMoney);
+				Map<Stat, Object> stats = new HashMap<>();
+				cs.setMoney(newMoney);
+				stats.put(Stat.money, newMoney);
+				write(WvsContext.statChanged(stats));
+			}
+			addMoneyCache = 0;
+		} finally {
+			addMoneyLock.unlock();
 		}
 	}
 
@@ -2329,6 +2375,16 @@ public class Char {
 	 */
 	public void deductMoney(long amount) {
 		addMoney(-amount);
+	}
+
+	public long getMoney() {
+		addCachedMoney();
+		return getAvatarData().getCharacterStat().getMoney();
+	}
+
+	public boolean canAddMoney(long reqMoney) {
+		long currentMoney = getMoney();
+		return currentMoney + reqMoney > 0 && currentMoney + reqMoney <= GameConstants.MAX_MONEY;
 	}
 
 	public Position getOldPosition() {
@@ -3093,10 +3149,9 @@ public class Char {
 	 */
 	public boolean addDrop(Drop drop) {
 		if (drop.isMoney()) {
-			addMoney(drop.getMoney());
+			addMoney(drop.getMoney(), true);
 			getQuestManager().handleMoneyGain(drop.getMoney());
 			write(WvsContext.dropPickupMessage(drop.getMoney(), (short) 0, (short) 0));
-			dispose();
 			return true;
 		} else {
 			Item item = drop.getItem();
@@ -3132,7 +3187,6 @@ public class Char {
 			}
 			if (isConsume) {
 				consumeItemOnPickup(item);
-				dispose();
 				return true;
 			} else if (isRunOnPickUp) {
 				String script = String.valueOf(itemID);
@@ -3721,6 +3775,7 @@ public class Char {
 	}
 
 	public void logout() {
+		addCachedMoney();
 		punishLieDetectorEvasion();
 		log.info("Logging out " + getName());
 		if (getField().getForcedReturn() != GameConstants.NO_MAP_ID) {
@@ -3996,10 +4051,6 @@ public class Char {
 		for (DamageSkinSaveData dssd : getAccount().getDamageSkins()) {
 			dssd.encode(outPacket);
 		}
-	}
-
-	public boolean canAddMoney(long reqMoney) {
-		return getMoney() + reqMoney > 0 && getMoney() + reqMoney < GameConstants.MAX_MONEY;
 	}
 
 	public void addPet(Pet pet) {

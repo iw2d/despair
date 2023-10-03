@@ -23,7 +23,7 @@ public enum TrunkType {
     TrunkRes_PutIncorrectRequest(14),
     TrunkRes_SortItem(15),
     TrunkRes_PutNoMoney(16),
-    TrunkRes_PutNoSpace(17),
+    TrunkRes_StorageFull(17),
     TrunkRes_PutUnknown(18),
     TrunkRes_MoneySuccess(19),
     TrunkRes_MoneyUnknown(20),
@@ -35,6 +35,8 @@ public enum TrunkType {
     TrunkRes_BlockedBehavior(26),
     TrunkRes_GetItemExpired(27),
     TrunkRes_BlockFunction(28),
+    TrunkRes_Error(29), // byte -> str
+    TrunkRes_CannotHoldMoreMeso(30),
     ;
 
     private int val;

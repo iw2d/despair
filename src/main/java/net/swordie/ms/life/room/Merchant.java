@@ -194,7 +194,7 @@ public class Merchant extends Life {
     public void tidyMerchant(Char chr) {
         Long earnings = chr.getMerchant().getMesos();
         if (!chr.canAddMoney(earnings)) {
-            chr.chatMessage("You cannot hold that much mesos.");
+            chr.chatMessage("You cannot hold any more mesos at this time.");
             return;
         }
         chr.addMoney(earnings);

@@ -158,8 +158,8 @@ public class PetHandler {
 
     @Handler(op = InHeader.PET_STAT_CHANGE_ITEM_USE_REQUEST)
     public static void handlePetStatChangeItemUseRequest(Char chr, InPacket inPacket) {
+        inPacket.decodeByte(); // bConsumeMP
         inPacket.decodeInt(); // tick
-        inPacket.decodeByte(); // check later
         short pos = inPacket.decodeShort();
         int itemID = inPacket.decodeInt();
         Item item = chr.getConsumeInventory().getItemBySlot(pos);

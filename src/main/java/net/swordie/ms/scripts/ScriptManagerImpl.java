@@ -7,6 +7,7 @@ import net.swordie.ms.client.Client;
 import net.swordie.ms.client.alliance.Alliance;
 import net.swordie.ms.client.alliance.AllianceResult;
 import net.swordie.ms.client.character.Char;
+import net.swordie.ms.client.trunk.TrunkDlg;
 import net.swordie.ms.constants.MonsterPark;
 import net.swordie.ms.client.character.avatar.AvatarLook;
 import net.swordie.ms.client.character.damage.DamageSkinSaveData;
@@ -27,7 +28,6 @@ import net.swordie.ms.client.guild.result.GuildResult;
 import net.swordie.ms.client.guild.result.GuildType;
 import net.swordie.ms.client.party.Party;
 import net.swordie.ms.client.party.PartyMember;
-import net.swordie.ms.client.trunk.TrunkOpen;
 import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.*;
@@ -1436,7 +1436,7 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	@Override
 	public void openTrunk(int npcTemplateID) {
-		chr.write(FieldPacket.trunkDlg(new TrunkOpen(npcTemplateID, chr.getAccount().getTrunk())));
+		chr.write(FieldPacket.trunkDlg(TrunkDlg.open(npcTemplateID, chr.getAccount().getTrunk())));
 	}
 
 	@Override

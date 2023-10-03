@@ -95,7 +95,7 @@ public class TradeRoom {
     public boolean completeTrade() {
         Char chr = getChr();
         Char other = getOther();
-        // Check if the characters have enough space for all the items
+        // Check if the characters have enough space for all the items + money
         List<Item> itemsForChr = getOfferedItems().get(other).stream().map(Tuple::getRight).toList();
         if (!chr.canHold(itemsForChr)) {
             chr.chatMessage("You do not have enough inventory space.");
@@ -106,6 +106,16 @@ public class TradeRoom {
         if (!other.canHold(itemsForOther)) {
             other.chatMessage("You do not have enough inventory space.");
             chr.chatMessage(chr.getName() + " does not have enough inventory space.");
+            return false;
+        }
+        if (!chr.canAddMoney(GameConstants.tradeTax(getMoney(other)))) {
+            chr.chatMessage("You cannot hold more mesos at this time.");
+            other.chatMessage(chr.getName() + " cannot hold more mesos at this time.");
+            return false;
+        }
+        if (!other.canAddMoney(GameConstants.tradeTax(getMoney(chr)))) {
+            other.chatMessage("You cannot hold more mesos at this time.");
+            chr.chatMessage(chr.getName() + " cannot hold more mesos at this time.");
             return false;
         }
         // Add all the items + money

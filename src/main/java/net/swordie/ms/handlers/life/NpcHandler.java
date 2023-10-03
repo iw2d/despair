@@ -37,6 +37,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 public class NpcHandler {
 
@@ -56,7 +57,7 @@ public class NpcHandler {
         Npc npc = (Npc) life;
         int templateID = npc.getTemplateId();
         if (npc.getTrunkGet() > 0 || npc.getTrunkPut() > 0) {
-            chr.write(FieldPacket.trunkDlg(new TrunkOpen(templateID, chr.getAccount().getTrunk())));
+            chr.write(FieldPacket.trunkDlg(TrunkDlg.open(templateID, chr.getAccount().getTrunk())));
             return;
         }
         String script = npc.getScripts().get(0);
@@ -264,25 +265,32 @@ public class NpcHandler {
         switch (trunkType) {
             case TrunkReq_Money:
                 long reqMoney = inPacket.decodeLong();
-                boolean put = reqMoney < 0;
                 long curMoney = chr.getMoney();
-                if (put) {
+                if (reqMoney < 0) {
                     reqMoney = -reqMoney;
-                    if (reqMoney > curMoney && trunk.canAddMoney(reqMoney)) {
-                        chr.write(FieldPacket.trunkDlg(new TrunkMsg(TrunkType.TrunkRes_PutNoMoney)));
+                    if (reqMoney > curMoney) {
+                        chr.write(FieldPacket.trunkDlg(TrunkDlg.msg(TrunkType.TrunkRes_PutNoMoney)));
+                        return;
+                    }
+                    if (!trunk.canAddMoney(reqMoney)) {
+                        chr.write(FieldPacket.trunkDlg(TrunkDlg.msg(TrunkType.TrunkRes_CannotHoldMoreMeso)));
                         return;
                     }
                     trunk.addMoney(reqMoney);
                     chr.deductMoney(reqMoney);
-                    chr.write(FieldPacket.trunkDlg(new TrunkUpdate(TrunkType.TrunkRes_MoneySuccess, trunk)));
+                    chr.write(FieldPacket.trunkDlg(TrunkDlg.success(TrunkType.TrunkRes_MoneySuccess, trunk)));
                 } else {
-                    if (reqMoney <= trunk.getMoney() && chr.canAddMoney(reqMoney)) {
-                        trunk.addMoney(-reqMoney);
-                        chr.addMoney(reqMoney);
-                        chr.write(FieldPacket.trunkDlg(new TrunkUpdate(TrunkType.TrunkRes_MoneySuccess, trunk)));
-                    } else {
-                        chr.write(FieldPacket.trunkDlg(new TrunkMsg(TrunkType.TrunkRes_GetNoMoney)));
+                    if (reqMoney > trunk.getMoney()) {
+                        chr.write(FieldPacket.trunkDlg(TrunkDlg.msg(TrunkType.TrunkRes_GetNoMoney)));
+                        return;
                     }
+                    if (!chr.canAddMoney(reqMoney)) {
+                        chr.write(FieldPacket.trunkDlg(TrunkDlg.msg(TrunkType.TrunkRes_CannotHoldMoreMeso)));
+                        return;
+                    }
+                    trunk.addMoney(-reqMoney);
+                    chr.addMoney(reqMoney);
+                    chr.write(FieldPacket.trunkDlg(TrunkDlg.success(TrunkType.TrunkRes_MoneySuccess, trunk)));
                 }
                 break;
             case TrunkReq_GetItem:
@@ -293,12 +301,12 @@ public class NpcHandler {
                     if (chr.getInventoryByType(getItem.getInvType()).canPickUp(getItem)) {
                         trunk.removeItem(getItem);
                         chr.addItemToInventory(getItem);
-                        chr.write(FieldPacket.trunkDlg(new TrunkUpdate(TrunkType.TrunkRes_GetSuccess, trunk)));
+                        chr.write(FieldPacket.trunkDlg(TrunkDlg.success(TrunkType.TrunkRes_GetSuccess, trunk)));
                     } else {
-                        chr.write(FieldPacket.trunkDlg(new TrunkMsg(TrunkType.TrunkRes_GetUnknown)));
+                        chr.write(FieldPacket.trunkDlg(TrunkDlg.msg(TrunkType.TrunkRes_GetUnknown)));
                     }
                 } else {
-                    chr.write(FieldPacket.trunkDlg(new TrunkMsg(TrunkType.TrunkRes_GetUnknown)));
+                    chr.write(FieldPacket.trunkDlg(TrunkDlg.msg(TrunkType.TrunkRes_GetUnknown)));
                 }
                 break;
             case TrunkReq_PutItem:
@@ -309,19 +317,19 @@ public class NpcHandler {
                 Item item = chr.getInventoryByType(invType).getItemBySlot(slot);
                 if (item != null && quantity > 0 && item.getQuantity() >= quantity && item.getItemId() == itemID) {
                     if (trunk.getItems().size() >= trunk.getSlotCount()) {
-                        chr.write(FieldPacket.trunkDlg(new TrunkMsg(TrunkType.TrunkRes_PutNoSpace)));
+                        chr.write(FieldPacket.trunkDlg(TrunkDlg.msg(TrunkType.TrunkRes_StorageFull)));
                         return;
                     }
                     chr.consumeItem(itemID, quantity);
                     trunk.addItem(item, quantity);
-                    chr.write(FieldPacket.trunkDlg(new TrunkUpdate(TrunkType.TrunkRes_PutSuccess, trunk)));
+                    chr.write(FieldPacket.trunkDlg(TrunkDlg.success(TrunkType.TrunkRes_PutSuccess, trunk)));
                 } else {
-                    chr.write(FieldPacket.trunkDlg(new TrunkMsg(TrunkType.TrunkRes_PutUnknown)));
+                    chr.write(FieldPacket.trunkDlg(TrunkDlg.msg(TrunkType.TrunkRes_PutUnknown)));
                 }
                 break;
             case TrunkReq_SortItem:
-//                trunk.getItems().sort(Comparator.comparingInt(Item::getItemId));
-                chr.write(FieldPacket.trunkDlg(new TrunkUpdate(TrunkType.TrunkRes_SortItem, trunk)));
+                trunk.getItems().sort(Comparator.comparingInt(Item::getItemId));
+                chr.write(FieldPacket.trunkDlg(TrunkDlg.success(TrunkType.TrunkRes_SortItem, trunk)));
                 break;
             case TrunkReq_CloseDialog:
                 chr.dispose();

@@ -91,11 +91,11 @@ public class Trunk {
     }
 
     public boolean canAddMoney(long amount) {
-        return getMoney() + amount <= GameConstants.MAX_MONEY;
+        return getMoney() + amount > 0 && getMoney() + amount <= GameConstants.MAX_MONEY;
     }
 
     public void addMoney(long reqMoney) {
-        if(canAddMoney(reqMoney)) {
+        if (canAddMoney(reqMoney)) {
             setMoney(getMoney() + reqMoney);
         }
     }

@@ -651,7 +651,6 @@ public class FieldPacket {
 
     public static OutPacket trunkDlg(TrunkDlg trunkDlg) {
         OutPacket outPacket = new OutPacket(OutHeader.TRUNK_DLG);
-        outPacket.encodeByte(trunkDlg.getType().getVal());
         trunkDlg.encode(outPacket);
         return outPacket;
     }

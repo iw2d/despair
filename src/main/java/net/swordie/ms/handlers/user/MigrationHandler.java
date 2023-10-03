@@ -141,7 +141,7 @@ public class MigrationHandler {
             c.getChannelInstance().addClientInTransfer(c.getChannel(), chr.getId(), c);
             c.write(ClientSocket.migrateCommand(true, (short) c.getChannelInstance().getPort()));
             return;
-    }
+        }
         byte fieldKey = inPacket.decodeByte();
         int targetField = inPacket.decodeInt();
         if (targetField == 106020100 || targetField == 106020400) {
