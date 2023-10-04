@@ -15,11 +15,11 @@ public class Friend {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    private int ownerID;
+    private int ownerAccID;
     private int friendID;
     private String name;
     private byte flag; // 5 through 8 = account friend
-    @Transient
-    private int channelID;
     @Column(name = "groupName")
     private String group;
     private byte mobile;
@@ -27,21 +27,35 @@ public class Friend {
     private String nickname;
     private String memo;
     @Transient
-    private boolean inShop;
-    @Transient
     private Char chr;
 
     public void encode(OutPacket outPacket) {
         outPacket.encodeInt(getFriendID());
-        outPacket.encodeString(getName(), 13);
+        outPacket.encodeString(isOnline() ? getChr().getName() : getName(), 13); // currently online char for account friend
         outPacket.encodeByte(getFlag());
-        outPacket.encodeInt(getChannelID());
+        outPacket.encodeInt(isOnline() ? getChr().getClient().getChannel() - 1 : -1);
         outPacket.encodeString(getGroup(), 17);
         outPacket.encodeByte(getMobile());
-        outPacket.encodeInt(getFriendAccountID());
+        outPacket.encodeInt(isAccount() ? getFriendAccountID() : 0); // client uses CTabFriend::FRIENDITEM.dwFriendAccountID to check if account friend
         outPacket.encodeString(getNickname(), 13);
         outPacket.encodeString(getMemo(), 256);
-        outPacket.encodeInt(isInShop() ? 1 : 0);
+        outPacket.encodeInt(0); // inShop?
+    }
+
+    public int getOwnerID() {
+        return ownerID;
+    }
+
+    public void setOwnerID(int ownerID) {
+        this.ownerID = ownerID;
+    }
+
+    public int getOwnerAccID() {
+        return ownerAccID;
+    }
+
+    public void setOwnerAccID(int ownerAccID) {
+        this.ownerAccID = ownerAccID;
     }
 
     public int getFriendID() {
@@ -69,15 +83,11 @@ public class Friend {
     }
 
     public void setFlag(FriendFlag flag) {
-        this.flag = (byte) flag.getVal();
+        setFlag((byte) flag.getVal());
     }
 
-    public int getChannelID() {
-        return channelID;
-    }
-
-    public void setChannelID(int channelID) {
-        this.channelID = channelID;
+    public boolean isFlag(FriendFlag flag) {
+        return getFlag() == flag.getVal();
     }
 
     public String getGroup() {
@@ -120,14 +130,6 @@ public class Friend {
         this.memo = memo;
     }
 
-    public boolean isInShop() {
-        return inShop;
-    }
-
-    public void setInShop(boolean inShop) {
-        this.inShop = inShop;
-    }
-
     public int getId() {
         return id;
     }
@@ -137,7 +139,7 @@ public class Friend {
     }
 
     public boolean isAccount() {
-        return getFlag() > 4;
+        return getFlag() >= FriendFlag.AccountFriendRequest.getVal();
     }
 
     public Char getChr() {
@@ -155,7 +157,7 @@ public class Friend {
     }
 
     public boolean isOnline() {
-        return getChr() != null;
+        return chr != null && chr.isOnline();
     }
 
 }

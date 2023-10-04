@@ -111,6 +111,7 @@ public class ChatHandler {
         }
         switch (type) {
             case 5: // /find command
+            case 68: // click on buddy
                 int fieldId = dest.getField().getId();
                 int channel = dest.getClient().getChannel();
                 if (channel != chr.getClient().getChannel()) {
@@ -123,15 +124,12 @@ public class ChatHandler {
                     chr.chatMessage("%s is at %s.", dest.getName(), fieldString);
                 }
                 break;
-            case 68:
-                break;
             case 6: // whisper
                 String msg = inPacket.decodeString();
                 dest.write(FieldPacket.whisper(chr.getName(), (byte) (c.getChannel() - 1), false, msg, false));
                 chr.chatMessage(Whisper, String.format("%s<< %s", dest.getName(), msg));
                 break;
         }
-
     }
 
     @Handler(op = InHeader.GROUP_MESSAGE)
@@ -148,8 +146,8 @@ public class ChatHandler {
         }
         switch (type) {
             case 0: // buddy
-                OutPacket outPacket = FieldPacket.groupMessage(GroupMessageType.Party, chr.getName(), msg);
-                for (Friend friend : chr.getFriends()) {
+                OutPacket outPacket = FieldPacket.groupMessage(GroupMessageType.Buddy, chr.getName(), msg);
+                for (Friend friend : chr.getAllFriends()) {
                     friend.write(outPacket);
                 }
                 break;

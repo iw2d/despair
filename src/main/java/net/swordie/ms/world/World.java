@@ -3,6 +3,7 @@ package net.swordie.ms.world;
 import net.swordie.ms.ServerConfig;
 import net.swordie.ms.ServerStatus;
 import net.swordie.ms.client.Account;
+import net.swordie.ms.client.User;
 import net.swordie.ms.client.alliance.Alliance;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.CharacterStat;
@@ -128,6 +129,10 @@ public class World {
 
     public ServerStatus getStatus() {
         return ServerStatus.NORMAL;
+    }
+
+    public boolean charNameAvailable(String name) {
+        return lookupCharIdByName(name) < 0;
     }
 
     public int lookupCharIdByName(String name) {

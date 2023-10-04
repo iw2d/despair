@@ -293,7 +293,7 @@ public class LoginHandler {
         if (!GameConstants.isValidName(name)) {
             code = CharNameResult.Unavailable_Invalid;
         } else {
-            code = Char.getFromDBByNameAndWorld(name, c.getAccount().getWorldId()) == null ? CharNameResult.Available : CharNameResult.Unavailable_InUse;
+            code = c.getWorld().charNameAvailable(name) ? CharNameResult.Available : CharNameResult.Unavailable_InUse;
         }
         c.write(Login.checkDuplicatedIDResult(name, code.getVal()));
     }
@@ -324,10 +324,9 @@ public class LoginHandler {
             c.getUser().getOffenseManager().addOffense("Tried to add items unavailable on char creation.");
             code = CharNameResult.Unavailable_CashItem;
         }
-
         if (!GameConstants.isValidName(name)) {
             code = CharNameResult.Unavailable_Invalid;
-        } else if (Char.getFromDBByNameAndWorld(name, acc.getWorldId()) != null) {
+        } else if (!c.getWorld().charNameAvailable(name)) {
             code = CharNameResult.Unavailable_InUse;
         }
         if (code != null) {

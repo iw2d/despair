@@ -2607,15 +2607,9 @@ public class ScriptManagerImpl implements ScriptManager {
 
 	public void invokeForParty(String methodName, Object... args) {
 		for (PartyMember pm : chr.getParty().getMembers()) {
-			boolean fromDB = false;
 			Char chr = pm.getChr();
-			if (chr == null) {
-				chr = Char.getFromDBById(pm.getCharID());
-				fromDB = true;
-			}
-			invoke(chr.getScriptManager(), methodName, args);
-			if (fromDB) {
-				DatabaseManager.saveToDB(chr);
+			if (chr != null) {
+				invoke(chr.getScriptManager(), methodName, args);
 			}
 		}
 	}

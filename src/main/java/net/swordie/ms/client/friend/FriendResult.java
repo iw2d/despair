@@ -1,8 +1,6 @@
 package net.swordie.ms.client.friend;
 
-import net.swordie.ms.client.friend.Friend;
 import net.swordie.ms.connection.OutPacket;
-import net.swordie.ms.client.friend.FriendType;
 
 import java.util.Set;
 
@@ -62,36 +60,29 @@ public class FriendResult {
 
     public static FriendResult loadFriends(Set<Friend> friends) {
         FriendResult fr = new FriendResult(FriendType.FriendRes_LoadFriend_Done);
-
         fr.friends = friends;
         return fr;
     }
 
     public static FriendResult updateFriend(Friend friend) {
         FriendResult fr = new FriendResult(FriendType.FriendRes_NotifyChange_FriendInfo);
-
         fr.friend = friend;
-
         return fr;
     }
 
     public static FriendResult friendInvite(Friend friend, boolean accountFriend, int level, int job, int subJob) {
         FriendResult fr = new FriendResult(FriendType.FriendRes_Invite);
-
         fr.friend = friend;
         fr.isAccountFriend = accountFriend;
         fr.level = level;
         fr.job = job;
         fr.subJob = job;
-
         return fr;
     }
 
     public static FriendResult deleteFriend(Friend friend) {
         FriendResult fr = new FriendResult(FriendType.FriendRes_DeleteFriend_Done);
-
         fr.friend = friend;
-
         return fr;
     }
 
@@ -101,9 +92,7 @@ public class FriendResult {
 
     public static FriendResult message(FriendType friendType, String str) {
         FriendResult fr = new FriendResult(friendType);
-
         fr.str = str;
-
         return fr;
     }
 }

@@ -113,12 +113,11 @@ public class GuildHandler {
                 int expelledID = inPacket.decodeInt();
                 String expelledName = inPacket.decodeString();
                 GuildMember gm = guild.getMemberByCharID(expelledID);
-                Char expelled = gm.getChr();
                 guild.broadcast(WvsContext.guildResult(GuildResult.leaveGuild(guild, expelledID, expelledName, true)));
-                if (expelled == null) {
-                    expelled = Char.getFromDBById(expelledID);
+                Char expelled = gm.getChr();
+                if (expelled == null || !expelled.isOnline()) {
                     guild.removeMember(gm);
-                    DatabaseManager.saveToDB(expelled);
+                    DatabaseManager.modifyObjectFromDB(Char.class, expelledID, "guild", null);
                 } else {
                     guild.removeMember(gm);
                     field.broadcastPacket(UserRemote.guildNameChanged(expelled));
@@ -323,9 +322,7 @@ public class GuildHandler {
             chr.write(WvsContext.guildResult(GuildResult.msg(GuildType.Res_JoinRequest_Unknown)));
             return;
         }
-        byte size = inPacket.decodeByte();
-        Set<Char> onlineChars = new HashSet<>();
-        Set<Char> offlineChars = new HashSet<>();
+        int size = inPacket.decodeByte();
         for (int i = 0; i < size; i++) {
             int charId = inPacket.decodeInt();
             GuildRequestor gr = guild.getRequestorById(charId);
@@ -337,42 +334,33 @@ public class GuildHandler {
             if (toJoin != null) {
                 if (toJoin.getGuild() != null) {
                     chr.chatMessage("%s is already in a guild.", gr.getName());
-                } else {
-                    onlineChars.add(toJoin);
+                    continue;
                 }
+                if (guild.isFull()) {
+                    chr.chatMessage("%s was not added, as your guild is full.", gr.getName());
+                    continue;
+                }
+                guild.addMember(toJoin);
+                chr.write(WvsContext.guildResult(GuildResult.loadGuild(guild)));
+                toJoin.getField().broadcastPacket(UserRemote.guildNameChanged(chr));
+                toJoin.getField().broadcastPacket(UserRemote.guildMarkChanged(chr));
             } else {
-                toJoin = Char.getFromDBById(charId);
-                if (toJoin != null) {
-                    if (toJoin.getGuild() != null) {
-                        chr.chatMessage("%s is already in a guild.", gr.getName());
-                    } else {
-                        offlineChars.add(toJoin);
-                    }
-                } else {
-                    chr.chatMessage("Character %s could not be found, their character is probably gone.", gr.getName());
+                if (world.lookupCharIdByName(gr.getName()) != charId) {
+                    chr.chatMessage("%s was not added due to an error.", gr.getName());
+                    continue;
                 }
+                if (DatabaseManager.getFieldFromDB(Char.class, "guild", "id", charId) != null) {
+                    chr.chatMessage("%s is already in a guild.", gr.getName());
+                    continue;
+                }
+                if (guild.isFull()) {
+                    chr.chatMessage("%s was not added, as your guild is full.", gr.getName());
+                    continue;
+                }
+                // TODO: add GuildMember here (refactoring to not use offline Char instances)
+                DatabaseManager.modifyObjectFromDB(Char.class, charId, "guild", guild);
             }
             guild.removeGuildRequestor(gr);
-        }
-        for (Char c : onlineChars) {
-            if (guild.isFull()) {
-                chr.chatMessage("%s was not added, as your guild is full.", c.getName());
-                continue;
-            }
-            Field field = c.getField();
-            guild.addMember(c);
-            chr.write(WvsContext.guildResult(GuildResult.loadGuild(guild)));
-            field.broadcastPacket(UserRemote.guildNameChanged(chr));
-            field.broadcastPacket(UserRemote.guildMarkChanged(chr));
-        }
-        for (Char c : offlineChars) {
-            if (guild.isFull()) {
-                chr.chatMessage("%s was not added, as your guild is full.", c.getName());
-                continue;
-            }
-            guild.addMember(c, false);
-            c.setGuild(guild);
-            DatabaseManager.saveToDB(c);
         }
     }
 

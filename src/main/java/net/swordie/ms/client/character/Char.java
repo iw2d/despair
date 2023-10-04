@@ -83,18 +83,14 @@ import net.swordie.ms.world.shop.NpcShopDlg;
 import net.swordie.ms.world.shop.NpcShopItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 import javax.persistence.*;
 import java.awt.*;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
@@ -510,6 +506,9 @@ public class Char {
 		monsterBookInfo = new MonsterBookInfo();
 		potentialMan = new CharacterPotentialMan(this);
 		skillCoolTimes = new HashMap<>();
+		itemBoughtAmounts = new HashMap<>();
+		coupleRecords = new HashSet<>();
+		coupleRecordsAsPartner = new HashSet<>();
 		familiars = new HashSet<>();
 		hyperrockfields = new int[]{
 				999999999,
@@ -539,42 +538,6 @@ public class Char {
 		psychicAreas = new HashMap<>();
 		psychicLocks = new HashMap<>();
 		funcKeyMaps = new ArrayList<FuncKeyMap>();
-	}
-
-	public static Char getFromDBById(int userId) {
-		return (Char) DatabaseManager.getObjFromDB(Char.class, userId);
-	}
-
-	public static Char getFromDBByName(String name) {
-		log.info(String.format("%s: Trying to get Char by name (%s).", LocalDateTime.now(), name));
-		// DAO?
-		Session session = DatabaseManager.getSession();
-		Transaction transaction = session.beginTransaction();
-		Query query = session.createQuery("FROM Char chr WHERE chr.avatarData.characterStat.name = :name");
-		query.setParameter("name", name);
-		List l = ((org.hibernate.query.Query) query).list();
-		Char chr = null;
-		if (l != null && l.size() > 0) {
-			chr = (Char) l.get(0);
-		}
-		transaction.commit();
-		return chr;
-	}
-
-	public static Char getFromDBByNameAndWorld(String name, int worldId) {
-		Session session = DatabaseManager.getSession();
-		Transaction transaction = session.beginTransaction();
-		Query query = session.createQuery("FROM Char chr " +
-				"WHERE chr.avatarData.characterStat.name = :name AND chr.avatarData.characterStat.worldIdForLog = :world");
-		query.setParameter("name", name);
-		query.setParameter("world", worldId);
-		List l = ((org.hibernate.query.Query) query).list();
-		Char chr = null;
-		if (l != null && l.size() > 0) {
-			chr = (Char) l.get(0);
-		}
-		transaction.commit();
-		return chr;
 	}
 
 	public AvatarData getAvatarData() {
@@ -2826,14 +2789,33 @@ public class Char {
 				}
 			}
 			for (Friend f : getFriends()) {
-				f.setFlag(getClient().getWorld().getCharByID(f.getFriendID()) != null
-						? FriendFlag.FriendOnline
-						: FriendFlag.FriendOffline);
+				if (f.isFlag(FriendFlag.FriendRequest)) {
+					continue;
+				}
+				Char target = getWorld().getCharByID(f.getFriendID());
+				if (target != null && target.isOnline() && target.getFriendByCharID(getId()) != null) {
+					f.setChr(target);
+					f.setFlag(FriendFlag.FriendOnline);
+				} else {
+					f.setChr(null);
+					f.setFlag(FriendFlag.FriendOffline);
+				}
 			}
 			for (Friend f : getAccount().getFriends()) {
-				f.setFlag(getClient().getWorld().getAccountByID(f.getFriendAccountID()) != null
-						? FriendFlag.AccountFriendOnline
-						: FriendFlag.AccountFriendOffline);
+				if (f.isFlag(FriendFlag.AccountFriendRequest)) {
+					continue;
+				}
+				Account targetAcc = getWorld().getAccountByID(f.getFriendAccountID());
+				if (targetAcc != null && targetAcc.getFriendByAccID(getAccId()) != null) {
+					Char target = targetAcc.getCurrentChr();
+					if (target != null && target.isOnline()) {
+						f.setChr(target);
+						f.setFlag(FriendFlag.AccountFriendOnline);
+						continue;
+					}
+				}
+				f.setChr(null);
+				f.setFlag(FriendFlag.AccountFriendOffline);
 			}
 		}
 		toField.spawnLifesForChar(this);
@@ -2874,32 +2856,6 @@ public class Char {
 			write(FieldPacket.setQuickMoveInfo(GameConstants.getQuickMoveInfos().stream().filter(qmi -> !qmi.isNoInstances() || getField().isChannelField()).collect(Collectors.toList())));
 		}
 		afterMigrate();
-	}
-
-	public void initFriendStatus() {
-		for (Friend f : getFriends()) {
-			Char friendChr = getWorld().getCharByID(f.getFriendID());
-			if (friendChr != null) {
-				f.setChr(friendChr);
-				friendChr.getFriendByCharID(getId()).setChr(this);
-			}
-			f.setFlag(friendChr != null
-					? FriendFlag.FriendOnline
-					: FriendFlag.FriendOffline);
-		}
-		for (Friend f : getAccount().getFriends()) {
-			Account friendAcc = getWorld().getAccountByID(f.getFriendAccountID());
-			if (friendAcc != null && friendAcc.getCurrentChr() != null) {
-				f.setChr(friendAcc.getCurrentChr());
-				Friend me = friendAcc.getFriendByAccID(getAccount().getId());
-				if (me != null) {
-					me.setChr(this);
-				}
-			}
-			f.setFlag(friendAcc != null
-					? FriendFlag.AccountFriendOnline
-					: FriendFlag.AccountFriendOffline);
-		}
 	}
 
 	/**
@@ -3714,23 +3670,24 @@ public class Char {
 	}
 
 	public void setOnline(boolean online) {
-		for (Friend friend : getFriends()) {
-			if (!friend.isOnline()) {
+		this.online = online;
+		for (Friend friend : getAllFriends()) {
+			if (!friend.isOnline() || friend.isFlag(FriendFlag.FriendRequest) || friend.isFlag(FriendFlag.AccountFriendRequest)) {
 				continue;
 			}
-			Char chr = friend.getChr();
-			Friend me;
-			if (friend.isAccount()) {
-				me = chr.getAccount().getFriendByAccID(getAccount().getId());
-			} else {
-				me = chr.getFriendByCharID(getId());
-			}
+			Char target = friend.getChr();
+			Friend me = target.getAllFriends().stream()
+					.filter(f -> f.getFriendID() == getId() || f.getFriendAccountID() == getAccId())
+					.findAny().orElse(null);
 			if (me != null) {
-				me.setChr(online ? this : null);
-				me.setFlag(friend.isAccount() ?
-						online ? FriendFlag.AccountFriendOnline : FriendFlag.AccountFriendOffline
-						: online ? FriendFlag.FriendOnline : FriendFlag.FriendOffline);
-				chr.write(WvsContext.friendResult(FriendResult.updateFriend(me)));
+				if (online) {
+					me.setChr(this);
+					me.setFlag(me.isAccount() ? FriendFlag.AccountFriendOnline : FriendFlag.FriendOnline);
+				} else {
+					me.setChr(null);
+					me.setFlag(me.isAccount() ? FriendFlag.AccountFriendOffline : FriendFlag.FriendOffline);
+				}
+				target.write(WvsContext.friendResult(FriendResult.updateFriend(me)));
 			}
 		}
 		Party party = getParty();
@@ -3758,7 +3715,6 @@ public class Char {
 						GuildResult.notifyLoginOrLogout(guild, gm, online, online)), this);
 			}
 		}
-		this.online = online;
 	}
 
 	public void setParty(Party party) {
@@ -3781,6 +3737,7 @@ public class Char {
 		if (getField().getForcedReturn() != GameConstants.NO_MAP_ID) {
 			setFieldID(getField().getForcedReturn());
 		}
+		getAvatarData().getCharacterStat().setLastLogout(FileTime.currentTime());
 		getScriptManager().getScripts().values().forEach(ScriptInfo::reset);
 		setOnline(false);
 		getJobHandler().handleCancelTimer();
@@ -3792,7 +3749,7 @@ public class Char {
 		} else {
 			getClient().setChr(null);
 		}
-		DatabaseManager.saveToDB(getAccount());
+		DatabaseManager.saveToDB(getUser());
 	}
 
 	public int getSubJob() {
@@ -3975,9 +3932,7 @@ public class Char {
 	 * @return The total list of friends
 	 */
 	public Set<Friend> getAllFriends() {
-		Set<Friend> res = new HashSet<>(getFriends());
-		res.addAll(getAccount().getFriends());
-		return res;
+		return Stream.concat(getFriends().stream(), getAccount().getFriends().stream()).collect(Collectors.toSet());
 	}
 
 	public Friend getFriendByCharID(int charID) {

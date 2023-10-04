@@ -16,7 +16,6 @@ import net.swordie.ms.connection.InPacket;
 import net.swordie.ms.connection.packet.*;
 import net.swordie.ms.constants.GameConstants;
 import net.swordie.ms.constants.JobConstants;
-import net.swordie.ms.enums.BaseStat;
 import net.swordie.ms.enums.FieldOption;
 import net.swordie.ms.enums.MapTransferType;
 import net.swordie.ms.connection.ClientSocket;

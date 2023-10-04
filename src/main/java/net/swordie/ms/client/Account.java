@@ -15,10 +15,8 @@ import net.swordie.ms.loaders.StringData;
 import net.swordie.ms.util.FileTime;
 import net.swordie.ms.util.Util;
 import net.swordie.ms.world.auction.AuctionItem;
-import net.swordie.ms.world.shop.cashshop.CashShopFavorite;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -56,15 +54,13 @@ public class Account {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "accid")
     private Set<DamageSkinSaveData> damageSkins = new HashSet<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "accid")
     private Set<Char> characters = new HashSet<>();
-    // nxCredit is from mobs, so is account (world) specific.
-    private int nxCredit;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "accid")
     private Set<LinkSkill> linkSkills = new HashSet<>();
+    private int nxCredit; // nxCredit is from mobs, so is account (world) specific.
     @Transient
     private Set<AuctionItem> auctionItems;
     @Transient
@@ -116,7 +112,7 @@ public class Account {
     }
 
     public void addFriend(Friend friend) {
-        if(getFriendByAccID(friend.getFriendAccountID()) == null) {
+        if (getFriendByAccID(friend.getFriendAccountID()) == null) {
             getFriends().add(friend);
         }
     }

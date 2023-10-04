@@ -251,7 +251,7 @@ public class CCashShop {
         }
         outPacket.encodeShort(account.getTrunk().getSlotCount());
         outPacket.encodeShort(account.getUser().getCharacterSlots());
-        outPacket.encodeShort(0);
+        outPacket.encodeShort(0); // nBuyCharacterCount
         outPacket.encodeShort(account.getCharacters().size());
         return outPacket;
     }

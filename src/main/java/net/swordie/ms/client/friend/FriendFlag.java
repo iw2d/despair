@@ -9,7 +9,7 @@ public enum FriendFlag {
     FriendOffline(2),
     FriendOnline(3),
     MobileOnline(4),
-    MobileOffline(5), // ?
+    MobileOffline(5),
     AccountFriendRequest(6),
     AccountFriendOnline(7),
     AccountFriendOffline(8),

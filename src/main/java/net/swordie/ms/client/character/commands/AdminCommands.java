@@ -15,6 +15,7 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
+import net.swordie.ms.client.friend.Friend;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.JobManager;
 import net.swordie.ms.client.jobs.nova.Kaiser;
@@ -69,6 +70,10 @@ public class AdminCommands {
     @Command(names = {"test"}, requiredType = Admin)
     public static class Test extends AdminCommand {
         public static void execute(Char chr, String[] args) {
+            for (Friend f : chr.getAllFriends()) {
+                System.out.println(f.getFlag());
+            }
+
         }
     }
 
@@ -1855,17 +1860,17 @@ public class AdminCommands {
                 chr.chatMessage(SpeakerChannel, "That ban reason is too long.");
                 return;
             }
-            Char banChr = Server.getInstance().getWorldById(chr.getClient().getWorldId()).getCharByName(name);
+            Char banChr = chr.getWorld().getCharByName(name);
             boolean online = true;
             if (banChr == null) {
                 online = false;
-                banChr = Char.getFromDBByName(name);
-                if (banChr == null) {
+                int banChrId = chr.getWorld().lookupCharIdByName(name);
+                if (banChrId < 0) {
                     chr.chatMessage(SpeakerChannel, "Could not find that character.");
                     return;
                 }
             }
-            User banUser = banChr.getUser();
+            User banUser = banChr.getUser(); // TODO fix for offline chr
             LocalDateTime banDate = LocalDateTime.now();
             switch (amountType) {
                 case "m":

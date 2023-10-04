@@ -1,7 +1,6 @@
 package net.swordie.ms.handlers.social;
 
 import net.swordie.ms.client.Account;
-import net.swordie.ms.client.Client;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.friend.Friend;
 import net.swordie.ms.client.friend.FriendFlag;
@@ -12,10 +11,12 @@ import net.swordie.ms.connection.db.DatabaseManager;
 import net.swordie.ms.connection.packet.WvsContext;
 import net.swordie.ms.handlers.Handler;
 import net.swordie.ms.handlers.header.InHeader;
+import net.swordie.ms.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class FriendHandler {
 
@@ -23,13 +24,12 @@ public class FriendHandler {
 
 
     @Handler(op = InHeader.LOAD_ACCOUNT_ID_OF_CHARACTER_FRIEND_REQUEST)
-    public static void handleLoadAccountIDOfCharacterFriendRequest(Client c, InPacket inPacket) {
-        c.write(WvsContext.loadAccountIDOfCharacterFriendResult(c.getChr().getFriends()));
+    public static void handleLoadAccountIDOfCharacterFriendRequest(Char chr, InPacket inPacket) {
+        chr.write(WvsContext.loadAccountIDOfCharacterFriendResult(chr.getAllFriends()));
     }
 
     @Handler(op = InHeader.FRIEND_REQUEST)
-    public static void handleFriendRequest(Client c, InPacket inPacket) {
-        Char chr = c.getChr();
+    public static void handleFriendRequest(Char chr, InPacket inPacket) {
         byte type = inPacket.decodeByte();
         FriendType ft = Arrays.stream(FriendType.values()).filter(f -> f.getVal() == type).findFirst().orElse(null);
         if (ft == null) {
@@ -37,15 +37,10 @@ public class FriendHandler {
             log.error(String.format("Unknown friend request type %d", type));
             return;
         }
-        Char other;
+        World world = chr.getWorld();
         switch (ft) {
-            case FriendReq_SetFriend:
-                String name = inPacket.decodeString();
-                other = c.getWorld().getCharByName(name);
-                if (other == null) {
-                    c.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
-                    return;
-                }
+            case FriendReq_SetFriend: {
+                String targetName = inPacket.decodeString();
                 String groupName = inPacket.decodeString();
                 String memo = inPacket.decodeString();
                 boolean account = inPacket.decodeByte() != 0;
@@ -53,211 +48,272 @@ public class FriendHandler {
                 if (account) {
                     nick = inPacket.decodeString();
                     if (nick.equalsIgnoreCase("")) {
-                        nick = name;
+                        nick = targetName;
                     }
                 }
+                // find target
+                int targetId = world.lookupCharIdByName(targetName);
+                if (targetId < 0) {
+                    chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
+                    return;
+                }
+                Account targetAcc = world.lookupAccountByCharId(targetId);
+                if (targetAcc == null) {
+                    chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
+                    return;
+                }
+                // check for errors
+                if (targetAcc.getId() == chr.getAccId()) {
+                    chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_CantSelf)));
+                    return;
+                }
+                for (Friend existingFriend : chr.getAllFriends()) {
+                    if (existingFriend.getFriendID() == targetId || existingFriend.getFriendAccountID() == targetAcc.getId()) {
+                        chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_AlreadySet)));
+                        return;
+                    }
+                }
+                if (account) {
+                    if (targetAcc.getFriendByAccID(chr.getAccId()) != null) {
+                        chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_AlreadyRequested)));
+                        return;
+                    }
+                } else {
+                    Char target = world.getCharByName(targetName);
+                    if (target != null) {
+                        if (target.getFriendByCharID(chr.getId()) != null) {
+                            chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_AlreadyRequested)));
+                            return;
+                        }
+                    } else {
+                        for (Friend etf : (List<Friend>) DatabaseManager.getObjListFromDB(Friend.class, "ownerID", targetId)) {
+                            if (etf.getFriendID() == chr.getId()) {
+                                chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_AlreadyRequested)));
+                                return;
+                            }
+                        }
+                    }
+                }
+                // create friend record for self
                 Friend friend = new Friend();
-                friend.setFriendID(other.getId());
+                friend.setFriendID(targetId);
+                friend.setName(targetName);
                 friend.setGroup(groupName);
                 friend.setMemo(memo);
-                friend.setName(name);
-                friend.setFriendAccountID(other.getAccId());
+                friend.setFriendAccountID(targetAcc.getId());
                 if (account) {
+                    friend.setOwnerAccID(chr.getAccId());
                     friend.setNickname(nick);
                     friend.setFlag(FriendFlag.AccountFriendOffline);
                     chr.getAccount().addFriend(friend);
                 } else {
-                    chr.getFriends().add(friend);
+                    friend.setOwnerID(chr.getId());
+                    friend.setFlag(FriendFlag.FriendOffline);
+                    chr.addFriend(friend);
+                }
+                // create friend record for target
+                Friend targetFriend = new Friend();
+                targetFriend.setFriendID(chr.getId());
+                targetFriend.setName(chr.getName());
+                targetFriend.setFriendAccountID(chr.getAccId());
+                targetFriend.setGroup("Default Group");
+                if (account) {
+                    targetFriend.setOwnerAccID(targetAcc.getId());
+                    targetFriend.setNickname(chr.getName());
+                    targetFriend.setFlag(FriendFlag.AccountFriendRequest);
+                    Char target = world.getCharByName(targetName);
+                    if (target != null) {
+                        target.getAccount().addFriend(targetFriend);
+                        target.write(WvsContext.friendResult(FriendResult.friendInvite(targetFriend, true, chr.getLevel(), chr.getJob(), chr.getSubJob())));
+                    } else {
+                        targetAcc.addFriend(targetFriend);
+                        DatabaseManager.saveToDB(targetAcc);
+                    }
+                } else {
+                    targetFriend.setOwnerID(targetId);
+                    targetFriend.setFlag(FriendFlag.FriendRequest);
+                    Char target = world.getCharByName(targetName);
+                    if (target != null) {
+                        target.addFriend(targetFriend);
+                        target.write(WvsContext.friendResult(FriendResult.friendInvite(targetFriend, false, chr.getLevel(), chr.getJob(), chr.getSubJob())));
+                    } else {
+                        DatabaseManager.saveToDB(targetFriend);
+                    }
+                }
+                chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_Done, targetName)));
+                chr.write(WvsContext.friendResult(FriendResult.loadFriends(chr.getAllFriends())));
+                break;
+            }
+            case FriendReq_AcceptFriend: {
+                int friendId = inPacket.decodeInt();
+                Friend friend = chr.getFriendByCharID(friendId);
+                if (friend == null) {
+                    chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
+                    return;
+                }
+                Char requester = world.getCharByID(friendId);
+                if (requester != null) {
+                    friend.setChr(requester);
+                    friend.setFlag(FriendFlag.FriendOnline);
+                    // update requester
+                    Friend requesterFriend = requester.getFriendByCharID(chr.getId());
+                    if (requesterFriend != null) {
+                        requesterFriend.setChr(chr);
+                        requesterFriend.setFlag(FriendFlag.FriendOnline);
+                        requester.write(WvsContext.friendResult(FriendResult.loadFriends(requester.getAllFriends())));
+                        requester.chatMessage(String.format("%s has accepted your friend request!", chr.getName()));
+                    }
+                } else {
+                    friend.setChr(null);
                     friend.setFlag(FriendFlag.FriendOffline);
                 }
-                Friend otherFriend = new Friend();
-                otherFriend.setFriendID(chr.getId());
-                otherFriend.setName(chr.getName());
-                otherFriend.setFriendAccountID(chr.getAccId());
-                otherFriend.setGroup("Default Group");
-                if (account) {
-                    otherFriend.setNickname(chr.getName());
-                    otherFriend.setFlag(FriendFlag.AccountFriendRequest);
-                    other.getAccount().addFriend(otherFriend);
-                } else {
-                    otherFriend.setFlag(FriendFlag.FriendRequest);
-                    other.addFriend(otherFriend);
-                }
-                c.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_Done, name)));
-                c.write(WvsContext.friendResult(FriendResult.loadFriends(chr.getAllFriends())));
-                other.write(WvsContext.friendResult(
-                        FriendResult.friendInvite(otherFriend, account, chr.getLevel(), chr.getJob(), chr.getSubJob())));
+                chr.write(WvsContext.friendResult(FriendResult.loadFriends(chr.getAllFriends())));
                 break;
-            case FriendReq_AcceptFriend:
-                int friendID = inPacket.decodeInt();
-                boolean online = true;
-                Char requestor = c.getWorld().getCharByID(friendID);
-                if (requestor == null) {
-                    requestor = Char.getFromDBById(friendID);
-                    online = false;
-                    if (requestor == null) {
-                        c.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
-                        return;
-                    }
-                }
-                friend = chr.getFriendByCharID(friendID);
-                friend.setFlag(online ? FriendFlag.AccountFriendOnline : FriendFlag.AccountFriendOffline);
-                if (online) {
-                    friend.setChannelID(requestor.getClient().getChannel());
-                    otherFriend = requestor.getFriendByCharID(chr.getId());
-                    otherFriend.setChannelID(c.getChannel());
-                    otherFriend.setFlag(FriendFlag.AccountFriendOnline);
-                    requestor.write(WvsContext.friendResult(FriendResult.updateFriend(otherFriend)));
-                    requestor.chatMessage(String.format("%s has accepted your friend request!", chr.getName()));
-                }
-                c.write(WvsContext.friendResult(FriendResult.updateFriend(friend)));
-                if (!online) {
-                    DatabaseManager.saveToDB(requestor);
-                }
-                break;
-            case FriendReq_AcceptAccountFriend:
-                int accountID = inPacket.decodeInt();
-                Account accountRef = c.getWorld().getAccountByID(accountID);
-                Account myAcc = chr.getAccount();
-                online = true;
-                if (accountRef == null) {
-                    online = false;
-                    accountRef = Account.getFromDBById(accountID);
-                    if (accountRef == null) {
-                        chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
-                        return;
-                    }
-                }
-                friend = myAcc.getFriendByAccID(accountID);
-                friend.setFlag(online ? FriendFlag.AccountFriendOnline : FriendFlag.AccountFriendOffline);
-                otherFriend = accountRef.getFriendByAccID(myAcc.getId());
-                otherFriend.setFlag(FriendFlag.AccountFriendOnline);
-                otherFriend.setChannelID(chr.getClient().getChannel());
-                if (online) {
-                    requestor = accountRef.getCurrentChr();
-                    friend.setChannelID(requestor.getClient().getChannel());
-                    requestor.chatMessage(String.format("%s has accepted your account friend request!", chr.getName()));
-                    requestor.write(WvsContext.friendResult(FriendResult.updateFriend(otherFriend)));
-                } else {
-                    DatabaseManager.saveToDB(otherFriend);
-                }
-                c.write(WvsContext.friendResult(FriendResult.updateFriend(friend)));
-                break;
-            case FriendReq_DeleteFriend:
-                friendID = inPacket.decodeInt();
-                friend = chr.getFriendByCharID(friendID);
+            }
+            case FriendReq_AcceptAccountFriend: {
+                int accountId = inPacket.decodeInt();
+                Friend friend = chr.getAccount().getFriendByAccID(accountId);
                 if (friend == null) {
                     chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
                     return;
                 }
-                other = c.getWorld().getCharByID(friendID);
-                online = true;
-                if (other == null) {
-                    online = false;
-                    other = Char.getFromDBById(friendID);
+                Char requester = world.getCharByID(friend.getFriendID());
+                if (requester != null) {
+                    friend.setChr(requester);
+                    friend.setFlag(FriendFlag.AccountFriendOnline);
+                    // update requester
+                    Friend requesterFriend = requester.getAccount().getFriendByAccID(chr.getAccId());
+                    if (requesterFriend != null) {
+                        requesterFriend.setChr(chr);
+                        requesterFriend.setFlag(FriendFlag.AccountFriendOnline);
+                        requester.write(WvsContext.friendResult(FriendResult.loadFriends(requester.getAllFriends())));
+                        requester.chatMessage(String.format("%s has accepted your account friend request!", chr.getName()));
+                    }
+                } else {
+                    friend.setChr(null);
+                    friend.setFlag(FriendFlag.AccountFriendOffline);
                 }
-                otherFriend = other == null ? null : other.getFriendByCharID(chr.getId());
-                if (other != null) {
-                    other.removeFriend(otherFriend);
+                chr.write(WvsContext.friendResult(FriendResult.loadFriends(chr.getAllFriends())));
+                break;
+            }
+            case FriendReq_DeleteFriend: {
+                int friendId = inPacket.decodeInt();
+                Friend friend = chr.getFriendByCharID(friendId);
+                if (friend == null) {
+                    chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
+                    return;
                 }
-                if (online) {
-                    other.write(WvsContext.friendResult(FriendResult.deleteFriend(otherFriend)));
-                }
-                other.removeFriendByID(chr.getId());
                 chr.removeFriend(friend);
                 chr.write(WvsContext.friendResult(FriendResult.deleteFriend(friend)));
-                DatabaseManager.saveToDB(other);
-                DatabaseManager.saveToDB(chr);
+                // update target
+                if (friend.isOnline()) {
+                    Char target = friend.getChr();
+                    Friend me = target.getFriendByCharID(chr.getId());
+                    if (me != null) {
+                        me.setChr(null);
+                        me.setFlag(FriendFlag.FriendOffline);
+                        target.write(WvsContext.friendResult(FriendResult.loadFriends(target.getAllFriends())));
+                    }
+                }
                 break;
-            case FriendReq_DeleteAccountFriend:
-                int accID = inPacket.decodeInt();
-                accountRef = chr.getAccount();
-                friend = accountRef.getFriendByAccID(accID);
+            }
+            case FriendReq_DeleteAccountFriend: {
+                int accountId = inPacket.decodeInt();
+                Friend friend = chr.getAccount().getFriendByAccID(accountId);
                 if (friend == null) {
                     chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
                     return;
                 }
-                online = true;
-                Account otherAccount = c.getWorld().getAccountByID(accID);
-                otherFriend = otherAccount.getFriendByAccID(chr.getAccId());
-                if (otherAccount == null) {
-                    otherAccount = Account.getFromDBById(accID);
-                    online = false;
-                }
-                if (otherAccount != null) {
-                    otherAccount.removeFriend(otherFriend);
-                }
-                if (online) {
-                    otherAccount.getCurrentChr().write(WvsContext.friendResult(FriendResult.deleteFriend(otherFriend)));
-                }
-                accountRef.removeFriend(friend);
-                DatabaseManager.saveToDB(accountRef);
-                DatabaseManager.saveToDB(otherAccount);
+                chr.getAccount().removeFriend(friend);
                 chr.write(WvsContext.friendResult(FriendResult.deleteFriend(friend)));
+                // update target
+                if (friend.isOnline()) {
+                    Char target = friend.getChr();
+                    Friend me = target.getAccount().getFriendByAccID(chr.getAccId());
+                    if (me != null) {
+                        me.setChr(null);
+                        me.setFlag(FriendFlag.AccountFriendOffline);
+                        target.write(WvsContext.friendResult(FriendResult.loadFriends(target.getAllFriends())));
+                    }
+                }
                 break;
-            case FriendReq_RefuseFriend:
-                friendID = inPacket.decodeInt();
-                friend = chr.getFriendByCharID(friendID);
+            }
+            case FriendReq_RefuseFriend: {
+                int friendId = inPacket.decodeInt();
+                Friend friend = chr.getFriendByCharID(friendId);
                 if (friend == null) {
                     chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
                     return;
                 }
-                chr.write(WvsContext.friendResult(FriendResult.deleteFriend(friend)));
                 chr.removeFriend(friend);
-                other = c.getWorld().getCharByID(friendID);
-                if (other == null) {
-                    other = Char.getFromDBById(friendID);
-                    if (other == null) {
-                        return;
+                chr.write(WvsContext.friendResult(FriendResult.deleteFriend(friend)));
+                // update requester
+                Char requester = world.getCharByID(friend.getFriendID());
+                if (requester != null) {
+                    requester.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_Declined, chr.getName())));
+                    Friend requesterFriend = requester.getFriendByCharID(chr.getId());
+                    if (requesterFriend != null) {
+                        requester.removeFriend(requesterFriend);
+                        requester.write(WvsContext.friendResult(FriendResult.deleteFriend(requesterFriend)));
                     }
-                    other.removeFriendByID(chr.getId());
-                    DatabaseManager.saveToDB(other);
-                } else {
-                    other.write(WvsContext.friendResult(FriendResult.deleteFriend(other.getFriendByCharID(chr.getId()))));
-                    other.removeFriendByID(chr.getId());
                 }
                 break;
-            case FriendReq_RefuseAccountFriend:
-                accID = inPacket.decodeInt();
-                accountRef = chr.getAccount();
-                friend = accountRef.getFriendByAccID(accID);
+            }
+            case FriendReq_RefuseAccountFriend: {
+                int accountId = inPacket.decodeInt();
+                Friend friend = chr.getAccount().getFriendByAccID(accountId);
                 if (friend == null) {
                     chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
                     return;
                 }
+                chr.removeFriend(friend);
                 chr.write(WvsContext.friendResult(FriendResult.deleteFriend(friend)));
-                accountRef.removeFriend(friend);
-                otherAccount = c.getWorld().getAccountByID(accID);
-                if (otherAccount == null) {
-                    otherAccount = Account.getFromDBById(accID);
-                    if (otherAccount == null) {
-                        return;
+                // update requester
+                Char requester = world.getCharByID(friend.getFriendID());
+                if (requester != null ) {
+                    requester.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_Declined, chr.getName())));
+                    Friend requesterFriend = requester.getFriendByCharID(chr.getId());
+                    if (requesterFriend != null) {
+                        requester.removeFriend(requesterFriend);
+                        requester.write(WvsContext.friendResult(FriendResult.deleteFriend(requesterFriend)));
                     }
-                    otherAccount.removeFriend(accID);
-                    DatabaseManager.saveToDB(otherAccount);
-                } else {
-                    other = accountRef.getCurrentChr();
-                    other.write(WvsContext.friendResult(FriendResult.deleteFriend(other.getFriendByCharID(chr.getId()))));
-                    otherAccount.removeFriend(chr.getId());
                 }
                 break;
-            case FriendReq_ModifyAccountFriendGroup:
-                accID = inPacket.decodeInt();
-                friend = chr.getAccount().getFriendByAccID(accID);
-                if (friend != null) {
-                    friend.setGroup(inPacket.decodeString());
-                    chr.write(WvsContext.friendResult(FriendResult.updateFriend(friend)));
-                }
-                break;
-            case FriendReq_ModifyFriend:
-                account = inPacket.decodeByte() != 0;
-                friendID = inPacket.decodeInt();
-                accID = inPacket.decodeInt();
-                friend = account ? chr.getAccount().getFriendByAccID(accID) : chr.getFriendByCharID(friendID);
+            }
+            case FriendReq_ModifyFriend: {
+                boolean account = inPacket.decodeByte() != 0;
+                int friendId = inPacket.decodeInt();
+                int accountId = inPacket.decodeInt();
+                Friend friend = account ? chr.getAccount().getFriendByAccID(accountId) : chr.getFriendByCharID(friendId);
                 friend.setNickname(inPacket.decodeString());
                 friend.setMemo(inPacket.decodeString());
                 chr.write(WvsContext.friendResult(FriendResult.updateFriend(friend)));
                 break;
+            }
+            case FriendReq_ModifyFriendGroup: {
+                int friendId = inPacket.decodeInt();
+                String groupName = inPacket.decodeString();
+                Friend friend = chr.getFriendByCharID(friendId);
+                if (friend == null) {
+                    chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
+                    return;
+                }
+                friend.setGroup(groupName);
+                chr.write(WvsContext.friendResult(FriendResult.updateFriend(friend)));
+                break;
+            }
+            case FriendReq_ModifyAccountFriendGroup: {
+                int accountId = inPacket.decodeInt();
+                String groupName = inPacket.decodeString();
+                Friend friend = chr.getAccount().getFriendByAccID(accountId);
+                if (friend == null) {
+                    chr.write(WvsContext.friendResult(FriendResult.message(FriendType.FriendRes_SetFriend_UnknownUser)));
+                    return;
+                }
+                friend.setGroup(groupName);
+                chr.write(WvsContext.friendResult(FriendResult.updateFriend(friend)));
+                break;
+            }
             default:
                 chr.chatMessage(String.format("Unhandled friend request type %s", ft.toString()));
                 log.error(String.format("Unhandled friend request type %s", ft.toString()));

@@ -1,6 +1,5 @@
 package net.swordie.ms.connection.packet;
 
-import net.swordie.ms.Server;
 import net.swordie.ms.client.alliance.AllianceResult;
 import net.swordie.ms.client.character.*;
 import net.swordie.ms.client.character.cards.CharacterCard;
