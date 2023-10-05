@@ -15,7 +15,6 @@ import net.swordie.ms.client.character.skills.info.SkillInfo;
 import net.swordie.ms.client.character.skills.temp.CharacterTemporaryStat;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatBase;
 import net.swordie.ms.client.character.skills.temp.TemporaryStatManager;
-import net.swordie.ms.client.friend.Friend;
 import net.swordie.ms.client.jobs.Job;
 import net.swordie.ms.client.jobs.JobManager;
 import net.swordie.ms.client.jobs.nova.Kaiser;
@@ -70,10 +69,6 @@ public class AdminCommands {
     @Command(names = {"test"}, requiredType = Admin)
     public static class Test extends AdminCommand {
         public static void execute(Char chr, String[] args) {
-            for (Friend f : chr.getAllFriends()) {
-                System.out.println(f.getFlag());
-            }
-
         }
     }
 

@@ -169,18 +169,16 @@ public class CCashShop {
 
     public static OutPacket listItems(CashShop cashShop, Char chr, CashShopActionType cast, List<CashShopItem> items) {
         // the number of items is normally a byte, but changed to a short in CASH_SHOP_ACTION (0x00A43AB0)
-        // but it results in error38 when the number of items is equal to or greater than 474 for some reason
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_ACTION);
         outPacket.encodeByte(cast.getVal()); // 11, 13, 18
         outPacket.encodeByte(1);
-        List<CashShopItem> trimmedItems = items.subList(0, Math.min(items.size(), GameConstants.MAX_CS_ITEMS_PER_CATEGORY));
         if (ServerConstants.CASH_SHOP_ITEM_COUNT_HOOK) {
-            outPacket.encodeShort(trimmedItems.size());
+            outPacket.encodeShort(items.size());
         } else {
-            outPacket.encodeByte(trimmedItems.size());
+            outPacket.encodeByte(items.size());
         }
         Set<CashShopItem> favorites = cashShop.getFavorites(chr.getAccount().getId());
-        trimmedItems.forEach(item -> item.encode(outPacket, favorites.contains(item), false));
+        items.forEach(item -> item.encode(outPacket, favorites.contains(item), false));
         return outPacket;
     }
 

@@ -682,7 +682,7 @@ public class Field {
             spawnLife(life, chr);
         }
         if (getRuneStone() != null && getMobGens().size() > 0 && getBossMobID() == 0 && !isTown()
-                && getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURENCES) {
+                && getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURRENCES) {
             chr.write(FieldPacket.runeStoneAppear(getRuneStone()));
         }
         if (getOpenGates() != null && getOpenGates().size() > 0) {
@@ -1465,7 +1465,7 @@ public class Field {
 
     public boolean canSpawnElite() {
         return isChannelField()
-                && getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURENCES
+                && getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURRENCES
                 && (getEliteState() == null || getEliteState() == EliteState.None)
                 && getNextEliteSpawnTime() < Util.getCurrentTimeLong();
     }

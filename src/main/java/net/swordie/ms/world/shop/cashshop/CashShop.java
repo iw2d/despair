@@ -294,11 +294,5 @@ public class CashShop {
         for (CashShopFavorite csf : (List<CashShopFavorite>) DatabaseManager.getObjListFromDB(CashShopFavorite.class)) {
             addFavorite(csf, false);
         }
-        // warnings
-        for (CashShopCategory csc : categoryInfo.keySet()) {
-            if (categoryInfo.get(csc).size() >= GameConstants.MAX_CS_ITEMS_PER_CATEGORY) {
-                log.warn(String.format("Cash Shop item count for category %s exceeds the maximum %d / %d.", csc.getName(), categoryInfo.get(csc).size(), GameConstants.MAX_CS_ITEMS_PER_CATEGORY));
-            }
-        }
     }
 }

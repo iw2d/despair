@@ -85,7 +85,7 @@ public class RuneStone {
     public static RuneStone getRandomRuneStone(Field field) {
         RuneStone runeStone = null;
         if (field.getMobGens().size() > 0 && field.getBossMobID() == 0 && !field.isTown()
-                && field.getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURENCES) {
+                && field.getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURRENCES) {
             runeStone = new RuneStone();
             runeStone.setRuneType(RuneType.getByVal((byte) new Random().nextInt(RuneType.values().length)));
 

@@ -1808,7 +1808,7 @@ public class Mob extends Life {
         // Random portal spawn: is channel field, is not on cd, has min mob level, and field has no portal already
         // TODO: Fix Inferno Wolf Scripts
         if (getField().isChannelField() && chr.getNextRandomPortalTime() <= Util.getCurrentTimeLong()
-                && getField().getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURENCES
+                && getField().getAverageMobLevel() > GameConstants.MIN_LEVEL_FOR_RANDOM_FIELD_OCCURRENCES
                 && Util.succeedProp(GameConstants.RANDOM_PORTAL_SPAWN_CHANCE, 1000)
                 && field.getLifes().values().stream().noneMatch(l -> l instanceof RandomPortal)) {
             chr.setNextRandomPortalTime(Util.getCurrentTimeLong() + GameConstants.RANDOM_PORTAL_COOLTIME);
