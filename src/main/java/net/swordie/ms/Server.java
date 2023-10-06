@@ -30,6 +30,7 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created on 2/18/2017.
@@ -41,7 +42,7 @@ public class Server extends Properties {
 	private static final Server server = new Server();
 
 	private List<World> worldList = new ArrayList<>();
-	private Set<Integer> users = new HashSet<>(); // just save the ids, no need to save the references
+	private Map<Integer, User> users = new ConcurrentHashMap();
 	private CashShop cashShop = new CashShop();
 	private boolean online = false;
 	private boolean shutdownFromCommand = false;
@@ -193,15 +194,27 @@ public class Server extends Properties {
 	}
 
 	public void addUser(User user) {
-		users.add(user.getId());
+		users.put(user.getId(), user);
 	}
 
 	public void removeUser(User user) {
 		users.remove(user.getId());
 	}
 
-	public boolean isUserLoggedIn(User user) {
-		return users.contains(user.getId());
+	public boolean isUserLoggedIn(int userId) {
+		return users.containsKey(userId);
+	}
+
+	public User getUserById(int userId) {
+		return users.getOrDefault(userId, null);
+	}
+
+	public User lookupUserById(int userId) {
+		User loggedInUser = getUserById(userId);
+		if (loggedInUser != null) {
+			return loggedInUser;
+		}
+		return (User) DatabaseManager.getObjFromDB(User.class, userId);
 	}
 
 

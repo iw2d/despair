@@ -1,6 +1,7 @@
 package net.swordie.ms.client.character.commands;
 
 import net.swordie.ms.Server;
+import net.swordie.ms.client.Account;
 import net.swordie.ms.client.User;
 import net.swordie.ms.client.character.Char;
 import net.swordie.ms.client.character.items.Equip;
@@ -1845,27 +1846,6 @@ public class AdminCommands {
             String name = args[1];
             int amount = Integer.parseInt(args[2]);
             String amountType = args[3].toLowerCase();
-            StringBuilder builder = new StringBuilder();
-            for (int i = 4; i < args.length; i++) {
-                builder.append(args[i] + " ");
-            }
-            String reason = builder.toString();
-            reason = reason.substring(0, reason.length() - 1); // gets rid of the last space
-            if (reason.length() > 255) {
-                chr.chatMessage(SpeakerChannel, "That ban reason is too long.");
-                return;
-            }
-            Char banChr = chr.getWorld().getCharByName(name);
-            boolean online = true;
-            if (banChr == null) {
-                online = false;
-                int banChrId = chr.getWorld().lookupCharIdByName(name);
-                if (banChrId < 0) {
-                    chr.chatMessage(SpeakerChannel, "Could not find that character.");
-                    return;
-                }
-            }
-            User banUser = banChr.getUser(); // TODO fix for offline chr
             LocalDateTime banDate = LocalDateTime.now();
             switch (amountType) {
                 case "m":
@@ -1890,14 +1870,39 @@ public class AdminCommands {
                     break;
                 default:
                     chr.chatMessage(SpeakerChannel, String.format("Unknown date type %s", amountType));
-                    break;
+                    return;
+            }
+            StringBuilder builder = new StringBuilder();
+            for (int i = 4; i < args.length; i++) {
+                builder.append(args[i]).append(" ");
+            }
+            String reason = builder.toString();
+            reason = reason.substring(0, reason.length() - 1); // gets rid of the last space
+            if (reason.length() > 255) {
+                chr.chatMessage(SpeakerChannel, "That ban reason is too long.");
+                return;
+            }
+            int banCharId = chr.getWorld().lookupCharIdByName(name);
+            if (banCharId < 0) {
+                chr.chatMessage(SpeakerChannel, "Could not find that character.");
+                return;
+            }
+            Account banAccount = chr.getWorld().lookupAccountByCharId(banCharId);
+            if (banAccount == null) {
+                chr.chatMessage(SpeakerChannel, "Could not find the account associated to that character.");
+                return;
+            }
+            User banUser = Server.getInstance().lookupUserById(banAccount.getUserId());
+            if (banUser == null) {
+                chr.chatMessage(SpeakerChannel, "Could not find the user associated to that character.");
+                return;
             }
             banUser.setBanExpireDate(FileTime.fromDate(banDate));
             banUser.setBanReason(reason);
             banUser.getOffenseManager().addOffense(reason, chr.getId());
             chr.chatMessage(SpeakerChannel, String.format("Character %s has been banned. Expire date: %s", name, banDate));
-            if (online) {
-                banChr.write(WvsContext.returnToTitle());
+            if (banUser.getCurrentChr() != null) {
+                banUser.getCurrentChr().write(WvsContext.returnToTitle());
             }
         }
     }

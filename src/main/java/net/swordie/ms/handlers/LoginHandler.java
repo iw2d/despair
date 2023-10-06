@@ -142,7 +142,7 @@ public class LoginHandler {
             }
             result = success ? LoginType.Success : LoginType.IncorrectPassword;
             if (success) {
-                if (Server.getInstance().isUserLoggedIn(user)) {
+                if (Server.getInstance().isUserLoggedIn(user.getId())) {
                     success = false;
                     result = LoginType.AlreadyConnected;
                 } else if (user.getBanExpireDate() != null && !user.getBanExpireDate().isExpired()) {
@@ -217,6 +217,9 @@ public class LoginHandler {
             if (user == null) {
                 c.write(Login.checkPasswordResult(false, LoginType.NotRegistered, null));
                 return;
+            } else if (Server.getInstance().isUserLoggedIn(user.getId())) {
+                c.write(Login.checkPasswordResult(false, LoginType.AlreadyConnected, null));
+                return;
             }
             c.setUser(user);
             c.setMachineID(machineID);
@@ -229,7 +232,7 @@ public class LoginHandler {
                 return;
             }
 
-            if (user != null && world != null && world.getChannelById(channel) != null) {
+            if (world != null && world.getChannelById(channel) != null) {
                 if (account == null) {
                     account = new Account(user, worldId);
                     DatabaseManager.saveToDB(account); // assign id
@@ -262,7 +265,7 @@ public class LoginHandler {
                 return;
             }
 
-            if (user != null && world != null && world.getChannelById(channel) != null) {
+            if (world != null && world.getChannelById(channel) != null) {
                 if (account == null) {
                     account = new Account(user, worldId);
                     DatabaseManager.saveToDB(account); // assign id

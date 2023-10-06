@@ -37,7 +37,13 @@ public class Account {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(name = "userId")
+    private int userId;
+    @Column(name = "worldId")
     private int worldId;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "accid")
+    private Set<Char> characters = new HashSet<>();
     @JoinColumn(name = "trunkid")
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Trunk trunk;
@@ -54,40 +60,45 @@ public class Account {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "accid")
     private Set<DamageSkinSaveData> damageSkins = new HashSet<>();
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "accid")
-    private Set<Char> characters = new HashSet<>();
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "accid")
     private Set<LinkSkill> linkSkills = new HashSet<>();
     private int nxCredit; // nxCredit is from mobs, so is account (world) specific.
     @Transient
-    private Set<AuctionItem> auctionItems;
-    @Transient
     private User user;
     @Transient
     private Char currentChr;
+    @Transient
+    private Set<AuctionItem> auctionItems;
 
     public Account(User user, int worldId) {
         this.user = user;
+        this.userId = user.getId();
         this.worldId = worldId;
+        this.characters = new HashSet<>();
         this.trunk = new Trunk(GameConstants.MIN_STORAGE_SLOTS);
         this.monsterCollection = new MonsterCollection();
         this.friends = new HashSet<>();
         this.damageSkins = new HashSet<>();
-        this.characters = new HashSet<>();
         this.linkSkills = new HashSet<>();
     }
 
-    public Account(){
-    }
-
-    public static Account getFromDBById(int accountID) {
-        return (Account) DatabaseManager.getObjFromDB(Account.class, accountID);
-    }
+    public Account() {}
 
     public int getId() {
         return id;
+    }
+
+    public int getWorldId() {
+        return worldId;
+    }
+
+    public void setWorldId(int worldId) {
+        this.worldId = worldId;
+    }
+
+    public int getUserId() {
+        return userId;
     }
 
     public Set<Char> getCharacters() {
@@ -95,12 +106,50 @@ public class Account {
     }
 
     public void addCharacter(Char character) {
-       getCharacters().add(character);
+        getCharacters().add(character);
     }
 
+    public boolean hasCharacter(int charID) {
+        // doing a .contains on getCharacters() does not work, even if the hashcode is just a hash of the id
+        return getCharById(charID) != null;
+    }
 
-    public void setId(int id) {
-        this.id = id;
+    public Char getCharById(int id) {
+        return Util.findWithPred(getCharacters(), chr -> chr.getId() == id);
+    }
+
+    public Char getCharByName(String name) {
+        return Util.findWithPred(getCharacters(), chr -> chr.getName().equals(name));
+    }
+
+    public Trunk getTrunk() {
+        if(trunk == null) {
+            trunk = new Trunk(GameConstants.MIN_STORAGE_SLOTS);
+        }
+        return trunk;
+    }
+
+    public void setTrunk(Trunk trunk) {
+        this.trunk = trunk;
+    }
+
+    public EmployeeTrunk getEmployeeTrunk() {
+        if (employeeTrunk == null) {
+            employeeTrunk = new EmployeeTrunk();
+        }
+
+        return employeeTrunk;
+    }
+
+    public MonsterCollection getMonsterCollection() {
+        if (monsterCollection == null) {
+            monsterCollection = new MonsterCollection();
+        }
+        return monsterCollection;
+    }
+
+    public void setMonsterCollection(MonsterCollection monsterCollection) {
+        this.monsterCollection = monsterCollection;
     }
 
     public Set<Friend> getFriends() {
@@ -168,24 +217,10 @@ public class Account {
         return getDamageSkins().stream().filter(d -> d.getDamageSkinID() == skinID).findAny().orElse(null);
     }
 
-    public Trunk getTrunk() {
-        if(trunk == null) {
-            trunk = new Trunk(GameConstants.MIN_STORAGE_SLOTS);
-        }
-        return trunk;
+    public Set<LinkSkill> getLinkSkills() {
+        return linkSkills;
     }
 
-    public void setTrunk(Trunk trunk) {
-        this.trunk = trunk;
-    }
-
-    public int getNxCredit() {
-        return nxCredit;
-    }
-
-    public void setNxCredit(int nxCredit) {
-        this.nxCredit = nxCredit;
-    }
 
     public void addLinkSkill(LinkSkill linkSkill) {
         removeLinkSkillByOwnerID(linkSkill.getOwnerID());
@@ -203,8 +238,12 @@ public class Account {
                 .ifPresent(ls -> getLinkSkills().remove(ls));
     }
 
-    public Set<LinkSkill> getLinkSkills() {
-        return linkSkills;
+    public int getNxCredit() {
+        return nxCredit;
+    }
+
+    public void setNxCredit(int nxCredit) {
+        this.nxCredit = nxCredit;
     }
 
     public void addNXCredit(int credit) {
@@ -218,30 +257,6 @@ public class Account {
         addNXCredit(-credit);
     }
 
-    public MonsterCollection getMonsterCollection() {
-        if (monsterCollection == null) {
-            monsterCollection = new MonsterCollection();
-        }
-        return monsterCollection;
-    }
-
-    public void setMonsterCollection(MonsterCollection monsterCollection) {
-        this.monsterCollection = monsterCollection;
-    }
-
-    public boolean hasCharacter(int charID) {
-        // doing a .contains on getCharacters() does not work, even if the hashcode is just a hash of the id
-        return getCharById(charID) != null;
-    }
-
-    public Char getCharById(int id) {
-        return Util.findWithPred(getCharacters(), chr -> chr.getId() == id);
-    }
-
-    public Char getCharByName(String name) {
-        return Util.findWithPred(getCharacters(), chr -> chr.getName().equals(name));
-    }
-
     public User getUser() {
         return user;
     }
@@ -250,28 +265,12 @@ public class Account {
         this.user = user;
     }
 
-    public int getWorldId() {
-        return worldId;
-    }
-
-    public void setWorldId(int worldId) {
-        this.worldId = worldId;
-    }
-
     public Char getCurrentChr() {
         return currentChr;
     }
 
     public void setCurrentChr(Char currentChr) {
         this.currentChr = currentChr;
-    }
-
-    public EmployeeTrunk getEmployeeTrunk() {
-        if (employeeTrunk == null) {
-            employeeTrunk = new EmployeeTrunk();
-        }
-
-        return employeeTrunk;
     }
 
     public Set<AuctionItem> getAuctionItems() {

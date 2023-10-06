@@ -274,7 +274,7 @@ public class User {
 
     public void unstuck() {
         Server.getInstance().removeUser(this);
-        // DatabaseManager.saveToDB(this);
+        DatabaseManager.saveToDB(this);
     }
 
     public String getPic() {

@@ -564,10 +564,6 @@ public class Char {
 		return accId;
 	}
 
-	public void setAccId(int accId) {
-		this.accId = accId;
-	}
-
 	public Inventory getEquippedInventory() {
 		return equippedInventory;
 	}
