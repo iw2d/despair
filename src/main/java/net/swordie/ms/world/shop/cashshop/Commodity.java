@@ -19,12 +19,14 @@ public class Commodity implements Encodable {
     @Override
     public void encode(OutPacket outPacket) {
         outPacket.encodeLong(mask.get());
-        System.out.println(mask.get());
         if (mask.isInMask(CommodityMask.ItemId)) {
             outPacket.encodeInt(itemId); // nItemId
         }
         if (mask.isInMask(CommodityMask.Count)) {
             outPacket.encodeShort(1); // nCount
+        }
+        if (mask.isInMask(CommodityMask.Priority)) {
+            outPacket.encodeByte(0); // nPriority
         }
         if (mask.isInMask(CommodityMask.Price)) {
             outPacket.encodeInt(price); // nPrice

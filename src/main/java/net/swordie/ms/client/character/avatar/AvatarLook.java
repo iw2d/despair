@@ -293,6 +293,7 @@ public class AvatarLook {
         outPacket.encodeByte(getMixHairPercent());
     }
 
+    // TODO: PackedCharacterLook is a lot bigger, check PackedCharacterLook::UnpackTo (0x0095EC40)
     public void encodePackedCharacterLook(OutPacket outPacket, Char chr) {
         // flawlessy typed over
         // and let's call it loop unrolling

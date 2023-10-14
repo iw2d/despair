@@ -244,7 +244,7 @@ public class CashShop {
     }
 
     public List<CashShopGift> claimGifts(int charId) {
-        // fetch and delete
+        // fetch and delete TODO: load / save on startup and shutdown, notes system
         List<CashShopGift> gifts = (List<CashShopGift>) DatabaseManager.getObjListFromDB(CashShopGift.class, "receiverId", charId);
         DatabaseManager.deleteFromDB(CashShopGift.class, "receiverId", charId);
         return gifts;

@@ -16,7 +16,7 @@ public enum BroadcastMsgType {
     ItemMegaphoneNoItem(9),
     TripleMegaphone(10),
     YellowChatFiled_ItemInfo(11), //  item shown when clicked,  does hold Item info
-    BlowWeather(12), // TODO  Contains PackedCharLook
+    BlowWeather(12),
     TryRegisterAutoStartQuest(13), // tries to auto start quests with the announcement (?) - probably the  "A quest has arrived! Please clock on the icon at the botfom of your screen."
     TryRegisterAutoStartQuest_NoAnnouncement(14), // tries to auto start quests (?)
     SwedishFlag(15), // Repeats the string 3x on the same line
@@ -28,7 +28,7 @@ public enum BroadcastMsgType {
     Yellow(21), // Holds item info
     Yellow_2(22),
     MegaphoneNoMessage(23),
-    BalloonMessage(24); // TODO   Contains PackedCharLook
+    BalloonMessage(24);
 
     private byte val;
 

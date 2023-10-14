@@ -349,16 +349,7 @@ public class GuildHandler {
                     chr.chatMessage("%s was not added due to an error.", gr.getName());
                     continue;
                 }
-                if (DatabaseManager.getFieldFromDB(Char.class, "guild", "id", charId) != null) {
-                    chr.chatMessage("%s is already in a guild.", gr.getName());
-                    continue;
-                }
-                if (guild.isFull()) {
-                    chr.chatMessage("%s was not added, as your guild is full.", gr.getName());
-                    continue;
-                }
                 // TODO: add GuildMember here (refactoring to not use offline Char instances)
-                DatabaseManager.modifyObjectFromDB(Char.class, charId, "guild", guild);
             }
             guild.removeGuildRequestor(gr);
         }

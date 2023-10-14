@@ -169,12 +169,14 @@ public class CCashShop {
 
     public static OutPacket listItems(CashShop cashShop, Char chr, CashShopActionType cast, List<CashShopItem> items) {
         // the number of items is normally a byte, but changed to a short in CASH_SHOP_ACTION (0x00A43AB0)
+        // replace CInPacket::Decode1 call at 0x00A43B5A
         OutPacket outPacket = new OutPacket(OutHeader.CASH_SHOP_ACTION);
         outPacket.encodeByte(cast.getVal()); // 11, 13, 18
         outPacket.encodeByte(1);
         if (ServerConstants.CASH_SHOP_ITEM_COUNT_HOOK) {
             outPacket.encodeShort(items.size());
         } else {
+            items = items.subList(0, Math.min(items.size(), 128));
             outPacket.encodeByte(items.size());
         }
         Set<CashShopItem> favorites = cashShop.getFavorites(chr.getAccount().getId());

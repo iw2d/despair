@@ -680,7 +680,6 @@ public class Char {
 	 * @param mask      Which info should be encoded.
 	 */
 	public void encode(OutPacket outPacket, DBChar mask) {
-
 		// CharacterData::Decode
 		outPacket.encodeLong(mask.get());
 		outPacket.encodeByte(getCombatOrders());

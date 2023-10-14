@@ -443,6 +443,8 @@ public class CashShopHandler {
                 break;
             case Req_ShowSearchResult:
                 if (ServerConstants.CASH_SHOP_SEARCH_STRING_HOOK) {
+                    // couldn't figure out how to implement search correctly, so i just hooked the function to send the query string :^)
+                    // CCSWnd_Top::OnSearch (0x0x00AB2C50), call CCrtlEdit::GetText (0x0x009F61A0) with m_pSearchEdit (reinterpret_cast<uintptr_t>(_this) + 216) for the query string
                     String query = inPacket.decodeString().toLowerCase().replaceAll(" ", "");
                     List<CashShopItem> result = new ArrayList<>();
                     for (String name : cashShop.getSearchInfo().keySet()) {

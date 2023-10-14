@@ -18,9 +18,14 @@ public class BroadcastMsg {
     int arg1;
     int arg2;
     int arg3;
+    byte[] packedCharacterLook;
 
     public void encode(OutPacket outPacket) {
         outPacket.encodeByte(getBroadcastMsgType().getVal());
+
+        if (getBroadcastMsgType() == BroadcastMsgType.SlideNotice) {
+            outPacket.encodeByte(getArg1());
+        }
 
         outPacket.encodeString(getString());
 
@@ -45,6 +50,9 @@ public class BroadcastMsg {
                     getItem().encode(outPacket); // Item encode
                 }
                 break;
+            case ItemMegaphoneNoItem:
+                outPacket.encodeByte(getArg1()); // Channel
+                break;
             case TripleMegaphone:
                 outPacket.encodeByte(getArg1()); // StringList size
                 if(getArg1() > 1) {
@@ -56,6 +64,27 @@ public class BroadcastMsg {
                 outPacket.encodeByte(getArg2()); // Channel
                 outPacket.encodeByte(getArg3()); // Mega Ear
                 break;
+            case BlowWeather:
+                outPacket.encodeInt(getArg1()); // item Id
+                break;
+            case BalloonMessage:
+                outPacket.encodeInt(getArg1()); // item Id
+                outPacket.encodeInt(getArg2()); // Duration (seconds)
+                outPacket.encodeByte(getPackedCharacterLook() != null); // hasPackedChararacterLook
+                if (getPackedCharacterLook() != null) {
+                    outPacket.encodeArr(getPackedCharacterLook()); // 120 bytes?
+                }
+                break;
+            case WhiteYellow_ItemInfo:
+                outPacket.encodeByte(getArg1()); // Boolean  Item: Yes/No
+                if(getArg1() != 0) {
+                    getItem().encode(outPacket); // Item encode
+                }
+                break;
+            case Yellow:
+            case Yellow_2:
+                getItem().encode(outPacket); // Item encode
+                break;
             case BlueChat_ItemInfo:
             case BlueChat_ItemInfo_2:
                 outPacket.encodeInt(getArg1()); // item Id
@@ -66,28 +95,10 @@ public class BroadcastMsg {
             case GM_ErrorMessage:
                 outPacket.encodeInt(getArg1()); // npc Id
                 break;
-            case RedWithChannelInfo:
-                outPacket.encodeInt(getArg1()); //  chr Id
-                // "#channel" will grab  Chr's  Channel
-                break;
-            case WhiteYellow_ItemInfo:
-                outPacket.encodeByte(getArg1()); // Boolean  Item: Yes/No
-                if(getArg1() != 0) {
-                    getItem().encode(outPacket); // Item encode
-                }
-                break;
             case YellowChatFiled_ItemInfo:
                 outPacket.encodeInt(getArg1()); // item Id
                 outPacket.encodeByte(getArg2()); // boolean: show item
                 getItem().encode(outPacket);
-                break;
-            case PopUpNotice:
-                outPacket.encodeInt(getArg1()); // width
-                outPacket.encodeInt(getArg2()); // height
-                break;
-            case Yellow:
-            case Yellow_2:
-                getItem().encode(outPacket); // Item encode
                 break;
             case TryRegisterAutoStartQuest:
                 outPacket.encodeInt(getArg1()); // Quest Id
@@ -96,8 +107,13 @@ public class BroadcastMsg {
             case TryRegisterAutoStartQuest_NoAnnouncement:
                 outPacket.encodeInt(getArg1()); // Quest Id
                 break;
-            case SlideNotice:
-                outPacket.encodeByte(getArg1());
+            case RedWithChannelInfo:
+                outPacket.encodeInt(getArg1()); //  chr Id
+                // "#channel" will grab  Chr's  Channel
+                break;
+            case PopUpNotice:
+                outPacket.encodeInt(getArg1()); // width
+                outPacket.encodeInt(getArg2()); // height
                 break;
         }
     }
@@ -278,5 +294,13 @@ public class BroadcastMsg {
 
     public void setItem(Item item) {
         this.item = item;
+    }
+
+    public byte[] getPackedCharacterLook() {
+        return packedCharacterLook;
+    }
+
+    public void setPackedCharacterLook(byte[] packedCharacterLook) {
+        this.packedCharacterLook = packedCharacterLook;
     }
 }

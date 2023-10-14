@@ -592,7 +592,8 @@ public class AttackHandler {
             mai.animationDeltaL = inPacket.decodeInt();
         }
         inPacket.decodeByte(); // unk
-        // post-hook for PACKETMAKER::MakeAttackInfoPacket(a, oPacket)
+        // hook to send crit array because too lazy to evaluate it on the server-side
+        // PACKETMAKER::MakeAttackInfoPacket(a, oPacket) (0x0x01C5F2A0)
         if (ServerConstants.MAKE_ATTACK_INFO_PACKET_HOOK) {
             /*
                 int* abCritical = reinterpret_cast<int*>(a) + 38;
