@@ -18,7 +18,7 @@ public enum OutHeader {
     SET_HOT_FIX(37),
     INIT_OPCODE_ENCRYPTION(38),
     SERVER_STATUS(40),
-    AUTH_SERVER(54),
+    AUTH_SERVER(49),
 
     // CLogin::OnPacket (0x00F15230)
     CHECK_PASSWORD_RESULT(0),

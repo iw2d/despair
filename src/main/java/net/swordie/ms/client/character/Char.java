@@ -2287,6 +2287,7 @@ public class Char {
 	 * the batched STAT_CHANGED packets.
 	 *
 	 * @param amount The amount of money to add. May be negative.
+	 * @param batch Batch the addMoney calls, this should only be used for pet loot or actions that do not require dispose.
 	 */
 	public void addMoney(long amount, boolean batch) {
 		addMoneyLock.lock();
@@ -3098,9 +3099,9 @@ public class Char {
 	 *
 	 * @param drop The Drop that has been picked up.
 	 */
-	public boolean addDrop(Drop drop) {
+	public boolean addDrop(Drop drop, boolean pet) {
 		if (drop.isMoney()) {
-			addMoney(drop.getMoney(), true);
+			addMoney(drop.getMoney(), pet); // batch addMoney for pet loot
 			getQuestManager().handleMoneyGain(drop.getMoney());
 			write(WvsContext.dropPickupMessage(drop.getMoney(), (short) 0, (short) 0));
 			return true;

@@ -67,7 +67,6 @@ cashiteminfos,
 couplerecords,
 beautyalbuminventory
 ;
-set FOREIGN_KEY_CHECKS = 1;
 
 create table trunks(
 	id int not null auto_increment,

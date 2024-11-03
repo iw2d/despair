@@ -39,7 +39,7 @@ public class Inventory {
     public Inventory(InvType t, int slots) {
         this.type = t;
         items = new CopyOnWriteArrayList<>();
-        this.slots = (byte) slots;
+        this.slots = slots;
     }
 
     public Inventory deepCopy() {
